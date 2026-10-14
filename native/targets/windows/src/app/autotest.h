@@ -27,8 +27,21 @@
 //                             arena's action counter), combat_actions_advanced
 //                             1|0 (an arena turn ended since / none did),
 //                           panel_changed 0|1 (since the previous expect),
-//                           audio_frames_min N
-//   screenshot PATH       write the panel as a BMP
+//                           audio_frames_min N,
+//                           menu_line TEXT (a line of the title or System Menu
+//                             page contains TEXT),
+//                           window_layout "<W>x<H> <full|pillars|none|fit>
+//                             <w>x<h>@<x>,<y>" (the presented frame, read back,
+//                             matches app/presentation_layout.h colour for
+//                             colour -- picture, ring, black -- and this is
+//                             its layout: output size, ring form, picture
+//                             rectangle; else "pixels differ: ..."),
+//                           window_scale N (the window's scale, as the
+//                             Display row shows it), scaling Framed|Integer|Fit,
+//                           fullscreen 0|1,
+//                           windows_json TEXT / no_windows_json TEXT
+//                             (ultima5\windows.json contains / lacks TEXT)
+//   screenshot PATH       write the panel as a BMP (what F12 saves)
 //   window_screenshot PATH  write the whole window as presented (read back
 //                         from the renderer) as a BMP
 //   window_size W H       set the window's client area to W x H, as a drag,

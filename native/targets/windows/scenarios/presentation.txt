@@ -1,0 +1,126 @@
+# Classic Framed and the window, checked on the presented frame itself: every
+# window_layout reads the window back from the renderer and compares it with
+# the layout colour for colour (picture at a whole-number scale, centred, the
+# ring's rule and band, black elsewhere). SDL's offscreen driver has one
+# 1024x768 display and no window frame, so Window 3x framed (1008x768) is the
+# largest window and fullscreen is 1024x768. The expected values are worked
+# out by hand from the rules in src/app/presentation_layout.h.
+frames 5
+expect scaling Framed
+expect fullscreen 0
+# First run: no saved scale, display scale 1.0 -> Window 3x, framed.
+expect window_scale 3
+expect window_layout 1008x768 full 960x720@24,24
+window_screenshot window-framed-3x.bmp
+screenshot panel.bmp
+expect no_windows_json windowScale
+# The Settings page: Interface, Display, Scaling.
+key Return
+frames 3
+text S
+frames 3
+expect menu_line Display: Window 3x
+expect menu_line Scaling: Framed
+key Down
+frames 2
+# Display: right of the largest window (3x here) is Fullscreen, then 1x.
+key Right
+frames 3
+expect fullscreen 1
+expect menu_line Display: Fullscreen
+expect window_layout 1024x768 full 960x720@32,24
+key Right
+frames 3
+expect fullscreen 0
+expect window_scale 1
+expect menu_line Display: Window 1x
+expect window_layout 336x256 full 320x240@8,8
+expect windows_json "windowScale":1
+key Right
+frames 3
+expect window_layout 672x512 full 640x480@16,16
+# Ctrl+= / Ctrl+- step the same range: 3x is the largest, and stays shown as 3x.
+key = ctrl
+frames 3
+expect window_scale 3
+expect window_layout 1008x768 full 960x720@24,24
+key = ctrl
+frames 3
+expect window_scale 3
+expect menu_line Display: Window 3x
+expect windows_json "windowScale":3
+key - ctrl
+frames 3
+expect window_scale 2
+key = ctrl
+frames 3
+# Scaling: Framed -> Whole pixels -> Fit window -> Framed.
+key Down
+frames 2
+expect footer Whole pixels, centred in a thin blue frame
+key Right
+frames 3
+expect scaling Integer
+expect menu_line Scaling: Whole pixels
+expect window_layout 960x720 none 960x720@0,0
+expect windows_json "scaling":"Integer"
+window_size 1920 1080
+expect window_layout 1920x1080 none 1280x960@320,60
+key Right
+frames 3
+expect scaling Fit
+expect menu_line Scaling: Fit window
+expect window_layout 960x720 fit 960x720@0,0
+window_size 1920 1080
+expect window_layout 1920x1080 fit 1440x1080@240,0
+window_size 1366 768
+expect window_layout 1366x768 fit 1024x768@171,0
+key Right
+frames 3
+expect scaling Framed
+# The scaling change gives Window 3x its framed shape again.
+expect window_layout 1008x768 full 960x720@24,24
+# Larger outputs (as a maximised or snapped window): the full ring, pillars,
+# odd leftovers (the extra pixel right / bottom).
+window_size 1920 1080
+expect window_layout 1920x1080 full 1280x960@320,60
+window_size 2560 1440
+expect window_layout 2560x1440 pillars 1920x1440@320,0
+window_size 1366 768
+expect window_layout 1366x768 full 960x720@203,24
+window_size 1367 769
+expect window_layout 1367x769 full 960x720@203,24
+# Alt+Enter: fullscreen keeps the frame; back, the window keeps its size.
+key Return alt
+frames 3
+expect fullscreen 1
+expect window_layout 1024x768 full 960x720@32,24
+key Return alt
+frames 3
+expect fullscreen 0
+expect window_layout 1367x769 full 960x720@203,24
+expect windows_json "scaling":"Framed"
+expect windows_json "fullscreen":false
+# In play: the gameplay screen in the frame; F12's picture is still the panel.
+key Escape
+frames 3
+text C
+frames 3
+text Avatar
+key Return
+text M
+frames 2
+text A
+text B
+text A
+text B
+text A
+text B
+text A
+wait 2500
+expect frontend 0
+expect window_layout 1367x769 full 960x720@203,24
+window_size 1920 1080
+expect window_layout 1920x1080 full 1280x960@320,60
+window_screenshot window-play-1080.bmp
+screenshot panel-play.bmp

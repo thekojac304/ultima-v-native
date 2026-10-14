@@ -44,6 +44,12 @@ uv_scenario(list_cast_enhanced MODE enhanced)
 uv_scenario(save_load_menu MODE original)
 uv_scenario(quicksave_enhanced MODE enhanced)
 uv_scenario(original_keys MODE original)
+# The window as presented (Classic Framed, Whole pixels, Fit, the window's
+# scale and fullscreen), read back from the renderer; F12's picture stays the
+# 320x240 panel (230,454-byte BMP).
+uv_scenario(presentation MODE original
+  EXPECT_FILES "window-framed-3x.bmp;panel.bmp;window-play-1080.bmp;panel-play.bmp;ultima5/windows.json"
+  EXPECT_SIZES "window-framed-3x.bmp=2322486;panel.bmp=230454;window-play-1080.bmp=6220854;panel-play.bmp=230454")
 # The Developer menu's Teleport page reaches the places a short script cannot
 # walk to; its "teleport" / "fight" steps need the menu compiled in.
 if(UV_ENABLE_DEVELOPER_TOOLS)

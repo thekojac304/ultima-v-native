@@ -762,6 +762,39 @@ bool Game::autotest_expect(const AutotestStep &step) {
     } else if (name == "interface") {
         actual = interface_mode_name(settings_.interface_mode);
         ok = actual == value;
+    } else if (name == "menu_line") {
+        // Any line of the open title/menu page (or the System Menu's) contains VALUE.
+        if (runtime_->frontend_open() || runtime_->system_menu_open()) {
+            const openu5::FrontendView v = runtime_->frontend_open() ? runtime_->frontend_view() : runtime_->system_menu_view();
+            for (size_t i = 0; i < v.line_count; ++i) actual += std::string(v.lines[i] ? v.lines[i] : "") + " | ";
+        }
+        ok = actual.find(value) != std::string::npos;
+    } else if (name == "window_layout") {
+        // The frame as presented, read back from the renderer, against the
+        // layout it was drawn from and the panel it showed.
+        std::vector<uint32_t> frame;
+        int w = 0, h = 0;
+        if (!presenter_.read_window(frame, w, h)) {
+            actual = std::string("cannot read the window: ") + SDL_GetError();
+        } else {
+            const std::string diff = check_presented_frame(presenter_.layout(), panel::pixels(), frame.data(), w, h);
+            actual = diff.empty() ? describe_layout(presenter_.layout()) : "pixels differ: " + diff;
+        }
+        ok = actual == value;
+    } else if (name == "window_scale") {
+        actual = std::to_string(int(settings_.window_scale));
+        ok = actual == value;
+    } else if (name == "scaling") {
+        actual = scaling_name(settings_.scaling);
+        ok = actual == value;
+    } else if (name == "fullscreen") {
+        actual = presenter_.fullscreen() ? "1" : "0";
+        ok = actual == value;
+    } else if (name == "windows_json" || name == "no_windows_json") {
+        std::ifstream in(std::filesystem::path(paths_.ultima5_dir() + L"\\windows.json"), std::ios::binary);
+        actual = std::string((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+        while (!actual.empty() && (actual.back() == '\n' || actual.back() == '\r')) actual.pop_back();
+        ok = (actual.find(value) != std::string::npos) == (name == "windows_json");
     } else {
         actual = "<unknown check>";
     }
