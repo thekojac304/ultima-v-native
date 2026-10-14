@@ -1,0 +1,730 @@
+Test project C:/Dev/ultima-v-native-parity/native/core/build-spp1
+        Start   1: frontend
+  1/204 Test   #1: frontend ...................................   Passed    0.20 sec
+        Start   2: ui_session
+  2/204 Test   #2: ui_session .................................   Passed    0.18 sec
+        Start   3: win_dos_interface
+  3/204 Test   #3: win_dos_interface ..........................   Passed    0.13 sec
+        Start   4: display_names
+  4/204 Test   #4: display_names ..............................   Passed    0.10 sec
+        Start   5: quest_search
+  5/204 Test   #5: quest_search ...............................   Passed    0.10 sec
+        Start   6: batch21b_chest_reset
+  6/204 Test   #6: batch21b_chest_reset .......................   Passed    0.08 sec
+        Start   7: debug_labels
+  7/204 Test   #7: debug_labels ...............................   Passed    0.06 sec
+        Start   8: ui_debug_menu
+  8/204 Test   #8: ui_debug_menu ..............................   Passed    0.10 sec
+        Start   9: debug_map_picker
+  9/204 Test   #9: debug_map_picker ...........................   Passed    0.09 sec
+        Start  10: debug_developer
+ 10/204 Test  #10: debug_developer ............................   Passed    0.19 sec
+        Start  11: gameplay_integration
+ 11/204 Test  #11: gameplay_integration .......................   Passed    0.12 sec
+        Start  12: look_sign
+ 12/204 Test  #12: look_sign ..................................   Passed    0.08 sec
+        Start  13: movement_flow_parity
+ 13/204 Test  #13: movement_flow_parity .......................   Passed    0.20 sec
+        Start  14: shop_adapters
+ 14/204 Test  #14: shop_adapters ..............................   Passed    0.11 sec
+        Start  15: shop_flow
+ 15/204 Test  #15: shop_flow ..................................   Passed    1.05 sec
+        Start  16: shop_parity
+ 16/204 Test  #16: shop_parity ................................   Passed    0.35 sec
+        Start  17: dialogue_adapters
+ 17/204 Test  #17: dialogue_adapters ..........................   Passed    0.08 sec
+        Start  18: dialogue_parity
+ 18/204 Test  #18: dialogue_parity ............................   Passed    0.52 sec
+        Start  19: transport_flow_parity
+ 19/204 Test  #19: transport_flow_parity ......................   Passed    0.09 sec
+        Start  20: world_flow_adapters
+ 20/204 Test  #20: world_flow_adapters ........................   Passed    0.08 sec
+        Start  21: dungeon_flow_parity
+ 21/204 Test  #21: dungeon_flow_parity ........................   Passed    0.13 sec
+        Start  22: world_flow_parity
+ 22/204 Test  #22: world_flow_parity ..........................   Passed    0.26 sec
+        Start  23: dungeon_parity
+ 23/204 Test  #23: dungeon_parity .............................   Passed    0.60 sec
+        Start  24: advanced_combat_parity
+ 24/204 Test  #24: advanced_combat_parity .....................   Passed    1.14 sec
+        Start  25: magic_parity
+ 25/204 Test  #25: magic_parity ...............................   Passed    0.14 sec
+        Start  26: combat_parity
+ 26/204 Test  #26: combat_parity ..............................   Passed    0.45 sec
+        Start  27: combat_negate_parity
+ 27/204 Test  #27: combat_negate_parity .......................   Passed    0.21 sec
+        Start  28: item_parity
+ 28/204 Test  #28: item_parity ................................   Passed    0.53 sec
+        Start  29: command_parity
+ 29/204 Test  #29: command_parity .............................   Passed    0.24 sec
+        Start  30: core_parity
+ 30/204 Test  #30: core_parity ................................   Passed    0.03 sec
+        Start  31: travel_parity
+ 31/204 Test  #31: travel_parity ..............................   Passed    0.26 sec
+        Start  32: turn_parity
+ 32/204 Test  #32: turn_parity ................................   Passed    0.18 sec
+        Start  33: movement_regression
+ 33/204 Test  #33: movement_regression ........................   Passed    0.03 sec
+        Start  34: presentation_regression
+ 34/204 Test  #34: presentation_regression ....................   Passed    0.13 sec
+        Start  35: dungeon_view_regression
+ 35/204 Test  #35: dungeon_view_regression ....................   Passed    0.09 sec
+        Start  36: dungeon_art_regression
+ 36/204 Test  #36: dungeon_art_regression .....................   Passed    0.09 sec
+        Start  37: gem_view_regression
+ 37/204 Test  #37: gem_view_regression ........................   Passed    0.09 sec
+        Start  38: combat_escape_regression
+ 38/204 Test  #38: combat_escape_regression ...................   Passed    0.09 sec
+        Start  39: direct_troll_handoff_regression
+ 39/204 Test  #39: direct_troll_handoff_regression ............   Passed    0.14 sec
+        Start  40: combat_loot_open_regression
+ 40/204 Test  #40: combat_loot_open_regression ................   Passed    0.10 sec
+        Start  41: batch21a3_combat_active_player
+ 41/204 Test  #41: batch21a3_combat_active_player .............   Passed    0.11 sec
+        Start  42: input_regression
+ 42/204 Test  #42: input_regression ...........................   Passed    0.04 sec
+        Start  43: dungeon_input_regression
+ 43/204 Test  #43: dungeon_input_regression ...................   Passed    0.07 sec
+        Start  44: dungeon_combat_regression
+ 44/204 Test  #44: dungeon_combat_regression ..................   Passed    0.18 sec
+        Start  45: batch12b_hardware_regression
+ 45/204 Test  #45: batch12b_hardware_regression ...............   Passed    0.11 sec
+        Start  46: action_feedback_regression
+ 46/204 Test  #46: action_feedback_regression .................   Passed    0.07 sec
+        Start  47: ui_mode_regression
+ 47/204 Test  #47: ui_mode_regression .........................   Passed    0.08 sec
+        Start  48: alpha_runtime_integration_regression
+ 48/204 Test  #48: alpha_runtime_integration_regression .......   Passed    0.11 sec
+        Start  49: batch21a_dungeon_room_regression
+ 49/204 Test  #49: batch21a_dungeon_room_regression ...........   Passed    6.37 sec
+        Start  50: batch22_basement_objects
+ 50/204 Test  #50: batch22_basement_objects ...................   Passed    0.10 sec
+        Start  51: batch23_vault_parity
+ 51/204 Test  #51: batch23_vault_parity .......................   Passed    0.11 sec
+        Start  52: batch24_reload_parity
+ 52/204 Test  #52: batch24_reload_parity ......................   Passed    0.18 sec
+        Start  53: batch25_shard_ritual
+ 53/204 Test  #53: batch25_shard_ritual .......................   Passed    0.12 sec
+        Start  54: batch26_dungeon_save
+ 54/204 Test  #54: batch26_dungeon_save .......................   Passed    0.14 sec
+        Start  55: batch27_alt_load
+ 55/204 Test  #55: batch27_alt_load ...........................   Passed    0.15 sec
+        Start  56: batch28_save_validation
+ 56/204 Test  #56: batch28_save_validation ....................   Passed    0.32 sec
+        Start  57: batch29_rest_wiring
+ 57/204 Test  #57: batch29_rest_wiring ........................   Passed    0.17 sec
+        Start  58: batch45_npc_beds
+ 58/204 Test  #58: batch45_npc_beds ...........................   Passed    0.04 sec
+        Start  59: batch48_bed_pose
+ 59/204 Test  #59: batch48_bed_pose ...........................   Passed    0.04 sec
+        Start  60: batch30_sleep_parity
+ 60/204 Test  #60: batch30_sleep_parity .......................   Passed    0.10 sec
+        Start  61: batch31_h165_dungeon_entry
+ 61/204 Test  #61: batch31_h165_dungeon_entry .................   Passed    0.10 sec
+        Start  62: batch32_camp_watch
+ 62/204 Test  #62: batch32_camp_watch .........................   Passed    0.10 sec
+        Start  63: batch33_cannon_npc_death
+ 63/204 Test  #63: batch33_cannon_npc_death ...................   Passed    0.10 sec
+        Start  64: batch34_pre_sleep_npc
+ 64/204 Test  #64: batch34_pre_sleep_npc ......................   Passed    0.12 sec
+        Start  65: batch35_q_sleep_target
+ 65/204 Test  #65: batch35_q_sleep_target .....................   Passed    0.11 sec
+        Start  66: batch36_camp_housekeeping
+ 66/204 Test  #66: batch36_camp_housekeeping ..................   Passed    0.13 sec
+        Start  67: batch37_bed_viewport
+ 67/204 Test  #67: batch37_bed_viewport .......................   Passed    0.13 sec
+        Start  68: batch39_party_panel
+ 68/204 Test  #68: batch39_party_panel ........................   Passed    0.13 sec
+        Start  69: batch41_raw_key
+ 69/204 Test  #69: batch41_raw_key ............................   Passed    0.11 sec
+        Start  70: batch42_advancement_flash
+ 70/204 Test  #70: batch42_advancement_flash ..................   Passed    0.12 sec
+        Start  71: batch43_sleep_scene
+ 71/204 Test  #71: batch43_sleep_scene ........................   Passed    0.21 sec
+        Start  72: batch46_camp_invisibility
+ 72/204 Test  #72: batch46_camp_invisibility ..................   Passed    0.10 sec
+        Start  73: batch44_camp_ring_entry
+ 73/204 Test  #73: batch44_camp_ring_entry ....................   Passed    0.11 sec
+        Start  74: batch38_camp_duration
+ 74/204 Test  #74: batch38_camp_duration ......................   Passed    0.10 sec
+        Start  75: batch40_advancement
+ 75/204 Test  #75: batch40_advancement ........................   Passed    0.10 sec
+        Start  76: batch41_staged_advancement
+ 76/204 Test  #76: batch41_staged_advancement .................   Passed    0.09 sec
+        Start  77: batch51_scene_pacing
+ 77/204 Test  #77: batch51_scene_pacing .......................   Passed    0.10 sec
+        Start  78: batch51_camp_pacing
+ 78/204 Test  #78: batch51_camp_pacing ........................   Passed    0.11 sec
+        Start  79: batch53_release_blockers
+ 79/204 Test  #79: batch53_release_blockers ...................   Passed    0.38 sec
+        Start  80: batch53a_ending_terminal
+ 80/204 Test  #80: batch53a_ending_terminal ...................   Passed    0.17 sec
+        Start  81: batch53b_moongate_return
+ 81/204 Test  #81: batch53b_moongate_return ...................   Passed    0.11 sec
+        Start  82: a3_01_audio_contract
+ 82/204 Test  #82: a3_01_audio_contract .......................***Failed    0.11 sec
+GREEN V1 every SfxId has one unique cue string and the string maps back to it
+GREEN V2 null, empty and unknown cue text map to SfxId::None
+GREEN V3 drift: the first 52 SfxIds are the reference catalogue (game/src/core/sfx.ts), in its order
+GREEN V3 reference ids are Original; spell-cast..invalid-magic are native hooks; the tone is diagnostic
+GREEN V4 every cue literal on an emitting line of native/core maps to an SfxId (closed vocabulary)
+GREEN V4 the scan finds all 31 cue ids the core is known to emit (a positive control on the scan)
+GREEN M1 drift: MusicContext is music.ts's union, in its order
+GREEN M1 drift: song_for_context is music.ts CONTEXT_SONG, row for row (26 rows)
+GREEN M1 the 16 songs carry the patch's Files.txt titles
+GREEN M2 the location switch matches the driver for every g_location 0x00..0xff
+GREEN M2 a frigate (tiles 0x20..0x27) overrides the location; a skiff does not
+GREEN M2 combat wins over everything (Engagement), and after VICTORY! the Theme
+GREEN M3 hut and village share Greyson's Tale; silence has no song; creation is the Amiga Theme
+GREEN S11 a semantic cue reaches the backend once, with its parameter and the SFX gain
+GREEN S11 SfxId::None never reaches the backend
+GREEN S12 with the supported patch a context reaches the backend as its song
+GREEN S12 the same song is never restarted (the driver's cmp al,[0x11e])
+GREEN S12 Silence stops the song (selector 0x03)
+GREEN S13 without the supported patch no context, at any volume, ever reaches the backend
+GREEN S13 a stock install keeps the requested context (no-op) and still plays SFX
+GREEN S14 SFX volume changes the SFX channel only (no music gain, no restart)
+GREEN S15 music volume changes the music channel only
+GREEN S15 and SFX still carry the SFX gain
+GREEN S14 re-applying unchanged volumes touches neither channel
+GREEN S16 SFX volume 0 is mute: nothing is submitted
+GREEN S16 music volume 0 stops the song but remembers the context
+GREEN S16 raising the music volume from 0 starts the context's song again
+GREEN S17 gain: 0 -> 0, 50 -> 8191, 100 -> 32767 exactly, above 100 clamps, strictly increasing
+GREEN S17 applying any gain to any sample never overflows or flips sign; max gain is unity
+GREEN S17 a Settings step is 10, clamped at 0 and 100 without wrapping
+GREEN S20 a refusing backend is asked once per request -- never retried, never waited on -- and the service degrades to silence
+GREEN S20 no backend at all (no audio hardware) is silence, not an error
+GREEN S18 a load flushes the old world's SFX and leaves music alone
+GREEN S20 audio.cpp holds no loop-until, delay, sleep, wait or RTOS primitive
+RED S20 the device backend's game-thread entry posts with a 0 timeout; I2S writes run on its own task
+GREEN P1 the committed stock pack (written by the TS packer) is Valid and says stock: no music
+GREEN P2 the real audio pack (npm run pack:audio on the patched install) is Valid and Available: 16 structurally valid XMI songs and a valid timbre bank
+  real audio pack: 56148 bytes, payload CRC 25723dd7, marker 2
+GREEN P3 one flipped payload or table byte: Corrupt
+GREEN P3 bytes outside every entry are covered too: appended data breaks the header's payload CRC
+GREEN P4 stale/newer major version, wrong magic, truncation and absence are all refused -- and every refusal is 'no music', never a boot failure (music_availability)
+GREEN P4 only a Valid pack can make music available
+GREEN P5 a well-formed supported pack of synthetic shells is Valid (the reader needs no real data)
+GREEN P5 never pretend: 'supported' without 16 valid songs + a bank, a stock record carrying music, an unknown capability or a duplicate song is Inconsistent -> no music
+GREEN P5 validate_xmi / validate_timbre_bank accept the shapes and reject truncation and bad counts
+GREEN F5 System Menu Settings: seven rows, SFX Volume and Music Volume at 4 and 5 (A4-ENH1 removed the Developer row; A4-POLISH3 appended Keyboard Backlight after them)
+GREEN F5 SFX Volume: Right +10, clamped at 100 and at 0 (no wrap), Enter +10 -- usable with no music at all
+GREEN F7 stock assets: Music Volume shows Unavailable, ignores every adjust key, keeps the stored 80, and the footer says why
+GREEN F8 leaving Settings persists both volumes (the unavailable one unchanged)
+GREEN F6 supported patch: Music Volume is a live 0..100 % row
+GREEN F7 every no-music state names its own reason in the footer (<= 40 characters)
+GREEN F5 title Settings (release build): seven rows (A4-POLISH3), the same two audio rows at 4 and 5
+GREEN F7 title Settings (developer build): seven rows, as a release build; Music Volume unavailable and unchanged
+GREEN F7 music availability survives a Return to Title (start() keeps device configuration)
+GREEN F8 both volumes survive encode -> decode (settings.json across a reboot), 0 included
+GREEN F9 a missing, truncated, out-of-range or future settings document is refused whole and leaves the caller's values (the defaults at boot) untouched
+GREEN F10 an Alpha 2 settings.json loads unchanged (80 % / 80 %, default trackball speed); the default document is the Alpha 2 one plus "trackballSpeed" and "keyboardBacklight"
+GREEN F10 a hand-edited off-step value is kept and steps deterministically (85 -> 95 -> 100)
+A3-01 audio contract: 56/57 checks
+
+        Start  83: a3_02_sfx_synth
+ 83/204 Test  #83: a3_02_sfx_synth ............................   Passed    0.07 sec
+        Start  84: a3_03_sfx_inventory
+ 84/204 Test  #84: a3_03_sfx_inventory ........................   Passed    0.12 sec
+        Start  85: a3_04_music_synth
+ 85/204 Test  #85: a3_04_music_synth ..........................   Passed    3.96 sec
+        Start  86: a3_04a_audio_stream
+ 86/204 Test  #86: a3_04a_audio_stream ........................   Passed    1.35 sec
+        Start  87: a3_04b_perf
+ 87/204 Test  #87: a3_04b_perf ................................   Passed   14.22 sec
+        Start  88: a3_01_audio_runtime
+ 88/204 Test  #88: a3_01_audio_runtime ........................   Passed    0.15 sec
+        Start  89: a3_02_sfx_runtime
+ 89/204 Test  #89: a3_02_sfx_runtime ..........................   Passed    0.22 sec
+        Start  90: a3_03_sfx_runtime
+ 90/204 Test  #90: a3_03_sfx_runtime ..........................   Passed    0.64 sec
+        Start  91: a3_04_music_runtime
+ 91/204 Test  #91: a3_04_music_runtime ........................   Passed    0.13 sec
+        Start  92: a3_04b_perf_runtime
+ 92/204 Test  #92: a3_04b_perf_runtime ........................   Passed    0.16 sec
+        Start  93: a3_04c_contention
+ 93/204 Test  #93: a3_04c_contention ..........................   Passed    0.10 sec
+        Start  94: a3_04c_contention_runtime
+ 94/204 Test  #94: a3_04c_contention_runtime ..................   Passed    0.12 sec
+        Start  95: a3_04d_sd_log
+ 95/204 Test  #95: a3_04d_sd_log ..............................   Passed    0.11 sec
+        Start  96: a3_04d_sd_log_runtime
+ 96/204 Test  #96: a3_04d_sd_log_runtime ......................   Passed    0.13 sec
+        Start  97: a3_04e_pacing
+ 97/204 Test  #97: a3_04e_pacing ..............................   Passed    0.10 sec
+        Start  98: a3_04e_pacing_runtime
+ 98/204 Test  #98: a3_04e_pacing_runtime ......................   Passed    0.30 sec
+        Start  99: a3_hf1_arena_loot
+ 99/204 Test  #99: a3_hf1_arena_loot ..........................   Passed    0.24 sec
+        Start 100: a3_hf2_ambient_parity
+100/204 Test #100: a3_hf2_ambient_parity ......................   Passed    0.25 sec
+        Start 101: a3_hf2_1_dispatch_log
+101/204 Test #101: a3_hf2_1_dispatch_log ......................   Passed    0.27 sec
+        Start 102: a3_04f_render_runtime
+102/204 Test #102: a3_04f_render_runtime ......................   Passed    0.36 sec
+        Start 103: a4_ui1_chrome_runtime
+103/204 Test #103: a4_ui1_chrome_runtime ......................   Passed    0.20 sec
+        Start 104: a4_ui2_title_runtime
+104/204 Test #104: a4_ui2_title_runtime .......................   Passed    0.15 sec
+        Start 105: a4_ui2_death_music_runtime
+105/204 Test #105: a4_ui2_death_music_runtime .................   Passed    0.18 sec
+        Start 106: a4_ui2_save_menu_runtime
+106/204 Test #106: a4_ui2_save_menu_runtime ...................   Passed    0.21 sec
+        Start 107: a3_hf3_combat_hit_cue
+107/204 Test #107: a3_hf3_combat_hit_cue ......................   Passed    0.04 sec
+        Start 108: a3_hf3_combat_hit_runtime
+108/204 Test #108: a3_hf3_combat_hit_runtime ..................   Passed    0.15 sec
+        Start 109: a3_04g_storage_runtime
+109/204 Test #109: a3_04g_storage_runtime .....................   Passed    0.33 sec
+        Start 110: a4_save1_recovery_runtime
+110/204 Test #110: a4_save1_recovery_runtime ..................   Passed    0.92 sec
+        Start 111: a4_save2_slots_runtime
+111/204 Test #111: a4_save2_slots_runtime .....................   Passed    0.91 sec
+        Start 112: a4_save3_pc_bridge_runtime
+112/204 Test #112: a4_save3_pc_bridge_runtime .................   Passed    0.79 sec
+        Start 113: a4_ui3_slot_rows
+113/204 Test #113: a4_ui3_slot_rows ...........................   Passed    0.09 sec
+        Start 114: a4_enh1_preservation
+114/204 Test #114: a4_enh1_preservation .......................   Passed    0.20 sec
+        Start 115: a4_enh1_rules
+115/204 Test #115: a4_enh1_rules ..............................   Passed    0.15 sec
+        Start 116: a4_enh1_preservation_runtime
+116/204 Test #116: a4_enh1_preservation_runtime ...............   Passed    0.28 sec
+        Start 117: a4_enh1_runtime
+117/204 Test #117: a4_enh1_runtime ............................   Passed    0.15 sec
+        Start 118: a4_enh2_preservation
+118/204 Test #118: a4_enh2_preservation .......................   Passed    0.17 sec
+        Start 119: a4_enh2_rules
+119/204 Test #119: a4_enh2_rules ..............................   Passed    0.25 sec
+        Start 120: a4_parity2_d89_naval_ouch
+120/204 Test #120: a4_parity2_d89_naval_ouch ..................   Passed    0.09 sec
+        Start 121: a4_parity2_d83_d84_resurrect
+121/204 Test #121: a4_parity2_d83_d84_resurrect ...............   Passed    0.06 sec
+        Start 122: a4_parity2_d85_trapdoor_party
+122/204 Test #122: a4_parity2_d85_trapdoor_party ..............   Passed    0.05 sec
+        Start 123: a4_parity2_d87_crop_food_cap
+123/204 Test #123: a4_parity2_d87_crop_food_cap ...............   Passed    0.11 sec
+        Start 124: a4_parity2_d88_combat_clock
+124/204 Test #124: a4_parity2_d88_combat_clock ................   Passed    0.09 sec
+        Start 125: a4_enh2_preservation_runtime
+125/204 Test #125: a4_enh2_preservation_runtime ...............   Passed    0.56 sec
+        Start 126: a4_enh2_runtime
+126/204 Test #126: a4_enh2_runtime ............................   Passed    0.28 sec
+        Start 127: a4_polish3_keyboard_light
+127/204 Test #127: a4_polish3_keyboard_light ..................   Passed    0.09 sec
+        Start 128: boot2_sd_clock_runtime
+128/204 Test #128: boot2_sd_clock_runtime .....................   Passed    0.08 sec
+        Start 129: a4_polish3_keyboard_light_runtime
+129/204 Test #129: a4_polish3_keyboard_light_runtime ..........   Passed    0.10 sec
+        Start 130: a4_ui3_save_ux_runtime
+130/204 Test #130: a4_ui3_save_ux_runtime .....................   Passed    0.35 sec
+        Start 131: a4_parity2_d82_runtime
+131/204 Test #131: a4_parity2_d82_runtime .....................   Passed    0.16 sec
+        Start 132: a4_rc5_hotfix_runtime
+132/204 Test #132: a4_rc5_hotfix_runtime ......................   Passed    0.23 sec
+        Start 133: a4_end1_endgame_scene
+133/204 Test #133: a4_end1_endgame_scene ......................   Passed    0.08 sec
+        Start 134: a4_end1_ending_runtime
+134/204 Test #134: a4_end1_ending_runtime .....................   Passed    4.06 sec
+        Start 135: a4_ui4_presentation_runtime
+135/204 Test #135: a4_ui4_presentation_runtime ................   Passed    0.23 sec
+        Start 136: a4_ui4_moongate_runtime
+136/204 Test #136: a4_ui4_moongate_runtime ....................   Passed    0.21 sec
+        Start 137: a4_ui4_console_runtime
+137/204 Test #137: a4_ui4_console_runtime .....................   Passed    0.19 sec
+        Start 138: a4_parity1_runtime
+138/204 Test #138: a4_parity1_runtime .........................   Passed    0.18 sec
+        Start 139: a4_rc3_dungeon_music_runtime
+139/204 Test #139: a4_rc3_dungeon_music_runtime ...............   Passed    0.16 sec
+        Start 140: a4_parity2_d86_dungeon_digit_runtime
+140/204 Test #140: a4_parity2_d86_dungeon_digit_runtime .......   Passed    0.13 sec
+        Start 141: win_dos_runtime
+141/204 Test #141: win_dos_runtime ............................   Passed    0.12 sec
+        Start 142: a3_05_audio_mute
+142/204 Test #142: a3_05_audio_mute ...........................   Passed    0.04 sec
+        Start 143: a3_05_audio_controls
+143/204 Test #143: a3_05_audio_controls .......................   Passed    0.12 sec
+        Start 144: a3_hf4_load_transient_runtime
+144/204 Test #144: a3_hf4_load_transient_runtime ..............   Passed    0.16 sec
+        Start 145: a3_hf5_dialogue_pacing_runtime
+145/204 Test #145: a3_hf5_dialogue_pacing_runtime .............   Passed    0.45 sec
+        Start 146: a3_hf6_shrine_key_wait_runtime
+146/204 Test #146: a3_hf6_shrine_key_wait_runtime .............   Passed    0.24 sec
+        Start 147: a3_hf6_shrine_key_wait_pacer
+147/204 Test #147: a3_hf6_shrine_key_wait_pacer ...............   Passed    0.04 sec
+        Start 148: a3_hf7_ritual_fx_runtime
+148/204 Test #148: a3_hf7_ritual_fx_runtime ...................   Passed    0.85 sec
+        Start 149: a3_hf8_sacrifice_burst_runtime
+149/204 Test #149: a3_hf8_sacrifice_burst_runtime .............   Passed    1.05 sec
+        Start 150: a3_hf9_refuge_cadence
+150/204 Test #150: a3_hf9_refuge_cadence ......................   Passed    0.10 sec
+        Start 151: a3_hf9_refuge_cadence_runtime
+151/204 Test #151: a3_hf9_refuge_cadence_runtime ..............   Passed    0.84 sec
+        Start 152: a3_hf10_mix_parity_runtime
+152/204 Test #152: a3_hf10_mix_parity_runtime .................   Passed    0.20 sec
+        Start 153: a3_hf7_ritual_fx
+153/204 Test #153: a3_hf7_ritual_fx ...........................   Passed    0.07 sec
+        Start 154: a3_hf5_dialogue_pacer
+154/204 Test #154: a3_hf5_dialogue_pacer ......................   Passed    0.09 sec
+        Start 155: batch14_zstats_runtime
+155/204 Test #155: batch14_zstats_runtime .....................   Passed    0.17 sec
+        Start 156: batch18_well_ceremony
+156/204 Test #156: batch18_well_ceremony ......................   Passed    0.13 sec
+        Start 157: batch19_command_char_runtime
+157/204 Test #157: batch19_command_char_runtime ...............   Passed    0.20 sec
+        Start 158: batch3_group_a
+158/204 Test #158: batch3_group_a .............................   Passed    0.09 sec
+        Start 159: batch3_group_b
+159/204 Test #159: batch3_group_b .............................   Passed    0.09 sec
+        Start 160: batch3_group_c
+160/204 Test #160: batch3_group_c .............................   Passed    0.15 sec
+        Start 161: batch4_group_a
+161/204 Test #161: batch4_group_a .............................   Passed    0.14 sec
+        Start 162: batch4_group_b
+162/204 Test #162: batch4_group_b .............................   Passed    0.11 sec
+        Start 163: batch5
+163/204 Test #163: batch5 .....................................   Passed    0.10 sec
+        Start 164: batch7b
+164/204 Test #164: batch7b ....................................   Passed    0.08 sec
+        Start 165: batch12_combat_field
+165/204 Test #165: batch12_combat_field .......................   Passed    0.12 sec
+        Start 166: batch13
+166/204 Test #166: batch13 ....................................   Passed    0.21 sec
+        Start 167: a4_parity2_mani_not_dead
+167/204 Test #167: a4_parity2_mani_not_dead ...................   Passed    0.09 sec
+        Start 168: batch14_zstats_model
+168/204 Test #168: batch14_zstats_model .......................   Passed    0.04 sec
+        Start 169: batch15_sacrifice_roster
+169/204 Test #169: batch15_sacrifice_roster ...................   Passed    0.20 sec
+        Start 170: batch17_theft_watchdog
+170/204 Test #170: batch17_theft_watchdog .....................   Passed    0.09 sec
+        Start 171: batch19_command_char
+171/204 Test #171: batch19_command_char .......................   Passed    0.11 sec
+        Start 172: batch45b
+172/204 Test #172: batch45b ...................................   Passed    0.08 sec
+        Start 173: blackthorn_scene
+173/204 Test #173: blackthorn_scene ...........................   Passed    0.09 sec
+        Start 174: alpha_resource_capacity
+174/204 Test #174: alpha_resource_capacity ....................   Passed    0.02 sec
+        Start 175: a4_save3_pc_reference
+175/204 Test #175: a4_save3_pc_reference ......................   Passed    0.98 sec
+        Start 176: a4_end1_endgame_pages
+176/204 Test #176: a4_end1_endgame_pages ......................   Passed    0.44 sec
+        Start 177: gameplay_parity
+177/204 Test #177: gameplay_parity ............................   Passed   10.80 sec
+        Start 178: outdoor_table_drift
+178/204 Test #178: outdoor_table_drift ........................***Failed    0.13 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-outdoor-tables.ts:6
+if(process.argv.includes('--check')){if(readFileSync(path,'utf8')!==text)throw Error('Outdoor tile table drift');}else writeFileSync(path,text);
+                                                                               ^
+
+Error: Outdoor tile table drift
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-outdoor-tables.ts:6:80)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 179: gem_category_table_drift
+179/204 Test #179: gem_category_table_drift ...................***Failed    0.12 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-gem-category-table.ts:10
+if(process.argv.includes('--check')){if(readFileSync(path,'utf8')!==text)throw Error('Gem category table drift');}
+                                                                               ^
+
+Error: Gem category table drift
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-gem-category-table.ts:10:80)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 180: movement_flow_drift
+180/204 Test #180: movement_flow_drift ........................***Failed    5.12 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-movement-flow-fixtures.ts:35
+if(process.argv.includes('--check')){if(readFileSync(path,'utf8')!==body)throw Error('movement flow drift');}else writeFileSync(path,body);
+                                                                               ^
+
+Error: movement flow drift
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-movement-flow-fixtures.ts:35:80)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 181: quest_parity
+181/204 Test #181: quest_parity ...............................   Passed    5.01 sec
+        Start 182: quest_case_table_drift
+182/204 Test #182: quest_case_table_drift .....................***Failed    0.09 sec
+file:///C:/Dev/ultima-v-native-parity/native/core/tools/generate-quest-case.ts:12
+if(process.argv.includes('--check')) { if(readFileSync(path,'utf8')!==text) throw new Error('Quest case table drift'); }
+                                                                                  ^
+
+Error: Quest case table drift
+    at file:///C:/Dev/ultima-v-native-parity/native/core/tools/generate-quest-case.ts:12:83
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 183: typescript_shop_fixture_drift
+183/204 Test #183: typescript_shop_fixture_drift ..............   Passed    1.07 sec
+        Start 184: typescript_shop_flow_drift
+184/204 Test #184: typescript_shop_flow_drift .................   Passed    4.49 sec
+        Start 185: typescript_shop_tables_drift
+185/204 Test #185: typescript_shop_tables_drift ...............***Failed    0.11 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-shop-tables.ts:16
+if (process.argv.includes('--check')) { if (readFileSync(path,'utf8') !== out) throw Error('Shop table drift'); }
+                                                                                     ^
+
+Error: Shop table drift
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-shop-tables.ts:16:86)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 186: typescript_shop_greetings_drift
+186/204 Test #186: typescript_shop_greetings_drift ............***Failed    0.11 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-shop-greetings.ts:15
+if(process.argv.includes('--check')){if(readFileSync(path,'utf8')!==out)throw Error('Shop greeting table drift');}else writeFileSync(path,out);
+                                                                              ^
+
+Error: Shop greeting table drift
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-shop-greetings.ts:15:79)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 187: persistence_parity
+187/204 Test #187: persistence_parity .........................   Passed    0.90 sec
+        Start 188: typescript_dialogue_fixture_drift
+188/204 Test #188: typescript_dialogue_fixture_drift ..........   Passed   11.88 sec
+        Start 189: typescript_transport_flow_fixture_drift
+189/204 Test #189: typescript_transport_flow_fixture_drift ....***Failed    0.30 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-transport-flow-fixtures.ts:23
+const path=new URL('../fixtures/transport-flow.txt',import.meta.url),text=rows.join('\n')+'\n';if(process.argv.includes('--check')){if(readFileSync(path,'utf8')!==text)throw Error('transport flow drift');}else writeFileSync(path,text);console.log(`${rows.length*4} actual Game.board/exitVehicle/context-turn snapshots`);
+                                                                                                                                                                              ^
+
+Error: transport flow drift
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-transport-flow-fixtures.ts:23:175)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 190: typescript_dungeon_flow_fixture_drift
+190/204 Test #190: typescript_dungeon_flow_fixture_drift ......***Failed    4.24 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-dungeon-flow-fixtures.ts:9
+function output(path:string,text:string){const u=new URL(path,root);if(check){if(readFileSync(u,'utf8')!==text)throw Error(`drift ${path}`);}else writeFileSync(u,text);}
+                                                                                                                     ^
+
+Error: drift fixtures/dungeon-flow.txt
+    at output (C:\Dev\ultima-v-native-parity\native\core\tools\generate-dungeon-flow-fixtures.ts:9:118)
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-dungeon-flow-fixtures.ts:31:1)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 191: typescript_dungeon_art_identity
+191/204 Test #191: typescript_dungeon_art_identity ............   Passed    0.19 sec
+        Start 192: typescript_world_flow_fixture_drift
+192/204 Test #192: typescript_world_flow_fixture_drift ........***Failed    0.98 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-world-flow-fixtures.ts:20
+function output(path:string,text:string){const u=new URL(path,root);if(check){if(readFileSync(u,'utf8')!==text)throw Error(`drift ${path}`);}else{if(outDir)mkdirSync(dirname(fileURLToPath(u)),{recursive:true});writeFileSync(u,text);}}
+                                                                                                                     ^
+
+Error: drift fixtures/fixed-combat.txt
+    at output (C:\Dev\ultima-v-native-parity\native\core\tools\generate-world-flow-fixtures.ts:20:118)
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-world-flow-fixtures.ts:50:1)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 193: typescript_dungeon_fixture_drift
+193/204 Test #193: typescript_dungeon_fixture_drift ...........***Failed   41.44 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-dungeon-fixtures.ts:9
+function output(path:string,text:string){const u=new URL(path,root);if(check){if(readFileSync(u,'utf8')!==text)throw Error(`drift ${path}`);}else writeFileSync(u,text);}
+                                                                                                                     ^
+
+Error: drift fixtures/dungeon.txt
+    at output (C:\Dev\ultima-v-native-parity\native\core\tools\generate-dungeon-fixtures.ts:9:118)
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-dungeon-fixtures.ts:37:1)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 194: typescript_advanced_combat_fixture_drift
+194/204 Test #194: typescript_advanced_combat_fixture_drift ...***Failed    4.29 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-advanced-combat-fixtures.ts:86
+for(const [path,s] of [[dest+'advanced-combat.txt',rows.join('\n')+'\n'],[dest+'advanced-combat-coverage.json',JSON.stringify({cases,coverage},null,2)+'\n']]){const url=new URL(path!,root);if(check){if(readFileSync(url,'utf8')!==s)throw Error(`drift ${path}`);}else writeFileSync(url,s!);}
+                                                                                                                                                                                                                                             ^
+
+Error: drift fixtures/advanced-combat.txt
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-advanced-combat-fixtures.ts:86:238)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 195: typescript_magic_fixture_drift
+195/204 Test #195: typescript_magic_fixture_drift .............***Failed    0.14 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-magic-fixtures.ts:9
+function output(path:string,s:string){const url=new URL(path,root);if(check){if(readFileSync(url,'utf8')!==s)throw Error(`drift ${path}`);}else writeFileSync(url,s);}
+                                                                                                                   ^
+
+Error: drift src/magic_tables.inc
+    at output (C:\Dev\ultima-v-native-parity\native\core\tools\generate-magic-fixtures.ts:9:116)
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-magic-fixtures.ts:21:1)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 196: typescript_combat_fixture_drift
+196/204 Test #196: typescript_combat_fixture_drift ............***Failed    0.25 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-combat-fixtures.ts:29
+function output(path:string,text:string){let url=new URL(path,root);if(check){if(readFileSync(url,'utf8')!==text)throw Error(`drift ${path}`);}else writeFileSync(url,text);}
+                                                                                                                       ^
+
+Error: drift src/combat_tiles.inc
+    at output (C:\Dev\ultima-v-native-parity\native\core\tools\generate-combat-fixtures.ts:29:120)
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-combat-fixtures.ts:32:10)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 197: typescript_combat_negate_fixture_drift
+197/204 Test #197: typescript_combat_negate_fixture_drift .....***Failed    0.25 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-combat-fixtures.ts:29
+function output(path:string,text:string){let url=new URL(path,root);if(check){if(readFileSync(url,'utf8')!==text)throw Error(`drift ${path}`);}else writeFileSync(url,text);}
+                                                                                                                       ^
+
+Error: drift src/combat_tiles.inc
+    at output (C:\Dev\ultima-v-native-parity\native\core\tools\generate-combat-fixtures.ts:29:120)
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-combat-fixtures.ts:32:10)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 198: typescript_item_fixture_drift
+198/204 Test #198: typescript_item_fixture_drift ..............***Failed    1.65 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-item-fixtures.ts:145
+if(process.argv.includes('--check')){if(readFileSync(url,'utf8')!==body||readFileSync(coverageUrl,'utf8')!==coverageBody)throw Error('Item fixture drift');}
+                                                                                                                               ^
+
+Error: Item fixture drift
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-item-fixtures.ts:145:128)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 199: typescript_command_fixture_drift
+199/204 Test #199: typescript_command_fixture_drift ...........***Failed    1.33 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-command-fixtures.ts:119
+if(process.argv.includes('--check')){if(readFileSync(path,'utf8')!==body)throw new Error('Command fixture drift');}
+                                                                               ^
+
+Error: Command fixture drift
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-command-fixtures.ts:119:80)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 200: typescript_travel_fixture_drift
+200/204 Test #200: typescript_travel_fixture_drift ............***Failed    2.04 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-travel-fixtures.ts:113
+if(process.argv.includes('--check')){if(readFileSync(path,'utf8')!==output)throw new Error('Travel reference drift');}else writeFileSync(path,output);
+                                                                                 ^
+
+Error: Travel reference drift
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-travel-fixtures.ts:113:82)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 201: typescript_fixture_drift
+201/204 Test #201: typescript_fixture_drift ...................   Passed    0.17 sec
+        Start 202: typescript_turn_fixture_drift
+202/204 Test #202: typescript_turn_fixture_drift ..............***Failed    0.75 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-turn-fixtures.ts:174
+  if(process.argv.includes('--check')) {if(readFileSync(path,'utf8')!==text)throw new Error(`Reference drift: ${name}`);}
+                                                                                  ^
+
+Error: Reference drift: turns.json
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-turn-fixtures.ts:174:83)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+        Start 203: a3_01_audio_capability
+203/204 Test #203: a3_01_audio_capability .....................   Passed    0.25 sec
+        Start 204: a3_02_sfx_reference_drift
+204/204 Test #204: a3_02_sfx_reference_drift ..................***Failed    0.13 sec
+C:\Dev\ultima-v-native-parity\native\core\tools\generate-sfx-fixtures.ts:38
+  if (readFileSync(path, 'utf8') !== output) throw new Error('SFX reference drift');
+                                                   ^
+
+Error: SFX reference drift
+    at <anonymous> (C:\Dev\ultima-v-native-parity\native\core\tools\generate-sfx-fixtures.ts:38:52)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+
+90% tests passed, 20 tests failed out of 204
+
+Total Test time (real) = 162.50 sec
+
+The following tests FAILED:
+	 82 - a3_01_audio_contract (Failed)
+	178 - outdoor_table_drift (Failed)
+	179 - gem_category_table_drift (Failed)
+	180 - movement_flow_drift (Failed)
+	182 - quest_case_table_drift (Failed)
+	185 - typescript_shop_tables_drift (Failed)
+	186 - typescript_shop_greetings_drift (Failed)
+	189 - typescript_transport_flow_fixture_drift (Failed)
+	190 - typescript_dungeon_flow_fixture_drift (Failed)
+	192 - typescript_world_flow_fixture_drift (Failed)
+	193 - typescript_dungeon_fixture_drift (Failed)
+	194 - typescript_advanced_combat_fixture_drift (Failed)
+	195 - typescript_magic_fixture_drift (Failed)
+	196 - typescript_combat_fixture_drift (Failed)
+	197 - typescript_combat_negate_fixture_drift (Failed)
+	198 - typescript_item_fixture_drift (Failed)
+	199 - typescript_command_fixture_drift (Failed)
+	200 - typescript_travel_fixture_drift (Failed)
+	202 - typescript_turn_fixture_drift (Failed)
+	204 - a3_02_sfx_reference_drift (Failed)
+Errors while running CTest
