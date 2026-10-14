@@ -52,6 +52,16 @@ void translate(CommandContext &c) {
             emit(c.events, GameEventKind::Message, text);
             break;
         }
+        case DungeonEventKind::DrinkPrompt: { // SPP1 E: "Will you drink?" (DNGLOOK 0x013b)
+            GameEvent event;
+            event.kind = GameEventKind::DungeonDrinkPrompt;
+            event.note = e.value;
+            event.slots[0] = uint8_t(e.member);
+            event.slot_count = 1;
+            if (c.events.emit)
+                c.events.emit(c.events.context, event);
+            break;
+        }
         case DungeonEventKind::DamageScript: {
             GameEvent event;
             event.kind = GameEventKind::PoisonTick;
@@ -182,14 +192,18 @@ static ActionResult run_dungeon_command(CommandContext &c, Command cmd) {
         if(fx==MagicEffect::Mani||fx==MagicEffect::FullHeal||fx==MagicEffect::Cure||fx==MagicEffect::Awaken||fx==MagicEffect::Resurrect){if(cmd.member>=0&&cmd.member<c.game.party.character_count)say(apply_target_spell(c.game.party.characters[cmd.member],fx,c.game.karma,rand)?"Success!":"Failed!");}
         return result;
     }
-    if (cmd.item < 0 || cmd.item > int(DungeonAction::Search)) {
+    if (cmd.item < 0 || cmd.item > int(DungeonAction::LookDrink)) {
         result.status = CommandStatus::Unsupported;
         return result;
     }
     auto action = DungeonAction(cmd.item);
     auto before = c.game.turns_since_start;
     TurnResult tr;
-    if (action != DungeonAction::Attack)
+    // SPP1 E: a Look that finds a fountain is one command with its answer -- the clock and
+    // housekeeping come with the Look, the drink and the world turn with LookDrink, so each
+    // Look costs exactly one of each and the drink's rand(0,7) precedes the world turn's draws
+    // (DNGLOOK returns to K:0x3178 -> 1 -> DUNGEON 0x0c76 only after the answer).
+    if (action != DungeonAction::Attack && action != DungeonAction::LookDrink)
         tr = advance_turn(c.game, c.turn, 1, rng_source(c.game.rng), c.sky);
     ctx.scratch.count = 0;
     DungeonSink sink{&ctx.scratch, [](void *p, const DungeonEvent &e) {
@@ -203,7 +217,10 @@ static ActionResult run_dungeon_command(CommandContext &c, Command cmd) {
             result.error = Error(ctx.scratch.events[i].value);
             return result;
         }
-    if (action != DungeonAction::Attack && action != DungeonAction::Tick) {
+    bool drink_asked = false;
+    for (size_t i = 0; i < ctx.scratch.count; ++i)
+        drink_asked |= ctx.scratch.events[i].kind == DungeonEventKind::DrinkPrompt;
+    if (action != DungeonAction::Attack && action != DungeonAction::Tick && !drink_asked) {
         bool ticked = false;
         for (size_t i = 0; i < ctx.scratch.count; ++i) {
             auto k = ctx.scratch.events[i].kind;
@@ -218,7 +235,7 @@ static ActionResult run_dungeon_command(CommandContext &c, Command cmd) {
         emit(c.events, GameEventKind::Message, turn_message_text(tr.messages[size_t(i)]));
     translate(c);
     result.status=ctx.encounter_status;
-    if (action != DungeonAction::Attack) {
+    if (action != DungeonAction::Attack && !drink_asked) {
         if(c.quest_world && action!=DungeonAction::Tick && d.active && d.pos.dungeon==40)set_quest_flag(c.game.quest,QuestFlag::InDoom);
         if (ctx.rescue_hook && action != DungeonAction::Tick)
             ctx.rescue_hook(ctx.context, c.events);

@@ -1,0 +1,82 @@
+GREEN G1 Ctrl-K on the surface: "73" alone on the command row (the karma, bare decimal)
+GREEN G1 Ctrl-K on the surface costs no turn (MAINOUT 0x0af8): (none)
+GREEN G2 Ctrl-V prints "1.16" (DS 0x2b4f) on the command row
+GREEN G2 Ctrl-V costs no turn: (none)
+GREEN G1/G2 neither key is "What?"
+GREEN G3 control: (E)nter at the gate puts the party in town 2
+GREEN G3 in a town: "41" and "1.16"
+GREEN G3 in a town neither key costs a turn (TOWN 0x154b): (none)
+GREEN G4 control: (E)nter at Deceit's mouth opens the dungeon session
+GREEN G4 in a dungeon Ctrl-K prints "88"
+GREEN G4 in a dungeon Ctrl-K costs exactly one dungeon turn (DUNGEON 0x06cb returns 1 -> 0x0c76): turns 0->1 clock +1min
+GREEN G4 Ctrl-V likewise costs one dungeon turn: turns 1->2 clock +1min
+GREEN G5 control: the T-Deck's Alt+K / Alt+V do not reach the control keys: (none)
+GREEN F1 control: "On who:" opens, and the cancel returns to the world
+GREEN F1 the cancelled Mani's charge is spent (CAST 0x0ec8): qty 1
+GREEN F1/F2 the Player: pick (Iolo) pays one MP, nobody else: Iolo 19, Avatar 20
+GREEN F1 the cancel prints neither Success! nor Failed! (the arm returns -1)
+GREEN F2 a completed Mani is paid by the Player: pick, not the active/first member: Iolo 19, Avatar 20
+GREEN F3 MP 0: no "On who:" is asked; M.P. too low! / Failed!, the charge spent, MP kept (0x0ecc)
+GREEN F3 level 1 casting circle 5: no "On who:"; Failed!, the charge and 5 MP spent (0x0f01): qty 1 mp 15
+GREEN F4 (U)se In Mani Corp scroll, "On who:" cancelled: the item is spent (CAST 0x11ec)
+GREEN F4 (U)se a potion, "On who:" cancelled: the item is spent (CAST 0x136a)
+GREEN F5 control: "On who:" opens for the actor's Mani [T-Deck]
+GREEN F5 the arena's cancelled Mani is spent: qty 1 mp 19 [T-Deck]
+GREEN F5 the cancel ends the actor's turn exactly once (next to act 1, after a Pass 1) [T-Deck]
+GREEN F5 control: "On who:" opens for the actor's Mani [Original]
+GREEN F5 the arena's cancelled Mani is spent: qty 1 mp 19 [Original]
+GREEN F5 the cancel ends the actor's turn exactly once (next to act 1, after a Pass 1) [Original]
+GREEN F6 Original: "On who: None!" and no Failed!
+GREEN A1 R cancelled at Player: costs one world turn (turns +1, clock +2 min)
+GREEN A1 R with two items readied, then closed, costs ONE world turn (turns +1, clock +2 min)
+GREEN A2 Z cancelled at Player: costs one world turn (turns +1, clock +2 min)
+GREEN A2 Z browsed and closed costs one world turn (turns +1, clock +2 min)
+GREEN A3 N cancelled at Swap costs one world turn (turns +1, clock +2 min)
+GREEN A3 a completed swap (Iolo <-> Shamino) costs one world turn (turns +1, clock +2 min)
+GREEN A4 U cancelled at the list costs one world turn (turns +1, clock +2 min)
+GREEN A4 U a potion drunk costs one world turn (turns +1, clock +2 min)
+GREEN A5 C cancelled at Player: costs one world turn, nothing spent (turns +1, clock +2 min)
+GREEN A5 C a completed Mani costs one world turn (turns +1, clock +2 min)
+GREEN A5 M cancelled at the spell costs one world turn (turns +1, clock +2 min)
+GREEN A6 Look cancelled at the direction (the binary's Pass) costs one world turn (turns +1, clock +2 min)
+GREEN A6 Get cancelled at the direction costs one world turn (turns +1, clock +2 min)
+GREEN A6 a completed Look costs one world turn (K:0x3310 -> 0x333c returns 1) (turns +1, clock +2 min)
+GREEN A6 Search, which charges its own turn in the core, still costs exactly one (turns +1, clock +2 min)
+GREEN A10 overworld Attack cancelled stays free (MAINOUT 0x06ec returns 0) (turns +0, clock +0 min)
+GREEN A10 D ("D-What?") stays free (K:0x324e) (turns +0, clock +0 min)
+GREEN A10 Ctrl-K stays free on the surface (turns +0, clock +0 min)
+GREEN A10 a valid digit stays free (turns +0, clock +0 min)
+GREEN A10 Ignite (charged by the core) costs one turn, not two (turns +1, clock +2 min)
+GREEN A10 Pass costs one turn, not two (turns +1, clock +2 min)
+GREEN A7 town: R cancelled costs one turn of one minute (TOWN 0x15d0) (turns +1, clock +1 min)
+GREEN A7 town: Look-Pass costs one turn of one minute (turns +1, clock +1 min)
+GREEN A8 dungeon: R cancelled costs one dungeon turn (turns +1, clock +1 min)
+GREEN A8 dungeon: U cancelled costs one dungeon turn (turns +1, clock +1 min)
+GREEN A8 dungeon: Z cancelled costs one dungeon turn (turns +1, clock +1 min)
+GREEN A9 Original: Space at Look- prints "Look-Pass" and costs one world turn (turns +1, clock +2 min)
+GREEN A10 Original: RETURN / ESC at the prompt ("What?") stay free (turns +0, clock +0 min)
+GREEN C2 J opens the arena getdir after "Jimmy-" [T-Deck]
+GREEN C1 J is no longer "What?" [T-Deck]
+GREEN C6 the T-Deck's Cancel at Jimmy- stays free: the same actor still has the turn [T-Deck]
+GREEN C2 J without a key: "No Keys!" with no getdir, and the turn ends [T-Deck]
+GREEN C4 Push-East onto bare floor: "Won't budge!" and the turn ends [T-Deck]
+GREEN C5 Yell with an empty answer: "Nothing", and the turn ends [T-Deck]
+GREEN C5 Yell ORT: "No effect!", and the turn ends [T-Deck]
+GREEN C2 J opens the arena getdir after "Jimmy-" [Original]
+GREEN C1 J is no longer "What?" [Original]
+GREEN C3 Space at Jimmy- prints "Jimmy-Pass", keeps the keys and ends the turn [Original]
+GREEN C2 J without a key: "No Keys!" with no getdir, and the turn ends [Original]
+GREEN C4 Push-East onto bare floor: "Won't budge!" and the turn ends [Original]
+GREEN C5 Yell with an empty answer: "Nothing", and the turn ends [Original]
+GREEN C5 Yell ORT: "No effect!", and the turn ends [Original]
+RED E1 L: Look..., Player:, Dir-, You see: -- one dungeon turn (turns +1, clock +1 min)
+RED E2 a poison fountain Here, Y: only the picked member (Shamino) is poisoned, one turn in all (turns +1, clock +1 min)
+RED E3 the same fountain, N: "No.", no effect, still one turn (turns +1, clock +1 min)
+RED E4 darkness: no Dir-, "You see: darkness.", one turn (turns +0, clock +0 min)
+RED E5 Cancel at Player: "None!" and the Look's turn (turns +0, clock +0 min)
+RED E5 Cancel at Dir-: the Pass, one turn (turns +0, clock +0 min)
+RED E6 the T-Deck's D is the Look aimed Here: the picked member (Iolo) healed, one turn (turns +1, clock +1 min)
+RED E7 Original: D is "D-What?" and no command (K:0x324e) (turns +1, clock +1 min)
+RED E7 Original: Space at Dir- prints "Dir-Pass" and the Look costs its turn (turns +2, clock +2 min)
+SPP1 runtime: 71/80 checks
+exit 1

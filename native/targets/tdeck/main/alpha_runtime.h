@@ -880,6 +880,8 @@ class AlphaRuntime {
     bool at_command_prompt() const;
     void arm_dispatcher_turn(const openu5::UiAction &, DeviceShortcut);
     void settle_dispatcher_turn();
+    // SPP1 E: the dungeon Look after its "Player: " (member -1 = "None!"; here = the D shortcut).
+    void dungeon_look(int16_t member, bool here);
     // A3-01. The one binder of the Developer diagnostics services, shared by
     // initialize() and the host fixture (the fixture used to copy the call).
     void bind_developer_diagnostics();

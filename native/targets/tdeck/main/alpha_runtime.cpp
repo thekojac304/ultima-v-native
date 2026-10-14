@@ -1002,6 +1002,16 @@ void AlphaRuntime::dispatch(const openu5::UiIntent&i){
             openu5::Command ball;ball.kind=openu5::CommandKind::CrystalBall;ball.member=member;command(ball);
         }
     }
+    // SPP1 E. The dungeon (L)ook's "Player: " (DNGLOOK 0x0007 -> K:0x4988), and the same pick
+    // for the T-Deck's (D)rink shortcut: resolved here, where the roster lives. "None!" still
+    // spends the Look's turn (K:0x3310 returns 1 on every path).
+    else if(i.kind==openu5::UiIntentKind::OpenPartySelection&&
+            (i.request==openu5::UiRequestId::LookMember||i.request==openu5::UiRequestId::LookHereMember)){
+        int16_t member=-1;
+        const auto outcome=resolve_command_char_or_prompt(i.request,member);
+        if(outcome==openu5::CommandCharOutcome::Resolved)dungeon_look(member,i.request==openu5::UiRequestId::LookHereMember);
+        else if(outcome==openu5::CommandCharOutcome::None)dungeon_look(-1,false);
+    }
     else if(i.kind==openu5::UiIntentKind::OpenPartySelection)open_selection(openu5::UiMode::PartySelection,i.request);
     else if(i.kind==openu5::UiIntentKind::OpenInventorySelection)open_selection(openu5::UiMode::InventorySelection,i.request);
     else if(i.kind==openu5::UiIntentKind::OpenEquipmentSelection){
@@ -1426,7 +1436,8 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){const bool dos=openu5::platfo
         case openu5::UiRequestId::Party:line=pending_order_from_<0?"\nSwap nobody!":"with nobody!";break;
         case openu5::UiRequestId::Status:case openu5::UiRequestId::EquipmentMember:
         case openu5::UiRequestId::CrystalBall:case openu5::UiRequestId::SearchMember:
-        case openu5::UiRequestId::CastMember:line="Player: None!";break;
+        case openu5::UiRequestId::CastMember:case openu5::UiRequestId::LookMember:
+        case openu5::UiRequestId::LookHereMember:line="Player: None!";break;
         case openu5::UiRequestId::Target:case openu5::UiRequestId::UseTarget:line="On who: None!";break;
         case openu5::UiRequestId::Equipment:line="Item: Done";break;
         case openu5::UiRequestId::Inventory:line="Item: None!";break;
@@ -1462,6 +1473,11 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){const bool dos=openu5::platfo
     // DS 0xa3da "None!" -- the SAME string and the same exit the zero-eligible
     // branch takes. The command is then abandoned: no vision, the parked
     // Search is dropped unaimed, and the spell menu never opens.
+    if(i.request==openu5::UiRequestId::LookMember||i.request==openu5::UiRequestId::LookHereMember){
+        if(!dos)ui_->append(openu5::UiTextChannel::Message,openu5::command_char_none());
+        dungeon_look(-1,false); // SPP1 E: ESC at "Player: " is "None!" and the Look's turn
+        return;
+    }
     if(i.request==openu5::UiRequestId::CrystalBall||i.request==openu5::UiRequestId::SearchMember||i.request==openu5::UiRequestId::CastMember){
         if(i.request==openu5::UiRequestId::SearchMember)pending_search_active_=false;
         if(i.request==openu5::UiRequestId::CastMember||i.request==openu5::UiRequestId::SpellName)pending_caster_=-1;
@@ -1644,6 +1660,11 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){const bool dos=openu5::platfo
     // pick is a re-ask, so nothing is dispatched. What the CORE still owns is
     // everything after the member exists -- the roll, the comparison, the
     // damage and the gem view.
+    else if((i.request==openu5::UiRequestId::LookMember||i.request==openu5::UiRequestId::LookHereMember)&&
+            i.value.index>=0&&size_t(i.value.index)<selection_count_){
+        const int16_t member=selections_[i.value.index].value;
+        if(accept_command_char_pick(i.request,member))dungeon_look(member,i.request==openu5::UiRequestId::LookHereMember);
+    }
     else if(i.request==openu5::UiRequestId::CrystalBall&&i.value.index>=0&&size_t(i.value.index)<selection_count_){
         const int16_t member=selections_[i.value.index].value;
         if(accept_command_char_pick(openu5::UiRequestId::CrystalBall,member)){c.kind=openu5::CommandKind::CrystalBall;c.member=member;command(c);}
@@ -1771,6 +1792,19 @@ void AlphaRuntime::cast_typed_spell(int32_t spell){
     }else c.caster=pending_caster_>=0?pending_caster_:int16_t(active_member(game_));
     pending_caster_=-1;
     command(c);
+}
+
+// SPP1 E. After the Look's "Player: ": DNGLOOK 0x0013 tests the light (torch and light
+// spell both 0 -> "You see: darkness.", no Dir-), then SJOG 0x006c asks "Dir-" -- the
+// dungeon Search's own prompt. The (D)rink shortcut (ledger E-3) aims the same Look Here.
+void AlphaRuntime::dungeon_look(int16_t member,bool here){
+    openu5::Command c;c.kind=openu5::CommandKind::DungeonCommand;c.item=int16_t(openu5::DungeonAction::Look);c.member=member;
+    const bool dark=!game_.torch_turns&&turn_.light_spell_minutes<=0;
+    if(member<0||dark){c.hours=openu5::kDungeonLookNoDir;command(c);dirty_=true;return;}
+    if(here){c.hours=1;command(c);dirty_=true;return;}
+    if(openu5::platform_dos_interface())ui_->append(openu5::UiTextChannel::CommandEcho,"Dir-");
+    ui_->begin_target(openu5::UiRequestId::Direction,"Dir-",c,-1,-1);
+    dirty_=true;
 }
 
 void AlphaRuntime::cast_selected_spell(int16_t spell){
@@ -1958,7 +1992,8 @@ void AlphaRuntime::open_selection(openu5::UiMode mode,openu5::UiRequestId reques
     if(!selection_count_){auto&s=selections_[selection_count_++];std::snprintf(s.label,sizeof(s.label),"(None available)");s.enabled=false;}
     // R-25 (Batch 19): the 0x4988 callers carry DS 0xa3c4 "Player: " from the
     // shared seam, so device and host name the prompt from one definition.
-    const char *prompt=mode==openu5::UiMode::PartySelection?(request==openu5::UiRequestId::CampGuard?"Who will stand guard?":request==openu5::UiRequestId::EquipmentMember?"Ready whom?":request==openu5::UiRequestId::UseTarget?"Use on whom?":request==openu5::UiRequestId::FountainDrink?"Who will drink?":request==openu5::UiRequestId::CrystalBall||request==openu5::UiRequestId::SearchMember||request==openu5::UiRequestId::CastMember?openu5::command_char_prompt():"Party"):mode==openu5::UiMode::InventorySelection?"Use item":mode==openu5::UiMode::EquipmentSelection?"Ready":"Spell";
+    const char *prompt=mode==openu5::UiMode::PartySelection?(request==openu5::UiRequestId::CampGuard?"Who will stand guard?":request==openu5::UiRequestId::EquipmentMember?"Ready whom?":request==openu5::UiRequestId::UseTarget?"Use on whom?":request==openu5::UiRequestId::FountainDrink?"Who will drink?":request==openu5::UiRequestId::CrystalBall||request==openu5::UiRequestId::SearchMember||request==openu5::UiRequestId::CastMember||
+                                                     request==openu5::UiRequestId::LookMember||request==openu5::UiRequestId::LookHereMember?openu5::command_char_prompt():"Party"):mode==openu5::UiMode::InventorySelection?"Use item":mode==openu5::UiMode::EquipmentSelection?"Ready":"Spell";
     size_t initial=mode==openu5::UiMode::PartySelection?size_t(request==openu5::UiRequestId::Status&&status_member_>=0?status_member_:active_member(game_)):0;
     if(dos){
         // The 1988 prompts, read on the console (UiSession::live_prompt_text):

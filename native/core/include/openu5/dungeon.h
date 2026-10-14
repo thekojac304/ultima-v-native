@@ -39,7 +39,8 @@ enum class DungeonEventKind : uint8_t {
     Sfx,
     DamageScript,
     Loot,
-    Error
+    Error,
+    DrinkPrompt // SPP1 E: value = the Look's dir, member = its drinker (appended)
 };
 struct DungeonEvent {
     DungeonEventKind kind = DungeonEventKind::Message;
@@ -66,8 +67,15 @@ enum class DungeonAction : uint8_t {
     Get,
     Jimmy,
     Drink,
-    Search
+    Search,
+    // SPP1 E (appended; dungeon.txt drives 0..15). (L)ook underground, DNGLOOK.OVL 0x0000:
+    // member = the "Player: " pick (-1: "None!"), dir = Search's Dir- code (0 Ahead, 1 Here,
+    // 2 Left, 3 Right), kDungeonLookPass for Space, kDungeonLookNoDir when no Dir- was asked.
+    // A fountain raises DrinkPrompt; LookDrink is the answer (member -1 = "No.").
+    Look,
+    LookDrink
 };
+constexpr int kDungeonLookPass = 4, kDungeonLookNoDir = -1;
 uint8_t dungeon_cell(const DungeonState &, int floor, int x, int y);
 int dungeon_room_map(int location, int room);
 bool dungeon_room_cleared(const GameState &, int location, int room);

@@ -672,10 +672,13 @@ void UiSession::finish_modal(bool accepted, bool yes, int32_t number, int32_t in
         // (0x7718, two spaces) and drinks; 'N' prints "No." (0x7712) with no
         // effect and no turn, so nothing is dispatched at all.
         append(UiTextChannel::Message, yes ? "Yes.  Gulp!" : "No.");
-        if (!yes) { input_[0]=0; input_length_=0; prompt_[0]=0; settle_shrine_after_modal(); return; }
+        // SPP1 E: the Look's answer -- 'N' ("No.") still ends the Look's turn.
         i.kind = UiIntentKind::Command;
         i.command.kind = CommandKind::DungeonCommand;
-        i.command.item = int16_t(DungeonAction::Drink);
+        i.command.item = int16_t(DungeonAction::LookDrink);
+        i.command.member = yes ? look_drink_member_ : int16_t(-1);
+        i.command.hours = look_drink_dir_;
+        look_drink_member_ = look_drink_dir_ = -1;
     } else if (request == UiRequestId::CampAdvance && old_mode == UiMode::KeyWait) {
         i.kind = UiIntentKind::Command;
         i.command.kind = CommandKind::CampAcknowledge;
@@ -1101,7 +1104,11 @@ bool UiSession::handle_modal(const UiAction &a) {
                 // The 1988 model: on the prompt's own row ("Klimb-U/D-Pass").
                 if (platform_dos_interface()) append_continuation(UiTextChannel::CommandEcho, "Pass");
                 else command_echo("Pass");
-                if (!search) { cancelled_dungeon.hours = 2; command(cancelled_dungeon); }
+                // SPP1 E: the Look's Space is its Pass -- DNGLOOK returns and K:0x3310 still
+                // returns 1, so the turn is spent (kDungeonLookPass).
+                if (cancelled_dungeon.item == int16_t(DungeonAction::Look)) {
+                    cancelled_dungeon.hours = int16_t(kDungeonLookPass); command(cancelled_dungeon);
+                } else if (!search) { cancelled_dungeon.hours = 2; command(cancelled_dungeon); }
                 return true;
             }
             const bool klimb = pending_command_.kind == CommandKind::Klimb;
@@ -1587,15 +1594,15 @@ bool UiSession::handle_dungeon(const UiAction &a) {
     // commands.cpp already has a dedicated `c.dungeon && Ignite` arm that seeds
     // ignite_torch() with the dungeon number.  Nothing could reach it.
     case 'i': command_echo("Ignite torch!"); c.kind=CommandKind::Ignite; break;
-    // (D)rink.  On a fountain the original asks first (DS 0x7700, getkey Y/N);
-    // off one, the reference's declared QoL shortcut drinks directly and
-    // dungeon_action() answers "No fountain here."
+    // SPP1 E. (L)ook: the kernel's L arm (K:0x3310) prints "Look" "...\n" (DS 0xa1a8 /
+    // 0xa1ae) and runs DNGLOOK 0x0000, whose "Player: " (K:0x4988) the owner resolves.
+    case 'l': { command_echo("Look..."); UiIntent i; i.kind=UiIntentKind::OpenPartySelection; i.request=UiRequestId::LookMember; dispatch(i); return true; }
+    // (D)rink. The 1988 dispatcher has none: D is K:0x324e's "D-What?" with no turn, and a
+    // fountain is drunk through Look. The T-Deck and Enhanced keep (D) (ledger E-3) as that
+    // Look aimed at the party's own cell, so the same rule decides who drinks and the turn.
     case 'd':
-        command_echo("Drink");
-        if (dungeon_fountain_here_) {
-            begin_yes_no(UiRequestId::DungeonDrink,"Will you drink?"); return true;
-        }
-        c.item=int16_t(DungeonAction::Drink); break;
+        if (dos) { append(UiTextChannel::Message, "D-What?"); return true; }
+        { command_echo("Look..."); UiIntent i; i.kind=UiIntentKind::OpenPartySelection; i.request=UiRequestId::LookHereMember; dispatch(i); return true; }
     // (H)ole up & camp is legal in a dungeon (kernel 0x3C9A branch loc>=0x21);
     // commands.cpp's `dungeon_camp` exists for exactly this and had no caller.
     // Same hours prompt the overworld uses.
@@ -2173,6 +2180,13 @@ void UiSession::consume(const GameEvent &e) {
         append(UiTextChannel::Message,"a well.");
         // 1988: "a well.\n\nDrop a coin?" -- a blank row, and the core prints the "Yes" / "No".
         begin_yes_no(UiRequestId::WellDrop,platform_dos_interface()?"\nDrop a coin?":"Drop a coin?",true);
+        break;
+    // SPP1 E. A dungeon Look found a fountain: "Will you drink?" (DS 0x7700), Y or N only
+    // (DNGLOOK 0x01ea-0x01f8); the answer is LookDrink for the member picked at "Player: ".
+    case GameEventKind::DungeonDrinkPrompt:
+        look_drink_member_ = e.slot_count ? int16_t(e.slots[0]) : int16_t(-1);
+        look_drink_dir_ = int16_t(e.note);
+        begin_yes_no(UiRequestId::DungeonDrink, platform_dos_interface() ? "Will you drink? " : "Will you drink?", true);
         break;
     case GameEventKind::FountainDrinkPrompt: {
         // Reference is pickMember("Who will drink?") with pure flavour text --

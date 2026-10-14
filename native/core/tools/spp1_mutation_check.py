@@ -27,6 +27,9 @@ WMG = 'native/core/src/world_magic.cpp'
 # (id, group, file, old, new, targets, tests)
 SPP1 = ('spp1_runtime',)
 CORE = ('spp1_core_tests',)
+BOTH = ('spp1_core_tests', 'spp1_runtime')
+DNG = 'native/core/src/dungeon.cpp'
+ORC = 'native/core/src/dungeon_orchestration.cpp'
 MUTANTS = [
     ('G1', 'G', CMD, 'if(cmd.item==0x0b)std::snprintf(text,sizeof(text),"%u",unsigned(c.game.karma));',
      'if(cmd.item==0x0b)std::snprintf(text,sizeof(text),"Karma %u",unsigned(c.game.karma));', SPP1, SPP1),
@@ -79,6 +82,19 @@ MUTANTS = [
     ('C13', 'C', UIS, "                       pending_command_.kind == CommandKind::CombatSearch ||\n                       pending_command_.kind == CommandKind::CombatJimmy ||\n                       pending_command_.kind == CommandKind::CombatPush;",
      "                       pending_command_.kind == CommandKind::CombatSearch;", SPP1, SPP1),
     ('C14', 'C', UIS, "            if (arena) { Command c; c.kind = CommandKind::CombatYell; command(c); }\n", "            (void)arena;\n", SPP1, SPP1),
+    ('E1', 'E', DNG, "        if (!g.torch_turns && t.light_spell_minutes <= 0) {\n            r.msg(\"You see:\\ndarkness.\");\n            return;\n        }\n        if (dir < 0 || dir > 3) return; // Space",
+     "        if (dir < 0 || dir > 3) return; // Space", BOTH, BOTH),
+    ('E2', 'E', DNG, "        auto &ch = g.party.characters[member];\n        if (raw == 0x50)", "        auto &ch = g.party.characters[0];\n        if (raw == 0x50)", BOTH, BOTH),
+    ('E3', 'E', ORC, "    if (action != DungeonAction::Attack && action != DungeonAction::LookDrink)\n        tr = advance_turn",
+     "    if (action != DungeonAction::Attack)\n        tr = advance_turn", BOTH, BOTH),
+    ('E4', 'E', DNG, "        if (raw == 0x61) raw = 0; // 0x0070: exactly the hidden pit-fall reads as a passage\n", "", BOTH, BOTH),
+    ('E5', 'E', DNG, "        else if (raw == 0x51) { ch.current_hp = ch.max_hp;", "        else if ((raw & 7) == 1) { ch.current_hp = ch.max_hp;", BOTH, BOTH),
+    ('E6', 'E', UIS, "                    cancelled_dungeon.hours = int16_t(kDungeonLookPass); command(cancelled_dungeon);",
+     "                    (void)kDungeonLookPass;", BOTH, BOTH),
+    ('E7', 'E', RT, "        dungeon_look(-1,false); // SPP1 E: ESC at \"Player: \" is \"None!\" and the Look's turn\n", "", BOTH, BOTH),
+    ('E8', 'E', UIS, "        if (dos) { append(UiTextChannel::Message, \"D-What?\"); return true; }\n        { command_echo(\"Look...\");",
+     "        { command_echo(\"Look...\");", BOTH, BOTH),
+    ('E9', 'E', DNG, "                 : r.rand(1, 255) == 255 ? \"an unfortunate software pirate.\"", "                 : false ? \"an unfortunate software pirate.\"", BOTH, BOTH),
 ]
 
 

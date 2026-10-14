@@ -554,6 +554,121 @@ void test_a() {
 //      C5 Yell: Original "Yell what?" / ":" -- a word is "No effect!"; an empty answer
 //         "Nothing"; both end the turn. The T-Deck's Yell bar the same
 //      C6 the T-Deck's Cancel at Jimmy- stays free (the arena's handheld contract)
+// --- Candidate E: the dungeon (L)ook through the real runtime --------------------------------
+//      E1 L: "Look...", the "Player: " picker (three eligible, none active), Dir-, "You see:"
+//         -- one dungeon turn (K:0x3310 returns 1; DUNGEON 0x0c76) and one minute
+//      E2 a poison fountain Here, Y: the PICKED member is poisoned, nobody else; one turn in all
+//      E3 the same fountain, N: "No.", no effect, still one turn
+//      E4 darkness: no Dir- is asked, "You see:\ndarkness.", one turn
+//      E5 Cancel at "Player:": "None!" and one turn; Cancel at Dir-: the Pass, one turn
+//      E6 the T-Deck's (D)rink (ledger E-3) is the Look aimed Here: the picker, the question,
+//         the picked member healed, one turn
+//      E7 Original: D is "D-What?" (K:0x324e) -- no command; Space at Dir- is the Pass
+// Appended after QuitSave (ui_session.h); by ordinal so the test builds against an older core.
+constexpr UiRequestId kLookMember = UiRequestId(int(UiRequestId::QuitSave) + 1);
+void dungeon_party(Run &h) {
+    auto &g = h.rt->game();
+    for (int i = 0; i < 3; ++i) g.party.characters[i].status = 'G';
+    g.party.active_character = 255;
+    g.torch_turns = 100;
+}
+uint8_t &here_cell(Run &h) {
+    auto &d = h.rt->dungeon_state_for_test();
+    return d.cells[d.pos.floor * 64 + d.pos.y * 8 + d.pos.x];
+}
+void test_e() {
+    std::printf("E  the dungeon (L)ook through the real runtime\n");
+    {
+        Run h(kParty);
+        enter_deceit(h);
+        dungeon_party(h);
+        bool picker = false, dir_prompt = false;
+        auto c1 = cost(h, [&] {
+            act(h, ch('l'));
+            picker = mode(h) == UiMode::PartySelection && request(h) == kLookMember;
+            act(h, select(1));
+            dir_prompt = mode(h) == UiMode::TargetSelection;
+            act(h, dir(Direction::North));
+        });
+        check(in_dungeon(h) && picker && dir_prompt && transcript_has(h, "Look...") && transcript_has(h, "You see:") &&
+                  c1.turns == 1 && c1.minutes == 1,
+              "E1 L: Look..., Player:, Dir-, You see: -- one dungeon turn" + show(c1));
+    }
+    for (int yes = 1; yes >= 0; --yes) {
+        Run h(kParty);
+        enter_deceit(h);
+        dungeon_party(h);
+        here_cell(h) = 0x52;
+        bool asked = false;
+        auto c2 = cost(h, [&] {
+            act(h, ch('l'));
+            act(h, select(2));
+            act(h, dir(Direction::South)); // Here
+            asked = mode(h) == UiMode::YesNo && transcript_has(h, "a fountain.");
+            act(h, ch(yes ? 'y' : 'n'));
+        });
+        auto &g = h.rt->game();
+        if (yes)
+            check(asked && g.party.characters[2].status == 'P' && g.party.characters[0].status == 'G' &&
+                      g.party.characters[1].status == 'G' && transcript_has(h, "Yes.  Gulp!") && c2.turns == 1 && c2.minutes == 1,
+                  "E2 a poison fountain Here, Y: only the picked member (Shamino) is poisoned, one turn in all" + show(c2));
+        else
+            check(asked && g.party.characters[2].status == 'G' && transcript_has(h, "No.") && c2.turns == 1 && c2.minutes == 1,
+                  "E3 the same fountain, N: \"No.\", no effect, still one turn" + show(c2));
+    }
+    {
+        Run h(kParty);
+        enter_deceit(h);
+        dungeon_party(h);
+        h.rt->game().torch_turns = 0;
+        h.rt->command_context_for_test().turn.light_spell_minutes = 0;
+        bool dir_prompt = true;
+        auto c = cost(h, [&] {
+            act(h, ch('l'));
+            act(h, select(0));
+            dir_prompt = mode(h) == UiMode::TargetSelection;
+        });
+        check(!dir_prompt && transcript_has(h, "darkness.") && c.turns == 1, "E4 darkness: no Dir-, \"You see: darkness.\", one turn" + show(c));
+    }
+    {
+        Run h(kParty);
+        enter_deceit(h);
+        dungeon_party(h);
+        auto c = cost(h, [&] { act(h, ch('l')); act(h, kind(UiActionKind::Cancel)); });
+        check(transcript_has(h, "None!") && c.turns == 1 && c.minutes == 1, "E5 Cancel at Player: \"None!\" and the Look's turn" + show(c));
+        auto c2 = cost(h, [&] { act(h, ch('l')); act(h, select(0)); act(h, kind(UiActionKind::Cancel)); });
+        check(mode(h) == UiMode::Dungeon && c2.turns == 1 && c2.minutes == 1, "E5 Cancel at Dir-: the Pass, one turn" + show(c2));
+    }
+    {
+        Run h(kParty);
+        enter_deceit(h);
+        dungeon_party(h);
+        here_cell(h) = 0x51;
+        h.rt->game().party.characters[1].current_hp = 50;
+        bool asked = false;
+        auto c = cost(h, [&] {
+            act(h, ch('d'));
+            act(h, select(1));
+            asked = mode(h) == UiMode::YesNo;
+            act(h, ch('y'));
+        });
+        auto &g = h.rt->game();
+        check(asked && g.party.characters[1].current_hp == g.party.characters[1].max_hp && g.party.characters[0].current_hp == 200 &&
+                  transcript_has(h, "Healed!") && c.turns == 1,
+              "E6 the T-Deck's D is the Look aimed Here: the picked member (Iolo) healed, one turn" + show(c));
+    }
+    {
+        DosProfile dos;
+        Run h(kParty);
+        enter_deceit(h);
+        dungeon_party(h);
+        auto c = cost(h, [&] { act(h, ch('d')); });
+        check(transcript_has(h, "D-What?") && c.turns == 0, "E7 Original: D is \"D-What?\" and no command (K:0x324e)" + show(c));
+        auto c2 = cost(h, [&] { act(h, ch('l')); act(h, kind(UiActionKind::Confirm)); act(h, ch(' ')); });
+        check(transcript_has(h, "Dir-Pass") && c2.turns == 1, "E7 Original: Space at Dir- prints \"Dir-Pass\" and the Look costs its turn" + show(c2));
+    }
+}
+
 int next_member_after(Run &h) { auto *n2 = await_player(h); return n2 ? n2->member : -1; }
 
 void test_c() {
@@ -646,6 +761,7 @@ int main(int argc, char **argv) {
     test_f();
     test_a();
     test_c();
+    test_e();
     std::printf("SPP1 runtime: %d/%d checks\n", checks - failures, checks);
     return failures ? 1 : 0;
 }

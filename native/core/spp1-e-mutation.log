@@ -1,0 +1,11 @@
+E1 KILLED native/core/src/dungeon.cpp  <- RED E-C5 no torch, no light: "You see:\ndarkness." and no question, even on a fountain (0x0013) | RED E-C5 the darkness line comes whatever the direction (no Dir- is asked)
+E2 KILLED native/core/src/dungeon.cpp  <- RED E-C7 0x52 poisons the member picked at Player: (DNGLOOK 0x0257 indexes [bp-0xc]), nobody else | RED E-C7 0x51 heals the picked member to full
+E3 KILLED native/core/src/dungeon_orchestration.cpp  <- RED E2 a poison fountain Here, Y: only the picked member (Shamino) is poisoned, one turn in all (turns +2, clock +2 min) | RED E3 the same fountain, N: "No.", no effect, still one turn (turns +2, clock +2 min) | RED E6 the T-Deck's D is the Look aimed Here: the picked member (Iolo) healed, one turn (turns +2, clock +2 min)
+E4 KILLED native/core/src/dungeon.cpp  <- RED E-C1 every raw byte outside the fields and special walls: "You see:" + its class text (first wrong 97: You see: | a pit.) | RED E-C2 the exact bytes: 0x61 a passage (the hidden pit fall), 0x69 a pit, fields 0x80-0x83 by name, 0x84/0x88 the energy field, 0xD0 a wall (a secret door), 0xF3 a heavy door 97=You see: | a pit.
+E5 KILLED native/core/src/dungeon.cpp  <- RED E-C7 0x59 (a good fountain's bit-0x08 copy) is "Bad taste.": the WHOLE byte is compared (0x020d)
+E6 KILLED native/core/src/ui_session.cpp  <- RED E5 Cancel at Dir-: the Pass, one turn (turns +0, clock +0 min) | RED E7 Original: Space at Dir- prints "Dir-Pass" and the Look costs its turn (turns +0, clock +0 min)
+E7 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED E5 Cancel at Player: "None!" and the Look's turn (turns +0, clock +0 min)
+E8 KILLED native/core/src/ui_session.cpp  <- RED E7 Original: D is "D-What?" and no command (K:0x324e) (turns +0, clock +0 min) | RED E7 Original: Space at Dir- prints "Dir-Pass" and the Look costs its turn (turns +2, clock +2 min)
+E9 KILLED native/core/src/dungeon.cpp  <- RED E-C3 variant 3 (Deceit) draws rand(1,255) once: 255 the pirate, else the adventurer (You see: | a less fortunate adventurer.)
+restored tree: GREEN
+KILLED 9 SURVIVED 0 INVALID 0 STALE 0

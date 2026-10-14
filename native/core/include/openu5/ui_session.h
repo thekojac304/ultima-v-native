@@ -191,7 +191,11 @@ enum class UiRequestId : uint8_t {
     MixSpellName,
     // Windows port, desktop Original mode: (Q)uit & Save's "Save game? "
     // (CAST2.OVL:0x10FE, DS 0x9658), a YesNo; the answer saves the journey.
-    QuitSave
+    QuitSave,
+    // SPP1 E. The dungeon (L)ook's kernel 0x4988 "Player: " (DNGLOOK 0x0007), and the same
+    // pick for the T-Deck's (D)rink shortcut, which is that Look aimed at the party's own cell.
+    LookMember,
+    LookHereMember
 };
 
 enum class UiIntentKind : uint8_t {
@@ -514,6 +518,8 @@ class UiSession {
     // World-context mirrors (see the public setters above).
     bool sail_context_frigate_ = false, sail_context_location_ok_ = false;
     bool keys_owned_ = true;
+    // SPP1 E: the dungeon Look parked at "Will you drink?" -- its drinker and Dir- code.
+    int16_t look_drink_member_ = -1, look_drink_dir_ = -1;
     bool harpsichord_active_ = false;
     bool dungeon_klimb_choice_ = false, dungeon_fountain_here_ = false;
     bool camp_eligible_ = false, camp_watch_available_ = false;

@@ -1,0 +1,42 @@
+GREEN J1 no key: "No Keys!" (SJOG 0x0d66, before the getdir), no draw, the turn ends: No Keys!
+GREEN J2 a locked door, DEX 30: rand(0,29) once, "Unlocked!", 0xB9 -> 0xB8, the key kept: Unlocked!
+GREEN J3 a windowed locked door, DEX 0: one draw, "Key broke!", one key lost, the door stays: Key broke!
+GREEN J4 a magic lock always breaks the key, with no draw (0x0e1c)
+GREEN J5 manacles, DEX 30: "Unlocked" with no '!', tile 0x44, no karma (0x0ee4): Unlocked
+GREEN J6 an untrapped chest: the key breaks with no draw (0x0bcb), the chest untouched
+GREEN J7 a trapped chest, DEX 30 (threshold 0): rand(1,30), "Success!", the trap disarmed, still shut: Success!
+GREEN J8 DEX 50 wraps the byte threshold to 0xF6 (0x0bd2-0x0bee): the key breaks whatever the roll: Key broke!
+GREEN J9 bare floor: "No lock!", the key kept, the turn ends
+GREEN J10 Space at the getdir: nothing at all, the turn ends
+GREEN J11 off the grid: "No lock!" (native reads no memory beyond it; recorded)
+GREEN P1 a 0xB4 pushed east over its fill 0x45: "Pushed!", it turns to face east (0xB5), the actor steps in: Pushed!
+GREEN P2 nothing free beyond, the actor on the fill 0x44: "Pulled!" and the two swap: Pulled!
+GREEN P3 a pulled 0xB4 faces back (class + (idx ^ 2) = 0xB7)
+GREEN P4 a combatant on the target: "Won't budge!"
+GREEN P5 bare floor is not pushable: "Won't budge!"
+GREEN P6 the fill (0x44) neither beyond nor here: "Won't budge" -- the other string, no '!'
+GREEN P7 a 0xB4's fill is 0x45, so bare 0x44 floor neither slides nor pulls it
+GREEN P8 a corpse on the cell beyond blocks the push (kernel 0x368E): a pull instead
+GREEN P9 a dungeon room's live plate on the target fires, silently, and nothing moves (COMBAT 0x111a)
+GREEN P10 outside a room the plate is not checked ([0x58a1] = 0): an ordinary push
+GREEN P11 Space at the getdir: nothing, the turn ends
+GREEN P12 pushed north a 0x90 faces north (idx 0)
+GREEN Y1 any word: "No effect!" (DS 0x453a; no sails at g_location 0xFF), the turn ends
+GREEN Y2 an empty answer: the core adds nothing ("Nothing" is the ':' row's), the turn ends
+RED E-C1 every raw byte outside the fields and special walls: "You see:" + its class text (first wrong 0: (nothing))
+RED E-C1 only 0x50-0x5F raise "Will you drink?"
+RED E-C2 the exact bytes: 0x61 a passage (the hidden pit fall), 0x69 a pit, fields 0x80-0x83 by name, 0x84/0x88 the energy field, 0xD0 a wall (a secret door), 0xF3 a heavy door 97=(nothing) 105=(nothing) 128=(nothing) 129=(nothing) 130=(nothing) 131=(nothing) 132=(nothing) 136=(nothing) 208=(nothing) 243=(nothing)
+RED E-C3 a special wall: variant 1 the stalactite, variant 2 the caved-in passage, with no draw
+RED E-C3 variant 3 (Deceit) draws rand(1,255) once: 255 the pirate, else the adventurer ((nothing))
+RED E-C4 Dir- 0 Ahead / 1 Here / 2 Left / 3 Right, wrapped &7 like SJOG 0x002a + DNGLOOK 0x0046: (nothing) / (nothing) / (nothing) / (nothing)
+RED E-C5 no torch, no light: "You see:\ndarkness." and no question, even on a fountain (0x0013)
+RED E-C5 the darkness line comes whatever the direction (no Dir- is asked)
+GREEN E-C6 member -1 (the picker's "None!"): the Look prints nothing more
+GREEN E-C6 the Dir- Pass: nothing more
+RED E-C7 0x52 poisons the member picked at Player: (DNGLOOK 0x0257 indexes [bp-0xc]), nobody else
+RED E-C7 0x50 cures the same member
+RED E-C7 0x51 heals the picked member to full
+RED E-C7 0x59 (a good fountain's bit-0x08 copy) is "Bad taste.": the WHOLE byte is compared (0x020d)
+GREEN E-C7 "No." (member -1): no effect
+SPP1 core: 28/40 checks
+exit 1

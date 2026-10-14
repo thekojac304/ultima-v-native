@@ -32,6 +32,9 @@ GROUPS = {
     'C': ['native/core/include/openu5/combat.h', 'native/core/src/combat.cpp', 'native/core/include/openu5/commands.h',
           'native/core/src/commands.cpp', 'native/core/include/openu5/ui_session.h', 'native/core/src/ui_session.cpp',
           'native/targets/tdeck/main/alpha_runtime.cpp'],
+    'E': ['native/core/include/openu5/dungeon.h', 'native/core/src/dungeon.cpp', 'native/core/src/dungeon_orchestration.cpp',
+          'native/core/include/openu5/movement.h', 'native/core/include/openu5/ui_session.h', 'native/core/src/ui_session.cpp',
+          'native/targets/tdeck/main/alpha_runtime.cpp', 'native/targets/tdeck/main/alpha_runtime.h'],
 }
 
 

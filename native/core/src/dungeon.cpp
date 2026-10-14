@@ -498,6 +498,77 @@ void dungeon_action(GameState &g, TurnState &t, DungeonState &d, DungeonAction a
             r.msg("Nothing of note.");
         return;
     }
+    // SPP1 E (spp1-findings/E-dungeon-look.md). (L)ook underground is DNGLOOK.OVL 0x0000, the
+    // kernel's L arm's only dungeon callee (K:0x3310 -> 0x332c): the "Player: " pick (0x0007,
+    // K:0x4988, the front end's), the darkness gate (0x0013: torch and light both 0 -> "You
+    // see:\ndarkness."), the Dir- of the dungeon Search (SJOG 0x006c), then "You see:" and the
+    // text of the RAW map byte of the chosen cell, wrapped &7 (0x0038-0x0066; never the hidden-
+    // door view, so a secret door is "a wall."). No monster, altar or orb is ever named.
+    case DungeonAction::Look: {
+        if (member < 0) return; // "None!" -- the picker's own line, printed by the front end
+        if (!g.torch_turns && t.light_spell_minutes <= 0) {
+            r.msg("You see:\ndarkness.");
+            return;
+        }
+        if (dir < 0 || dir > 3) return; // Space: "Pass"
+        const int face = (f + (dir == 2 ? 3 : dir == 3 ? 1 : 0)) % 4;
+        const int x = dir == 1 ? d.pos.x : (d.pos.x + dx[face] + 8) % 8;
+        const int y = dir == 1 ? d.pos.y : (d.pos.y + dy[face] + 8) % 8;
+        int raw = dungeon_cell(d, d.pos.floor, x, y);
+        r.msg("You see:");
+        if (raw == 0x61) raw = 0; // 0x0070: exactly the hidden pit-fall reads as a passage
+        const char *text = "a heavy door.";
+        switch (raw & 0xf0) {
+        case 0x00: text = "a passage."; break;
+        case 0x10: text = "an up ladder."; break;
+        case 0x20: text = "a down ladder."; break;
+        case 0x30: text = "a ladder."; break;
+        case 0x40: text = "a wooden chest."; break;
+        case 0x50: text = "a fountain."; break;
+        case 0x60: text = "a pit."; break;
+        case 0x70: text = "an open chest."; break;
+        case 0x80: // 0x007b-0x00b5: exact bytes; every other field byte is the energy field
+            text = raw == 0x80 ? "A sleep field." : raw == 0x81 ? "A poison gas field." : raw == 0x82 ? "A wall of fire."
+                 : raw == 0x83 ? "An electric field." : "An energy field.";
+            break;
+        case 0x90: text = "nothing of note."; break;
+        case 0xb0: case 0xd0: text = "a wall."; break; // 0xD: a secret door is "a wall."
+        case 0xc0: { // 0x00b8-0x00ff: g_dng_wall_variant; the third draws rand(1,255) once
+            const int variant = dungeon_wall_variant(d.pos.dungeon);
+            text = variant == 1 ? "a dripping stalactite." : variant == 2 ? "a caved in passage."
+                 : r.rand(1, 255) == 255 ? "an unfortunate software pirate." : "a less fortunate adventurer.";
+            break;
+        }
+        default: break; // 0xA, 0xE, 0xF: "a heavy door."
+        }
+        r.msg(text);
+        if ((raw & 0xf0) == 0x50) r.event(DungeonEventKind::DrinkPrompt, nullptr, dir, member); // DS 0x7700
+        return;
+    }
+    // "Will you drink?" answered (0x01ea-0x027b; only Y or N leave its loop). member -1 is the
+    // "No." (no effect); 'Y' gives the member chosen at "Player: " the WHOLE byte's effect:
+    // 0x50 cure, 0x51 heal, 0x52 poison, every other fountain "Bad taste." and rand(0,7)
+    // through apply_damage (K:0x2a52). Cure and poison overwrite the status unconditionally.
+    case DungeonAction::LookDrink: {
+        if (member < 0 || member >= g.party.character_count || dir < 0 || dir > 3) return;
+        const int face = (f + (dir == 2 ? 3 : dir == 3 ? 1 : 0)) % 4;
+        const int x = dir == 1 ? d.pos.x : (d.pos.x + dx[face] + 8) % 8;
+        const int y = dir == 1 ? d.pos.y : (d.pos.y + dy[face] + 8) % 8;
+        const int raw = dungeon_cell(d, d.pos.floor, x, y);
+        if ((raw & 0xf0) != 0x50) return;
+        auto &ch = g.party.characters[member];
+        if (raw == 0x50) { ch.status = 'G'; r.msg("Cured!"); }
+        else if (raw == 0x51) { ch.current_hp = ch.max_hp; r.msg("Healed!"); r.event(DungeonEventKind::Damage, nullptr, 0, member); }
+        else if (raw == 0x52) { ch.status = 'P'; r.msg("Poisoned!"); }
+        else {
+            const int v = r.rand(0, 7);
+            r.msg("Bad taste.");
+            apply_damage(g, member, v);
+            r.event(DungeonEventKind::Damage, nullptr, v, member);
+            r.event(DungeonEventKind::DamageScript, nullptr, 1 << member);
+        }
+        return;
+    }
     case DungeonAction::Forward:
     case DungeonAction::Back: {
         r.msg(action == DungeonAction::Forward ? "Advance\n" : "Back up\n");
