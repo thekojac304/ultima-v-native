@@ -347,6 +347,12 @@ class UiSession {
     void set_camp_prompt_context(bool camp, bool watch_available) {
         camp_eligible_ = camp; camp_watch_available_ = watch_available;
     }
+    // The 1988 interaction model's (H)ole up asks for hours only where the
+    // kernel does (camp, or a bed); the owner mirrors camp_context()'s verdict
+    // and whether the party is aboard a ship (0x3c9a repairs instead).
+    void set_rest_prompt_context(bool ok, bool bed, bool in_town, bool aboard_ship) {
+        rest_ok_ = ok; rest_bed_ = bed; rest_in_town_ = in_town; rest_aboard_ship_ = aboard_ship;
+    }
     // Convenience wrapper that derives both predicates from the authoritative
     // owners, so a caller cannot get the derivation subtly wrong.  A cleared
     // context (no live session) resets both.
@@ -504,6 +510,7 @@ class UiSession {
     bool harpsichord_active_ = false;
     bool dungeon_klimb_choice_ = false, dungeon_fountain_here_ = false;
     bool camp_eligible_ = false, camp_watch_available_ = false;
+    bool rest_ok_ = true, rest_bed_ = false, rest_in_town_ = false, rest_aboard_ship_ = false;
     int16_t camp_hours_ = 0;
     // The 1988 model's getdir ignores ESC; dos_getdir_pass() lets the cancel
     // branch run once for Space.
@@ -537,6 +544,8 @@ class UiSession {
     // A getdir answered with Space in the 1988 model: "Pass" on the echo row,
     // then the request's own cancel path.
     void dos_getdir_pass();
+    // (H)ole up in the 1988 model (kernel 0x3288 / 0x3c9a, CMDS 0x0552).
+    void dos_hole_up();
     bool handle_modal(const UiAction &);
     bool handle_exploration(const UiAction &);
     bool handle_dungeon(const UiAction &);

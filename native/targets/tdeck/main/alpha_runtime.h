@@ -566,6 +566,9 @@ class AlphaRuntime {
     // page and, when it closes, ends that member's turn (COMBAT 0x09d8 ->
     // 0x07ba, [bp-4]=1).
     bool zstats_combat_turn_ = false;
+    // The 1988 model's (R)eady: the ring the last Ready lost (equip_item's
+    // "Ring vanishes!") closes the list instead of reopening it.
+    bool ready_ring_vanished_ = false;
     int32_t combat_world_tile_before_ = openu5::kOffMap;
     bool combat_world_tile_saved_ = false;
     struct DirectTrollTrace {

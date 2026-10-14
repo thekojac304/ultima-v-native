@@ -22,9 +22,9 @@ WorldCommandResult world_magic(CommandContext &c,Command cmd,const ActiveMap &ma
             if(cmd.item==37){say("Box");say("How?");return {};}
             return {use_quest_item(c,cmd.item,sink)};
         }
-        if(cmd.item>=8&&cmd.item<16){consume_potion(g,cmd.item-8);say("Potion");if(auto *p=target()){ceremony(cmd.item-8,"potion-used");auto effect=apply_potion_effect(*p,reroll_potion_color(cmd.item-8,rand),rand,location);say(effect.result.message);if(effect.reveal)emit(GameEventKind::MapReveal);}return {};}
+        if(cmd.item>=8&&cmd.item<16){consume_potion(g,cmd.item-8);if(!cmd.item_named)say("Potion");if(auto *p=target()){ceremony(cmd.item-8,"potion-used");auto effect=apply_potion_effect(*p,reroll_potion_color(cmd.item-8,rand),rand,location);say(effect.result.message);if(effect.reveal)emit(GameEventKind::MapReveal);}return {};}
         if(cmd.item<0||cmd.item>7)return {CommandStatus::Unsupported};
-        if(g.scroll_quantities[cmd.item]>0){--g.scroll_quantities[cmd.item];}say("Scroll");
+        if(g.scroll_quantities[cmd.item]>0){--g.scroll_quantities[cmd.item];}if(!cmd.item_named)say("Scroll"); // item_named: the 1988 "Item: Scroll" row is on the console already
         switch(cmd.item){
         case 0:t.light_spell_minutes=240;say("Light!");break;
         case 1:say("Wind change!");if(cmd.has_direction&&location<33){t.wind=int(cmd.direction)+1;t.wind_drift_counter=0;}break;

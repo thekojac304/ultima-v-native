@@ -54,6 +54,11 @@ struct Command {
     // already echoed "Cast..." before "Spell name:" (COMBAT 0x08f0), and item -1 / -2 is the
     // refused name ("None!" / "No effect!"), which still ends the turn.
     bool typed_name = false;
+    // Windows port, the 1988 interaction model: (U)se's "Item: Potion" /
+    // "Item: Scroll" row is already on the console (CAST 0x17f8-0x180d prints
+    // the name right after "Item: ", before any target prompt), so the
+    // potion's and scroll's own name line is not printed again. Default false.
+    bool item_named = false;
     bool watch_requested = false; // Rest: guard picker was attempted, even if cancelled.
     const char16_t *text = nullptr;
     size_t text_length = 0; // Borrowed UTF-16, no UI length limit. BeginConversation: member=NPC slot.

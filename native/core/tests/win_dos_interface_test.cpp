@@ -608,9 +608,9 @@ void test_command_prompt() {
                       f.block_from_end(0) == "Yell what?" && std::strcmp(f.ui.prompt(), ":") == 0,
                   t + "E1 'y' echoes \"Yell what?\" and reads the word after ':' (CMDS 0x1458)");
             f.press(kind(UiActionKind::Confirm));
-            check(f.ui.mode() == UiMode::Exploration && f.spy.size() == n0 && f.block_from_end(1) == ":" &&
-                      f.block_from_end(0) == "Nothing" && f.channel_from_end(0) == UiTextChannel::Message,
-                  t + "E2 an empty word prints \"Nothing\" and utters nothing (CMDS 0x1467)");
+            check(f.ui.mode() == UiMode::Exploration && f.spy.size() == n0 && f.block_from_end(0) == ":Nothing" &&
+                      f.channel_from_end(0) == UiTextChannel::CommandEcho,
+                  t + "E2 an empty word prints \"Nothing\" on the ':' row and utters nothing (CMDS 0x1467)");
             f.press(ch('y'));
             f.type("ort");
             f.press(kind(UiActionKind::Confirm));
