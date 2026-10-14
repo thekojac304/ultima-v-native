@@ -177,7 +177,17 @@ enum class UiRequestId : uint8_t {
     // value.index for a RETURN / Space toggle (it stays the owner's to reopen),
     // and value.yes == true for 'M'; ESC is the ordinary accepted == false.
     MixReagents,
-    MixQuantity
+    MixQuantity,
+    // Windows port, desktop Original mode: Cast's "Spell name:" and Mix's
+    // "For what spell?" typed the 1988 way (CAST2.OVL:0x00DE,
+    // openu5/spell_entry.h). A TextEntry whose input is the echo of the
+    // syllables typed ("IN LOR "); accepted on RETURN/Space, accepted EMPTY
+    // on ESC (the routine's -1), never cancelled by a key.
+    SpellName,
+    MixSpellName,
+    // Windows port, desktop Original mode: (Q)uit & Save's "Save game? "
+    // (CAST2.OVL:0x10FE, DS 0x9658), a YesNo; the answer saves the journey.
+    QuitSave
 };
 
 enum class UiIntentKind : uint8_t {
@@ -381,6 +391,8 @@ class UiSession {
     void begin_number(UiRequestId, const char *prompt, int32_t minimum, int32_t maximum,
                       size_t max_digits = 9);
     void begin_yes_no(UiRequestId, const char *prompt, bool cancel_means_no = false);
+    /** Windows port, desktop Original mode: Q's "Quit:" / "Save game? " (UiRequestId::QuitSave). */
+    void begin_quit_save();
     void begin_selection(UiMode, UiRequestId, const char *prompt, UiSelectionSource,
                          size_t initial = 0);
     void begin_target(UiRequestId, const char *prompt, Command command_template,

@@ -22,6 +22,7 @@
 #include "app/autotest.h"
 #include "app/data_paths.h"
 #include "app/desktop_input.h"
+#include "app/desktop_profile.h"
 #include "app/presenter.h"
 #include "app/sdl_audio_backend.h"
 #include "asset_pack.h"
@@ -29,6 +30,11 @@
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
+#include "openu5/outdoor.h"
+#include "openu5/world.h"
+#if defined(OPENU5_ENABLE_DEVELOPER_TOOLS)
+#include "openu5/debug_map_picker.h"
+#endif
 #include "platform/log.h"
 #include "platform/storage.h"
 #include "platform/virtual_panel.h"
@@ -136,15 +142,24 @@ class Game {
     /** One pass: events, render, present. False = quit requested. */
     bool pass(bool may_wait);
     void handle_event(const SDL_Event &event);
+    /** Closing the window mid-journey: ask first (unsaved progress). True = quit. */
+    bool confirm_quit();
     void apply_command(const DesktopCommand &command);
     InputContext input_context() const;
     void sync_mode();
+    static void on_profile_change(void *context, DesktopProfile::Change what);
+    void install_profile();
+    void open_data_folder();
     void update_title();
     void save_settings();
     void take_screenshot();
     bool run_autotest();
     bool autotest_expect(const AutotestStep &step);
     void autotest_dump(int line);
+    void autotest_key(const char *name, std::vector<std::string> mods);
+    void autotest_type(const std::string &text);
+    bool autotest_teleport(const AutotestStep &step);
+    bool autotest_fight(const AutotestStep &step);
     void push_key(const std::string &name, const std::vector<std::string> &mods);
     void push_text(const std::string &text);
 
@@ -154,6 +169,7 @@ class Game {
     std::unique_ptr<InstanceLock> lock_;
     Presenter presenter_;
     DesktopInput input_;
+    DesktopProfile profile_;
     std::unique_ptr<tdeck::Board> board_;
     std::unique_ptr<tdeck::AlphaRuntime> runtime_;
     std::unique_ptr<SdlAudioBackend> audio_;
@@ -168,6 +184,7 @@ class Game {
     int autotest_failures_ = 0;
     // Pushed text events point at their characters until they are polled.
     std::deque<std::string> text_buffers_;
+    std::string remembered_position_;
 };
 
 int Game::run() {
@@ -232,6 +249,7 @@ bool Game::boot() {
     if (options_.force_windowed) settings_.fullscreen = false;
     applied_mode_ = settings_.interface_mode;
     input_.set_mode(settings_.interface_mode);
+    install_profile();
 
     // --- Window --------------------------------------------------------------------
     if (!presenter_.create(build::kProductName, settings_)) {
@@ -342,8 +360,38 @@ void Game::sync_mode() {
     if (settings_.interface_mode == applied_mode_) return;
     applied_mode_ = settings_.interface_mode;
     input_.set_mode(applied_mode_);
+    install_profile();
     update_title();
+    save_settings();
     ESP_LOGI(kTag, "INTERFACE_MODE %s", interface_mode_name(applied_mode_));
+}
+
+void Game::install_profile() {
+    DesktopProfile::Hooks hooks;
+    hooks.settings = &settings_;
+    hooks.context = this;
+    hooks.changed = &Game::on_profile_change;
+    profile_.install(hooks);
+}
+
+// A desktop Settings row (Interface, Display, Scaling) changed settings_.
+void Game::on_profile_change(void *context, DesktopProfile::Change what) {
+    auto *self = static_cast<Game *>(context);
+    switch (what) {
+    case DesktopProfile::Change::Interface: self->sync_mode(); return; // persists too
+    case DesktopProfile::Change::Display:
+        self->presenter_.set_fullscreen(self->settings_.fullscreen);
+        if (!self->settings_.fullscreen) self->presenter_.set_window_scale(self->settings_.window_scale);
+        break;
+    case DesktopProfile::Change::Scaling: self->presenter_.set_scaling(self->settings_.scaling); break;
+    }
+    self->save_settings();
+}
+
+void Game::open_data_folder() {
+    storage::ensure_directory(paths_.ultima5_dir());
+    ShellExecuteW(nullptr, L"open", paths_.ultima5_dir().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+    ESP_LOGI(kTag, "opened the data folder %s", narrow(paths_.ultima5_dir()).c_str());
 }
 
 void Game::update_title() {
@@ -397,13 +445,33 @@ void Game::apply_command(const DesktopCommand &command) {
         break;
     }
     case DesktopCommand::Kind::Screenshot: take_screenshot(); break;
+    case DesktopCommand::Kind::OpenDataFolder: open_data_folder(); break;
     case DesktopCommand::Kind::None: break;
     }
 }
 
+bool Game::confirm_quit() {
+    // On the title screens (and in scripted runs) there is nothing to lose.
+    if (!options_.autotest_script.empty() || runtime_->frontend_open()) return true;
+    const SDL_MessageBoxButtonData buttons[] = {
+        {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "Keep playing"},
+        {SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Quit"},
+    };
+    const SDL_MessageBoxData box{SDL_MESSAGEBOX_WARNING, presenter_.window(), "Quit Ultima V Native?",
+                                 "Progress since your last save will be lost.\n\n"
+                                 "To save first: F10 -> Save Game (or Q in Original mode, F5 in Enhanced mode).",
+                                 SDL_arraysize(buttons), buttons, nullptr};
+    int chosen = 1;
+    if (!SDL_ShowMessageBox(&box, &chosen)) return true;
+    return chosen == 1;
+}
+
 void Game::handle_event(const SDL_Event &event) {
     switch (event.type) {
-    case SDL_EVENT_QUIT: quit_ = true; return;
+    case SDL_EVENT_QUIT:
+        if (confirm_quit()) quit_ = true;
+        else presenter_.invalidate();
+        return;
     case SDL_EVENT_WINDOW_EXPOSED:
     case SDL_EVENT_WINDOW_RESIZED:
     case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
@@ -494,6 +562,17 @@ void Game::push_key(const std::string &name, const std::vector<std::string> &mod
     down.key.mod = mod;
     down.key.down = true;
     SDL_PushEvent(&down);
+    // A printable key without Ctrl/Alt also types its character, as the OS
+    // sends SDL_EVENT_TEXT_INPUT after the key-down ("key Space" types ' ').
+    const SDL_Keycode typed = down.key.key;
+    if (!(mod & (SDL_KMOD_CTRL | SDL_KMOD_ALT)) && typed >= 0x20 && typed <= 0x7e) {
+        text_buffers_.emplace_back(1, char(typed));
+        SDL_Event t{};
+        t.type = SDL_EVENT_TEXT_INPUT;
+        t.text.windowID = down.key.windowID;
+        t.text.text = text_buffers_.back().c_str();
+        SDL_PushEvent(&t);
+    }
     SDL_Event up = down;
     up.type = SDL_EVENT_KEY_UP;
     up.key.down = false;
@@ -535,7 +614,8 @@ bool Game::autotest_expect(const AutotestStep &step) {
     } else if (name == "frontend_state") {
         actual = std::to_string(int(runtime_->frontend_state()));
         ok = actual == value;
-    } else if (name == "transcript") {
+    } else if (name == "transcript" || name == "no_transcript") {
+        // The console's last 24 blocks; no_transcript passes when VALUE is absent.
         const openu5::UiSession *ui = runtime_->ui();
         const size_t count = ui ? ui->transcript_size() : 0;
         for (size_t i = count > 24 ? count - 24 : 0; i < count; ++i) {
@@ -544,7 +624,41 @@ bool Game::autotest_expect(const AutotestStep &step) {
             actual += std::string(block->text, block->length);
             actual += " | ";
         }
+        ok = (actual.find(value) != std::string::npos) == (name == "transcript");
+    } else if (name == "footer") {
+        // The title/menu page's footer (or the System Menu's) contains VALUE.
+        if (runtime_->frontend_open() || runtime_->system_menu_open()) {
+            const openu5::FrontendView v = runtime_->frontend_open() ? runtime_->frontend_view() : runtime_->system_menu_view();
+            actual = v.footer ? v.footer : "";
+            if (v.subtitle && *v.subtitle) actual += std::string(" / ") + v.subtitle;
+        }
         ok = actual.find(value) != std::string::npos;
+    } else if (name == "position" || name == "remember_position" || name == "remembered_position") {
+        // "<location> <floor> <x> <y>" of the live game (GameState::position).
+        const auto &p = runtime_->game().position;
+        const std::string now = std::to_string(int(p.map.location)) + " " + std::to_string(int(p.map.floor)) + " " +
+                                std::to_string(int(p.xy.x)) + " " + std::to_string(int(p.xy.y));
+        if (name == "position") {
+            actual = now;
+            ok = actual == value;
+        } else if (name == "remember_position") {
+            remembered_position_ = now;
+            actual = now;
+            ok = true;
+        } else {
+            // value 1: back where remember_position was taken; 0: elsewhere.
+            actual = now == remembered_position_ ? "1" : "0";
+            ok = actual == value;
+        }
+    } else if (name == "combat") {
+        actual = runtime_->command_context().combat ? "1" : "0";
+        ok = actual == value;
+    } else if (name == "dungeon") {
+        actual = runtime_->dungeon_state().active ? "1" : "0";
+        ok = actual == value;
+    } else if (name == "location") {
+        actual = std::to_string(int(runtime_->game().position.map.location));
+        ok = actual == value;
     } else if (name == "panel_changed") {
         const uint64_t g = panel::generation();
         actual = g != expect_generation_ ? "1" : "0";
@@ -589,6 +703,125 @@ void Game::autotest_dump(int line) {
     if (const char *overlay = runtime_->status_overlay(); overlay && *overlay) std::fprintf(stderr, "  overlay: %s\n", overlay);
 }
 
+void Game::autotest_key(const char *name, std::vector<std::string> mods) {
+    push_key(name, mods);
+    pass(false);
+}
+
+void Game::autotest_type(const std::string &text) {
+    push_text(text);
+    pass(false);
+}
+
+// The Developer menu's own Teleport page, driven by keys exactly as a player
+// drives it (as the T-Deck screenshot harness does): Alt+D, Teleport,
+// Destination = its ordinal in the picker, optional X/Y, Teleport, back out.
+// Needs the Developer menu (Enhanced mode or --developer).
+bool Game::autotest_teleport(const AutotestStep &step) {
+#if !defined(OPENU5_ENABLE_DEVELOPER_TOOLS)
+    (void)step;
+    return false; // the Developer menu is not compiled in
+#else
+    const std::string &kind_name = step.args[0];
+    openu5::DebugDestinationKind kind = openu5::DebugDestinationKind::Britannia;
+    if (kind_name == "dungeon") kind = openu5::DebugDestinationKind::Dungeon;
+    else if (kind_name == "town") kind = openu5::DebugDestinationKind::SmallMap;
+    else if (kind_name == "underworld") kind = openu5::DebugDestinationKind::Underworld;
+    else if (kind_name != "britannia") return false;
+    const bool large = kind == openu5::DebugDestinationKind::Britannia || kind == openu5::DebugDestinationKind::Underworld;
+    const int location = large ? 0 : (step.args.size() > 1 ? std::atoi(step.args[1].c_str()) : 0);
+    const auto &context = runtime_->command_context_for_test();
+    size_t ordinal = size_t(-1);
+    for (size_t i = 0; i < openu5::debug_destination_count(context); ++i) {
+        const auto d = openu5::debug_destination_at(context, i);
+        if (d.error != openu5::Error::None || d.value.kind != kind) continue;
+        if (large || d.value.location == location) {
+            ordinal = i;
+            break;
+        }
+    }
+    if (ordinal == size_t(-1)) return false;
+    autotest_key("D", {"alt"});
+    autotest_key("Return", {}); // the Teleport category
+    autotest_key("Return", {}); // edit Destination
+    autotest_type(std::to_string(ordinal));
+    autotest_key("Return", {});
+    if (large && step.args.size() >= 3) {
+        autotest_key("Down", {}); // Floor
+        autotest_key("Down", {}); // X
+        autotest_key("Return", {});
+        autotest_type(step.args[1]);
+        autotest_key("Return", {});
+        autotest_key("Down", {}); // Y
+        autotest_key("Return", {});
+        autotest_type(step.args[2]);
+        autotest_key("Return", {});
+        autotest_key("Down", {}); // Use default entrance
+        autotest_key("Down", {}); // Teleport
+    } else {
+        for (int i = 0; i < 5; ++i) autotest_key("Down", {});
+    }
+    autotest_key("Return", {}); // Teleport
+    autotest_key("Backspace", {});
+    autotest_key("Backspace", {});
+    for (int i = 0; i < 20; ++i) pass(false);
+    ESP_LOGI(kTag, "AUTOTEST teleport %s ordinal=%u", kind_name.c_str(), unsigned(ordinal));
+    return true;
+#endif
+}
+
+// A surface fight, as the T-Deck screenshot harness stages one: open grass
+// (a 5x3 patch of tile 5) found on the live map, the party teleported there,
+// N enemies of definition DEF placed beside it, then Pass until the arena opens.
+bool Game::autotest_fight(const AutotestStep &step) {
+    const int def = std::atoi(step.args[0].c_str());
+    const int count = step.args.size() > 1 ? std::clamp(std::atoi(step.args[1].c_str()), 1, 5) : 3;
+    auto &context = runtime_->command_context_for_test();
+    const auto map = openu5::get_active_map(context.world, openu5::MapId{openu5::LocationId(0), 0});
+    if (map.error != openu5::Error::None) return false;
+    int gx = -1, gy = -1;
+    for (int y = 60; y < 200 && gx < 0; ++y)
+        for (int x = 60; x < 200 && gx < 0; ++x) {
+            bool ok = true;
+            for (int dy = -1; dy <= 1 && ok; ++dy)
+                for (int dx = -2; dx <= 2 && ok; ++dx) ok = map.value.tile_at(x + dx, y + dy) == 5;
+            if (ok) {
+                gx = x;
+                gy = y;
+            }
+        }
+    if (gx < 0) return false;
+    AutotestStep go;
+    go.verb = "teleport";
+    go.args = {"britannia", std::to_string(gx), std::to_string(gy)};
+    if (!autotest_teleport(go)) return false;
+    if (!context.outdoor || !context.outdoor->resources) return false;
+    int tile = -1;
+    const auto *res = context.outdoor->resources;
+    for (size_t i = 0; i < res->enemy_count; ++i)
+        if (const auto *e = res->enemies[i]; e && e->index == def) tile = e->tile;
+    if (tile < 0) return false;
+    context.outdoor->enemies.clear();
+    const int dx[] = {1, 1, 1, 2, 2}, dy[] = {0, 1, -1, 0, 1};
+    const auto &p = runtime_->game().position.xy;
+    for (int k = 0; k < count; ++k) {
+        openu5::OutdoorEnemy e{};
+        e.definition = def;
+        e.tile = tile;
+        e.x = p.x + dx[k];
+        e.y = p.y + dy[k];
+        context.outdoor->enemies.push_back(e);
+    }
+    for (int turn = 0; turn < 8 && !runtime_->command_context().combat; ++turn) {
+        autotest_key("Space", {});
+        const int64_t end = esp_timer_get_time() + 400000;
+        while (esp_timer_get_time() < end && pass(true)) {
+        }
+    }
+    ESP_LOGI(kTag, "AUTOTEST fight def=%d n=%d at %d,%d combat=%d", def, count, gx, gy, runtime_->command_context().combat);
+    return runtime_->command_context().combat;
+}
+
 bool Game::run_autotest() {
     std::ifstream in(std::filesystem::path(options_.autotest_script), std::ios::binary);
     if (!in) {
@@ -627,6 +860,10 @@ bool Game::run_autotest() {
             presenter_.save_screenshot(storage::utf8_to_wide(step.args[0]));
         } else if (step.verb == "dump") {
             autotest_dump(step.line);
+        } else if (step.verb == "teleport") {
+            if (!autotest_teleport(step)) ++autotest_failures_;
+        } else if (step.verb == "fight") {
+            if (!autotest_fight(step)) ++autotest_failures_;
         } else if (step.verb == "log") {
             ESP_LOGI(kTag, "AUTOTEST %s", step.args[0].c_str());
         } else if (step.verb == "quit") {

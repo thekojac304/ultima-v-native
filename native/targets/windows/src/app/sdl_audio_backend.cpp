@@ -143,6 +143,10 @@ bool SdlAudioBackend::StreamSink::deliver(const int16_t *block) {
         const size_t take = std::min<size_t>(openu5::kAudioBlockFrames, offline_frames - offline_used);
         std::memcpy(offline + offline_used, block, take * sizeof(int16_t));
         offline_used += take;
+        // What did not fit is the next call's first samples, as SDL's stream
+        // would keep it: a split render equals one long render.
+        carry_count = openu5::kAudioBlockFrames - take;
+        if (carry_count) std::memcpy(carry, block + take, carry_count * sizeof(int16_t));
         return true;
     }
     return stream && SDL_PutAudioStreamData(stream, block, kBlockBytes);
@@ -214,6 +218,13 @@ void SdlAudioBackend::render_offline(int16_t *out, size_t frames) {
     sink_.offline_frames = frames;
     sink_.offline_used = 0;
     ensure_started();
+    if (sink_.carry_count) {
+        const size_t take = std::min(sink_.carry_count, frames);
+        std::memcpy(out, sink_.carry, take * sizeof(int16_t));
+        std::memmove(sink_.carry, sink_.carry + take, (sink_.carry_count - take) * sizeof(int16_t));
+        sink_.carry_count -= take;
+        sink_.offline_used = take;
+    }
     while (sink_.offline_used < frames) {
         const size_t before = sink_.offline_used;
         produce(size_t(kBlockBytes));

@@ -1,17 +1,25 @@
 import {deepStrictEqual} from 'node:assert';
 import {parseCombatMaps} from '../../../extractor/src/parsers/combatmap.js';
-import {readFileSync,writeFileSync} from 'node:fs';
+import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
+import {dirname,resolve,sep} from 'node:path';
+import {fileURLToPath,pathToFileURL} from 'node:url';
 import {Combat,type CombatMapData} from '../../../game/src/core/combat/combat.js';
 import {buildEnemyDefs} from '../../../game/src/core/combat/enemies.js';
 import {roomEntryDirectionFor} from '../../../game/src/core/combat/roomEntry.js';
 import {board,exitTransport} from '../../../game/src/core/world/transport.js';
-const root=new URL('../',import.meta.url),check=process.argv.includes('--check');
-function json(path:string){return JSON.parse(readFileSync(new URL(path,import.meta.url),'utf8'));}
-function output(path:string,text:string){const u=new URL(path,root);if(check){if(readFileSync(u,'utf8')!==text)throw Error(`drift ${path}`);}else writeFileSync(u,text);}
+// Optional explicit locations (additive; native/tools/asset-prep uses them): --assets DIR stands in for game/assets,
+// --data DIR for game/src/core/data, --source DIR for original/u5/ultima5, and --out DIR for native/core (it receives
+// src/loot_names.inc and fixtures/*). Without them every path resolves against this checkout exactly as before.
+const opt=(n:string)=>{const i=process.argv.indexOf(n);if(i<0)return undefined;const v=process.argv[i+1];if(!v||v.startsWith('--'))throw Error(`${n} needs a value`);return resolve(v);};
+const over:[string,string|undefined][]=[['../../../game/assets/',opt('--assets')],['../../../game/src/core/data/',opt('--data')],['../../../original/u5/ultima5/',opt('--source')]],outDir=opt('--out');
+function at(path:string){for(const [p,d] of over)if(d&&path.startsWith(p))return pathToFileURL(resolve(d,path.slice(p.length)));return new URL(path,import.meta.url);}
+const root=outDir?pathToFileURL(outDir+sep):new URL('../',import.meta.url),check=process.argv.includes('--check');
+function json(path:string){return JSON.parse(readFileSync(at(path),'utf8'));}
+function output(path:string,text:string){const u=new URL(path,root);if(check){if(readFileSync(u,'utf8')!==text)throw Error(`drift ${path}`);}else{if(outDir)mkdirSync(dirname(fileURLToPath(u)),{recursive:true});writeFileSync(u,text);}}
 const data=json('../../../game/assets/data.json'),defs=buildEnemyDefs(data,json('../../../game/src/core/data/AdditionalEnemyFlags.json'));
 const maps:CombatMapData[]=json('../../../game/assets/maps/combatmaps.json');
 output('src/loot_names.inc','// Generated from game/src/core/data/longEquipNames.json.\nstatic const char *kLootNames[] = {'+json('../../../game/src/core/data/longEquipNames.json').names.map((n:string)=>JSON.stringify(n)).join(',')+'};\n');
-deepStrictEqual(maps,parseCombatMaps(readFileSync(new URL('../../../original/u5/ultima5/BRIT.CBT',import.meta.url)),readFileSync(new URL('../../../original/u5/ultima5/DUNGEON.CBT',import.meta.url))));
+deepStrictEqual(maps,parseCombatMaps(readFileSync(at('../../../original/u5/ultima5/BRIT.CBT')),readFileSync(at('../../../original/u5/ultima5/DUNGEON.CBT'))));
 const dirs=['east','west','south','north'] as const,facings=['north','east','south','west'] as const;
 class Hash {h=2166136261;n(v:number){for(let i=0;i<4;i++)this.h=Math.imul(this.h^((v>>>(i*8))&255),16777619)>>>0;}s(s:string){this.n(s.length);for(const c of s)this.h=Math.imul(this.h^c.charCodeAt(0),16777619)>>>0;}}
 output('fixtures/fixed-maps.txt',maps.map(m=>[m.index,...m.tiles.flat(),...dirs.flatMap(d=>[m.playerStarts[d].length,...m.playerStarts[d].flatMap(p=>[p.x,p.y])]),m.units.length,...m.units.flatMap(u=>[u.x,u.y,u.sprite]),m.triggers.length,...m.triggers.flatMap(t=>[t.sprite,t.at.x,t.at.y,t.pos1.x,t.pos1.y,t.pos2.x,t.pos2.y])].join(' ')).join('\n')+'\n');

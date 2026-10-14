@@ -1,0 +1,63 @@
+# Original mode refuses the Enhanced shortcuts and keeps W/A/S/D as letters;
+# Ctrl+S is the DOS sound toggle; digits pick a member in a "Player:" prompt.
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Purist
+key Return
+text M
+text A
+text A
+text A
+text A
+text A
+text A
+text A
+wait 2500
+expect frontend 0
+key F5
+wait 300
+expect no_transcript Save complete
+key F9
+wait 300
+expect no_transcript Load complete
+key F2
+wait 200
+expect remember_position x
+text w
+wait 300
+expect remembered_position 1
+key Escape
+frames 2
+key S ctrl
+wait 200
+key S ctrl
+wait 200
+text c
+frames 2
+expect mode 9
+text 1
+frames 2
+expect mode 6
+key Escape
+wait 300
+key F10
+frames 2
+expect system_menu 1
+key F10
+frames 2
+expect system_menu 0
+# (Q)uit & Save, as in 1988: "Quit:", "Save game? ", N saves nothing, Y saves.
+text q
+frames 2
+expect mode 8
+text n
+frames 2
+expect transcript Quit: | No
+text q
+frames 2
+text y
+wait 500
+expect transcript Saving... | Done.

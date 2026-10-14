@@ -42,7 +42,10 @@ std::string encode_desktop_settings(const DesktopSettings &s) {
 
 bool decode_desktop_settings(const std::string &text, DesktopSettings &out) {
     Json doc;
-    if (openu5::save::parse_json(text, doc) != openu5::save::JsonError::None || doc.kind != Json::Object) return false;
+    // A file saved by Notepad may start with a UTF-8 byte-order mark.
+    const bool bom = text.size() >= 3 && static_cast<unsigned char>(text[0]) == 0xEF &&
+                     static_cast<unsigned char>(text[1]) == 0xBB && static_cast<unsigned char>(text[2]) == 0xBF;
+    if (openu5::save::parse_json(bom ? text.substr(3) : text, doc) != openu5::save::JsonError::None || doc.kind != Json::Object) return false;
     DesktopSettings s;
     if (doc.has("interfaceMode") && doc["interfaceMode"].kind == Json::String)
         s.interface_mode = u16_to_ascii(doc["interfaceMode"].string) == "Enhanced" ? InterfaceMode::Enhanced

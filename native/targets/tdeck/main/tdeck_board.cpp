@@ -1,4 +1,5 @@
 #include "tdeck_board.h"
+#include "openu5/platform_profile.h"
 #include "boot_trace.h"
 #include "sd_clock_policy.h"
 
@@ -908,8 +909,10 @@ esp_err_t Board::show_alpha(const uint16_t *pixels,const openu5::UiSession &ui,
             ESP_RETURN_ON_ERROR(fill_rect(0,0,kDisplayWidth,kDisplayHeight,kBlack),kTag,"enter developer screen");
             debug_last_pixels_+=kDisplayWidth*kDisplayHeight;
             ESP_RETURN_ON_ERROR(draw_text_box(8,6,304,16,"Developer",kCyan,2,2),kTag,"draw developer title");
-            ESP_RETURN_ON_ERROR(draw_text_box(8,216,304,11,"Trackball: Move  Enter: Select",kWhite),kTag,"draw developer controls");
-            ESP_RETURN_ON_ERROR(draw_text_box(8,229,304,11,"Mic: Back",kWhite),kTag,"draw developer back control");
+            {char legend[48];openu5::platform_format(legend,sizeof(legend),"{move}: Move  Enter: Select");
+            ESP_RETURN_ON_ERROR(draw_text_box(8,216,304,11,legend,kWhite),kTag,"draw developer controls");}
+            {char legend[32];openu5::platform_format(legend,sizeof(legend),"{back}: Back");
+            ESP_RETURN_ON_ERROR(draw_text_box(8,229,304,11,legend,kWhite),kTag,"draw developer back control");}
             debug_last_dirty_regions_+=3;debug_last_pixels_+=304*(16+11+11);
         }
         if(full||std::strcmp(debug_cache_.breadcrumb,debug->breadcrumb)!=0){

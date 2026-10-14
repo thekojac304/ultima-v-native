@@ -1,6 +1,7 @@
 #pragma once
 #include "enhanced.h"
 #include "frontend.h"
+#include "platform_profile.h"
 namespace openu5 {
 // A4-ENH1: OpenDeveloper is kept (no value renumbers) but nothing produces it:
 // the menu has no Developer row; Alt+D opens the tools on every screen.
@@ -43,6 +44,9 @@ private:
  // A4-SAVE2: Save (Slots 1-3) and Confirm ("Overwrite Slot N?", No first).
  // A4-ENH2: Custom, the Custom difficulty's values (left/right edits them).
  // A4-ENH2: Cheats lists the cheat groups, CheatGroup one group's cheats.
+ // Windows port: the root rows and Settings rows the platform profile shows
+ // (openu5/platform_profile.h); with the T-Deck's profile, every row, in order.
+ uint8_t root_rows(RootRow*out)const;uint8_t root_index(RootRow row)const;
  enum class Page:uint8_t{Root,Load,Settings,Save,Confirm,Cheats,Difficulty,Custom,CheatGroup};EnhancedState enhanced_{};uint8_t gold_step_=1,cheat_group_=0;bool active_=false;Page page_=Page::Root;uint8_t cursor_=0,settings_cursor_=0;FrontendSettings settings_{};MusicAvailability music_availability_=MusicAvailability::NoAudioPack;FrontendSaveCatalog catalog_{};int8_t journey_slot_=-1,confirm_slot_=-1;uint8_t slot_cursor(bool saving)const;char notice_[64]{};SystemMenuIntent pending_{};bool sfx_muted_=false,music_muted_=false,keyboard_light_available_=true;uint8_t volume_edits_=0;
 };
 }

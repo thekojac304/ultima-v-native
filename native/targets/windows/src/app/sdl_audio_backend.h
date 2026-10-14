@@ -98,6 +98,8 @@ class SdlAudioBackend final : public openu5::AudioBackend, public openu5::AudioP
         SDL_AudioStream *stream = nullptr;
         int16_t *offline = nullptr; // when set, blocks are copied here instead
         size_t offline_frames = 0, offline_used = 0;
+        int16_t carry[openu5::kAudioBlockFrames]{}; // the part of a block an offline render could not take
+        size_t carry_count = 0;
         uint32_t delivered_ = 0;
     };
 

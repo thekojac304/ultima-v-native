@@ -1,0 +1,32 @@
+# Into a dungeon through the Developer menu's Teleport page; walk and turn.
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Delver
+key Return
+text M
+text A
+text A
+text A
+text A
+text A
+text A
+text A
+wait 2500
+expect frontend 0
+teleport dungeon 33
+expect dungeon 1
+expect mode 1
+text i
+wait 300
+expect panel_changed 1
+key Up
+wait 400
+key Left
+wait 400
+key Right
+wait 400
+expect panel_changed 1
+expect dungeon 1

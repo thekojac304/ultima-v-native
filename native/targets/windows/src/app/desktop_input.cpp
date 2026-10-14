@@ -168,6 +168,7 @@ size_t DesktopInput::key_down(const SDL_KeyboardEvent &key, const InputContext &
         // The DOS game's own Ctrl-S toggles the sound; Ctrl-M the same for music.
         if (sc == SDL_SCANCODE_S) return emit(out, capacity, n, shortcut(DeviceShortcut::SfxMute, "ctrl-s"));
         if (sc == SDL_SCANCODE_M) return emit(out, capacity, n, shortcut(DeviceShortcut::MusicMute, "ctrl-m"));
+        if (sc == SDL_SCANCODE_O) return emit(out, capacity, n, window(DesktopCommand::Kind::OpenDataFolder));
         return 0;
     }
     if (enhanced) {

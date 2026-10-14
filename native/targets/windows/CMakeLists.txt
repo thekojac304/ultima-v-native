@@ -191,6 +191,7 @@ add_library(uv_desktop STATIC
   src/app/autotest.cpp
   src/app/data_paths.cpp
   src/app/desktop_input.cpp
+  src/app/desktop_profile.cpp
   src/app/desktop_settings.cpp
   src/app/presenter.cpp
   src/app/sdl_audio_backend.cpp)
@@ -218,4 +219,6 @@ add_custom_command(TARGET UltimaVNative POST_BUILD
 if(UV_BUILD_TESTS)
   enable_testing()
   add_subdirectory(tests)
+  # End-to-end runs of the real executable (need the player's packs; see scenarios/).
+  add_subdirectory(scenarios)
 endif()

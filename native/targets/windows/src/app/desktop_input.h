@@ -16,7 +16,8 @@
 //               the original command keys, digits 1-6 pick the member in a
 //               "Player:" prompt, F10 / Alt+M = System Menu, F7 / F8 and
 //               Ctrl+M / Ctrl+S = music / sound off and on (the DOS game's
-//               Ctrl-S sound toggle), Alt+Enter / F11 = fullscreen.
+//               Ctrl-S sound toggle), Alt+Enter / F11 = fullscreen, Ctrl+O =
+//               open the data folder, F12 = screenshot.
 //   Enhanced    adds F5 / Alt+S quick save, F9 / Alt+L quick load, F2 WASD
 //               Movement Mode (W/A/S/D move while it is on), Alt+D Developer.
 //   Original    none of the Enhanced keys: W/A/S/D are always their letters.
@@ -48,6 +49,7 @@ struct DesktopCommand {
         WindowScaleUp,
         WindowScaleDown,
         Screenshot,
+        OpenDataFolder,   // the data folder in Explorer (saves, PC import/export, packs)
     };
     Kind kind = Kind::None;
     openu5::UiAction action{};

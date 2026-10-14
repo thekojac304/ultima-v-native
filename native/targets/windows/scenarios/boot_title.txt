@@ -1,0 +1,10 @@
+# The title appears; Enter opens the main menu with the desktop footer.
+frames 5
+expect frontend 1
+expect frontend_state 0
+expect footer Press a key
+key Return
+frames 3
+expect frontend_state 3
+expect footer Select: arrows / Enter
+expect panel_changed 1

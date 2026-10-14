@@ -1,0 +1,48 @@
+# System Menu save to the journey's slot, walk away, load it back.
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Saver
+key Return
+text M
+text A
+text A
+text A
+text A
+text A
+text A
+text A
+wait 2500
+expect frontend 0
+key F10
+frames 2
+expect system_menu 1
+expect footer F10 or Esc: resume
+key Down
+key Return
+frames 2
+expect footer Choose a slot
+key Return
+frames 2
+key Down
+key Return
+wait 500
+expect system_menu 0
+expect remember_position x
+key Up
+wait 300
+key Up
+wait 300
+expect remembered_position 0
+key F10
+frames 2
+key Down
+key Down
+key Return
+frames 2
+key Return
+wait 800
+expect system_menu 0
+expect remembered_position 1

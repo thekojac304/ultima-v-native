@@ -1,0 +1,59 @@
+# Original mode: Cast takes the 1988 typed spell name (syllable initials).
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Mage
+key Return
+text F
+text B
+text B
+text B
+text B
+text B
+text B
+text B
+wait 2500
+expect frontend 0
+text c
+frames 3
+expect mode 9
+text 1
+frames 3
+expect mode 6
+text i
+text j
+text o
+text l
+frames 2
+key Backspace
+text l
+key Return
+wait 800
+expect transcript Spell name: IN LOR
+text c
+frames 2
+text 1
+frames 2
+text l
+text i
+key Return
+wait 800
+expect transcript Spell name: LOR IN
+text c
+frames 2
+text 1
+frames 2
+text x
+text q
+key Space
+frames 2
+expect transcript No effect!
+text c
+frames 2
+text 1
+frames 2
+key Escape
+wait 300
+expect transcript Spell name:  | None!

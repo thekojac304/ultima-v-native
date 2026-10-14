@@ -1,0 +1,27 @@
+# Enhanced mode keeps the spell list (a quick-select convenience).
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Mage
+key Return
+text F
+text B
+text B
+text B
+text B
+text B
+text B
+text B
+wait 2500
+expect interface Enhanced
+text c
+frames 3
+expect mode 9
+text 1
+frames 3
+expect mode 12
+key Escape
+frames 2
+expect mode 0

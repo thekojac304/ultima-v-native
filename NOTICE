@@ -6,7 +6,13 @@ Third-party material:
   Ultima5Redux by Brad Hannah, licensed under the MIT License.
   https://github.com/bradhannah/Ultima5Redux
 
-OpenU5 contains no game data, art, music, text or maps from
-Ultima V: Warriors of Destiny. "Ultima" is a registered trademark of
+- The Windows build (native/targets/windows) uses SDL3, Simple DirectMedia
+  Layer (https://www.libsdl.org/), under the zlib License. It is fetched at
+  build time and shipped as SDL3.dll; its licence travels with the package
+  (THIRD-PARTY-LICENSES.txt). The asset-preparation script bundled for
+  Windows players includes pngjs (MIT License).
+
+OpenU5 and Ultima V Native contain no game data, art, music or maps
+from Ultima V: Warriors of Destiny; players supply their own copy. "Ultima" is a registered trademark of
 Electronic Arts. This project is not affiliated with or endorsed by
 Electronic Arts or Origin Systems.

@@ -9,7 +9,36 @@ import { buildDungeonArt } from "./alpha1-dungeon-art.js";
 import { buildEndgamePages } from "./alpha1-endgame.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const OUT = resolve(ROOT, "native/assets/openu5-alpha1-resources.bin");
+// Optional explicit locations, all additive (native/tools/asset-prep runs this script with them):
+//   --assets DIR    stands in for game/assets (the extractor's output)
+//   --data DIR      stands in for game/src/core/data
+//   --fixtures DIR  stands in for native/core/fixtures
+//   --source DIR    stands in for original/u5/ultima5
+//   --output FILE   is written instead of native/assets/openu5-alpha1-resources.bin
+// Without them every path below resolves against this checkout exactly as before.
+function option(name: string): string | undefined {
+  const index = process.argv.indexOf(name);
+  if (index < 0) return undefined;
+  const value = process.argv[index + 1];
+  if (!value || value.startsWith("--")) {
+    console.error("Usage: npm run pack:alpha1 -- [--assets DIR] [--data DIR] [--fixtures DIR] [--source DIR] [--output FILE]");
+    process.exit(2);
+  }
+  return resolve(value);
+}
+const OVERRIDES: [string, string | undefined][] = [
+  ["game/assets", option("--assets")],
+  ["game/src/core/data", option("--data")],
+  ["native/core/fixtures", option("--fixtures")],
+  ["original/u5/ultima5", option("--source")],
+];
+function repoPath(path: string): string {
+  for (const [dir, override] of OVERRIDES) {
+    if (override && (path === dir || path.startsWith(`${dir}/`))) return resolve(override, path.slice(dir.length + 1));
+  }
+  return resolve(ROOT, path);
+}
+const OUT = option("--output") ?? resolve(ROOT, "native/assets/openu5-alpha1-resources.bin");
 const HEADER = 32;
 const ENTRY = 64;
 const MAGIC = Buffer.from("OU5A1RES", "ascii");
@@ -17,7 +46,7 @@ const MAGIC = Buffer.from("OU5A1RES", "ascii");
 type Entry = { name: string; data: Buffer; records?: number; stride?: number };
 
 function u8map(path: string): Buffer {
-  const value = JSON.parse(readFileSync(resolve(ROOT, path), "utf8"));
+  const value = JSON.parse(readFileSync(repoPath(path), "utf8"));
   const rows = value.tiles ?? value;
   const flat = rows.flat(2);
   if (flat.length !== 65536 || flat.some((n: number) => !Number.isInteger(n) || n < 0 || n > 255)) {
@@ -27,7 +56,7 @@ function u8map(path: string): Buffer {
 }
 
 function smallMaps(): Buffer {
-  const maps = JSON.parse(readFileSync(resolve(ROOT, "game/assets/maps/smallmaps.json"), "utf8"));
+  const maps = JSON.parse(readFileSync(repoPath("game/assets/maps/smallmaps.json"), "utf8"));
   const floors: { location: number; floor: number; tiles: number[] }[] = [];
   for (const map of maps) for (const floor of map.floors) {
     const tiles = floor.tiles.flat();
@@ -49,7 +78,7 @@ function smallMaps(): Buffer {
 }
 
 function dungeons(): Buffer {
-  const maps = JSON.parse(readFileSync(resolve(ROOT, "game/assets/maps/dungeons.json"), "utf8"));
+  const maps = JSON.parse(readFileSync(repoPath("game/assets/maps/dungeons.json"), "utf8"));
   const out = Buffer.alloc(4 + maps.length * 516);
   out.writeUInt32LE(maps.length, 0);
   maps.forEach((map: any, index: number) => {
@@ -63,7 +92,7 @@ function dungeons(): Buffer {
 }
 
 function npcs(): Buffer {
-  const source = JSON.parse(readFileSync(resolve(ROOT, "game/assets/npcs.json"), "utf8"));
+  const source = JSON.parse(readFileSync(repoPath("game/assets/npcs.json"), "utf8"));
   const records: Buffer[] = [];
   for (let location = 1; location <= 32; location++) {
     const list = source[String(location)] ?? [];
@@ -85,7 +114,7 @@ function npcs(): Buffer {
 }
 
 function worldTables(): Buffer {
-  const data = JSON.parse(readFileSync(resolve(ROOT, "game/assets/data.json"), "utf8"));
+  const data = JSON.parse(readFileSync(repoPath("game/assets/data.json"), "utf8"));
   const locations = Math.min(data.locationsX.length, data.locationsY.length);
   const search = data.searchObjects ?? [];
   const phases = data.moonPhases ?? [];
@@ -104,12 +133,12 @@ function worldTables(): Buffer {
 }
 
 function combatData(): Buffer {
-  const maps = JSON.parse(readFileSync(resolve(ROOT, "game/assets/maps/combatmaps.json"), "utf8"));
-  const data = JSON.parse(readFileSync(resolve(ROOT, "game/assets/data.json"), "utf8"));
+  const maps = JSON.parse(readFileSync(repoPath("game/assets/maps/combatmaps.json"), "utf8"));
+  const data = JSON.parse(readFileSync(repoPath("game/assets/data.json"), "utf8"));
   const enemyFlags = JSON.parse(readFileSync(
-    resolve(ROOT, "game/src/core/data/AdditionalEnemyFlags.json"), "utf8",
+    repoPath("game/src/core/data/AdditionalEnemyFlags.json"), "utf8",
   ));
-  const rows = readFileSync(resolve(ROOT, "native/core/fixtures/fixed-enemies.txt"), "utf8")
+  const rows = readFileSync(repoPath("native/core/fixtures/fixed-enemies.txt"), "utf8")
     .trim().split(/\r?\n/).map((line) => line.trim().split(/\s+/).map(Number));
   const tableCount = Math.max(data.attackValues.length, data.attackRangeValues.length,
     data.defenseValues.length, data.reqStrengthEquip.length);
@@ -172,8 +201,8 @@ function combatData(): Buffer {
 }
 
 function shopData(): Buffer {
-  const data = JSON.parse(readFileSync(resolve(ROOT, "game/assets/data.json"), "utf8"));
-  const keepers = JSON.parse(readFileSync(resolve(ROOT, "game/src/core/data/ShoppeKeeperMap.json"), "utf8").replace(/^\uFEFF/, ""));
+  const data = JSON.parse(readFileSync(repoPath("game/assets/data.json"), "utf8"));
+  const keepers = JSON.parse(readFileSync(repoPath("game/src/core/data/ShoppeKeeperMap.json"), "utf8").replace(/^\uFEFF/, ""));
   const locationByName: Record<string, number> = {
     Moonglow: 1, Britain: 2, Jhelom: 3, Yew: 4, Minoc: 5, Trinsic: 6,
     Skara_Brae: 7, New_Magincia: 8, Lord_Britishs_Castle: 17,
@@ -231,7 +260,7 @@ function dialogueData(): Buffer {
   const files = ["towne", "dwelling", "castle", "keep"];
   const scripts: { master: number; dialog: number; blob: Buffer }[] = [];
   files.forEach((name, master) => {
-    const source = JSON.parse(readFileSync(resolve(ROOT, `game/assets/talk/${name}.json`), "utf8"));
+    const source = JSON.parse(readFileSync(repoPath(`game/assets/talk/${name}.json`), "utf8"));
     for (const script of source) {
       const index = Buffer.alloc(4); index.writeInt32LE(script.npcIndex, 0);
       const labels = Buffer.alloc(2); labels.writeUInt16LE(script.labels.length);
@@ -254,7 +283,7 @@ function dialogueData(): Buffer {
   return Buffer.concat([header, ...scripts.map((script) => script.blob)]);
 }
 function shrineData(): Buffer {
-  const data = JSON.parse(readFileSync(resolve(ROOT, "game/assets/data.json"), "utf8"));
+  const data = JSON.parse(readFileSync(repoPath("game/assets/data.json"), "utf8"));
   const out = Buffer.alloc(4 + 8 * 56); out.writeUInt32LE(8, 0);
   for (let i = 0; i < 8; i++) { const at = 4 + i * 56;
     Buffer.from(String(data.virtues[i] ?? ""), "utf16le").copy(out, at, 0, 32);
@@ -265,7 +294,7 @@ function shrineData(): Buffer {
 }
 
 function questionData(): Buffer {
-  const questions = JSON.parse(readFileSync(resolve(ROOT, "game/assets/questions.json"), "utf8")).questions as string[];
+  const questions = JSON.parse(readFileSync(repoPath("game/assets/questions.json"), "utf8")).questions as string[];
   if (questions.length !== 28) throw new Error(`QUESTION.DAT extraction has ${questions.length} questions; expected 28`);
   const strings = questions.map((q) => Buffer.from(q.replace(/\u00ad/g, ""), "utf8"));
   const header = Buffer.alloc(4 + (questions.length + 1) * 4); header.writeUInt32LE(questions.length, 0);
@@ -275,7 +304,7 @@ function questionData(): Buffer {
 }
 
 function introText(): Buffer {
-  const scenes = JSON.parse(readFileSync(resolve(ROOT, "game/assets/intro-scenes.json"), "utf8")) as { text: string }[];
+  const scenes = JSON.parse(readFileSync(repoPath("game/assets/intro-scenes.json"), "utf8")) as { text: string }[];
   if (scenes.length !== 21) throw new Error(`INTRO.OVL extraction has ${scenes.length} scenes; expected 21`);
   const strings = scenes.map((scene) => Buffer.from(scene.text.replace(/\u00ad/g, "").replace(/\n/g, " "), "utf8"));
   const header = Buffer.alloc(4 + (strings.length + 1) * 4); header.writeUInt32LE(strings.length, 0);
@@ -285,7 +314,7 @@ function introText(): Buffer {
 }
 
 function introTitle(): Buffer {
-  const png = PNG.sync.read(readFileSync(resolve(ROOT, "game/assets/intro-pics.png")));
+  const png = PNG.sync.read(readFileSync(repoPath("game/assets/intro-pics.png")));
   const frameBytes = 320 * 110 * 2;
   const out = Buffer.alloc(frameBytes * 4);
   const blit = (frame: number, sx: number, sy: number, width: number, height: number, dx: number, dy: number) => {
@@ -307,7 +336,7 @@ function introTitle(): Buffer {
 }
 
 function creditsPanel(): Buffer {
-  const png = PNG.sync.read(readFileSync(resolve(ROOT, "game/assets/intro-pics.png")));
+  const png = PNG.sync.read(readFileSync(repoPath("game/assets/intro-pics.png")));
   const width = 288, height = 137, sx = 0, sy = 3555;
   const out = Buffer.alloc(width * height * 2);
   for (let y = 0; y < height; ++y) for (let x = 0; x < width; ++x) {
@@ -319,8 +348,8 @@ function creditsPanel(): Buffer {
 }
 
 function creationSprites(): Buffer {
-  const png = PNG.sync.read(readFileSync(resolve(ROOT, "game/assets/intro-pics.png")));
-  const atlas = JSON.parse(readFileSync(resolve(ROOT, "game/assets/intro-pics.json"), "utf8"));
+  const png = PNG.sync.read(readFileSync(repoPath("game/assets/intro-pics.png")));
+  const atlas = JSON.parse(readFileSync(repoPath("game/assets/intro-pics.json"), "utf8"));
   const records = Array.from({ length: 11 }, (_, id) => {
     const entry = atlas.entries.find((item: any) => item.name === `create:${id}`);
     if (!entry) throw new Error(`Missing extracted CREATE.16 sprite create:${id}`);
@@ -346,7 +375,7 @@ function creationSprites(): Buffer {
   return Buffer.concat([header, ...records.map(record => record.pixels)]);
 }
 function lookData(): Buffer {
-  const rows: string[] = JSON.parse(readFileSync(resolve(ROOT, "game/assets/look2.json"), "utf8"));
+  const rows: string[] = JSON.parse(readFileSync(repoPath("game/assets/look2.json"), "utf8"));
   const encoded = rows.map((row) => Buffer.from(`${row}\0`, "utf8"));
   const header = Buffer.alloc(4 + (rows.length + 1) * 4); header.writeUInt32LE(rows.length, 0);
   let at = 0; encoded.forEach((row, i) => { header.writeUInt32LE(at, 4 + i * 4); at += row.length; });
@@ -364,7 +393,7 @@ function encodeStringRecords(rows: string[]): Buffer {
 }
 
 function stringRecords(path: string): Buffer {
-  return encodeStringRecords(JSON.parse(readFileSync(resolve(ROOT, path), "utf8")));
+  return encodeStringRecords(JSON.parse(readFileSync(repoPath(path), "utf8")));
 }
 
 // MISCMSG.DAT, extracted from the user's own original data by
@@ -373,7 +402,7 @@ function stringRecords(path: string): Buffer {
 // blackthorn.cpp's capture/interrogation records (0-11) and shrine.cpp's
 // Codex/mantra records (12-44); see native/core/include/openu5/shrine.h.
 function miscMsgRecords(): Buffer {
-  const ds = JSON.parse(readFileSync(resolve(ROOT, "game/assets/ds-strings.json"), "utf8"));
+  const ds = JSON.parse(readFileSync(repoPath("game/assets/ds-strings.json"), "utf8"));
   const rows: string[] = ds["MISCMSG.DAT"];
   if (!Array.isArray(rows) || rows.length < 45) {
     throw new Error(`ds-strings.json MISCMSG.DAT has ${rows?.length ?? 0} records; expected at least 45`);
@@ -409,11 +438,11 @@ function checkedRecords(name: string, rows: unknown, count: number): Buffer {
   }
   return encodeStringRecords(rows as string[]);
 }
-const dsStrings = () => JSON.parse(readFileSync(resolve(ROOT, "game/assets/ds-strings.json"), "utf8"));
+const dsStrings = () => JSON.parse(readFileSync(repoPath("game/assets/ds-strings.json"), "utf8"));
 function endMsgRecords(): Buffer { return checkedRecords("ENDMSG.DAT", dsStrings()["ENDMSG.DAT"], 11); }
 function karmaRecords(): Buffer { return checkedRecords("KARMA.DAT", dsStrings()["KARMA.DAT"], 6); }
 function wordsOfPower(): Buffer {
-  const data = JSON.parse(readFileSync(resolve(ROOT, "game/assets/data.json"), "utf8"));
+  const data = JSON.parse(readFileSync(repoPath("game/assets/data.json"), "utf8"));
   return checkedRecords("DATA.OVL wordsOfPower", data.wordsOfPower, 8);
 }
 
@@ -426,7 +455,7 @@ function wordsOfPower(): Buffer {
 // int16 tiles, row-major -- the layout native/core's BlackthornSceneScript
 // mounts verbatim.
 function blackthornScene(): Buffer {
-  const scenes = JSON.parse(readFileSync(resolve(ROOT, "game/assets/shrine-scene.json"), "utf8"));
+  const scenes = JSON.parse(readFileSync(repoPath("game/assets/shrine-scene.json"), "utf8"));
   const capture = scenes?.capture;
   if (!capture) throw new Error("shrine-scene.json has no `capture` room");
   const { cols, rows, tiles } = capture;
@@ -444,7 +473,7 @@ function blackthornScene(): Buffer {
 }
 
 function signData(): Buffer {
-  return buildAlphaSignData(JSON.parse(readFileSync(resolve(ROOT, "game/assets/signs.json"), "utf8")));
+  return buildAlphaSignData(JSON.parse(readFileSync(repoPath("game/assets/signs.json"), "utf8")));
 }
 
 function crc32(data: Uint8Array): number {
@@ -456,10 +485,10 @@ function crc32(data: Uint8Array): number {
   return (crc ^ 0xffffffff) >>> 0;
 }
 
-const file = (name: string, path: string): Entry => ({ name, data: readFileSync(resolve(ROOT, path)) });
+const file = (name: string, path: string): Entry => ({ name, data: readFileSync(repoPath(path)) });
 const packedSigns = signData();
 const demoScene = (() => {
-  const value = JSON.parse(readFileSync(resolve(ROOT, "game/assets/demo-scene.json"), "utf8"));
+  const value = JSON.parse(readFileSync(repoPath("game/assets/demo-scene.json"), "utf8"));
   const maps: number[] = value.maps.flat(3);
   const script: number[] = value.script;
   if (value.cols !== 19 || value.rows !== 4 || value.maps.length !== 4 || maps.length !== 304 ||
@@ -470,12 +499,12 @@ const demoScene = (() => {
   out.writeUInt16LE(script.length, 12); Buffer.from(maps).copy(out, 16); Buffer.from(script).copy(out, 320);
   return out;
 })();
-const dungeonArt = buildDungeonArt(resolve(ROOT, "original/u5/ultima5"));
+const dungeonArt = buildDungeonArt(repoPath("original/u5/ultima5"));
 // Alpha 4 A4-END1 -- the ending's static screens (the six story pages and the
 // scroll's background) composed from the user's own END1/END2/TEXT/ENDSC.16,
 // PROPORT.PCS and END.DAT exactly as ENDGAME.OVL story_screens composes them,
 // plus the throne room MISCMAPS.DAT[0x210] (alpha1-endgame.ts).
-const endgame = buildEndgamePages(resolve(ROOT, "original/u5/ultima5"));
+const endgame = buildEndgamePages(repoPath("original/u5/ultima5"));
 const entries: Entry[] = [
   file("init.gam", "game/assets/init.gam"),
   file("init.ool", "game/assets/init.ool"),
@@ -522,7 +551,7 @@ const entries: Entry[] = [
   // bit 7 = left). RUNES.CH has the same Latin capitals but runes in the
   // lowercase slots, so the fixed chrome (band captions, roster, food/gold/date
   // box) needs IBM.CH itself. Packed raw, like runes.ch.
-  { name: "ibm.ch", data: readFileSync(resolve(ROOT, "original/u5/ultima5/IBM.CH")), records: 128, stride: 8 },
+  { name: "ibm.ch", data: readFileSync(repoPath("original/u5/ultima5/IBM.CH")), records: 128, stride: 8 },
   file("combatmaps.json", "game/assets/maps/combatmaps.json"),
   file("data.json", "game/assets/data.json"),
   file("shoppe.json", "game/assets/shoppe.json"),

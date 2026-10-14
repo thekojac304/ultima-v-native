@@ -1,0 +1,22 @@
+# The desktop Settings rows; the interface mode switches and persists; the
+# System Menu lists Difficulty and Cheats only in Enhanced.
+frames 5
+key Return
+frames 3
+text S
+frames 3
+expect interface Original
+expect footer The 1988 keys and rules
+key Right
+frames 2
+expect interface Enhanced
+expect footer Extras on
+key Left
+frames 2
+expect interface Original
+key Return
+frames 2
+expect interface Enhanced
+key Escape
+frames 3
+expect frontend_state 3

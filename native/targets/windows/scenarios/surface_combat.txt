@@ -1,0 +1,28 @@
+# A surface fight: the arena opens, the party attacks, then flees by Esc.
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Fighter
+key Return
+text M
+text A
+text A
+text A
+text A
+text A
+text A
+text A
+wait 2500
+expect frontend 0
+fight 32 2
+expect combat 1
+expect mode 2
+wait 1500
+text a
+frames 2
+key Up
+wait 1500
+expect combat 1
+expect panel_changed 1

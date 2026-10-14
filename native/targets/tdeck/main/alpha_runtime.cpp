@@ -1,4 +1,6 @@
 #include "alpha_runtime.h"
+#include "openu5/platform_profile.h"
+#include "openu5/spell_entry.h"
 #include "location_names.h"
 
 #include <algorithm>
@@ -262,8 +264,10 @@ esp_err_t AlphaRuntime::initialize(AlphaResourcePack &pack,AlphaResourceReport &
         debug51::Step trace("initial-npc-map-enter");
         auto &n=resources_.npc_locations[loc-1];openu5::enter_npc_map(actors_,n.slots,n.count,uint8_t(loc),uint8_t(game_.time.hour),game_.npc_dead[loc-1]);
     }
-    ui_->append(openu5::UiTextChannel::System,"OpenU5 T-Deck Alpha 2.0 Frontend");
-    ui_->append(openu5::UiTextChannel::System,"Mic back  Alt+D debug  Alt+S save  Alt+L load");
+    // Windows port: the platform profile's banner (openu5/platform_profile.h);
+    // the T-Deck's two lines unless a desktop build installed its own.
+    ui_->append(openu5::UiTextChannel::System,openu5::platform_profile().banner);
+    ui_->append(openu5::UiTextChannel::System,openu5::platform_profile().banner_keys);
 #if defined(OPENU5_ENABLE_DEVELOPER_TOOLS)
     smoke_.bind({&context_,&resources_,&alpha_report_,&tile_report_,ui_});
     void *debug_mem=heap_caps_malloc(sizeof(openu5::UiDebugMenu),kPsram);if(!debug_mem)return ESP_ERR_NO_MEM;debug_=new(debug_mem)openu5::UiDebugMenu(context_);bind_developer_diagnostics();ui_->attach_debug_menu(debug_);
@@ -1025,7 +1029,12 @@ void AlphaRuntime::dispatch(const openu5::UiIntent&i){
             if(resolve_command_char_or_prompt(openu5::UiRequestId::CastMember,caster)!=openu5::CommandCharOutcome::Resolved){dirty_=true;return;}
             pending_caster_=caster;
         }
-        open_selection(openu5::UiMode::SpellSelection,i.request);
+        // Windows port, desktop Original mode: the 1988 typed spell name
+        // (CAST2.OVL:0x00DE) where the platform asks for it; else the list.
+        if(openu5::platform_typed_spell_names()){
+            const bool mix=i.request==openu5::UiRequestId::Custom;
+            ui_->begin_text(mix?openu5::UiRequestId::MixSpellName:openu5::UiRequestId::SpellName,mix?"For what spell? ":"Spell name: ");
+        }else open_selection(openu5::UiMode::SpellSelection,i.request);
     }
     else if(i.kind==openu5::UiIntentKind::OpenStatusSelection){status_member_=int16_t(active_member(game_));open_selection(openu5::UiMode::PartySelection,i.request);}
     dirty_=true;
@@ -1387,7 +1396,7 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){if(!i.value.accepted){if(i.re
     // Search is dropped unaimed, and the spell menu never opens.
     if(i.request==openu5::UiRequestId::CrystalBall||i.request==openu5::UiRequestId::SearchMember||i.request==openu5::UiRequestId::CastMember){
         if(i.request==openu5::UiRequestId::SearchMember)pending_search_active_=false;
-        if(i.request==openu5::UiRequestId::CastMember)pending_caster_=-1;
+        if(i.request==openu5::UiRequestId::CastMember||i.request==openu5::UiRequestId::SpellName)pending_caster_=-1;
         ui_->append(openu5::UiTextChannel::Message,openu5::command_char_none());
     }
     return;}openu5::Command c;
@@ -1406,6 +1415,25 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){if(!i.value.accepted){if(i.re
         open_selection(openu5::UiMode::EquipmentSelection,openu5::UiRequestId::Equipment);
     }
     else if(i.request==openu5::UiRequestId::Spell&&i.value.index>=0&&size_t(i.value.index)<selection_count_){cast_selected_spell(selections_[i.value.index].value);}
+    // Windows port, desktop Original mode: the typed spell name. The 1988
+    // routine returns the spell, -1 (nothing typed / ESC: "None!") or -2
+    // (no such spell: "No effect!"). Cast continues exactly as a list pick
+    // does (cast_selected_spell: the core then applies "None mixed!" and
+    // the rest); Mix goes on to its reagent marks. CMDS 0x1b13 tests only
+    // -1 and would index with -2 (a latent binary bug); "No effect!" there
+    // is the reference port's choice (re/notes/cast-input.md section 5).
+    else if(i.request==openu5::UiRequestId::SpellName||i.request==openu5::UiRequestId::MixSpellName){
+        const bool mix=i.request==openu5::UiRequestId::MixSpellName;
+        char initials[openu5::kSpellEntryMaxSyllables]{};
+        const size_t typed=openu5::spell_entry_initials(i.value.text,i.value.text_length,initials,sizeof(initials));
+        char echo[openu5::kSpellEntryEchoBytes]{};openu5::spell_entry_echo(initials,typed,echo,sizeof(echo));
+        char line[64];std::snprintf(line,sizeof(line),"%s%s",mix?"For what spell? ":"Spell name: ",echo);
+        ui_->append(openu5::UiTextChannel::CommandEcho,line);
+        const int32_t spell=openu5::spell_from_initials(initials,typed);
+        if(spell<0){ui_->append(openu5::UiTextChannel::Message,spell==openu5::kSpellEntryNone?"None!":"No effect!");if(!mix)pending_caster_=-1;}
+        else if(mix){pending_mix_spell_=int16_t(spell);pending_mix_mask_=0;open_mix_reagents(0);}
+        else cast_selected_spell(int16_t(spell));
+    }
     // R-25 (Batch 19). "selectedCombatPlayer" only exists in combat, which is
     // branch 1 of kernel 0x4988 (@0x4995): the caster is the ACTING combatant,
     // never the arrow-marked active member. Same correction cast_selected_spell()
@@ -1439,6 +1467,18 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){if(!i.value.accepted){if(i.re
         }
     }
     else if(i.request==openu5::UiRequestId::TrollToll){c.kind=openu5::CommandKind::TrollToll;c.member=i.value.yes?1:0;command(c);}
+    // Windows port, desktop Original mode: (Q)uit & Save's answer, CAST2.OVL
+    // 0x1119-0x11b2 -- N prints "No" (DS 0x9666) and saves nothing; Y prints
+    // "Yes" / "Saving..." (0x966a), writes the save and "Done." (0x96ac), and
+    // play goes on. The save is the journey's own slot, exactly as Alt+S.
+    else if(i.request==openu5::UiRequestId::QuitSave){
+        if(!i.value.yes)ui_->append(openu5::UiTextChannel::Message,"No");
+        else if(ui_->ending_active()){ui_->append(openu5::UiTextChannel::System,"Save unavailable: the quest is complete");}
+        else{ui_->append(openu5::UiTextChannel::Message,"Yes");ui_->append(openu5::UiTextChannel::Message,"Saving...");uint32_t ms=0;
+            const bool ok=save_.save(context_,outdoor_,terrain_,actors_,retained_,resources_.initial_gam,resources_.initial_gam_size,resources_.initial_ool,resources_.initial_ool_size,ms,false,save_.last_slot());
+            if(ok)trace_direct_troll_save("SAVE_WORLD_OVERRIDE");
+            ui_->append(openu5::UiTextChannel::Message,ok?"Done.":"Save failed; prior kept");}
+    }
     // R-25 (Batch 19). Was a yes/no arm that dispatched with Command::member
     // left at its never-set -1, which look.cpp rejected outright -- the whole
     // feature was dead. It is now the answer path of the 0x4988 roster picker,
@@ -1462,7 +1502,9 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){if(!i.value.accepted){if(i.re
     else if(i.request==openu5::UiRequestId::CastMember&&i.value.index>=0&&size_t(i.value.index)<selection_count_){
         const int16_t member=selections_[i.value.index].value;
         if(accept_command_char_pick(openu5::UiRequestId::CastMember,member)){
-            pending_caster_=member;open_selection(openu5::UiMode::SpellSelection,openu5::UiRequestId::Spell);
+            pending_caster_=member;
+            if(openu5::platform_typed_spell_names())ui_->begin_text(openu5::UiRequestId::SpellName,"Spell name: ");
+            else open_selection(openu5::UiMode::SpellSelection,openu5::UiRequestId::Spell);
         }
     }
     // R-26 (Batch 18). BOTH answers dispatch, and the answer travels in
@@ -2290,16 +2332,16 @@ const DeviceShopView *AlphaRuntime::compose_shop_view(){
         unsigned(shop_view_.page_start+1),unsigned(shop_view_.page_start+shop_view_.row_count),unsigned(shop_view_.total));
     else std::snprintf(shop_view_.phase,sizeof(shop_view_.phase),"%s",phase);
     shop_view_.context.active=true;
-    if(deal)std::snprintf(shop_view_.context.actions,sizeof(shop_view_.context.actions),"%s","Y Yes|N No|Mic Back");
+    if(deal)openu5::platform_format(shop_view_.context.actions,sizeof(shop_view_.context.actions),"Y Yes|N No|{back} Back");
     else if(shop_.phase==openu5::ShopPhase::Menu){
-        const char *actions=shop_.type==openu5::ShopType::Blacksmith?"B Buy|S Sell|Mic Leave":
+        const char *actions=shop_.type==openu5::ShopType::Blacksmith?"B Buy|S Sell|{back} Leave":
             shop_.type==openu5::ShopType::Healer?"H Heal|C Cure|R Raise":
-            shop_.type==openu5::ShopType::InnKeeper?"R Rest|L Leave|P Pick":"Choose|Mic Back";
-        std::snprintf(shop_view_.context.actions,sizeof(shop_view_.context.actions),"%s",actions);
-    }else if(shop_.phase==openu5::ShopPhase::Tavern)std::snprintf(shop_view_.context.actions,sizeof(shop_view_.context.actions),"%s",kTavernContextActions);
-    else if(shop_.phase==openu5::ShopPhase::HealerNeed)std::snprintf(shop_view_.context.actions,sizeof(shop_view_.context.actions),"%s","H Heal|C Cure|R Raise");
-    else if(shop_view_.row_count)std::snprintf(shop_view_.context.actions,sizeof(shop_view_.context.actions),"%s","Move|Select|Mic Back");
-    else std::snprintf(shop_view_.context.actions,sizeof(shop_view_.context.actions),"%s","Continue|Mic Back");
+            shop_.type==openu5::ShopType::InnKeeper?"R Rest|L Leave|P Pick":"Choose|{back} Back";
+        openu5::platform_format(shop_view_.context.actions,sizeof(shop_view_.context.actions),actions);
+    }else if(shop_.phase==openu5::ShopPhase::Tavern)openu5::platform_format(shop_view_.context.actions,sizeof(shop_view_.context.actions),kTavernContextActions);
+    else if(shop_.phase==openu5::ShopPhase::HealerNeed)openu5::platform_format(shop_view_.context.actions,sizeof(shop_view_.context.actions),"H Heal|C Cure|R Raise");
+    else if(shop_view_.row_count)openu5::platform_format(shop_view_.context.actions,sizeof(shop_view_.context.actions),"Move|Select|{back} Back");
+    else openu5::platform_format(shop_view_.context.actions,sizeof(shop_view_.context.actions),"Continue|{back} Back");
     std::snprintf(shop_view_.context.status,sizeof(shop_view_.context.status),"%.31s",shop_view_.phase);
     if(ui_->mode()==openu5::UiMode::TextEntry||ui_->mode()==openu5::UiMode::NumericEntry){
         shop_view_.input[0]='>';shop_view_.input[1]=' ';
@@ -2455,7 +2497,7 @@ const DeviceSelectionView *AlphaRuntime::compose_selection_view(){
             std::snprintf(selection_view_.rows[row],sizeof(selection_view_.rows[row]),"%.23s",page.rows[row].text);
         selection_view_.context.active=true;
         std::snprintf(selection_view_.context.status,sizeof(selection_view_.context.status),"Z-stats");
-        std::snprintf(selection_view_.context.actions,sizeof(selection_view_.context.actions),"%s",
+        openu5::platform_format(selection_view_.context.actions,sizeof(selection_view_.context.actions),
                       page.kind==openu5::ZStatsPageKind::List&&page.list_total>openu5::kZStatsListRows
                           ?"L/R Page|U/D Scroll|Mic":"Move Page|0-6 Jump|Mic");
         return &selection_view_;
@@ -2489,7 +2531,7 @@ const DeviceSelectionView *AlphaRuntime::compose_selection_view(){
         selection_view_.row_count=8;
         selection_view_.selected_row=kSelectionVisibleRows;
         for(size_t row=0;row<8;++row)std::snprintf(selection_view_.rows[row],sizeof(selection_view_.rows[row]),"%s",rows[row]);
-        selection_view_.context.active=true;std::snprintf(selection_view_.context.status,sizeof(selection_view_.context.status),"%.9s",m.name);std::snprintf(selection_view_.context.actions,sizeof(selection_view_.context.actions),"Move|Enter|Mic Back");return &selection_view_;
+        selection_view_.context.active=true;std::snprintf(selection_view_.context.status,sizeof(selection_view_.context.status),"%.9s",m.name);openu5::platform_format(selection_view_.context.actions,sizeof(selection_view_.context.actions),"Move|Enter|{back} Back");return &selection_view_;
     }
     selection_view_.page_start=(cursor/kSelectionVisibleRows)*kSelectionVisibleRows;
     selection_view_.row_count=std::min(kSelectionVisibleRows,current.count-selection_view_.page_start);
@@ -2504,8 +2546,8 @@ const DeviceSelectionView *AlphaRuntime::compose_selection_view(){
         else if(current.mode==openu5::UiMode::InventorySelection)std::snprintf(selection_view_.detail,sizeof(selection_view_.detail),"Choose an item to use");}
     selection_view_.context.active=true;
     std::snprintf(selection_view_.context.status,sizeof(selection_view_.context.status),"%zu/%zu",cursor+1,current.count);
-    std::snprintf(selection_view_.context.actions,sizeof(selection_view_.context.actions),"%s",
-                  selection_request_==openu5::UiRequestId::MixReagents?"Enter Mark|M Mix|Mic":"Move|Confirm|Mic Back");
+    openu5::platform_format(selection_view_.context.actions,sizeof(selection_view_.context.actions),
+                  selection_request_==openu5::UiRequestId::MixReagents?"Enter Mark|M Mix|{back}":"Move|Confirm|{back} Back");
     return &selection_view_;
 }
 
@@ -2536,15 +2578,15 @@ const DeviceContextActionBar *AlphaRuntime::compose_context_bar(){
     if(mode==openu5::UiMode::Shop){
         std::snprintf(context_bar_.status,sizeof(context_bar_.status),"%.31s",
                       shop_.record&&shop_.record->keeper?shop_.record->keeper:"Merchant");
-        const char *actions="Enter|Next|Mic Back";
+        const char *actions="Enter|Next|{back} Back";
         if(shop_.phase==openu5::ShopPhase::Menu)
-            actions=shop_.type==openu5::ShopType::Blacksmith?"B Buy|S Sell|Mic Leave":
+            actions=shop_.type==openu5::ShopType::Blacksmith?"B Buy|S Sell|{back} Leave":
                     shop_.type==openu5::ShopType::Healer?"H Heal|C Cure|R Raise":
-                    shop_.type==openu5::ShopType::InnKeeper?"R Rest|L Leave|P Pick":"Choose|Mic Back";
+                    shop_.type==openu5::ShopType::InnKeeper?"R Rest|L Leave|P Pick":"Choose|{back} Back";
         else if(shop_.phase==openu5::ShopPhase::Tavern)actions=kTavernContextActions;
         else if(shop_.phase==openu5::ShopPhase::HealerNeed)actions="H Heal|C Cure|R Raise";
-        else if(shop_.phase==openu5::ShopPhase::BlacksmithPause)actions="Enter Offer|Mic Back";
-        std::snprintf(context_bar_.actions,sizeof(context_bar_.actions),"%s",actions);
+        else if(shop_.phase==openu5::ShopPhase::BlacksmithPause)actions="Enter Offer|{back} Back";
+        openu5::platform_format(context_bar_.actions,sizeof(context_bar_.actions),actions);
         return &context_bar_;
     }
     const char *status=overlay();if(!status||!*status)status=ui_->prompt();
@@ -2554,11 +2596,11 @@ const DeviceContextActionBar *AlphaRuntime::compose_context_bar(){
             input[i]=ui_->input_buffer()[i]<=0x7f?char(ui_->input_buffer()[i]):'?';
         std::snprintf(context_bar_.status,sizeof(context_bar_.status),"%.14s >%.14s",ui_->prompt(),input);
     }
-    const char *actions=mode==openu5::UiMode::TargetSelection?"Move|Confirm|Mic Back":
-                        mode==openu5::UiMode::YesNo?"Y Yes|N No|Mic Back":
-                        mode==openu5::UiMode::TextEntry||mode==openu5::UiMode::NumericEntry?"Enter Accept|Mic Back":
-                        "Move|Select|Mic Back";
-    std::snprintf(context_bar_.actions,sizeof(context_bar_.actions),"%s",actions);
+    const char *actions=mode==openu5::UiMode::TargetSelection?"Move|Confirm|{back} Back":
+                        mode==openu5::UiMode::YesNo?"Y Yes|N No|{back} Back":
+                        mode==openu5::UiMode::TextEntry||mode==openu5::UiMode::NumericEntry?"Enter Accept|{back} Back":
+                        "Move|Select|{back} Back";
+    openu5::platform_format(context_bar_.actions,sizeof(context_bar_.actions),actions);
     return &context_bar_;
 }
 void AlphaRuntime::compose_creation_art(){
@@ -3298,10 +3340,10 @@ openu5::PcImportStatus AlphaRuntime::inspect_pc_import(){
     auto say=[&](openu5::PcImportState state,const char*text){st.state=state;std::snprintf(st.text,sizeof(st.text),"%s",text);return st;};
     AlphaSaveService::PcSource src;
     switch(save_.read_pc_import(src)){
-    case AlphaSaveService::PcRead::NoFiles:return say(openu5::PcImportState::Missing,"No PC save in /ultima5/import");
+    case AlphaSaveService::PcRead::NoFiles:{char text[64];openu5::platform_format(text,sizeof(text),"No PC save in {import}");return say(openu5::PcImportState::Missing,text);}
     case AlphaSaveService::PcRead::NoGam:return say(openu5::PcImportState::Problem,"PC save incomplete: SAVED.GAM is missing");
     case AlphaSaveService::PcRead::NoOol:return say(openu5::PcImportState::Problem,"PC save incomplete: SAVED.OOL is missing");
-    case AlphaSaveService::PcRead::ReadFailed:return say(openu5::PcImportState::Problem,"The PC save could not be read from SD");
+    case AlphaSaveService::PcRead::ReadFailed:{char text[64];openu5::platform_format(text,sizeof(text),"The PC save could not be read from {storage}");return say(openu5::PcImportState::Problem,text);}
     case AlphaSaveService::PcRead::Ok:break;
     }
     const auto check=openu5::save::pc::check_original(src.gam.data(),src.gam_size,src.ool.data(),src.ool_size);
@@ -3323,10 +3365,10 @@ bool AlphaRuntime::import_pc_save(int slot,char(&message)[64]){
     if(slot<0||slot>=AlphaSaveService::kSlots)return say("No such save slot");
     AlphaSaveService::PcSource src;
     switch(save_.read_pc_import(src)){
-    case AlphaSaveService::PcRead::NoFiles:return say("No PC save in /ultima5/import");
+    case AlphaSaveService::PcRead::NoFiles:{char text[64];openu5::platform_format(text,sizeof(text),"No PC save in {import}");return say(text);}
     case AlphaSaveService::PcRead::NoGam:return say("PC save incomplete: SAVED.GAM is missing");
     case AlphaSaveService::PcRead::NoOol:return say("PC save incomplete: SAVED.OOL is missing");
-    case AlphaSaveService::PcRead::ReadFailed:return say("The PC save could not be read from SD");
+    case AlphaSaveService::PcRead::ReadFailed:{char text[64];openu5::platform_format(text,sizeof(text),"The PC save could not be read from {storage}");return say(text);}
     case AlphaSaveService::PcRead::Ok:break;
     }
     const auto check=openu5::save::pc::check_original(src.gam.data(),src.gam_size,src.ool.data(),src.ool_size);
@@ -3375,11 +3417,11 @@ bool AlphaRuntime::import_pc_save(int slot,char(&message)[64]){
 bool AlphaRuntime::export_pc_save(int slot,char(&message)[64]){
     AlphaSaveService::PcExportResult result;
     switch(save_.export_pc_save(slot,result)){
-    case AlphaSaveService::PcExport::Ok:std::snprintf(message,sizeof(message),"Slot %d written to /ultima5/export/slot%d",slot+1,slot+1);return true;
+    case AlphaSaveService::PcExport::Ok:{char text[64];std::snprintf(text,sizeof(text),"Slot %d written to {export}/slot%d",slot+1,slot+1);openu5::platform_format(message,sizeof(message),text);}return true;
     case AlphaSaveService::PcExport::NoSlot:std::snprintf(message,sizeof(message),"%s","No such save slot");break;
     case AlphaSaveService::PcExport::NoLoadable:std::snprintf(message,sizeof(message),"Slot %d has no loadable save",slot+1);break;
     case AlphaSaveService::PcExport::Dungeon:std::snprintf(message,sizeof(message),"%s",openu5::save::pc::check_text(openu5::save::pc::Check::Dungeon));break;
-    case AlphaSaveService::PcExport::WriteFailed:std::snprintf(message,sizeof(message),"%s","Export failed: SD card write error");break;
+    case AlphaSaveService::PcExport::WriteFailed:std::snprintf(message,sizeof(message),"Export failed: %s",openu5::platform_profile().storage_write_error);break;
     case AlphaSaveService::PcExport::VerifyFailed:std::snprintf(message,sizeof(message),"%s","Export failed its check. Nothing was replaced");break;
     case AlphaSaveService::PcExport::NoWorkspace:std::snprintf(message,sizeof(message),"%s","Export failed: out of memory");break;
     }

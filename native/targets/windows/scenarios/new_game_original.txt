@@ -1,0 +1,35 @@
+# Character creation -> the game, Original mode; a new journey is saved to Slot 1.
+frames 5
+key Return
+frames 3
+text C
+frames 3
+expect footer Enter accepts; Esc returns
+text Avatar
+key Return
+expect footer Choose M or F; Esc returns
+text M
+frames 2
+expect footer Choose A or B; Esc returns
+text A
+text B
+text A
+text B
+text A
+text B
+text A
+wait 2500
+expect frontend 0
+expect mode 0
+expect transcript Ultima V Native for Windows
+expect transcript Esc back  F10 menu
+expect remember_position x
+key Up
+wait 300
+expect remembered_position 0
+text l
+frames 2
+expect mode 13
+key Down
+wait 400
+expect transcript Look-South

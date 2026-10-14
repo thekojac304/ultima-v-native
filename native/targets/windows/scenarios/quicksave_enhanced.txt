@@ -1,0 +1,35 @@
+# Enhanced mode: F5 quick save and F9 quick load.
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Quick
+key Return
+text M
+text A
+text A
+text A
+text A
+text A
+text A
+text A
+wait 2500
+expect frontend 0
+expect remember_position x
+key F5
+wait 500
+expect transcript Save complete
+key Up
+wait 300
+key Up
+wait 300
+expect remembered_position 0
+key F9
+wait 800
+expect transcript Load complete
+expect remembered_position 1
+# Enhanced keeps the T-Deck's keyboard: Q is not a command there.
+text q
+frames 2
+expect no_transcript Save game?

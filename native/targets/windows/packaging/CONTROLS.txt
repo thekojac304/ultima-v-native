@@ -1,0 +1,59 @@
+ULTIMA V NATIVE for Windows -- KEYBOARD
+=======================================
+
+The game uses the original 1988 keyboard. Desktop keys that the original did
+not have (function keys, Ctrl and Alt chords) never replace an original
+command letter.
+
+COMMANDS (both modes, as in the 1988 game)
+  A  Attack            K  Klimb             T  Talk
+  B  Board             L  Look              U  Use an item
+  C  Cast a spell      M  Mix reagents      V  View (needs a gem)
+  E  Enter             N  New order         X  X-it (leave a vehicle)
+  F  Fire              O  Open              Y  Yell
+  G  Get               P  Push              Z  Z-stats
+  H  Hole up & camp    Q  Quit & save (Original mode; see below)
+  I  Ignite a torch    R  Ready             Space  Pass a turn
+  J  Jimmy a lock      S  Search            1-6 / 0  set / clear the active player
+Commands that need a direction ask for it ("Look-"): answer with an arrow.
+
+MOVING AND CHOOSING
+  Arrow keys           move; choose in menus and lists; aim
+  Numpad 8 4 6 2       the same, with Num Lock off
+  Enter                accept / confirm
+  Esc                  cancel / back
+  Backspace            back; erase while typing
+  PgUp / PgDn          scroll the message console (also Shift+Up / Shift+Down)
+  1-6 in "Player:"     choose that party member
+  Dungeons: Up = forward, Down = back, Left/Right = turn
+
+CASTING AND MIXING
+  ORIGINAL mode: type the first letter of each syllable, as in 1988, then
+  Enter (or Space):   I L = IN LOR    V F = VAS FLAM    A X C = AN XEN CORP
+  The order does not matter. Backspace removes the last syllable; Esc cancels.
+  J and O have no rune and are ignored.
+  ENHANCED mode: choose the spell from a list (arrows, Enter).
+
+SYSTEM
+  F10 (or Alt+M)       System Menu: resume, save, load, settings, title
+  Q                    Original mode: "Save game?" -- Y saves the journey in
+                       its own slot (as in 1988, the game continues)
+  F7 / Ctrl+M          music off / on for this session
+  F8 / Ctrl+S          sound off / on for this session (Ctrl+S as in 1988)
+  Alt+Enter or F11     fullscreen / window
+  Ctrl+= / Ctrl+-      larger / smaller window
+  F12                  screenshot (data folder\screenshots)
+  Ctrl+O               open the data folder (saves, PC import/export, logs)
+  Alt+F4               close the game (it does NOT save: save first)
+
+ENHANCED MODE ONLY  (Settings -> Interface: Enhanced)
+  F5 (or Alt+S)        quick save in the journey's slot
+  F9 (or Alt+L)        quick load the journey's slot
+  F2                   WASD movement mode on/off (W A S D move while it is on)
+  Alt+D                Developer menu
+  System Menu          Difficulty and Cheats
+
+TITLE MENU
+  J C T U A R S P      the menu entries' hot keys (Journey onward, Create,
+                       Transfer, U5 intro, Acknowledgements, Return to view,
+                       Settings, PC save transfer); arrows + Enter also work

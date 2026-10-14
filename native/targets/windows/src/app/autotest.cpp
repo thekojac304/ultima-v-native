@@ -5,7 +5,7 @@
 namespace uv {
 
 std::vector<AutotestStep> parse_autotest(const std::string &text, std::vector<std::string> &errors) {
-    static const char *kVerbs[] = {"frames", "wait", "key", "text", "expect", "screenshot", "log", "dump", "quit"};
+    static const char *kVerbs[] = {"frames", "wait", "key", "text", "expect", "screenshot", "log", "dump", "teleport", "fight", "quit"};
     std::vector<AutotestStep> steps;
     std::istringstream in(text);
     std::string line;

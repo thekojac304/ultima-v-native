@@ -12,12 +12,25 @@
 //   expect NAME VALUE     check a runtime fact; a failed check is counted:
 //                           frontend 0|1, system_menu 0|1, mode <UiMode number>,
 //                           frontend_state <FrontendState number>,
-//                           transcript <substring of the console's last lines>,
+//                           transcript TEXT / no_transcript TEXT (the console's
+//                             last blocks contain / do not contain TEXT),
+//                           footer TEXT (the title or System Menu page's footer
+//                             or subtitle contains TEXT),
+//                           interface Original|Enhanced,
+//                           position "<location> <floor> <x> <y>",
+//                           remember_position (any value: store the position),
+//                           remembered_position 1|0 (back where stored / not),
+//                           combat 0|1, dungeon 0|1, location <id>,
 //                           panel_changed 0|1 (since the previous expect),
 //                           audio_frames_min N
 //   screenshot PATH       write the panel as a BMP
 //   log TEXT              write TEXT to the log
 //   dump                  print the title/menu page or the console's last lines
+//   teleport KIND [LOC | X Y]  through the Developer menu's Teleport page (needs
+//                         Enhanced or --developer): britannia X Y, town LOC,
+//                         dungeon LOC (33 Deceit ... 40), underworld
+//   fight DEF [N]         a surface fight: open grass, N enemies of definition
+//                         DEF beside the party, Pass until the arena opens
 //   quit                  stop (the script's end stops too)
 #include <cstdint>
 #include <string>

@@ -112,6 +112,10 @@ five `__attribute__` sites (`perf_report.cpp` ×2, `input_controller.cpp`,
 | D10 | **Audio**: `SdlAudioBackend` runs the unchanged `AudioRingPump` from SDL3's stream callback at the device's 16 kHz S16 mono; SDL resamples. Failure latches silent | identical sound to the device; no invented music |
 | D11 | **Desktop settings** live in `ultima5\windows.json`; the game's `settings.json` is shared with the T-Deck unchanged | card interchange; `settings_document` drops unknown keys anyway |
 | D12 | The shared application layer stays where it is (`native/targets/tdeck/main`); the Windows CMake lists the portable files and leaves out the device-only ones (`main.cpp`, `tdeck_input.cpp`, `tdeck_audio.cpp`, `sd_diagnostic_logger.cpp`, `system_perf.cpp`) | moving ~15 files would churn ~100 host-test paths and the firmware build for no behavioural gain; a physical move is a possible follow-up |
+| D13 | **Platform profile in core** (`openu5/platform_profile.h`): the key names and storage words the menus and prompts print ("Mic returns" → "Esc returns", "Trackball: choose" → "Arrows: choose", "/ultima5/import" → "ultima5\import", the console banner), the Settings rows (the T-Deck's hardware rows vs the desktop's Interface/Display/Scaling rows), whether the System Menu lists Difficulty/Cheats, and two Original-mode behaviours (D14, D15). Every default is the T-Deck's literal, byte for byte | one shared UI, no copied strings; the pinned T-Deck strings and goldens keep passing (202/202) |
+| D14 | **Desktop Original: Cast/Mix take the 1988 typed spell name** (CAST2.OVL:0x00DE, `re/notes/cast-input.md`): syllable initials A–Z except J/O, up to four, echoed as rune words, matched in any order against the 48 spells (`openu5/spell_entry.h`, initials derived from the core's own spell names); RETURN/Space end, ESC = "None!", no match = "No effect!". Enhanced keeps the list | "No enhanced quick-select menus" in Original; the T-Deck's list is its declared adaptation (A-17) and stays the default |
+| D15 | **Desktop Original: Q is (Q)uit & Save** (CAST2.OVL:0x10FE): "Quit:", "Save game? " (DS 0x9658), N → "No", Y → "Yes" / "Saving..." / save to the journey's slot / "Done." (DS 0x966a, 0x96ac); play continues; no turn | the T-Deck replaces Q with its System Menu (declared adaptation A-5); on a full keyboard the original key is restored |
+| D16 | **Digits pick the member in "Player:" prompts** on the desktop (both modes), as the 1988 roster prompt does; the Camp watch and Mix reagent pickers keep their own digit rules | done in the desktop key adapter (`SelectIndex`), no core change |
 
 ## 5. Layout
 
@@ -134,7 +138,14 @@ Shared-code changes (all behaviour-preserving for the T-Deck):
 
 - `native/targets/tdeck/main/alpha_runtime.{h,cpp}` — `handle_action()`,
   `input_mode()`, `accepts_direction_input()`; `handle_input_event()` split
-  into translation + `route_input()`.
+  into translation + `route_input()`; the profile's banner and key words in the
+  context bars and PC-transfer messages; the typed spell name and Q answers.
+- `native/core/{include/openu5,src}/platform_profile.*` (new),
+  `spell_entry.*` (new); `frontend.cpp`, `system_menu.{h,cpp}`,
+  `ui_session.{h,cpp}` read the profile; `UiRequestId` gains `SpellName`,
+  `MixSpellName`, `QuitSave` (appended, no value renumbers).
+- `native/targets/tdeck/main/tdeck_board.cpp` — the Developer screen's two
+  key legends through the profile.
 - `__attribute__` portability guards (`#if defined(__GNUC__)`, the pattern
   `music_synth.cpp` already used) in `perf_report.cpp`, `input_controller.cpp`,
   `alpha_runtime.cpp`.

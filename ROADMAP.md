@@ -16,6 +16,8 @@ This is the roadmap for **Ultima V Native**, the C++ native implementation. It i
 - a fully faithful Original mode, and the optional Enhanced mode
 - desktop input and UI adaptation
 
+Status: a development build exists on the `windows/initial-port` branch (SDL3, MSVC, x64). It compiles the shared core and the T-Deck application layer unchanged, plays from character creation onward, and is pending a player-testing pass. Plan, decisions and evidence: [`WINDOWS_PORT_PLAN.md`](WINDOWS_PORT_PLAN.md).
+
 ## Preservation and parity work
 
 - the documented non-blocking gaps (the D-90 to D-103 ledger rows and older minor rows)

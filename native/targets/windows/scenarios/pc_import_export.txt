@@ -1,0 +1,27 @@
+# PC/DOS save bridge: import SAVED.GAM/OOL into Slot 1, export it back.
+frames 5
+key Return
+frames 3
+text P
+wait 600
+expect footer SAVED.GAM + SAVED.OOL in ultima5\import
+key Return
+frames 3
+key Return
+wait 1500
+expect footer Imported into Slot 1
+key Down
+frames 2
+expect footer Writes ultima5\export/slotN
+key Return
+frames 2
+key Return
+wait 1500
+expect footer written to ultima5\export/slot1
+key Escape
+frames 2
+text J
+frames 2
+key Return
+wait 2500
+expect frontend 0

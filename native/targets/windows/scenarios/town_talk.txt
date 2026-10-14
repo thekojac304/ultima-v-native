@@ -1,0 +1,30 @@
+# A town through the Developer menu, then a Look and a Talk prompt.
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Visitor
+key Return
+text M
+text A
+text A
+text A
+text A
+text A
+text A
+text A
+wait 2500
+teleport town 2
+expect location 2
+expect mode 0
+text l
+frames 2
+key Up
+wait 400
+expect transcript Look-
+text t
+frames 2
+key Left
+wait 800
+expect transcript Talk-

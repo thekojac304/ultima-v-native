@@ -1,4 +1,6 @@
 #include "openu5/ui_session.h"
+#include "openu5/spell_entry.h"
+#include "openu5/platform_profile.h"
 #include "openu5/blackthorn.h"
 #include "openu5/combat.h"
 #include "openu5/dialogue_orchestration.h"
@@ -479,6 +481,14 @@ void UiSession::begin_number(UiRequestId r, const char *p, int32_t minimum,
     input_limit_ = std::min({max_digits, size_t(config_.max_input_units), kUiInputUnits - 1});
 }
 
+// Windows port, desktop Original mode: (Q)uit & Save -- the dispatcher's echo
+// "Quit:" (DS 0x338C) and "Save game? " (DS 0x9658). The 1988 getkey loops
+// until Y or N; here ESC answers No, which saves nothing either.
+void UiSession::begin_quit_save() {
+    command_echo("Quit:");
+    begin_yes_no(UiRequestId::QuitSave, "Save game? ", true);
+}
+
 void UiSession::begin_yes_no(UiRequestId r, const char *p, bool cancel_means_no) {
     enter_modal(UiMode::YesNo, r, p);
     cancel_means_no_ = cancel_means_no;
@@ -702,6 +712,35 @@ bool UiSession::handle_modal(const UiAction &a) {
     if (mode_ == UiMode::KeyWait) {
         // One input event consumes exactly one getkey, including arrows and Escape.
         finish_modal(true);
+        return true;
+    }
+    if (mode_ == UiMode::TextEntry &&
+        (request_ == UiRequestId::SpellName || request_ == UiRequestId::MixSpellName)) {
+        // Windows port, desktop Original mode: CAST2.OVL 0x00DE. A letter with a
+        // rune adds its syllable (four at most; J and O have none); Backspace
+        // takes the last back; RETURN or Space ends the entry; ESC ends it
+        // with nothing typed (0x01d8: di:=0). The input shows the echo.
+        char initials[kSpellEntryMaxSyllables]{};
+        size_t count = spell_entry_initials(input_, input_length_, initials, sizeof(initials));
+        auto rebuild = [&] {
+            char echo[kSpellEntryEchoBytes]{};
+            const size_t n = std::min(spell_entry_echo(initials, count, echo, sizeof(echo)), kUiInputUnits - 1);
+            for (size_t k = 0; k < n; ++k) input_[k] = char16_t(echo[k]);
+            input_length_ = n; input_[n] = 0;
+        };
+        if (a.kind == UiActionKind::Confirm || (a.kind == UiActionKind::Character && a.character == u' ')) {
+            finish_modal(true);
+        } else if (a.kind == UiActionKind::Cancel || (a.kind == UiActionKind::Character && a.character == 27)) {
+            count = 0; rebuild(); finish_modal(true);
+        } else if (a.kind == UiActionKind::Back || a.kind == UiActionKind::DeleteCharacter) {
+            if (count) --count;
+            rebuild();
+        } else if (a.kind == UiActionKind::Character && a.character < 0x80 && count < kSpellEntryMaxSyllables &&
+                   rune_word_for_initial(char(a.character))) {
+            const char c = char(a.character);
+            initials[count++] = c >= 'a' && c <= 'z' ? char(c - 'a' + 'A') : c;
+            rebuild();
+        }
         return true;
     }
     if (mode_ == UiMode::TextEntry || mode_ == UiMode::NumericEntry) {
@@ -1026,6 +1065,8 @@ bool UiSession::handle_exploration(const UiAction &a) {
     }
     if (a.kind != UiActionKind::Character) return false;
     const auto k = lower_ascii(a.character);
+    // Windows port, desktop Original mode: (Q)uit & Save, CAST2.OVL 0x10FE.
+    if (k == 'q' && platform_quit_save_key()) { begin_quit_save(); return true; }
     Command c;
     switch (k) {
     case 'a': direction_request(CommandKind::Attack, "Attack-"); return true;
@@ -1122,6 +1163,8 @@ bool UiSession::handle_dungeon(const UiAction &a) {
     }
     if (a.kind != UiActionKind::Character) return false;
     const auto k = lower_ascii(a.character);
+    // Windows port, desktop Original mode: (Q)uit & Save has no dungeon gate.
+    if (k == 'q' && platform_quit_save_key()) { begin_quit_save(); return true; }
     switch (k) {
     case 'a': c.item=int16_t(DungeonAction::Attack); break;
     case 'g': c.item=int16_t(DungeonAction::Get); break;
@@ -1419,12 +1462,12 @@ void UiSession::consume(const GameEvent &e) {
             if(old_phase!=shop.phase||e.shop->kind==ShopEventKind::Entered){
                 const char *p="";
                 switch(shop.phase){
-                case ShopPhase::Greeting: p="Enter: continue  Mic: leave"; break;
-                case ShopPhase::BlacksmithPause: p="Enter: hear offer  Mic: leave"; break;
+                case ShopPhase::Greeting: p="Enter: continue  {back}: leave"; break;
+                case ShopPhase::BlacksmithPause: p="Enter: hear offer  {back}: leave"; break;
                 case ShopPhase::Menu:
-                    p=shop.type==ShopType::Blacksmith?"B Buy  S Sell  Mic Leave":
+                    p=shop.type==ShopType::Blacksmith?"B Buy  S Sell  {back} Leave":
                       shop.type==ShopType::Healer?"H Heal  C Cure  R Resurrect":
-                      shop.type==ShopType::InnKeeper?"R Rest  L Leave  P Pickup":"Choose service  Mic: leave";
+                      shop.type==ShopType::InnKeeper?"R Rest  L Leave  P Pickup":"Choose service  {back}: leave";
                     break;
                 case ShopPhase::Tavern: p="A Round D Drink R Rations T Rumor"; break;
                 case ShopPhase::Buy: case ShopPhase::Sell: case ShopPhase::Reagent:
@@ -1432,20 +1475,20 @@ void UiSession::consume(const GameEvent &e) {
                 case ShopPhase::HealerMember: case ShopPhase::InnLeaveMember:
                 case ShopPhase::InnPickupMember: case ShopPhase::LegacyHeal:
                 case ShopPhase::LegacyCure: case ShopPhase::LegacyResurrect:
-                    p="Trackball: choose  Enter: select  Mic: back"; break;
+                    p="{move}: choose  Enter: select  {back}: back"; break;
                 case ShopPhase::BuyDeal: case ShopPhase::SellDeal: case ShopPhase::ReagentDeal:
                 case ShopPhase::GuildDeal: case ShopPhase::HorseDeal: case ShopPhase::ShipDeal:
                 case ShopPhase::HealerDeal: case ShopPhase::InnRestDeal:
                 case ShopPhase::InnLeaveDeal: case ShopPhase::RumorDeal:
                 case ShopPhase::TavernRoundDeal: case ShopPhase::TavernDrinkDeal:
-                    p="Y Yes  N No  Mic: back"; break;
+                    p="Y Yes  N No  {back}: back"; break;
                 case ShopPhase::HealerNeed: p="H Heal  C Cure  R Resurrect"; break;
                 case ShopPhase::RationsQuantity: p="How many?"; break;
                 case ShopPhase::RumorText: p="What rumor?"; break;
                 case ShopPhase::Closed: p=""; break;
-                default: p="Enter: continue  Mic: back"; break;
+                default: p="Enter: continue  {back}: back"; break;
                 }
-                copy_text(prompt_,sizeof(prompt_),p);
+                platform_format(prompt_,sizeof(prompt_),p); // the platform's key names (T-Deck: Mic, Trackball)
             }
         }
         if (e.shop->result && e.shop->result->message) append(UiTextChannel::Shop,e.shop->result->message);

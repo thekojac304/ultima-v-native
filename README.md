@@ -168,6 +168,8 @@ This is not a claim of perfect parity. Known, non-blocking discrepancies remain 
 - reuse the native core where practical
 - continue preservation and parity cleanup
 
+**Windows development build (branch `windows/initial-port`).** A Windows x64 build using SDL3 now runs the same native core and application layer as the T-Deck, with a desktop keyboard, Original and Enhanced interface modes, save compatibility with the T-Deck card layout and a one-command asset preparation script. It is a development build pending player testing; see [`WINDOWS_PORT_PLAN.md`](WINDOWS_PORT_PLAN.md) and [`native/targets/windows/README.md`](native/targets/windows/README.md).
+
 No dates are promised. Broader portability to other platforms is a possible long-term direction, nothing more. The full roadmap is [`ROADMAP.md`](ROADMAP.md); the separate OpenU5 browser roadmap is [`OPENU5_BROWSER_ROADMAP.md`](docs/browser/OPENU5_BROWSER_ROADMAP.md).
 
 ## Known limitations

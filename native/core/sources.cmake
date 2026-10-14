@@ -12,6 +12,8 @@ set(OPENU5_CORE_SOURCES
     "${CMAKE_CURRENT_LIST_DIR}/src/ambient_sfx.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/frontend.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/frontend_settings.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/platform_profile.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/spell_entry.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/hud.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/intro_view.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/system_menu.cpp"
