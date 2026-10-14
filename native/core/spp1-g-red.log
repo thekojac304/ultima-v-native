@@ -1,0 +1,97 @@
+[I][AlphaResources] Alpha resource pack v2.0 valid: 2266819 bytes, 45 entries, payload CRC=5c0d175d, expected SHA-256=85b38994eea6, firmware_match=1
+[I][AlphaResources] Loaded owners: 64 small floors, 8 dungeons, 1024 NPC records; PSRAM=1412335
+G  Ctrl-K / Ctrl-V: the context loops' control keys
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+RED G1 Ctrl-K on the surface: "73" alone on the command row (the karma, bare decimal)
+GREEN G1 Ctrl-K on the surface costs no turn (MAINOUT 0x0af8): (none)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+RED G2 Ctrl-V prints "1.16" (DS 0x2b4f) on the command row
+GREEN G2 Ctrl-V costs no turn: (none)
+RED G1/G2 neither key is "What?"
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=2 depth=0 entrance=1 x=81 y=106 facing=2
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=1 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=2 crc=e8466959
+GREEN G3 control: (E)nter at the gate puts the party in town 2
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=2 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=2 crc=e8466959
+RED G3 in a town: "41" and "1.16"
+GREEN G3 in a town neither key costs a turn (TOWN 0x154b): (none)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=33 depth=0 entrance=1 x=240 y=73 facing=2
+[I][AlphaRuntime] DUNGEON_LOAD_BEGIN dungeon=33 depth=0
+[I][AlphaRuntime] DUNGEON_LOAD_RESULT result=success reason=normal-init
+[I][AlphaRuntime] DUNGEON_SESSION_STATE active=1 dungeon=33 depth=0 x=1 y=1 facing=2
+[I][AlphaRuntime] DUNGEON_CONTEXT dungeon=1
+[I][AlphaRuntime] DUNGEON_RENDERER active=1
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] DUNGEON_RUN_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=explore to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] DUNGEON_PRESENTATION_ENTER full_redraw=1 viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=11b75b17
+GREEN G4 control: (E)nter at Deceit's mouth opens the dungeon session
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=dungeon gameplay_command=none
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=11b75b17
+RED G4 in a dungeon Ctrl-K prints "88"
+RED G4 in a dungeon Ctrl-K costs exactly one dungeon turn (DUNGEON 0x06cb returns 1 -> 0x0c76): (none)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=dungeon gameplay_command=none
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=11b75b17
+RED G4 Ctrl-V likewise costs one dungeon turn: (none)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A1,H0 printable=6b base=6b symbol=00 ui=explore emitted=none action_char=0 shortcut=none
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A1,H0 printable=76 base=76 symbol=00 ui=explore emitted=none action_char=0 shortcut=none
+GREEN G5 control: the T-Deck's Alt+K / Alt+V do not reach the control keys: (none)
+SPP1 runtime: 6/13 checks

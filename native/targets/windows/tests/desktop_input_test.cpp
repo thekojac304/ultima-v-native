@@ -767,6 +767,24 @@ void chords_and_altgr() {
     }
 }
 
+// SPP1 G: Ctrl-K / Ctrl-V are the DOS control codes 0x0B / 0x16 in both modes (the core
+// prints the karma / "1.16"); Ctrl-B ("Buffer On/Off", a BIOS type-ahead switch) stays unmapped.
+void dos_control_keys() {
+    for (InterfaceMode m : kModes) {
+        DesktopInput in = input_in(m);
+        const Out k = run(in, key(SDL_SCANCODE_K, kCtrl));
+        const Out k_text = run(in, text("k"));
+        const Out v = run(in, key(SDL_SCANCODE_V, SDL_KMOD_RCTRL));
+        const Out b = run(in, key(SDL_SCANCODE_B, kCtrl));
+        check(is_char(k, 0x0b) && std::strcmp(k.c[0].source, "ctrl-k") == 0 && k.c[0].shortcut == DeviceShortcut::None,
+              format("K1 %s: Ctrl+K -> Character 0x0B (source \"ctrl-k\")", mode_tag(m)), describe(k));
+        check(none(k_text), format("K1 %s: the chord's own text event is suppressed", mode_tag(m)), describe(k_text));
+        check(is_char(v, 0x16) && std::strcmp(v.c[0].source, "ctrl-v") == 0,
+              format("K2 %s: Ctrl+V (either Ctrl) -> Character 0x16", mode_tag(m)), describe(v));
+        check(none(b), format("K3 %s: Ctrl+B is unmapped", mode_tag(m)), describe(b));
+    }
+}
+
 void misc() {
     DesktopInput in;
     check(in.mode() == InterfaceMode::Original, "X1 a new DesktopInput starts in Original mode");
@@ -810,6 +828,7 @@ int main() {
     system_mute_window();
     original_vs_enhanced();
     chords_and_altgr();
+    dos_control_keys();
     misc();
     return uvtest::finish("uv_desktop_input_test");
 }

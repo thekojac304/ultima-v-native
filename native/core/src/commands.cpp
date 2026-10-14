@@ -652,6 +652,26 @@ static ActionResult execute(CommandContext &c, Command cmd, bool dispatch) {
         auto *def=spell_definition(SpellId(cmd.item));if(cmd.item<48&&def->reagents==cmd.reagent_mask){c.game.spell_quantities[cmd.item]=std::min<int32_t>(99,c.game.spell_quantities[cmd.item]+cmd.hours);say("Done!");return result;}
         auto opener=first_conscious_index(c.game.party);auto trap=chest_trap(c.game,c.game.position.map.location,opener<0?0:opener,rng_source(c.game.rng));GameEvent e;e.kind=GameEventKind::Sfx;e.text="dungeon-trap";emit(e);say(trap.message);if(trap.damage_mask){e={};e.kind=GameEventKind::PoisonTick;for(int i=0;i<6;++i)if(trap.damage_mask&(1<<i))e.slots[e.slot_count++]=uint8_t(i);emit(e);}return result;
     }
+    // SPP1 G. The context loops' control keys: Ctrl-K (0x0B) prints the karma as a bare
+    // decimal (kernel 0x1a3e with pad ' ', width 1: no label, no padding) and Ctrl-V (0x16)
+    // "1.16" (DS 0x2b4f), each on the command row behind the prompt. MAINOUT (0x0af8) and
+    // TOWN (0x154b) return no turn; DUNGEON 0x06c4 keeps its default return of 1 (0x06cb),
+    // so underground the dungeon's own turn block (0x0c76) runs. The arena has neither key
+    // (COMBAT 0x0881-0x0886 answers "What?"), so it never sends one.
+    if(cmd.kind==CommandKind::ControlKey){
+        ActionResult result;
+        if(c.combat||(cmd.item!=0x0b&&cmd.item!=0x16)){result.status=CommandStatus::InvalidContext;return result;}
+        char text[8];
+        if(cmd.item==0x0b)std::snprintf(text,sizeof(text),"%u",unsigned(c.game.karma));
+        else std::snprintf(text,sizeof(text),"1.16");
+        GameEvent e;e.kind=GameEventKind::WalkEcho;e.text=text;++result.event_count;
+        if(c.events.emit)c.events.emit(c.events.context,e);
+        if(c.dungeon){
+            Command tick;tick.kind=CommandKind::DungeonCommand;tick.item=int16_t(DungeonAction::Tick);
+            auto turn=execute_dungeon_command(c,tick);turn.event_count+=result.event_count;return turn;
+        }
+        return result;
+    }
     if (cmd.kind==CommandKind::ShrineAction) {
         if (!cmd.shrine) { ActionResult result; result.status=CommandStatus::InvalidContext; return result; }
         return execute_shrine(c,*cmd.shrine);

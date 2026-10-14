@@ -190,6 +190,13 @@ size_t DesktopInput::key_down(const SDL_KeyboardEvent &key, const InputContext &
         // The DOS game's own Ctrl-S toggles the sound; Ctrl-M the same for music.
         if (sc == SDL_SCANCODE_S) return emit(out, capacity, n, shortcut(DeviceShortcut::SfxMute, "ctrl-s"));
         if (sc == SDL_SCANCODE_M) return emit(out, capacity, n, shortcut(DeviceShortcut::MusicMute, "ctrl-m"));
+        // SPP1 G: the context loops' Ctrl-K (karma) and Ctrl-V (version) go to the game as
+        // the codes the DOS keyboard produced, 0x0B and 0x16 (MAINOUT table 0x0bbe). Ctrl-B
+        // is the dispatcher's "Buffer On/Off" (getkey 0x2712 turns code 2 into 0xFC; kernel
+        // 0x31c6 toggles the BIOS type-ahead flush 0x1b24): a keyboard-hardware switch with
+        // no counterpart on this keyboard, so it stays unmapped (SPP1 doc, candidate G).
+        if (sc == SDL_SCANCODE_K) return emit(out, capacity, n, game(character(0x0b), "ctrl-k"));
+        if (sc == SDL_SCANCODE_V) return emit(out, capacity, n, game(character(0x16), "ctrl-v"));
         if (sc == SDL_SCANCODE_O) return emit(out, capacity, n, window(DesktopCommand::Kind::OpenDataFolder));
         return 0;
     }

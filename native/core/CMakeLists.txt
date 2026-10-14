@@ -2600,6 +2600,11 @@ if(BUILD_TESTING)
   openu5_a4_ui2_runtime(win_dos_runtime)
   add_test(NAME win_dos_runtime COMMAND win_dos_runtime
     "${CMAKE_CURRENT_SOURCE_DIR}/../assets/openu5-alpha1-resources.bin")
+  # SPP1 (docs/SHARED_PRESERVATION_PARITY_SPP1.md): the shared preservation corrections that
+  # live in the runtime, through the REAL AlphaRuntime and Board (desktop actions and raw keys).
+  openu5_a4_ui2_runtime(spp1_runtime)
+  add_test(NAME spp1_runtime COMMAND spp1_runtime
+    "${CMAKE_CURRENT_SOURCE_DIR}/../assets/openu5-alpha1-resources.bin")
   # Alpha 3 A3-05 -- the audio finalization controls through the REAL
   # AlphaRuntime: Alt+Shift+M / Alt+Shift+S mutes by raw keys, the Settings
   # rows while muted, stock vs patched assets, and a kill's single hit burst.

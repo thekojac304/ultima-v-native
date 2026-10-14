@@ -38,7 +38,12 @@ enum class CommandKind : uint8_t {
     Talk, BeginConversation, DialogueText, DialogueYes, DialogueNo, EndConversation, ShopAction,
     ShrineAction, Yell, HarpsichordNote, Get, Search, UseMoonstone, BlackthornAction, YellSails, TrollToll,
     Open, Jimmy, Push, Look, CrystalBall, DropCoin, MakeWish, Attack, Fire, Mix,
-    ViewGem, AfterGemView, NewOrder, SetActivePlayer, CampAcknowledge
+    ViewGem, AfterGemView, NewOrder, SetActivePlayer, CampAcknowledge,
+    // SPP1 (docs/SHARED_PRESERVATION_PARITY_SPP1.md). Appended only: the parity
+    // fixtures encode command kinds as ordinals.
+    // The context loops' control keys, item = the raw code: 0x0B Ctrl-K (the karma)
+    // and 0x16 Ctrl-V (the version), MAINOUT 0x0bbe / TOWN 0x1552 / DUNGEON 0x06c4.
+    ControlKey
 };
 struct Command {
     CommandKind kind = CommandKind::Pass;

@@ -1,0 +1,462 @@
+'vswhere.exe' is not recognized as an internal or external command,
+operable program or batch file.
+ninja: Entering directory `C:\Dev\ultima-v-native-parity\native\targets\windows\build-spp1'
+[0/2] Re-checking globbed directories...
+[1/4] Building CXX object CMakeFiles\uv_desktop.dir\src\app\desktop_input.cpp.obj
+[2/4] Linking CXX static library uv_desktop.lib
+[3/4] Linking CXX executable tests\uv_desktop_input_test.exe
+uv_desktop_input_test: uv::DesktopInput::translate over hand-built SDL_Events
+PASS D1 Original: Up -> Direction North
+PASS D2 Original: Up held (OS repeat) -> Direction North again
+PASS D1 Original: Down -> Direction South
+PASS D2 Original: Down held (OS repeat) -> Direction South again
+PASS D1 Original: Left -> Direction West
+PASS D2 Original: Left held (OS repeat) -> Direction West again
+PASS D1 Original: Right -> Direction East
+PASS D2 Original: Right held (OS repeat) -> Direction East again
+PASS D1 Original: KP8 NumLock off -> Direction North
+PASS D2 Original: KP8 NumLock off held (OS repeat) -> Direction North again
+PASS D1 Original: KP2 NumLock off -> Direction South
+PASS D2 Original: KP2 NumLock off held (OS repeat) -> Direction South again
+PASS D1 Original: KP4 NumLock off -> Direction West
+PASS D2 Original: KP4 NumLock off held (OS repeat) -> Direction West again
+PASS D1 Original: KP6 NumLock off -> Direction East
+PASS D2 Original: KP6 NumLock off held (OS repeat) -> Direction East again
+PASS D1 Original: Shift+Left -> Direction West
+PASS D2 Original: Shift+Left held (OS repeat) -> Direction West again
+PASS D1 Original: Shift+Right -> Direction East
+PASS D2 Original: Shift+Right held (OS repeat) -> Direction East again
+PASS D3 Original: KP8 with NumLock on is no direction; its text '8' is a Character
+PASS D3 Original: KP2 with NumLock on is no direction; its text '2' is a Character
+PASS D3 Original: KP4 with NumLock on is no direction; its text '4' is a Character
+PASS D3 Original: KP6 with NumLock on is no direction; its text '6' is a Character
+PASS D4 Original: a numpad direction (NumLock off) suppresses its text
+PASS D5 Original: Shift+Up -> PageUp
+PASS D5 Original: RShift+Down -> PageDown
+PASS D5 Original: Shift+KP8 (NumLock off) -> PageUp
+PASS D5 Original: Shift+Up held -> PageUp repeats
+PASS D6 Original: PgUp/PgDn -> PageUp/PageDown
+PASS D6 Original: PgUp/PgDn held (OS repeat) keep paging
+PASS D7 Original: Ctrl+Up and Alt+Left are not directions
+PASS D1 Enhanced: Up -> Direction North
+PASS D2 Enhanced: Up held (OS repeat) -> Direction North again
+PASS D1 Enhanced: Down -> Direction South
+PASS D2 Enhanced: Down held (OS repeat) -> Direction South again
+PASS D1 Enhanced: Left -> Direction West
+PASS D2 Enhanced: Left held (OS repeat) -> Direction West again
+PASS D1 Enhanced: Right -> Direction East
+PASS D2 Enhanced: Right held (OS repeat) -> Direction East again
+PASS D1 Enhanced: KP8 NumLock off -> Direction North
+PASS D2 Enhanced: KP8 NumLock off held (OS repeat) -> Direction North again
+PASS D1 Enhanced: KP2 NumLock off -> Direction South
+PASS D2 Enhanced: KP2 NumLock off held (OS repeat) -> Direction South again
+PASS D1 Enhanced: KP4 NumLock off -> Direction West
+PASS D2 Enhanced: KP4 NumLock off held (OS repeat) -> Direction West again
+PASS D1 Enhanced: KP6 NumLock off -> Direction East
+PASS D2 Enhanced: KP6 NumLock off held (OS repeat) -> Direction East again
+PASS D1 Enhanced: Shift+Left -> Direction West
+PASS D2 Enhanced: Shift+Left held (OS repeat) -> Direction West again
+PASS D1 Enhanced: Shift+Right -> Direction East
+PASS D2 Enhanced: Shift+Right held (OS repeat) -> Direction East again
+PASS D3 Enhanced: KP8 with NumLock on is no direction; its text '8' is a Character
+PASS D3 Enhanced: KP2 with NumLock on is no direction; its text '2' is a Character
+PASS D3 Enhanced: KP4 with NumLock on is no direction; its text '4' is a Character
+PASS D3 Enhanced: KP6 with NumLock on is no direction; its text '6' is a Character
+PASS D4 Enhanced: a numpad direction (NumLock off) suppresses its text
+PASS D5 Enhanced: Shift+Up -> PageUp
+PASS D5 Enhanced: RShift+Down -> PageDown
+PASS D5 Enhanced: Shift+KP8 (NumLock off) -> PageUp
+PASS D5 Enhanced: Shift+Up held -> PageUp repeats
+PASS D6 Enhanced: PgUp/PgDn -> PageUp/PageDown
+PASS D6 Enhanced: PgUp/PgDn held (OS repeat) keep paging
+PASS D7 Enhanced: Ctrl+Up and Alt+Left are not directions
+PASS C1 Original: Enter -> Confirm
+PASS C1 Original: keypad Enter -> Confirm
+PASS C2 Original: Escape -> Cancel
+PASS C3 Original: held Enter / Escape do not repeat
+PASS C4 Original: Backspace in TextEntry -> DeleteCharacter
+PASS C5 Original: Backspace held in TextEntry repeats (DeleteCharacter)
+PASS C4 Original: Backspace in NumericEntry -> DeleteCharacter
+PASS C5 Original: Backspace held in NumericEntry repeats (DeleteCharacter)
+PASS C4 Original: Backspace in Exploration -> Back
+PASS C5 Original: Backspace held in Exploration repeats (Back)
+PASS C4 Original: Backspace in Dialogue -> Back
+PASS C5 Original: Backspace held in Dialogue repeats (Back)
+PASS C4 Original: Backspace in YesNo -> Back
+PASS C5 Original: Backspace held in YesNo repeats (Back)
+PASS C4 Original: Backspace in PartySelection -> Back
+PASS C5 Original: Backspace held in PartySelection repeats (Back)
+PASS C4 Original: Backspace in Shop -> Back
+PASS C5 Original: Backspace held in Shop repeats (Back)
+PASS C4 Original: Backspace in Combat -> Back
+PASS C5 Original: Backspace held in Combat repeats (Back)
+PASS C6 Original: Backspace's text is suppressed
+PASS C1 Enhanced: Enter -> Confirm
+PASS C1 Enhanced: keypad Enter -> Confirm
+PASS C2 Enhanced: Escape -> Cancel
+PASS C3 Enhanced: held Enter / Escape do not repeat
+PASS C4 Enhanced: Backspace in TextEntry -> DeleteCharacter
+PASS C5 Enhanced: Backspace held in TextEntry repeats (DeleteCharacter)
+PASS C4 Enhanced: Backspace in NumericEntry -> DeleteCharacter
+PASS C5 Enhanced: Backspace held in NumericEntry repeats (DeleteCharacter)
+PASS C4 Enhanced: Backspace in Exploration -> Back
+PASS C5 Enhanced: Backspace held in Exploration repeats (Back)
+PASS C4 Enhanced: Backspace in Dialogue -> Back
+PASS C5 Enhanced: Backspace held in Dialogue repeats (Back)
+PASS C4 Enhanced: Backspace in YesNo -> Back
+PASS C5 Enhanced: Backspace held in YesNo repeats (Back)
+PASS C4 Enhanced: Backspace in PartySelection -> Back
+PASS C5 Enhanced: Backspace held in PartySelection repeats (Back)
+PASS C4 Enhanced: Backspace in Shop -> Back
+PASS C5 Enhanced: Backspace held in Shop repeats (Back)
+PASS C4 Enhanced: Backspace in Combat -> Back
+PASS C5 Enhanced: Backspace held in Combat repeats (Back)
+PASS C6 Enhanced: Backspace's text is suppressed
+PASS R1 Original: a letter key arrives as its text: 'a'
+PASS R2 Original: a held letter (OS repeat) acts once: the repeat's text is dropped
+PASS R3 Original: the next real press types again
+PASS R4 Original: F10 held (OS repeat) does nothing
+PASS R4 Original: F7 held (OS repeat) does nothing
+PASS R4 Original: F8 held (OS repeat) does nothing
+PASS R4 Original: F11 held (OS repeat) does nothing
+PASS R4 Original: F12 held (OS repeat) does nothing
+PASS R4 Original: Alt+Enter held (OS repeat) does nothing
+PASS R4 Original: Ctrl+= held (OS repeat) does nothing
+PASS R4 Original: Ctrl+- held (OS repeat) does nothing
+PASS R4 Original: Alt+M held (OS repeat) does nothing
+PASS R4 Original: Ctrl+S held (OS repeat) does nothing
+PASS R4 Original: F5 held (OS repeat) does nothing
+PASS R4 Original: F9 held (OS repeat) does nothing
+PASS R4 Original: F2 held (OS repeat) does nothing
+PASS R4 Original: Alt+D held (OS repeat) does nothing
+PASS R1 Enhanced: a letter key arrives as its text: 'a'
+PASS R2 Enhanced: a held letter (OS repeat) acts once: the repeat's text is dropped
+PASS R3 Enhanced: the next real press types again
+PASS R4 Enhanced: F10 held (OS repeat) does nothing
+PASS R4 Enhanced: F7 held (OS repeat) does nothing
+PASS R4 Enhanced: F8 held (OS repeat) does nothing
+PASS R4 Enhanced: F11 held (OS repeat) does nothing
+PASS R4 Enhanced: F12 held (OS repeat) does nothing
+PASS R4 Enhanced: Alt+Enter held (OS repeat) does nothing
+PASS R4 Enhanced: Ctrl+= held (OS repeat) does nothing
+PASS R4 Enhanced: Ctrl+- held (OS repeat) does nothing
+PASS R4 Enhanced: Alt+M held (OS repeat) does nothing
+PASS R4 Enhanced: Ctrl+S held (OS repeat) does nothing
+PASS R4 Enhanced: F5 held (OS repeat) does nothing
+PASS R4 Enhanced: F9 held (OS repeat) does nothing
+PASS R4 Enhanced: F2 held (OS repeat) does nothing
+PASS R4 Enhanced: Alt+D held (OS repeat) does nothing
+PASS T1 Original: text 'a' -> 1 Character(s), non-ASCII dropped
+PASS T1 Original: text 'Z' -> 1 Character(s), non-ASCII dropped
+PASS T1 Original: text space -> 1 Character(s), non-ASCII dropped
+PASS T1 Original: text '~' -> 1 Character(s), non-ASCII dropped
+PASS T1 Original: text '?' -> 1 Character(s), non-ASCII dropped
+PASS T1 Original: text '0' -> 1 Character(s), non-ASCII dropped
+PASS T1 Original: text U+00E9 (two UTF-8 bytes) -> 0 Character(s), non-ASCII dropped
+PASS T1 Original: text U+20AC euro (three bytes) -> 0 Character(s), non-ASCII dropped
+PASS T1 Original: text U+1F600 (four bytes) -> 0 Character(s), non-ASCII dropped
+PASS T1 Original: text 'a' + U+00E9 + '1' -> 2 Character(s), non-ASCII dropped
+PASS T1 Original: text DEL -> 0 Character(s), non-ASCII dropped
+PASS T1 Original: text TAB -> 0 Character(s), non-ASCII dropped
+PASS T1 Original: text ESC byte -> 0 Character(s), non-ASCII dropped
+PASS T1 Original: text empty text -> 0 Character(s), non-ASCII dropped
+PASS T2 Original: a 6-character text fills at most kMaxCommands (4) commands, in order
+PASS T3 Original: capacity 1 keeps the first character
+PASS T4 Original: no output buffer (capacity 0 or null) -> 0 commands
+PASS T5 Original: a null text pointer is ignored
+PASS T1 Enhanced: text 'a' -> 1 Character(s), non-ASCII dropped
+PASS T1 Enhanced: text 'Z' -> 1 Character(s), non-ASCII dropped
+PASS T1 Enhanced: text space -> 1 Character(s), non-ASCII dropped
+PASS T1 Enhanced: text '~' -> 1 Character(s), non-ASCII dropped
+PASS T1 Enhanced: text '?' -> 1 Character(s), non-ASCII dropped
+PASS T1 Enhanced: text '0' -> 1 Character(s), non-ASCII dropped
+PASS T1 Enhanced: text U+00E9 (two UTF-8 bytes) -> 0 Character(s), non-ASCII dropped
+PASS T1 Enhanced: text U+20AC euro (three bytes) -> 0 Character(s), non-ASCII dropped
+PASS T1 Enhanced: text U+1F600 (four bytes) -> 0 Character(s), non-ASCII dropped
+PASS T1 Enhanced: text 'a' + U+00E9 + '1' -> 2 Character(s), non-ASCII dropped
+PASS T1 Enhanced: text DEL -> 0 Character(s), non-ASCII dropped
+PASS T1 Enhanced: text TAB -> 0 Character(s), non-ASCII dropped
+PASS T1 Enhanced: text ESC byte -> 0 Character(s), non-ASCII dropped
+PASS T1 Enhanced: text empty text -> 0 Character(s), non-ASCII dropped
+PASS T2 Enhanced: a 6-character text fills at most kMaxCommands (4) commands, in order
+PASS T3 Enhanced: capacity 1 keeps the first character
+PASS T4 Enhanced: no output buffer (capacity 0 or null) -> 0 commands
+PASS T5 Enhanced: a null text pointer is ignored
+PASS P1 Original: '1' in a Player: prompt -> HighlightIndex(0), not a choice
+PASS P1 Original: '2' in a Player: prompt -> HighlightIndex(1), not a choice
+PASS P1 Original: '3' in a Player: prompt -> HighlightIndex(2), not a choice
+PASS P1 Original: '4' in a Player: prompt -> HighlightIndex(3), not a choice
+PASS P1 Original: '5' in a Player: prompt -> HighlightIndex(4), not a choice
+PASS P1 Original: '6' in a Player: prompt -> HighlightIndex(5), not a choice
+PASS P1 Original: '7' (no seventh member) stays a Character, which the picker drops
+PASS P1 Original: '8' (no seventh member) stays a Character, which the picker drops
+PASS P1 Original: '9' (no seventh member) stays a Character, which the picker drops
+PASS P6 Original: Space in a Player: prompt chooses (Confirm)
+PASS P6 Original: Space stays a Character for the Mix picker and outside prompts
+PASS P6 Original: Space for the Camp watch is Confirm (0x2d7a)
+PASS P2 Original: '0' and letters in a Player: prompt stay Characters
+PASS P3 Original: '1' with request CampGuard -> HighlightIndex(0) (0x2d7a)
+PASS P3 Original: '5' with request CampGuard -> HighlightIndex(4) (0x2d7a)
+PASS P3 Original: '9' with request CampGuard stays a Character (the picker reads digits itself)
+PASS P3 Original: '1' with request MixReagents stays a Character (the picker reads digits itself)
+PASS P3 Original: '5' with request MixReagents stays a Character (the picker reads digits itself)
+PASS P3 Original: '9' with request MixReagents stays a Character (the picker reads digits itself)
+PASS P4 Original: other Player: requests highlight the member number
+PASS P5 Original: outside PartySelection a digit is a Character
+PASS P1 Enhanced: '1' in a Player: prompt -> HighlightIndex(0), not a choice
+PASS P1 Enhanced: '2' in a Player: prompt -> HighlightIndex(1), not a choice
+PASS P1 Enhanced: '3' in a Player: prompt -> HighlightIndex(2), not a choice
+PASS P1 Enhanced: '4' in a Player: prompt -> HighlightIndex(3), not a choice
+PASS P1 Enhanced: '5' in a Player: prompt -> HighlightIndex(4), not a choice
+PASS P1 Enhanced: '6' in a Player: prompt -> HighlightIndex(5), not a choice
+PASS P1 Enhanced: '7' (no seventh member) stays a Character, which the picker drops
+PASS P1 Enhanced: '8' (no seventh member) stays a Character, which the picker drops
+PASS P1 Enhanced: '9' (no seventh member) stays a Character, which the picker drops
+PASS P6 Enhanced: Space in a Player: prompt chooses (Confirm)
+PASS P6 Enhanced: Space stays a Character for the Mix picker and outside prompts
+PASS P6 Enhanced: Space for the Camp watch is a Character (its own keys)
+PASS P2 Enhanced: '0' and letters in a Player: prompt stay Characters
+PASS P3 Enhanced: '1' with request CampGuard stays a Character (the picker reads digits itself)
+PASS P3 Enhanced: '5' with request CampGuard stays a Character (the picker reads digits itself)
+PASS P3 Enhanced: '9' with request CampGuard stays a Character (the picker reads digits itself)
+PASS P3 Enhanced: '1' with request MixReagents stays a Character (the picker reads digits itself)
+PASS P3 Enhanced: '5' with request MixReagents stays a Character (the picker reads digits itself)
+PASS P3 Enhanced: '9' with request MixReagents stays a Character (the picker reads digits itself)
+PASS P4 Enhanced: other Player: requests highlight the member number
+PASS P5 Enhanced: outside PartySelection a digit is a Character
+PASS S1 Original: F7 -> MusicMute (source "f7"), action kind not the default Confirm
+PASS S1 Original: F8 -> SfxMute (source "f8"), action kind not the default Confirm
+PASS S1 Original: Ctrl+M -> MusicMute (source "ctrl-m"), action kind not the default Confirm
+PASS S1 Original: Ctrl+S -> SfxMute (source "ctrl-s"), action kind not the default Confirm
+PASS S1 Original: RCtrl+S -> SfxMute (source "ctrl-s"), action kind not the default Confirm
+PASS S1 Original: Alt+Shift+M -> MusicMute (source "alt-shift-m"), action kind not the default Confirm
+PASS S1 Original: Alt+Shift+S -> SfxMute (source "alt-shift-s"), action kind not the default Confirm
+PASS S2 Original: F10 -> SystemMenu
+PASS S2 Original: Alt+M -> SystemMenu
+PASS S2 Original: Right Alt (no Ctrl) + M is Alt+M -> SystemMenu
+PASS S3 Original: Ctrl+F10 / Alt+F10 are not the System Menu
+PASS W1 Original: Alt+Enter -> window command (not a game key)
+PASS W1 Original: Alt+KP_Enter -> window command (not a game key)
+PASS W1 Original: F11 -> window command (not a game key)
+PASS W1 Original: Ctrl+= -> window command (not a game key)
+PASS W1 Original: Ctrl+KP_Plus -> window command (not a game key)
+PASS W1 Original: Ctrl+- -> window command (not a game key)
+PASS W1 Original: Ctrl+KP_Minus -> window command (not a game key)
+PASS W1 Original: F12 -> window command (not a game key)
+PASS W2 Original: '=' without Ctrl is a Character
+PASS S1 Enhanced: F7 -> MusicMute (source "f7"), action kind not the default Confirm
+PASS S1 Enhanced: F8 -> SfxMute (source "f8"), action kind not the default Confirm
+PASS S1 Enhanced: Ctrl+M -> MusicMute (source "ctrl-m"), action kind not the default Confirm
+PASS S1 Enhanced: Ctrl+S -> SfxMute (source "ctrl-s"), action kind not the default Confirm
+PASS S1 Enhanced: RCtrl+S -> SfxMute (source "ctrl-s"), action kind not the default Confirm
+PASS S1 Enhanced: Alt+Shift+M -> MusicMute (source "alt-shift-m"), action kind not the default Confirm
+PASS S1 Enhanced: Alt+Shift+S -> SfxMute (source "alt-shift-s"), action kind not the default Confirm
+PASS S2 Enhanced: F10 -> SystemMenu
+PASS S2 Enhanced: Alt+M -> SystemMenu
+PASS S2 Enhanced: Right Alt (no Ctrl) + M is Alt+M -> SystemMenu
+PASS S3 Enhanced: Ctrl+F10 / Alt+F10 are not the System Menu
+PASS W1 Enhanced: Alt+Enter -> window command (not a game key)
+PASS W1 Enhanced: Alt+KP_Enter -> window command (not a game key)
+PASS W1 Enhanced: F11 -> window command (not a game key)
+PASS W1 Enhanced: Ctrl+= -> window command (not a game key)
+PASS W1 Enhanced: Ctrl+KP_Plus -> window command (not a game key)
+PASS W1 Enhanced: Ctrl+- -> window command (not a game key)
+PASS W1 Enhanced: Ctrl+KP_Minus -> window command (not a game key)
+PASS W1 Enhanced: F12 -> window command (not a game key)
+PASS W2 Enhanced: '=' without Ctrl is a Character
+PASS E1 Enhanced: F5 -> Save
+PASS E2 Original: F5 does nothing
+PASS E1 Enhanced: F9 -> Load
+PASS E2 Original: F9 does nothing
+PASS E1 Enhanced: Alt+S -> Save
+PASS E2 Original: Alt+S does nothing
+PASS E3 Original: the text after Alt+S is suppressed
+PASS E1 Enhanced: Alt+L -> Load
+PASS E2 Original: Alt+L does nothing
+PASS E3 Original: the text after Alt+L is suppressed
+PASS E1 Enhanced: F2 -> MovementModeToggled
+PASS E2 Original: F2 does nothing
+PASS E1 Enhanced: Alt+D -> DeveloperMenu
+PASS E2 Original: Alt+D does nothing
+PASS E3 Original: the text after Alt+D is suppressed
+PASS E4 Original + developer_tools: Alt+D -> DeveloperMenu
+PASS E4 Enhanced + developer_tools: Alt+D -> DeveloperMenu
+PASS E5 Original + developer_tools: F5 still does nothing (developer_tools grants Alt+D only)
+PASS E5 Enhanced: Alt+F5 is not quick save
+PASS M1 Enhanced, Movement Mode on, Exploration: 'w' -> Direction North
+PASS M2 Original (movement_mode set), Exploration: 'w' stays a Character
+PASS M1 Enhanced, Movement Mode on, Exploration: 'a' -> Direction West
+PASS M2 Original (movement_mode set), Exploration: 'a' stays a Character
+PASS M1 Enhanced, Movement Mode on, Exploration: 's' -> Direction South
+PASS M2 Original (movement_mode set), Exploration: 's' stays a Character
+PASS M1 Enhanced, Movement Mode on, Exploration: 'd' -> Direction East
+PASS M2 Original (movement_mode set), Exploration: 'd' stays a Character
+PASS M1 Enhanced, Movement Mode on, Exploration: 'W' -> Direction North
+PASS M2 Original (movement_mode set), Exploration: 'W' stays a Character
+PASS M1 Enhanced, Movement Mode on, Exploration: 'A' -> Direction West
+PASS M2 Original (movement_mode set), Exploration: 'A' stays a Character
+PASS M1 Enhanced, Movement Mode on, Exploration: 'S' -> Direction South
+PASS M2 Original (movement_mode set), Exploration: 'S' stays a Character
+PASS M1 Enhanced, Movement Mode on, Exploration: 'D' -> Direction East
+PASS M2 Original (movement_mode set), Exploration: 'D' stays a Character
+PASS M3 Enhanced, Movement Mode on, Exploration: other letters stay Characters
+PASS M1 Enhanced, Movement Mode on, Dungeon: 'w' -> Direction North
+PASS M2 Original (movement_mode set), Dungeon: 'w' stays a Character
+PASS M1 Enhanced, Movement Mode on, Dungeon: 'a' -> Direction West
+PASS M2 Original (movement_mode set), Dungeon: 'a' stays a Character
+PASS M1 Enhanced, Movement Mode on, Dungeon: 's' -> Direction South
+PASS M2 Original (movement_mode set), Dungeon: 's' stays a Character
+PASS M1 Enhanced, Movement Mode on, Dungeon: 'd' -> Direction East
+PASS M2 Original (movement_mode set), Dungeon: 'd' stays a Character
+PASS M1 Enhanced, Movement Mode on, Dungeon: 'W' -> Direction North
+PASS M2 Original (movement_mode set), Dungeon: 'W' stays a Character
+PASS M1 Enhanced, Movement Mode on, Dungeon: 'A' -> Direction West
+PASS M2 Original (movement_mode set), Dungeon: 'A' stays a Character
+PASS M1 Enhanced, Movement Mode on, Dungeon: 'S' -> Direction South
+PASS M2 Original (movement_mode set), Dungeon: 'S' stays a Character
+PASS M1 Enhanced, Movement Mode on, Dungeon: 'D' -> Direction East
+PASS M2 Original (movement_mode set), Dungeon: 'D' stays a Character
+PASS M3 Enhanced, Movement Mode on, Dungeon: other letters stay Characters
+PASS M1 Enhanced, Movement Mode on, Combat: 'w' -> Direction North
+PASS M2 Original (movement_mode set), Combat: 'w' stays a Character
+PASS M1 Enhanced, Movement Mode on, Combat: 'a' -> Direction West
+PASS M2 Original (movement_mode set), Combat: 'a' stays a Character
+PASS M1 Enhanced, Movement Mode on, Combat: 's' -> Direction South
+PASS M2 Original (movement_mode set), Combat: 's' stays a Character
+PASS M1 Enhanced, Movement Mode on, Combat: 'd' -> Direction East
+PASS M2 Original (movement_mode set), Combat: 'd' stays a Character
+PASS M1 Enhanced, Movement Mode on, Combat: 'W' -> Direction North
+PASS M2 Original (movement_mode set), Combat: 'W' stays a Character
+PASS M1 Enhanced, Movement Mode on, Combat: 'A' -> Direction West
+PASS M2 Original (movement_mode set), Combat: 'A' stays a Character
+PASS M1 Enhanced, Movement Mode on, Combat: 'S' -> Direction South
+PASS M2 Original (movement_mode set), Combat: 'S' stays a Character
+PASS M1 Enhanced, Movement Mode on, Combat: 'D' -> Direction East
+PASS M2 Original (movement_mode set), Combat: 'D' stays a Character
+PASS M3 Enhanced, Movement Mode on, Combat: other letters stay Characters
+PASS M1 Enhanced, Movement Mode on, TargetSelection: 'w' -> Direction North
+PASS M2 Original (movement_mode set), TargetSelection: 'w' stays a Character
+PASS M1 Enhanced, Movement Mode on, TargetSelection: 'a' -> Direction West
+PASS M2 Original (movement_mode set), TargetSelection: 'a' stays a Character
+PASS M1 Enhanced, Movement Mode on, TargetSelection: 's' -> Direction South
+PASS M2 Original (movement_mode set), TargetSelection: 's' stays a Character
+PASS M1 Enhanced, Movement Mode on, TargetSelection: 'd' -> Direction East
+PASS M2 Original (movement_mode set), TargetSelection: 'd' stays a Character
+PASS M1 Enhanced, Movement Mode on, TargetSelection: 'W' -> Direction North
+PASS M2 Original (movement_mode set), TargetSelection: 'W' stays a Character
+PASS M1 Enhanced, Movement Mode on, TargetSelection: 'A' -> Direction West
+PASS M2 Original (movement_mode set), TargetSelection: 'A' stays a Character
+PASS M1 Enhanced, Movement Mode on, TargetSelection: 'S' -> Direction South
+PASS M2 Original (movement_mode set), TargetSelection: 'S' stays a Character
+PASS M1 Enhanced, Movement Mode on, TargetSelection: 'D' -> Direction East
+PASS M2 Original (movement_mode set), TargetSelection: 'D' stays a Character
+PASS M3 Enhanced, Movement Mode on, TargetSelection: other letters stay Characters
+PASS M1 Enhanced, Movement Mode on, YesNo accepting a direction: 'w' -> Direction North
+PASS M2 Original (movement_mode set), YesNo accepting a direction: 'w' stays a Character
+PASS M1 Enhanced, Movement Mode on, YesNo accepting a direction: 'a' -> Direction West
+PASS M2 Original (movement_mode set), YesNo accepting a direction: 'a' stays a Character
+PASS M1 Enhanced, Movement Mode on, YesNo accepting a direction: 's' -> Direction South
+PASS M2 Original (movement_mode set), YesNo accepting a direction: 's' stays a Character
+PASS M1 Enhanced, Movement Mode on, YesNo accepting a direction: 'd' -> Direction East
+PASS M2 Original (movement_mode set), YesNo accepting a direction: 'd' stays a Character
+PASS M1 Enhanced, Movement Mode on, YesNo accepting a direction: 'W' -> Direction North
+PASS M2 Original (movement_mode set), YesNo accepting a direction: 'W' stays a Character
+PASS M1 Enhanced, Movement Mode on, YesNo accepting a direction: 'A' -> Direction West
+PASS M2 Original (movement_mode set), YesNo accepting a direction: 'A' stays a Character
+PASS M1 Enhanced, Movement Mode on, YesNo accepting a direction: 'S' -> Direction South
+PASS M2 Original (movement_mode set), YesNo accepting a direction: 'S' stays a Character
+PASS M1 Enhanced, Movement Mode on, YesNo accepting a direction: 'D' -> Direction East
+PASS M2 Original (movement_mode set), YesNo accepting a direction: 'D' stays a Character
+PASS M3 Enhanced, Movement Mode on, YesNo accepting a direction: other letters stay Characters
+PASS M4 Enhanced, Movement Mode on, TextEntry (no movement context): 'w' is a Character
+PASS M4 Enhanced, Movement Mode on, Dialogue (no movement context): 'w' is a Character
+PASS M4 Enhanced, Movement Mode on, Shop (no movement context): 'w' is a Character
+PASS M4 Enhanced, Movement Mode on, YesNo (no movement context): 'w' is a Character
+PASS M5 Enhanced, Movement Mode OFF: 'w' is a Character
+PASS M6 Enhanced, Movement Mode on: "wxd" -> North, 'x', East
+PASS A1 Original: the text after Alt+M is suppressed
+PASS A2 Original: after Alt+M the next key types again
+PASS A1 Original: the text after Alt+X (unmapped) is suppressed
+PASS A2 Original: after Alt+X (unmapped) the next key types again
+PASS A1 Original: the text after Ctrl+S is suppressed
+PASS A2 Original: after Ctrl+S the next key types again
+PASS A1 Original: the text after Ctrl+Q (unmapped) is suppressed
+PASS A2 Original: after Ctrl+Q (unmapped) the next key types again
+PASS A1 Original: the text after Ctrl+= is suppressed
+PASS A2 Original: after Ctrl+= the next key types again
+PASS A1 Original: the text after Alt+Enter is suppressed
+PASS A2 Original: after Alt+Enter the next key types again
+PASS A1 Original: the text after Alt+Shift+M is suppressed
+PASS A2 Original: after Alt+Shift+M the next key types again
+PASS A3 Original: a focus change resets the text suppression
+PASS G1 Original (RAlt, AltGr layout): AltGr+Q -> '@' (German) is typing, not an Alt/Ctrl chord (no command on key-down; text passes)
+PASS G1 Original (RAlt, AltGr layout): AltGr+7 -> '{' (German) is typing, not an Alt/Ctrl chord (no command on key-down; text passes)
+PASS G1 Original (RAlt, AltGr layout): AltGr+M -> U+00B5 (German) is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G1 Original (RAlt, AltGr layout): AltGr+S is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G1 Original (RAlt, AltGr layout): AltGr+D is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G1 Original (RAlt, AltGr layout): AltGr+E -> euro is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G1 Original (RAlt, AltGr layout): AltGr+= is typing, not an Alt/Ctrl chord (no command on key-down; text passes)
+PASS G1 Original (RAlt, AltGr layout): AltGr+L is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G2 Original (RAlt, AltGr layout): AltGr+Enter is Enter (Confirm), not Alt+Enter fullscreen
+PASS G1 Original (Ctrl+RAlt, any layout): AltGr+Q -> '@' (German) is typing, not an Alt/Ctrl chord (no command on key-down; text passes)
+PASS G1 Original (Ctrl+RAlt, any layout): AltGr+7 -> '{' (German) is typing, not an Alt/Ctrl chord (no command on key-down; text passes)
+PASS G1 Original (Ctrl+RAlt, any layout): AltGr+M -> U+00B5 (German) is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G1 Original (Ctrl+RAlt, any layout): AltGr+S is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G1 Original (Ctrl+RAlt, any layout): AltGr+D is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G1 Original (Ctrl+RAlt, any layout): AltGr+E -> euro is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G1 Original (Ctrl+RAlt, any layout): AltGr+= is typing, not an Alt/Ctrl chord (no command on key-down; text passes)
+PASS G1 Original (Ctrl+RAlt, any layout): AltGr+L is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G2 Original (Ctrl+RAlt, any layout): AltGr+Enter is Enter (Confirm), not Alt+Enter fullscreen
+PASS G3 Original: AltGr layout: Left Alt+M is the menu; AltGr+S / AltGr+L do nothing
+PASS G4 Original: a new DesktopInput assumes no AltGr level (Right Alt = Alt)
+PASS A1 Enhanced: the text after Alt+M is suppressed
+PASS A2 Enhanced: after Alt+M the next key types again
+PASS A1 Enhanced: the text after Alt+X (unmapped) is suppressed
+PASS A2 Enhanced: after Alt+X (unmapped) the next key types again
+PASS A1 Enhanced: the text after Ctrl+S is suppressed
+PASS A2 Enhanced: after Ctrl+S the next key types again
+PASS A1 Enhanced: the text after Ctrl+Q (unmapped) is suppressed
+PASS A2 Enhanced: after Ctrl+Q (unmapped) the next key types again
+PASS A1 Enhanced: the text after Ctrl+= is suppressed
+PASS A2 Enhanced: after Ctrl+= the next key types again
+PASS A1 Enhanced: the text after Alt+Enter is suppressed
+PASS A2 Enhanced: after Alt+Enter the next key types again
+PASS A1 Enhanced: the text after Alt+Shift+M is suppressed
+PASS A2 Enhanced: after Alt+Shift+M the next key types again
+PASS A3 Enhanced: a focus change resets the text suppression
+PASS G1 Enhanced (RAlt, AltGr layout): AltGr+Q -> '@' (German) is typing, not an Alt/Ctrl chord (no command on key-down; text passes)
+PASS G1 Enhanced (RAlt, AltGr layout): AltGr+7 -> '{' (German) is typing, not an Alt/Ctrl chord (no command on key-down; text passes)
+PASS G1 Enhanced (RAlt, AltGr layout): AltGr+M -> U+00B5 (German) is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G1 Enhanced (RAlt, AltGr layout): AltGr+S is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G1 Enhanced (RAlt, AltGr layout): AltGr+D is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G1 Enhanced (RAlt, AltGr layout): AltGr+E -> euro is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G1 Enhanced (RAlt, AltGr layout): AltGr+= is typing, not an Alt/Ctrl chord (no command on key-down; text passes)
+PASS G1 Enhanced (RAlt, AltGr layout): AltGr+L is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G2 Enhanced (RAlt, AltGr layout): AltGr+Enter is Enter (Confirm), not Alt+Enter fullscreen
+PASS G1 Enhanced (Ctrl+RAlt, any layout): AltGr+Q -> '@' (German) is typing, not an Alt/Ctrl chord (no command on key-down; text passes)
+PASS G1 Enhanced (Ctrl+RAlt, any layout): AltGr+7 -> '{' (German) is typing, not an Alt/Ctrl chord (no command on key-down; text passes)
+PASS G1 Enhanced (Ctrl+RAlt, any layout): AltGr+M -> U+00B5 (German) is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G1 Enhanced (Ctrl+RAlt, any layout): AltGr+S is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G1 Enhanced (Ctrl+RAlt, any layout): AltGr+D is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G1 Enhanced (Ctrl+RAlt, any layout): AltGr+E -> euro is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G1 Enhanced (Ctrl+RAlt, any layout): AltGr+= is typing, not an Alt/Ctrl chord (no command on key-down; text passes)
+PASS G1 Enhanced (Ctrl+RAlt, any layout): AltGr+L is typing, not an Alt/Ctrl chord (no command on key-down; text non-ASCII, dropped)
+PASS G2 Enhanced (Ctrl+RAlt, any layout): AltGr+Enter is Enter (Confirm), not Alt+Enter fullscreen
+PASS G3 Enhanced: AltGr layout: Left Alt+M is the menu; AltGr+S / AltGr+L do nothing
+PASS G4 Enhanced: a new DesktopInput assumes no AltGr level (Right Alt = Alt)
+FAIL K1 Original: Ctrl+K -> Character 0x0B (source "ctrl-k"): 0 command(s)
+PASS K1 Original: the chord's own text event is suppressed
+FAIL K2 Original: Ctrl+V (either Ctrl) -> Character 0x16: 0 command(s)
+PASS K3 Original: Ctrl+B is unmapped
+FAIL K1 Enhanced: Ctrl+K -> Character 0x0B (source "ctrl-k"): 0 command(s)
+PASS K1 Enhanced: the chord's own text event is suppressed
+FAIL K2 Enhanced: Ctrl+V (either Ctrl) -> Character 0x16: 0 command(s)
+PASS K3 Enhanced: Ctrl+B is unmapped
+PASS X1 a new DesktopInput starts in Original mode
+PASS X2 set_mode(Enhanced) is reported by mode()
+PASS X3 key-up, mouse, IME editing, quit and focus events produce no command
+PASS X4 Enter's key-up is ignored (only key-down acts)
+PASS X5 a plain game key reports source "keyboard" and no shortcut
+PASS X6 Original: F1/F3/F4/F6 are unmapped
+PASS X6 Enhanced: F1/F3/F4/F6 are unmapped
+uv_desktop_input_test: 449 passed, 4 failed, 0 skipped

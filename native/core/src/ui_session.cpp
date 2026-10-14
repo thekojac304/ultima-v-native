@@ -1349,6 +1349,10 @@ void UiSession::dos_commit_answer(UiMode mode, UiRequestId request, bool yes) {
     append(UiTextChannel::CommandEcho, line);
 }
 
+void UiSession::control_key(char16_t code) {
+    Command c; c.kind = CommandKind::ControlKey; c.item = int16_t(code); command(c);
+}
+
 void UiSession::dos_hole_up() {
     // The kernel asks for hours only where the game camps or sleeps: aboard a
     // ship 0x3c9a prints "Hole up & " and "\nrepair..." (DS 0xa2ce) and repairs
@@ -1412,6 +1416,9 @@ bool UiSession::handle_exploration(const UiAction &a) {
         command_echo("Pass"); Command c; c.kind = CommandKind::Pass; command(c); return true;
     }
     if (a.kind != UiActionKind::Character) return false;
+    // SPP1 G: Ctrl-K / Ctrl-V arrive as their raw codes (the desktop keyboard; the T-Deck
+    // matrix has no Ctrl); the core prints them and knows the context's turn rule.
+    if (a.character == 0x0b || a.character == 0x16) { control_key(a.character); return true; }
     const auto k = lower_ascii(a.character);
     // Windows port, desktop Original mode: (Q)uit & Save, CAST2.OVL 0x10FE.
     if (k == 'q' && platform_quit_save_key()) { begin_quit_save(); return true; }
@@ -1528,6 +1535,7 @@ bool UiSession::handle_dungeon(const UiAction &a) {
     // The 1988 model: ESC is the kernel dispatcher's default "What?" (0x34d8).
     if (dos && a.kind == UiActionKind::Cancel) { append(UiTextChannel::Message, "What?"); return true; }
     if (a.kind != UiActionKind::Character) return false;
+    if (a.character == 0x0b || a.character == 0x16) { control_key(a.character); return true; } // SPP1 G
     const auto k = lower_ascii(a.character);
     // Windows port, desktop Original mode: (Q)uit & Save has no dungeon gate.
     if (k == 'q' && platform_quit_save_key()) { begin_quit_save(); return true; }

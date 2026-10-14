@@ -551,6 +551,8 @@ class UiSession {
     void dos_getdir_pass();
     // (H)ole up in the 1988 model (kernel 0x3288 / 0x3c9a, CMDS 0x0552).
     void dos_hole_up();
+    // SPP1 G: Ctrl-K (0x0B) / Ctrl-V (0x16) at the command prompt -> CommandKind::ControlKey.
+    void control_key(char16_t code);
     bool handle_modal(const UiAction &);
     bool handle_exploration(const UiAction &);
     bool handle_dungeon(const UiAction &);
