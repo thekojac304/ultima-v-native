@@ -42,10 +42,29 @@
 //         is 4 (approach) skips the guard test (0x0350) and answers "No response!"
 //      T5 each opens no conversation and costs one town turn (TALK -> 0, the dispatcher's 1)
 //
-//   spp2_runtime <openu5-alpha1-resources.bin> [openu5-audio.bin]
+//   H  DEFERRED (ledger D-107 (2); docs/SHARED_PRESERVATION_PARITY_SPP2.md section 4.2). Run only with
+//      --deferred-h: on the current tree H1 and H3-H6 are RED by design. The latch change that turns
+//      them GREEN also adds the dispatcher's turn after a completed Camp, which the binary does too
+//      but which moves the camp batches' pins (batch32 W5/C3, batch36, batch38, batch44).
+//      (H)ole up is a dispatcher command: K:0x3288 returns 1 on every path --
+//      the camp routine 0x3c9a (outdoors, underground, aboard ship) and the bed's CMDS 0x0552 are
+//      called and the arm jumps to 0x31ee; "Hole up- Only in bed!" is 0x33ea -> 0x31ee. Abandoning
+//      the hours question ('0' / Space: kernel 0x3ddc / 0x3de5 -> 0x3eea ret; CMDS 0x057e / 0x0587
+//      -> 0x06e8) still returns there, so it costs the context's turn.
+//      H1 the overworld: Hole up, the hours question cancelled: one world turn
+//      H2 control: a refusal ("Only in bed!") charges its own turn in the core: exactly one
+//      H3 a town bed: the hours question cancelled: one town turn
+//      H4 the dungeon: the hours question cancelled: one dungeon turn
+//      H5 Original: Hole up & camp!, Space abandons: one world turn
+//      H6 aboard ship: "Hull now" (the repair's own 25 minutes, CMDS/kernel 0x3c9a) then the turn
+//      H7 control: a completed hour in a bed is the core's rest (its own turns); the latch adds
+//         nothing to it (the binary's one turn after the rest stays a recorded residual)
+//
+//   spp2_runtime <openu5-alpha1-resources.bin> [openu5-audio.bin] [--deferred-h]
 #include "a4_ui2_harness.h"
 #include "openu5/dialogue.h"
 #include "openu5/platform_profile.h"
+#include "openu5/quest_state.h"
 #include "openu5/world.h"
 
 using namespace a4_ui2;
@@ -513,6 +532,121 @@ void test_t() {
               "T4 a guard of dialog 0 whose AI is 4 (approach) answers \"No response!\" (TALK 0x0350 skips the guard test): " + r.text);
     }
 }
+// --- H: Hole up ----------------------------------------------------------------------------------
+constexpr int kDeceit = 33;
+// One hour of the bed's hole-up loop: six 10-minute ticks, each with K:0x2ae8 housekeeping
+// (CMDS 0x0634-0x068d; rest.cpp), measured identical before and after SPP2's H.
+constexpr int kBedHourTurns = 6;
+void enter_deceit(Run &h) {
+    auto &g = h.rt->game();
+    g.position.map = {0, 0};
+    g.position.xy = {pack->location_x[kDeceit - 1], pack->location_y[kDeceit - 1]};
+    set_quest_flag(g.quest, QuestFlag::Word33);
+    h.key('e');
+    h.run(200);
+}
+bool in_dungeon(Run &h) { return h.rt->dungeon_state().active && h.rt->command_context_for_test().dungeon; }
+/** A bed (tile 171) in Britain with a free cell; the party on it. */
+bool on_a_bed(Run &h) {
+    enter_town(h, 2);
+    auto &g = h.rt->game();
+    auto &c = h.rt->command_context_for_test();
+    if (g.position.map.location != 2) return false;
+    for (int y = 0; y < 32; ++y)
+        for (int x = 0; x < 32; ++x)
+            if (c.terrain->effective(c.world, g.position.map, x, y) == 171 && !c.shop_services->occupied(c.shop_services->context, x, y)) {
+                g.position.xy = {uint8_t(x), uint8_t(y)};
+                h.run(50);
+                return true;
+            }
+    return false;
+}
+bool asking_hours(Run &h) { return mode(h) == UiMode::NumericEntry && h.rt->ui()->request() == UiRequestId::RestHours; }
+
+void test_h() {
+    std::printf("H  (H)ole up: the dispatcher's turn on every path (D-107 (2))\n");
+    {
+        Run h(kParty);
+        surface(h);
+        const Snap before = snap(h);
+        act(h, ch('h'));
+        const bool asked = asking_hours(h);
+        act(h, kind(UiActionKind::Cancel));
+        const Cost c = since(before, h);
+        check(asked && mode(h) == UiMode::Exploration && c.turns == 1 && c.minutes == 2,
+              "H1 the overworld: Hole up with the hours question cancelled costs one world turn" + show(c));
+    }
+    {
+        Run h(kParty);
+        enter_town(h, 2);
+        const Snap before = snap(h);
+        act(h, ch('h'));
+        if (asking_hours(h)) { act(h, ch('1')); act(h, kind(UiActionKind::Confirm)); }
+        const Cost c = since(before, h);
+        check(transcript_has(h, "Only in bed!") && c.turns == 1 && c.minutes == 1,
+              "H2 control: \"Only in bed!\" (0x33ea) charges its turn once, not twice" + show(c));
+    }
+    {
+        Run h(kParty);
+        const bool bed = on_a_bed(h);
+        const Snap before = snap(h);
+        act(h, ch('h'));
+        const bool asked = asking_hours(h);
+        act(h, kind(UiActionKind::Cancel));
+        const Cost c = since(before, h);
+        check(bed && asked && c.turns == 1 && c.minutes == 1,
+              "H3 a town bed: the hours question cancelled (CMDS 0x0587) costs one town turn" + show(c));
+    }
+    {
+        Run h(kParty);
+        enter_deceit(h);
+        const Snap before = snap(h);
+        act(h, ch('h'));
+        const bool asked = asking_hours(h);
+        act(h, kind(UiActionKind::Cancel));
+        const Cost c = since(before, h);
+        check(in_dungeon(h) && asked && c.turns == 1 && c.minutes == 1,
+              "H4 the dungeon: the hours question cancelled costs one dungeon turn" + show(c));
+    }
+    {
+        DosProfile dos;
+        Run h(kParty);
+        surface(h);
+        const Snap before = snap(h);
+        act(h, ch('h'));
+        const bool asked = asking_hours(h) && transcript_has(h, "Hole up & camp!");
+        act(h, ch(' '));
+        const Cost c = since(before, h);
+        check(asked && mode(h) == UiMode::Exploration && c.turns == 1 && c.minutes == 2,
+              "H5 Original: Hole up & camp!, Space abandons (kernel 0x3ddc) and costs one world turn" + show(c));
+    }
+    {
+        Run h(kParty);
+        surface(h);
+        auto &g = h.rt->game();
+        g.transport = TransportMode::Ship;
+        h.rt->turn().transport_tile = 0x1c;
+        g.ship_hull = 50;
+        const Snap before = snap(h);
+        act(h, ch('h'));
+        if (asking_hours(h)) { act(h, ch('1')); act(h, kind(UiActionKind::Confirm)); }
+        const Cost c = since(before, h);
+        check(transcript_has(h, "Hull now") && c.turns == 1 && c.minutes == 27,
+              "H6 aboard ship: the repair's 25 minutes, then the dispatcher's world turn" + show(c));
+    }
+    {
+        Run h(kParty, true);
+        const bool bed = on_a_bed(h);
+        const Snap before = snap(h);
+        act(h, ch('h'));
+        if (asking_hours(h)) { act(h, ch('1')); act(h, kind(UiActionKind::Confirm)); }
+        for (int i = 0; i < 400 && mode(h) != UiMode::Exploration; ++i) h.run(50);
+        h.run(3000);
+        const Cost c = since(before, h);
+        check(bed && mode(h) == UiMode::Exploration && c.turns == kBedHourTurns && c.minutes == 60,
+              "H7 control: an hour in a bed is the core's rest alone, the latch adds nothing" + show(c));
+    }
+}
 } // namespace
 
 int main(int argc, char **argv) {
@@ -524,11 +658,14 @@ int main(int argc, char **argv) {
         std::printf("RED the pack does not load -- the checks cannot run\n");
         return 1;
     }
-    if (argc > 2) g_audio = tdeck::load_audio_pack_info(argv[2]);
+    bool deferred_h = false;
+    for (int i = 2; i < argc; ++i) deferred_h |= std::strcmp(argv[i], "--deferred-h") == 0;
+    if (argc > 2 && std::strcmp(argv[2], "--deferred-h") != 0) g_audio = tdeck::load_audio_pack_info(argv[2]);
     test_m();
     test_n();
     test_n3();
     test_t();
+    if (deferred_h) test_h(); // D-107 (2): RED by design until the camp pins are re-derived
     std::printf("SPP2 runtime: %d/%d checks\n", checks - failures, checks);
     return failures ? 1 : 0;
 }
