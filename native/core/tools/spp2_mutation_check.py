@@ -22,6 +22,8 @@ AUDIO = os.path.join(ROOT, 'native', 'assets', 'openu5-audio.bin')
 ARGS = {'spp2_runtime': [PACK, AUDIO]}
 RT = 'native/targets/tdeck/main/alpha_runtime.cpp'
 DLG = 'native/core/src/dialogue_orchestration.cpp'
+CMD = 'native/core/src/commands.cpp'
+UIS = 'native/core/src/ui_session.cpp'
 
 SPP2 = ('spp2_runtime',)
 BOTH_RT = ('spp2_runtime', 'spp1_runtime')
@@ -60,6 +62,19 @@ MUTANTS = [
     ('T3', 'T', DLG, '    if (dialog == 0) {\n', '    if (false) {\n', SPP2, SPP2),
     ('T4', 'T', DLG, 'npc->schedule.type == 0x70 && !approach ?', 'false && !approach ?', SPP2, SPP2),
     ('T5', 'T', DLG, 'npc->schedule.type == 0x70 && !approach ?', 'npc->schedule.type == 0x70 && (approach || !approach) ?', SPP2, SPP2),
+    # G: Ctrl-S and the overworld "What?" (D-108, D-112)
+    ('G1', 'G', RT, '        if(!at_command_prompt()||context_.combat)return toggle_audio_mute(false);\n',
+     '        return toggle_audio_mute(false);\n', BOTH_RT, BOTH_RT),
+    ('G2', 'G', RT, '        toggle_audio_mute(false,false);\n', '        toggle_audio_mute(false);\n', SPP2, SPP2),
+    ('G3', 'G', CMD, 'e.text = cmd.member ? "Sound Off" : "Sound On";', 'e.text = cmd.member ? "Sound On" : "Sound Off";', SPP2, SPP2),
+    ('G4', 'G', CMD, '        if (!c.dungeon && c.game.position.map.location == 0) {\n            const auto before = c.game.turns_since_start;',
+     '        if (false) {\n            const auto before = c.game.turns_since_start;', BOTH_RT, BOTH_RT),
+    ('G5', 'G', CMD, '        if (!c.dungeon && c.game.position.map.location == 0) {\n            const auto before = c.game.turns_since_start;',
+     '        if (!c.dungeon) {\n            const auto before = c.game.turns_since_start;', BOTH_RT, BOTH_RT),
+    ('G6', 'G', CMD, '                auto turn = execute_dungeon_command(c, tick); turn.event_count += r.result.event_count; return turn;',
+     '                (void)tick; return r.result;', SPP2, SPP2),
+    ('G7', 'G', UIS, '        control_key(a.kind == UiActionKind::Confirm ? char16_t(0x0d) : char16_t(0x1b)); return true;',
+     '        append(UiTextChannel::Message, "What?"); return true;', BOTH_RT, BOTH_RT),
 ]
 EQUIVALENT = {
     'N3': 'defensive: the only render() nested in command() is the unpaced Camp scene (route_event -> '

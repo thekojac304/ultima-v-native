@@ -1,0 +1,152 @@
+SPP2 Windows scenarios against the SPP1 executable (build-spp1, copied to C:\Dev\spp2-scratch\spp1-win-exe)
+== spp2_original
+Installed Vulkan doesn't implement the VK_EXT_headless_surface extension
+AUTOTEST line 23: expect frontend = 0 (actual 0) PASS
+AUTOTEST line 26: expect remember_turns = x (actual 0) PASS
+AUTOTEST line 29: expect console = Sound Off (actual Ultima V Native for | Windows 0.5.0-dev | Esc back  F10 menu | Alt+Enter fullscreen | SFX muted. |  | ) FAIL
+AUTOTEST line 30: expect turns_advanced = 1 (actual 0) FAIL
+AUTOTEST line 31: expect remember_turns = x (actual 0) PASS
+AUTOTEST line 34: expect console = What? (actual Ultima V Native for | Windows 0.5.0-dev | Esc back  F10 menu | Alt+Enter fullscreen | SFX muted. | What? |  | ) PASS
+AUTOTEST line 35: expect turns_advanced = 1 (actual 0) FAIL
+AUTOTEST line 36: expect remember_turns = x (actual 0) PASS
+AUTOTEST line 39: expect turns_advanced = 1 (actual 0) FAIL
+AUTOTEST line 42: expect remember_turns = x (actual 0) PASS
+AUTOTEST line 45: expect console = Sound On (actual Ultima V Native for | Windows 0.5.0-dev | Esc back  F10 menu | Alt+Enter fullscreen | SFX muted. | What? | What? | SFX restored. |  | ) FAIL
+AUTOTEST line 46: expect turns_advanced = 0 (actual 0) PASS
+AUTOTEST line 51: expect turns_advanced = 0 (actual 0) PASS
+AUTOTEST line 53: expect dungeon = 1 (actual 1) PASS
+AUTOTEST line 55: expect remember_turns = x (actual 0) PASS
+AUTOTEST line 58: expect console = Sound Off (actual Ultima V Native for | Windows 0.5.0-dev | Esc back  F10 menu | Alt+Enter fullscreen | SFX muted. | What? | What? | SFX restored. | What? | What? | Deceit | SFX muted. |  | ) FAIL
+AUTOTEST line 59: expect turns_advanced = 1 (actual 0) FAIL
+AUTOTEST done: 7 failure(s); 133 frames presented
+
+---- end of windows.log ----
+_ENTER_COMMAND result=success
+      5938 I (AlphaRuntime) DUNGEON_RUN_COMMAND result=success
+      5938 I (AlphaRuntime) DEBUG_DUNGEON_TELEPORT dungeon=33 depth=0 entrance=1 x=1 y=1 facing=2
+      5938 I (AlphaRuntime) DUNGEON_SESSION active=1 dungeon=33 depth=0 x=1 y=1 facing=2
+      5938 I (AlphaRuntime) UI_MODE debug -> dungeon
+      5938 I (AlphaRuntime) DUNGEON_RENDERER active=1 dungeon=33 depth=0
+      5938 I (AlphaRuntime) DEBUG_DUNGEON_TELEPORT_RESULT result=success reason=normal-dungeon-init
+      5938 I (AlphaRuntime) INPUT_ROUTE action=confirm ui=debug gameplay_command=none
+      5938 I (AlphaRuntime) PRESENTATION_DISPATCH ui=debug combat=0 dungeon=1 source=dungeon3d
+      5938 I (AlphaRuntime) TELEPORT_RENDERER map=L2/F0 xy=15,30 snapshot_center=1,1 combat=0 dungeon=1
+      5938 I (AlphaRuntime) DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=0 source=dungeon3d
+      5938 I (AlphaRuntime) DUNGEON_DRAW_END viewport=176x176 primitives=0 us=94
+      5938 I (AlphaRuntime) DUNGEON_PRESENTATION_ENTER full_redraw=1 viewport=176x176 source=dungeon3d
+      5938 I (AlphaRuntime) DEBUG_RENDER count=40 reason=full-redraw clear=0 full_redraw=0 dirty_regions=2 pixels=8648 reconstructed=0 category=0 index=5 depth=1 us=94
+      5938 I (AlphaRuntime) render 94 us reason=full-redraw animated=0 crc=00000000
+      5955 I (AlphaRuntime) DEBUG_ACTION action=back prior_depth=1 prior_category=0 prior_index=5 new_depth=0 new_category=-1 new_index=0 mode=debug->debug
+      5955 I (AlphaRuntime) debug teleport rebind moved=0 prior_dungeon=1 location=2 floor=0 xy=15,30 dungeon=1
+      5955 I (AlphaRuntime) INPUT_ROUTE action=back ui=debug gameplay_command=none
+      5955 I (AlphaRuntime) DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=0 source=dungeon3d
+      5955 I (AlphaRuntime) DUNGEON_DRAW_END viewport=176x176 primitives=0 us=244
+      5955 I (AlphaRuntime) DEBUG_RENDER count=41 reason=input-dirty clear=0 full_redraw=0 dirty_regions=11 pixels=51124 reconstructed=0 category=-1 index=0 depth=0 us=244
+      5955 I (AlphaRuntime) render 244 us reason=input-dirty animated=0 crc=00000000
+      5972 I (AlphaRuntime) DEBUG_ACTION action=back prior_depth=0 prior_category=-1 prior_index=0 new_depth=0 new_category=-1 new_index=0 mode=debug->dungeon
+      5972 I (AlphaRuntime) debug teleport rebind moved=0 prior_dungeon=1 location=2 floor=0 xy=15,30 dungeon=1
+      5972 I (AlphaRuntime) UI_MODE from=debug to=dungeon
+      5972 I (AlphaRuntime) INPUT_ROUTE action=back ui=debug gameplay_command=none
+      5972 I (AlphaRuntime) PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+      5972 I (AlphaRuntime) DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+      5972 I (DungeonArt) Wall variant -> DNG3 (resident, no reload)
+      5973 I (AlphaRuntime) DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=0 source=dungeon3d
+      5973 I (AlphaRuntime) DUNGEON_DRAW_END viewport=176x176 primitives=0 us=378
+      5973 I (AlphaRuntime) render 378 us reason=console-cursor animated=0 crc=11b75b17
+      5988 I (UltimaV-Windows) AUTOTEST teleport dungeon ordinal=34
+      5988 I (UltimaV-Windows) AUTOTEST line 53 expect dungeon=1 actual=1 -> PASS
+      6298 I (UltimaV-Windows) AUTOTEST line 55 expect remember_turns=x actual=0 -> PASS
+      6298 I (AlphaRuntime) METRICS heartbeat internal=2147483648 psram=2147483648 stack_margin=1045008 render_high_us=1248 frontend_render_high_us=1202 command_high_us=0 transcript=9/96
+      6298 I (AlphaRuntime) TRACKBALL_INPUT raw_edges=0 accepted=0 suppressed=0
+      6298 I (AlphaRuntime) TRACKBALL_SETTINGS level=5 pulses_per_step=3 step_gap_ms=100 window_ms=4 idle_reset_ms=400 accel=none
+      6298 I (AlphaRuntime) AUDIO_PERF song=Halls of Doom window_ms=5007 blocks=624 missed=0 underruns=0 hw_underruns=0 render_avg_us=31 p99_us=160 max_us=198 music_max_us=198 cpu_permille=3 sched_max_us=24195 fill_min=8/8 channels_avg_x100=471 channels_max=9 voices_max=6 sfx=0 sfx_with_music=0 stack_free_min=0 runaway=0 failures=0
+      6298 I (AlphaRuntime) RENDER_PERF window_ms=6298 frames=67 frame_avg_us=178 p95_us=444 p99_us=444 max_us=444 compose_avg_us=148 tiles_max_us=255 tft_avg_us=30 tft_max_us=286 cadence_max_us=342768 late=0 inputs=10 input_max_us=201222 handle_max_us=17437 busy_permille=4
+      6298 I (AlphaRuntime) A3C_PERF scen=[music 80% Halls of Doom sfx 80%] win=6.2s | frame n=67 avg=0.1 p95=0.4 max=0.4 late=0 | cmp=0.1/0.3 tiles=0.2 tft=0.0/0.2 in=10:201.2 | logic=0.0/0.0 vp=6:0.2/0.2 oth=61:0.0/0.0 | split fill=0.0 xfer=0.0 yld=0.0 | yld n=98 max=0.0 late=0 | xfer max=0.00 slow=0/0 insd=0:0.0 | rows=3551 busy=0% fill=0.2/0.0 xfer=0.2/0.0 | loop=534:1.9/18.3 | audio blk=624 rnd=0.03/0.19 mus=0.03/0.19 task=24.19 buf=64 und=0 hw=0 miss=0 clip=0
+      6299 I (AlphaRuntime) A3E_PACE hb=2 pace=[tft yield  loop idle-wait] win=6.2s | frame n=67 avg=0.1 max=0.4 | tft=0.0/0.2 in=10:20.3/201.2 | full=4:0.2/0.2 vp=2:0.1/0.1 | yld n=98 /vp=16.3 vpms=0.0 tot=0.0 max=0.00 late=0 | loop n=534 /s=84 max=18.3 wait=388:10.2/11.6 in=0 asleep=3993.1 | und=0 hw=0 miss=0
+      6299 I (AlphaRuntime) AUDIO_MUTE bus=sfx sfx_muted=1 music_muted=0 sfx_volume=80 music_volume=80 line="SFX muted."
+      6299 I (AlphaRuntime) DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+      6299 I (AlphaRuntime) DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=0 source=dungeon3d
+      6299 I (AlphaRuntime) DUNGEON_DRAW_END viewport=176x176 primitives=0 us=256
+      6299 I (AlphaRuntime) render 256 us reason=audio-mute animated=0 crc=11b75b17
+      6608 I (UltimaV-Windows) AUTOTEST line 58 expect console=Sound Off actual=Ultima V Native for | Windows 0.5.0-dev | Esc back  F10 menu | Alt+Enter fullscreen | SFX muted. | What? | What? | SFX restored. | What? | What? | Deceit | SFX muted. |  |  -> FAIL
+      6608 I (UltimaV-Windows) AUTOTEST line 59 expect turns_advanced=1 actual=0 -> FAIL
+      6609 I (UltimaV-Windows) shutting down
+      6669 I (UltimaV-Windows) exit code 7
+
+CMake Error at C:/Dev/ultima-v-native-spp2/native/targets/windows/scenarios/run_scenario.cmake:57 (message):
+  scenario failed: exit code 7
+
+
+exit 1
+== spp2_enhanced
+Installed Vulkan doesn't implement the VK_EXT_headless_surface extension
+AUTOTEST line 20: expect frontend = 0 (actual 0) PASS
+AUTOTEST line 23: expect remember_turns = x (actual 0) PASS
+AUTOTEST line 26: expect transcript = Sound Off (actual Ultima V Native for Windows 0.5.0-dev | Esc back  F10 menu  Alt+Enter fullscreen | SFX muted. | ) FAIL
+AUTOTEST line 27: expect no_transcript = SFX muted. (actual Ultima V Native for Windows 0.5.0-dev | Esc back  F10 menu  Alt+Enter fullscreen | SFX muted. | ) FAIL
+AUTOTEST line 28: expect turns_advanced = 1 (actual 0) FAIL
+AUTOTEST line 29: expect remember_turns = x (actual 0) PASS
+AUTOTEST line 32: expect transcript = Pass (actual Ultima V Native for Windows 0.5.0-dev | Esc back  F10 menu  Alt+Enter fullscreen | SFX muted. | Pass | ) PASS
+AUTOTEST line 33: expect no_transcript = What? (actual Ultima V Native for Windows 0.5.0-dev | Esc back  F10 menu  Alt+Enter fullscreen | SFX muted. | Pass | ) PASS
+AUTOTEST line 34: expect turns_advanced = 1 (actual 1) PASS
+AUTOTEST done: 3 failure(s); 86 frames presented
+
+---- end of windows.log ----
+ us=26
+      4135 I (AlphaRuntime) render 26 us reason=input-dirty animated=0 crc=00000000
+      4151 I (AlphaRuntime) DEBUG_ACTION action=confirm prior_depth=2 prior_category=0 prior_index=3 new_depth=1 new_category=0 new_index=3 mode=debug->debug
+      4151 I (AlphaRuntime) debug teleport rebind moved=0 prior_dungeon=0 location=13 floor=0 xy=15,15 dungeon=0
+      4151 I (AlphaRuntime) INPUT_ROUTE action=confirm ui=debug gameplay_command=none
+      4151 I (AlphaRuntime) DEBUG_RENDER count=13 reason=value-dirty clear=0 full_redraw=0 dirty_regions=1 pixels=5304 reconstructed=0 category=0 index=3 depth=1 us=118
+      4151 I (AlphaRuntime) render 118 us reason=value-dirty animated=0 crc=00000000
+      4168 I (AlphaRuntime) DEBUG_ACTION action=direction prior_depth=1 prior_category=0 prior_index=3 new_depth=1 new_category=0 new_index=4 mode=debug->debug
+      4168 I (AlphaRuntime) debug teleport rebind moved=0 prior_dungeon=0 location=13 floor=0 xy=15,15 dungeon=0
+      4168 I (AlphaRuntime) INPUT_ROUTE action=direction ui=debug gameplay_command=none
+      4168 I (AlphaRuntime) DEBUG_RENDER count=14 reason=input-dirty clear=0 full_redraw=0 dirty_regions=3 pixels=11312 reconstructed=0 category=0 index=4 depth=1 us=46
+      4168 I (AlphaRuntime) render 46 us reason=input-dirty animated=0 crc=00000000
+      4184 I (AlphaRuntime) DEBUG_ACTION action=direction prior_depth=1 prior_category=0 prior_index=4 new_depth=1 new_category=0 new_index=5 mode=debug->debug
+      4184 I (AlphaRuntime) debug teleport rebind moved=0 prior_dungeon=0 location=13 floor=0 xy=15,15 dungeon=0
+      4184 I (AlphaRuntime) INPUT_ROUTE action=direction ui=debug gameplay_command=none
+      4185 I (AlphaRuntime) DEBUG_RENDER count=15 reason=input-dirty clear=0 full_redraw=0 dirty_regions=3 pixels=11312 reconstructed=0 category=0 index=5 depth=1 us=51
+      4185 I (AlphaRuntime) render 51 us reason=input-dirty animated=0 crc=00000000
+      4201 I (AlphaRuntime) DEBUG_ACTION action=confirm prior_depth=1 prior_category=0 prior_index=5 new_depth=1 new_category=0 new_index=5 mode=debug->debug
+      4201 I (AlphaRuntime) debug teleport rebind moved=1 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+      4201 I (AlphaRuntime) DEBUG_TELEPORT type=0 id=0 floor/depth=0 entrance=1 requested_xy=105,60 result=Applied game_before=L13/F0/15,15 game_after=L0/F0/105,60 dungeon_before=active0/F0/1,1 dungeon_after=active0/F0/1,1 context_before=dungeon0 context_after=dungeon0,combat0
+      4201 I (AlphaRuntime) INPUT_ROUTE action=confirm ui=debug gameplay_command=none
+      4201 I (AlphaRuntime) TELEPORT_RENDERER map=L0/F0 xy=105,60 snapshot_center=105,60 combat=0 dungeon=0
+      4201 I (AlphaRuntime) DEBUG_RENDER count=16 reason=teleport-result clear=0 full_redraw=0 dirty_regions=2 pixels=8648 reconstructed=0 category=0 index=5 depth=1 us=39
+      4201 I (AlphaRuntime) render 39 us reason=teleport-result animated=0 crc=00000000
+      4218 I (AlphaRuntime) DEBUG_ACTION action=back prior_depth=1 prior_category=0 prior_index=5 new_depth=0 new_category=-1 new_index=0 mode=debug->debug
+      4218 I (AlphaRuntime) debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+      4218 I (AlphaRuntime) INPUT_ROUTE action=back ui=debug gameplay_command=none
+      4218 I (AlphaRuntime) DEBUG_RENDER count=17 reason=input-dirty clear=0 full_redraw=0 dirty_regions=11 pixels=51124 reconstructed=0 category=-1 index=0 depth=0 us=148
+      4218 I (AlphaRuntime) render 148 us reason=input-dirty animated=0 crc=00000000
+      4234 I (AlphaRuntime) DEBUG_ACTION action=back prior_depth=0 prior_category=-1 prior_index=0 new_depth=0 new_category=-1 new_index=0 mode=debug->explore
+      4234 I (AlphaRuntime) debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+      4234 I (AlphaRuntime) UI_MODE from=debug to=explore
+      4234 I (AlphaRuntime) INPUT_ROUTE action=back ui=debug gameplay_command=none
+      4234 I (AlphaRuntime) PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+      4235 I (AlphaRuntime) render 364 us reason=console-cursor animated=0 crc=2ff2c37e
+      4251 I (UltimaV-Windows) AUTOTEST teleport britannia ordinal=0
+      4561 I (UltimaV-Windows) AUTOTEST line 23 expect remember_turns=x actual=0 -> PASS
+      4561 I (AlphaRuntime) AUDIO_MUTE bus=sfx sfx_muted=1 music_muted=0 sfx_volume=80 music_volume=80 line="SFX muted."
+      4561 I (AlphaRuntime) render 140 us reason=audio-mute animated=0 crc=2ff2c37e
+      4862 I (UltimaV-Windows) AUTOTEST line 26 expect transcript=Sound Off actual=Ultima V Native for Windows 0.5.0-dev | Esc back  F10 menu  Alt+Enter fullscreen | SFX muted. |  -> FAIL
+      4862 I (UltimaV-Windows) AUTOTEST line 27 expect no_transcript=SFX muted. actual=Ultima V Native for Windows 0.5.0-dev | Esc back  F10 menu  Alt+Enter fullscreen | SFX muted. |  -> FAIL
+      4862 I (UltimaV-Windows) AUTOTEST line 28 expect turns_advanced=1 actual=0 -> FAIL
+      4862 I (UltimaV-Windows) AUTOTEST line 29 expect remember_turns=x actual=0 -> PASS
+      4862 I (AlphaRuntime) combat command=1 status=success turns=1 events=0 time=54 us
+      4862 I (AlphaRuntime) debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+      4862 I (AlphaRuntime) INPUT_ROUTE action=confirm ui=explore gameplay_command=1 sequence=1
+      4862 I (AlphaRuntime) render 153 us reason=input-dirty animated=0 crc=2ff2c37e
+      4863 I (UltimaV-Windows) AUTOTEST line 32 expect transcript=Pass actual=Ultima V Native for Windows 0.5.0-dev | Esc back  F10 menu  Alt+Enter fullscreen | SFX muted. | Pass |  -> PASS
+      4863 I (UltimaV-Windows) AUTOTEST line 33 expect no_transcript=What? actual=Ultima V Native for Windows 0.5.0-dev | Esc back  F10 menu  Alt+Enter fullscreen | SFX muted. | Pass |  -> PASS
+      4863 I (UltimaV-Windows) AUTOTEST line 34 expect turns_advanced=1 actual=1 -> PASS
+      4863 I (UltimaV-Windows) shutting down
+      4924 I (UltimaV-Windows) exit code 3
+
+CMake Error at C:/Dev/ultima-v-native-spp2/native/targets/windows/scenarios/run_scenario.cmake:57 (message):
+  scenario failed: exit code 3
+
+
+exit 1

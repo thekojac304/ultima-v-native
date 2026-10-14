@@ -188,7 +188,9 @@ size_t DesktopInput::key_down(const SDL_KeyboardEvent &key, const InputContext &
     if (ctrl && !alt) {
         suppress_text_ = true;
         // The DOS game's own Ctrl-S toggles the sound; Ctrl-M the same for music.
-        if (sc == SDL_SCANCODE_S) return emit(out, capacity, n, shortcut(DeviceShortcut::SfxMute, "ctrl-s"));
+        // SPP2 (D-108): it is also the context loops' own key -- "Sound Off" / "Sound On" and
+        // that loop's turn at the command prompt (AlphaRuntime: DeviceShortcut::DosSound).
+        if (sc == SDL_SCANCODE_S) return emit(out, capacity, n, shortcut(DeviceShortcut::DosSound, "ctrl-s"));
         if (sc == SDL_SCANCODE_M) return emit(out, capacity, n, shortcut(DeviceShortcut::MusicMute, "ctrl-m"));
         // SPP1 G: the context loops' Ctrl-K (karma) and Ctrl-V (version) go to the game as
         // the codes the DOS keyboard produced, 0x0B and 0x16 (MAINOUT table 0x0bbe). Ctrl-B

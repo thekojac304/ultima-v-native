@@ -1,0 +1,145 @@
+== spp2_runtime against 96dec6b6 (G)
+GREEN M1 control: the paced Mix holds "Mixing..." and nothing is charged inside it (turns +0, clock +0 min)
+GREEN M1 control: the hold ended by itself and the Mix is done
+GREEN M1 the Mix's world turn is charged when the hold ends, with no further input (MAINOUT 0x0c39 before 0x0b14) (turns +1, clock +2 min)
+GREEN M2 waiting charges nothing more (turns +1, clock +2 min)
+GREEN M2 a delayed Pass adds its own turn: two in all (turns +2, clock +4 min)
+GREEN M3 a key pressed during the hold is swallowed (no Z-stats) and the Mix still costs exactly one turn (turns +1, clock +2 min)
+GREEN M3 the turn is on the frame the hold ends (turns +1, clock +2 min)
+GREEN M3 an immediate Pass is its own turn: nothing absorbed, nothing twice (turns +2, clock +4 min)
+GREEN M4 control: (U)se the View scroll opens the map reveal
+GREEN M4 nothing is charged while the reveal holds (turns +0, clock +0 min)
+GREEN M4 the Use's turn is charged when the reveal ends, without input (turns +1, clock +2 min)
+GREEN M6 a key that comes before the first frame after the reveal: the Use's turn, then the Pass's (turns +2, clock +4 min)
+GREEN M5 a save right after the Mix holds its turn (turns +1, clock +2 min)
+GREEN M5 control: Alt+S inside the hold saves (the device shortcuts keep their meaning)
+GREEN M5 the live game still charges the Mix's turn once, when the hold ends (turns +1, clock +2 min)
+GREEN M5 the save made inside the hold has the Mix without its turn, and its load charges nothing (turns +0, clock +0 min)
+GREEN N1 control: a Pass with an approaching NPC beside the party opens the conversation at once (turns +1, clock +1 min)
+GREEN N2 an R cancelled at Player: charges the town turn, and the NPC's approach opens the conversation before any key (turns +1, clock +1 min)
+GREEN N3 control: a Pass beside a troll starts the fight, with its music (hut -> combat)
+GREEN N3 an R cancelled beside a troll: the turn starts the fight, and its music plays without another key (hut -> combat)
+GREEN T1 a town Talk at an empty cell answers "Nobody's here!" (TALK 0x0491, DS 0x91d6) [T-Deck]: Talk-|east|Nobody's here!|
+GREEN T5 ... opens nothing and costs one town turn [T-Deck] (turns +1, clock +1 min)
+GREEN T1 a town Talk at an empty cell answers "Nobody's here!" (TALK 0x0491, DS 0x91d6) [Original]: Talk-East|Nobody's here!|
+GREEN T5 ... opens nothing and costs one town turn [Original] (turns +1, clock +1 min)
+GREEN T2 control: the overworld Talk keeps the kernel's "Funny, no response!" (0x33c2): Talk-|east|Funny, no response!|
+GREEN T3 an NPC of dialog 0 answers "No response!" (TALK 0x0364, DS 0x9168): Talk-|north|No response!| [location 4 slot 18 type 80]
+GREEN T5 ... opens nothing and costs one town turn (turns +1, clock +1 min)
+GREEN T4 a guard of dialog 0 answers "The guard offers no response!" (TALK 0x0387, DS 0x9148): Talk-|north|The guard offers
+GREEN T5 ... opens nothing and costs one town turn (turns +1, clock +1 min)
+GREEN T4 a guard of dialog 0 whose AI is 4 (approach) answers "No response!" (TALK 0x0350 skips the guard test): Talk-|north|No response!| [location 1 slot 6 type 112]
+RED G1 Ctrl+S at the overworld prompt: "Sound Off" (MAINOUT 0x0b80) and the effects muted [Enhanced]: Pass|
+GREEN G1 ... and one world turn (0x0ba7 -> 0x0c12, result 1) [Enhanced] (turns +1, clock +2 min)
+RED G1 again: "Sound On", the effects back, one more world turn [Enhanced] (turns +1, clock +2 min)
+RED G1 Ctrl+S at the overworld prompt: "Sound Off" (MAINOUT 0x0b80) and the effects muted [Original]: What?|
+RED G1 ... and one world turn (0x0ba7 -> 0x0c12, result 1) [Original] (turns +0, clock +0 min)
+RED G1 again: "Sound On", the effects back, one more world turn [Original] (turns +0, clock +0 min)
+RED G2 in a town: "Sound Off" and no turn (TOWN 0x1508 -> 0x154b) (turns +1, clock +1 min)
+RED G3 in a dungeon: "Sound Off" and one dungeon turn (DUNGEON 0x0776 -> 0x070a returns 1) (turns +1, clock +1 min)
+RED G4 away from the prompt Ctrl+S is the mute alone: no echo, no turn (turns +0, clock +0 min): 
+GREEN G5 control: the T-Deck's Alt+Shift+S stays the session mute (no echo, no turn) (turns +0, clock +0 min): SFX muted.|
+RED G6 Original: RETURN and ESC at the overworld prompt are "What?" and a world turn each (MAINOUT 0x0bb8 -> 0x0c12) (turns +0, clock +0 min) (turns +0, clock +0 min)
+GREEN G7 control: in a town RETURN and ESC are "What?" and free (TOWN 0x1544 -> 0x154b) (turns +0, clock +0 min)
+GREEN G8 control: Enhanced RETURN at the overworld prompt is still the Pass (turns +1, clock +2 min)
+SPP2 runtime: 34/43 checks
+exit 1
+== spp1_runtime against 96dec6b6 (G)
+GREEN G1 Ctrl-K on the surface: "73" alone on the command row (the karma, bare decimal)
+GREEN G1 Ctrl-K on the surface costs no turn (MAINOUT 0x0af8): (none)
+GREEN G2 Ctrl-V prints "1.16" (DS 0x2b4f) on the command row
+GREEN G2 Ctrl-V costs no turn: (none)
+GREEN G1/G2 neither key is "What?"
+GREEN G3 control: (E)nter at the gate puts the party in town 2
+GREEN G3 in a town: "41" and "1.16"
+GREEN G3 in a town neither key costs a turn (TOWN 0x154b): (none)
+GREEN G4 control: (E)nter at Deceit's mouth opens the dungeon session
+GREEN G4 in a dungeon Ctrl-K prints "88"
+GREEN G4 in a dungeon Ctrl-K costs exactly one dungeon turn (DUNGEON 0x06cb returns 1 -> 0x0c76): turns 0->1 clock +1min
+GREEN G4 Ctrl-V likewise costs one dungeon turn: turns 1->2 clock +1min
+GREEN G5 control: the T-Deck's Alt+K / Alt+V do not reach the control keys: (none)
+GREEN F1 control: "On who:" opens, and the cancel returns to the world
+GREEN F1 the cancelled Mani's charge is spent (CAST 0x0ec8): qty 1
+GREEN F1/F2 the Player: pick (Iolo) pays one MP, nobody else: Iolo 19, Avatar 20
+GREEN F1 the cancel prints neither Success! nor Failed! (the arm returns -1)
+GREEN F2 a completed Mani is paid by the Player: pick, not the active/first member: Iolo 19, Avatar 20
+GREEN F3 MP 0: no "On who:" is asked; M.P. too low! / Failed!, the charge spent, MP kept (0x0ecc)
+GREEN F3 level 1 casting circle 5: no "On who:"; Failed!, the charge and 5 MP spent (0x0f01): qty 1 mp 15
+GREEN F4 (U)se In Mani Corp scroll, "On who:" cancelled: the item is spent (CAST 0x11ec)
+GREEN F4 (U)se a potion, "On who:" cancelled: the item is spent (CAST 0x136a)
+GREEN F5 control: "On who:" opens for the actor's Mani [T-Deck]
+GREEN F5 the arena's cancelled Mani is spent: qty 1 mp 19 [T-Deck]
+GREEN F5 the cancel ends the actor's turn exactly once (next to act 1, after a Pass 1) [T-Deck]
+GREEN F5 control: "On who:" opens for the actor's Mani [Original]
+GREEN F5 the arena's cancelled Mani is spent: qty 1 mp 19 [Original]
+GREEN F5 the cancel ends the actor's turn exactly once (next to act 1, after a Pass 1) [Original]
+GREEN F6 Original: "On who: None!" and no Failed!
+GREEN A1 R cancelled at Player: costs one world turn (turns +1, clock +2 min)
+GREEN A1 R with two items readied, then closed, costs ONE world turn (turns +1, clock +2 min)
+GREEN A2 Z cancelled at Player: costs one world turn (turns +1, clock +2 min)
+GREEN A2 Z browsed and closed costs one world turn (turns +1, clock +2 min)
+GREEN A3 N cancelled at Swap costs one world turn (turns +1, clock +2 min)
+GREEN A3 a completed swap (Iolo <-> Shamino) costs one world turn (turns +1, clock +2 min)
+GREEN A4 U cancelled at the list costs one world turn (turns +1, clock +2 min)
+GREEN A4 U a potion drunk costs one world turn (turns +1, clock +2 min)
+GREEN A5 C cancelled at Player: costs one world turn, nothing spent (turns +1, clock +2 min)
+GREEN A5 C a completed Mani costs one world turn (turns +1, clock +2 min)
+GREEN A5 M cancelled at the spell costs one world turn (turns +1, clock +2 min)
+GREEN A6 Look cancelled at the direction (the binary's Pass) costs one world turn (turns +1, clock +2 min)
+GREEN A6 Get cancelled at the direction costs one world turn (turns +1, clock +2 min)
+GREEN A6 a completed Look costs one world turn (K:0x3310 -> 0x333c returns 1) (turns +1, clock +2 min)
+GREEN A6 Search, which charges its own turn in the core, still costs exactly one (turns +1, clock +2 min)
+GREEN A10 overworld Attack cancelled stays free (MAINOUT 0x06ec returns 0) (turns +0, clock +0 min)
+GREEN A10 D ("D-What?") stays free (K:0x324e) (turns +0, clock +0 min)
+GREEN A10 Ctrl-K stays free on the surface (turns +0, clock +0 min)
+GREEN A10 a valid digit stays free (turns +0, clock +0 min)
+GREEN A10 Ignite (charged by the core) costs one turn, not two (turns +1, clock +2 min)
+GREEN A10 Pass costs one turn, not two (turns +1, clock +2 min)
+GREEN A7 town: R cancelled costs one turn of one minute (TOWN 0x15d0) (turns +1, clock +1 min)
+GREEN A7 town: Look-Pass costs one turn of one minute (turns +1, clock +1 min)
+GREEN A8 dungeon: R cancelled costs one dungeon turn (turns +1, clock +1 min)
+GREEN A8 dungeon: U cancelled costs one dungeon turn (turns +1, clock +1 min)
+GREEN A8 dungeon: Z cancelled costs one dungeon turn (turns +1, clock +1 min)
+GREEN A9 Original: Space at Look- prints "Look-Pass" and costs one world turn (turns +1, clock +2 min)
+RED A10 Original: RETURN / ESC at the overworld prompt ("What?") cost a world turn each (SPP2) (turns +0, clock +0 min)
+GREEN A12 paced: a Mix whose prompt returns on the pacer's clock, then a Pass, costs two world turns (turns +2, clock +4 min)
+GREEN A13 Z and L pressed during the map reveal are swallowed and cost nothing (turns +0, clock +0 min)
+GREEN A11 a town conversation, ended with an empty answer, keeps its pre-SPP1 cost (none) [T-Deck] (turns +0, clock +0 min)
+GREEN A11b CONTROL: Talk at an empty town cell opens nothing and costs one town turn [T-Deck] (turns +1, clock +1 min)
+GREEN A11 a town conversation, ended with an empty answer, keeps its pre-SPP1 cost (none) [Original] (turns +0, clock +0 min)
+GREEN A11b CONTROL: Talk at an empty town cell opens nothing and costs one town turn [Original] (turns +1, clock +1 min)
+GREEN C2 J opens the arena getdir after "Jimmy-" [T-Deck]
+GREEN C1 J is no longer "What?" [T-Deck]
+GREEN C6 the T-Deck's Cancel at Jimmy- stays free: the same actor still has the turn [T-Deck]
+GREEN C2 J without a key: "No Keys!" with no getdir, and the turn ends [T-Deck]
+GREEN C4 Push-East onto bare floor: "Won't budge!" and the turn ends [T-Deck]
+GREEN C5 Yell with an empty answer: "Nothing", and the turn ends [T-Deck]
+GREEN C5 Yell ORT: "No effect!", and the turn ends [T-Deck]
+GREEN C2 J opens the arena getdir after "Jimmy-" [Original]
+GREEN C1 J is no longer "What?" [Original]
+GREEN C3 Space at Jimmy- prints "Jimmy-Pass", keeps the keys and ends the turn [Original]
+GREEN C2 J without a key: "No Keys!" with no getdir, and the turn ends [Original]
+GREEN C4 Push-East onto bare floor: "Won't budge!" and the turn ends [Original]
+GREEN C5 Yell with an empty answer: "Nothing", and the turn ends [Original]
+GREEN C5 Yell ORT: "No effect!", and the turn ends [Original]
+GREEN E1 L: Look..., Player:, Dir-, You see: -- one dungeon turn (turns +1, clock +1 min)
+GREEN E2 a poison fountain Here, Y: only the picked member (Shamino) is poisoned, one turn in all (turns +1, clock +1 min)
+GREEN E3 the same fountain, N: "No.", no effect, still one turn (turns +1, clock +1 min)
+GREEN E4 darkness: no Dir-, "You see: darkness.", one turn (turns +1, clock +1 min)
+GREEN E5 Cancel at Player: "None!" and the Look's turn (turns +1, clock +1 min)
+GREEN E5 Cancel at Dir-: the Pass, one turn (turns +1, clock +1 min)
+GREEN E6 the T-Deck's D is the Look aimed Here: the picked member (Iolo) healed, one turn (turns +1, clock +1 min)
+GREEN E7 Original: D is "D-What?" and no command (K:0x324e) (turns +0, clock +0 min)
+GREEN E7 Original: Space at Dir- prints "Dir-Pass" and the Look costs its turn (turns +1, clock +1 min)
+GREEN D1 the arena's An Xen Corp asks nothing (no reticle), is spent, and ends the turn
+GREEN D2 Original: In Zu reads "Direction-"; Space is the Pass -- spent, the turn ends exactly once
+GREEN D3 Original: Charm prints "Creature: " before the crosshair (DS 0x45bb)
+GREEN D4 a town An Ylem: Direction-, "POOF!", the object east becomes 0x44 (CAST 0x0230)
+GREEN D4 on bare floor: "Failed!"
+GREEN B0 a barkeeper with opening hours exists in the pack (location 1)
+GREEN B1 a paid rumour: 50 gold paid, the gossip then "says Sam." is shown [T-Deck] [|"Seek ye a daemon in the desert!"|says Sam.|]
+GREEN B2 CONTROL: N at "Fair 'nuff?" pays nothing and shows no gossip [T-Deck] []
+GREEN B1 a paid rumour: 50 gold paid, the gossip then "says Sam." is shown [Original] [|"Seek ye a daemon in the desert!"|says Sam.|]
+GREEN B2 CONTROL: N at "Fair 'nuff?" pays nothing and shows no gossip [Original] []
+SPP1 runtime: 95/96 checks
+exit 1

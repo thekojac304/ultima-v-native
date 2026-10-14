@@ -42,6 +42,26 @@
 //         is 4 (approach) skips the guard test (0x0350) and answers "No response!"
 //      T5 each opens no conversation and costs one town turn (TALK -> 0, the dispatcher's 1)
 //
+//   G  the context loops' control keys, SPP1 G's remainder (ledger D-108, and D-112 found here).
+//      Ctrl-S (0x13) is a context-loop key: MAINOUT 0x0b80 / TOWN 0x1508 / DUNGEON 0x0776 print
+//      "Sound " (DS 0x2b54 / 0x28ae / 0x2d43) and "Off\n" while the flag 0xa9ce is set, else "On\n",
+//      and toggle it. MAINOUT then jumps to 0x0c12 with its result still 1 (0x0a94): one world turn;
+//      TOWN goes to 0x154b ([bp-0xa]=0): none; DUNGEON returns its default 1 (0x070a): one dungeon
+//      turn. Every other control code at the overworld prompt -- RETURN and ESC among them -- is
+//      MAINOUT 0x0bb8 "What?" (DS 0x2b64) -> 0x0aba -> 0x0c12, the same world turn (TOWN's 0x1544
+//      "What?" -> 0x154b is free). The desktop's Ctrl+S is that key; the T-Deck has no Ctrl and
+//      keeps Alt+Shift+S as its plain session mute.
+//      G1 Ctrl+S at the overworld prompt: "Sound Off", the effects muted, one world turn; again:
+//         "Sound On", one more (both profiles)
+//      G2 in a town: "Sound Off", no turn
+//      G3 in a dungeon: "Sound Off", one dungeon turn
+//      G4 away from the prompt (a picker open): the mute alone, no echo, no turn
+//      G5 control: the T-Deck's Alt+Shift+S at the prompt stays the session mute ("SFX muted.",
+//         no echo, no turn)
+//      G6 Original: RETURN and ESC at the overworld prompt are "What?" and a world turn each
+//      G7 Original: in a town they are "What?" and free (control)
+//      G8 control: Enhanced RETURN at the overworld prompt is still the Pass
+//
 //   H  DEFERRED (ledger D-107 (2); docs/SHARED_PRESERVATION_PARITY_SPP2.md section 4.2). Run only with
 //      --deferred-h: on the current tree H1 and H3-H6 are RED by design. The latch change that turns
 //      them GREEN also adds the dispatcher's turn after a completed Camp, which the binary does too
@@ -82,6 +102,13 @@ UiAction kind(UiActionKind k) { UiAction a; a.kind = k; return a; }
 UiAction select(int32_t i) { UiAction a; a.kind = UiActionKind::SelectIndex; a.index = i; return a; }
 UiMode mode(Run &h) { return h.rt->ui()->mode(); }
 bool transcript_has(Run &h, const char *needle) { return h.transcript().find(needle) != std::string::npos; }
+/** Transcript blocks whose text is exactly `line`. */
+size_t lines_equal_count(Run &h, const std::string &line) {
+    size_t k = 0;
+    for (size_t i = 0; i < h.rt->ui()->transcript_size(); ++i)
+        if (const auto *b = h.rt->ui()->transcript_at(i)) k += line == b->text;
+    return k;
+}
 
 /** One desktop input: handle_action, as native/targets/windows routes a key, then 100 ms of frames. */
 bool act(Run &h, const UiAction &a) {
@@ -647,6 +674,122 @@ void test_h() {
               "H7 control: an hour in a bed is the core's rest alone, the latch adds nothing" + show(c));
     }
 }
+// --- G: Ctrl-S and the overworld "What?" ----------------------------------------------------------
+bool shortcut_key(Run &h, tdeck::DeviceShortcut s, const char *source) {
+    openu5_host_virtual_clock_us() += 100000;
+    const bool routed = h.rt->handle_action(UiAction{}, s, Run::now(), source);
+    h.run(100);
+    return routed;
+}
+bool sfx_muted(Run &h) { return h.rt->audio().sfx_muted(); }
+
+void test_g() {
+    std::printf("G  Ctrl-S and the overworld \"What?\" (D-108, D-112)\n");
+    for (int dos = 0; dos < 2; ++dos) {
+        std::unique_ptr<DosProfile> profile;
+        if (dos) profile = std::make_unique<DosProfile>();
+        const std::string tag = dos ? " [Original]" : " [Enhanced]";
+        Run h(kParty, false, &g_audio);
+        surface(h);
+        const bool muted0 = sfx_muted(h);
+        const Snap a = snap(h);
+        size_t mark = h.rt->ui()->transcript_size();
+        shortcut_key(h, tdeck::DeviceShortcut::DosSound, "ctrl-s");
+        const std::string t1 = since_mark(h, mark);
+        const Cost c1 = since(a, h);
+        check(!muted0 && sfx_muted(h) && t1.find("Sound Off") != std::string::npos && t1.find("SFX muted") == std::string::npos,
+              "G1 Ctrl+S at the overworld prompt: \"Sound Off\" (MAINOUT 0x0b80) and the effects muted" + tag + ": " + t1);
+        check(c1.turns == 1 && c1.minutes == 2, "G1 ... and one world turn (0x0ba7 -> 0x0c12, result 1)" + tag + show(c1));
+        mark = h.rt->ui()->transcript_size();
+        const Snap b = snap(h);
+        shortcut_key(h, tdeck::DeviceShortcut::DosSound, "ctrl-s");
+        const std::string t2 = since_mark(h, mark);
+        const Cost c2 = since(b, h);
+        check(!sfx_muted(h) && t2.find("Sound On") != std::string::npos && c2.turns == 1,
+              "G1 again: \"Sound On\", the effects back, one more world turn" + tag + show(c2));
+    }
+    {
+        Run h(kParty, false, &g_audio);
+        enter_town(h, 2);
+        const Snap a = snap(h);
+        const size_t mark = h.rt->ui()->transcript_size();
+        shortcut_key(h, tdeck::DeviceShortcut::DosSound, "ctrl-s");
+        const std::string t = since_mark(h, mark);
+        const Cost c = since(a, h);
+        check(sfx_muted(h) && t.find("Sound Off") != std::string::npos && c.turns == 0 && c.minutes == 0,
+              "G2 in a town: \"Sound Off\" and no turn (TOWN 0x1508 -> 0x154b)" + show(c));
+    }
+    {
+        Run h(kParty, false, &g_audio);
+        enter_deceit(h);
+        const Snap a = snap(h);
+        const size_t mark = h.rt->ui()->transcript_size();
+        shortcut_key(h, tdeck::DeviceShortcut::DosSound, "ctrl-s");
+        const std::string t = since_mark(h, mark);
+        const Cost c = since(a, h);
+        check(in_dungeon(h) && sfx_muted(h) && t.find("Sound Off") != std::string::npos && c.turns == 1 && c.minutes == 1,
+              "G3 in a dungeon: \"Sound Off\" and one dungeon turn (DUNGEON 0x0776 -> 0x070a returns 1)" + show(c));
+    }
+    {
+        Run h(kParty, false, &g_audio);
+        surface(h);
+        act(h, ch('z')); // the Player: picker is open
+        const bool picker = mode(h) != UiMode::Exploration;
+        const Snap a = snap(h);
+        const size_t mark = h.rt->ui()->transcript_size();
+        shortcut_key(h, tdeck::DeviceShortcut::DosSound, "ctrl-s");
+        const std::string t = since_mark(h, mark);
+        const Cost c = since(a, h);
+        check(picker && sfx_muted(h) && t.find("Sound") == std::string::npos && c.turns == 0,
+              "G4 away from the prompt Ctrl+S is the mute alone: no echo, no turn" + show(c) + ": " + t);
+    }
+    {
+        Run h(kParty, false, &g_audio);
+        surface(h);
+        const Snap a = snap(h);
+        const size_t mark = h.rt->ui()->transcript_size();
+        h.key('s', true, true); // Alt+Shift+S
+        h.run(100);
+        const std::string t = since_mark(h, mark);
+        const Cost c = since(a, h);
+        check(sfx_muted(h) && t.find("SFX muted.") != std::string::npos && t.find("Sound") == std::string::npos && c.turns == 0,
+              "G5 control: the T-Deck's Alt+Shift+S stays the session mute (no echo, no turn)" + show(c) + ": " + t);
+    }
+    {
+        DosProfile dos;
+        Run h(kParty);
+        surface(h);
+        const Snap a = snap(h);
+        act(h, kind(UiActionKind::Confirm));
+        const Cost c1 = since(a, h);
+        const Snap b = snap(h);
+        act(h, kind(UiActionKind::Cancel));
+        const Cost c2 = since(b, h);
+        check(lines_equal_count(h, "What?") == 2 && c1.turns == 1 && c1.minutes == 2 && c2.turns == 1 && c2.minutes == 2,
+              "G6 Original: RETURN and ESC at the overworld prompt are \"What?\" and a world turn each (MAINOUT 0x0bb8 -> 0x0c12)" +
+                  show(c1) + show(c2));
+    }
+    {
+        DosProfile dos;
+        Run h(kParty);
+        enter_town(h, 2);
+        const Snap a = snap(h);
+        act(h, kind(UiActionKind::Confirm));
+        act(h, kind(UiActionKind::Cancel));
+        const Cost c = since(a, h);
+        check(lines_equal_count(h, "What?") == 2 && c.turns == 0 && c.minutes == 0,
+              "G7 control: in a town RETURN and ESC are \"What?\" and free (TOWN 0x1544 -> 0x154b)" + show(c));
+    }
+    {
+        Run h(kParty);
+        surface(h);
+        const Snap a = snap(h);
+        act(h, kind(UiActionKind::Confirm));
+        const Cost c = since(a, h);
+        check(lines_equal_count(h, "What?") == 0 && transcript_has(h, "Pass") && c.turns == 1 && c.minutes == 2,
+              "G8 control: Enhanced RETURN at the overworld prompt is still the Pass" + show(c));
+    }
+}
 } // namespace
 
 int main(int argc, char **argv) {
@@ -665,6 +808,7 @@ int main(int argc, char **argv) {
     test_n();
     test_n3();
     test_t();
+    test_g();
     if (deferred_h) test_h(); // D-107 (2): RED by design until the camp pins are re-derived
     std::printf("SPP2 runtime: %d/%d checks\n", checks - failures, checks);
     return failures ? 1 : 0;

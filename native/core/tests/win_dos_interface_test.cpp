@@ -23,7 +23,7 @@
 //   R  the camp / bed hours are one getkey
 //   N  the typed spell name keeps its syllables on ESC (-1) and its rows
 //   E  Yell's empty word is "Nothing"; RETURN / ESC at the command prompt are
-//      "What?"
+//      "What?" -- since SPP2 (D-112) printed by the core, which runs the overworld's turn
 //   I  spell_from_initials: a repeated initial counts once (CAST2 0x02b2) --
 //      a pure function, the same in both settings
 //
@@ -616,12 +616,15 @@ void test_command_prompt() {
             f.press(kind(UiActionKind::Confirm));
             check(f.command(CommandKind::Yell) && f.spy.back()->text == u"ORT" && f.block_from_end(0) == ":ORT",
                   t + "E3 a word is uttered in capitals, its row kept");
-            const size_t n1 = f.spy.size(), log1 = f.ui.transcript_size();
+            // SPP2 (D-112): the core prints the "What?" and knows the context's turn (MAINOUT
+            // 0x0bb8 -> 0x0c12 runs the world turn; TOWN 0x1544 -> 0x154b none), so the session sends
+            // the control code itself (spp2_runtime G6 / G7 run it through the real runtime).
+            const size_t n1 = f.spy.size();
             f.press(kind(UiActionKind::Confirm));
-            const bool ret = f.block_from_end(0) == "What?" && f.ui.transcript_size() == log1 + 1;
+            const bool ret = f.command(CommandKind::ControlKey) && f.spy.back()->intent.command.item == 0x0d && f.spy.size() == n1 + 1;
             f.press(kind(UiActionKind::Cancel));
-            check(ret && f.block_from_end(0) == "What?" && f.ui.transcript_size() == log1 + 2 && f.spy.size() == n1,
-                  t + "E4 RETURN and ESC at the command prompt are \"What?\" (MAINOUT 0x0bb8); nothing is sent");
+            check(ret && f.command(CommandKind::ControlKey) && f.spy.back()->intent.command.item == 0x1b && f.spy.size() == n1 + 2,
+                  t + "E4 RETURN and ESC at the command prompt send the control codes 0x0d / 0x1b to the core (\"What?\", MAINOUT 0x0bb8)");
         } else {
             check(f.ui.mode() == UiMode::TextEntry && f.ui.request() == UiRequestId::YellText &&
                       f.block_from_end(0) == "Yell" && std::strcmp(f.ui.prompt(), "Yell what?") == 0,

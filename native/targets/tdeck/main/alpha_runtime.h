@@ -903,7 +903,7 @@ class AlphaRuntime {
      */
     void present_audio(const openu5::GameEvent &);
     // A3-05: Alt+Shift+M / Alt+Shift+S, and a Settings volume edit unmuting its channel.
-    bool toggle_audio_mute(bool music);
+    bool toggle_audio_mute(bool music, bool announce = true);
     // A4-ENH1. Movement (WASD) Mode was just toggled -- trackball click or the
     // Mic hold: the transcript line, the log, a redraw. Not saved to settings.
     bool announce_movement_mode(const char *source);

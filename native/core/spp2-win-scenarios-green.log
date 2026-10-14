@@ -1,0 +1,12 @@
+Test project C:/Dev/ultima-v-native-spp2/native/targets/windows/build-spp2
+    Start 29: scenario_spp2_original
+1/2 Test #29: scenario_spp2_original ...........   Passed    6.69 sec
+    Start 30: scenario_spp2_enhanced
+2/2 Test #30: scenario_spp2_enhanced ...........   Passed    4.95 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Label Time Summary:
+scenario    =  11.64 sec*proc (2 tests)
+
+Total Test time (real) =  11.66 sec

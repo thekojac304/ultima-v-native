@@ -658,7 +658,10 @@ static ActionResult execute(CommandContext &c, Command cmd, bool dispatch) {
     // TOWN (0x154b) return no turn; DUNGEON 0x06c4 keeps its default return of 1 (0x06cb),
     // so underground the dungeon's own turn block (0x0c76) runs. The arena has neither key
     // (COMBAT 0x0881-0x0886 answers "What?"), so it never sends one.
-    if(cmd.kind==CommandKind::ControlKey){
+    // SPP2 (D-108, D-112): Ctrl-S (0x13) and the control codes the loops answer "What?" (RETURN,
+    // ESC) pass on to their own arm below, where the context's turn is run.
+    const bool control_turn_key=cmd.kind==CommandKind::ControlKey&&!c.combat&&(cmd.item==0x13||cmd.item==0x0d||cmd.item==0x1b);
+    if(cmd.kind==CommandKind::ControlKey&&!control_turn_key){
         ActionResult result;
         if(c.combat||(cmd.item!=0x0b&&cmd.item!=0x16)){result.status=CommandStatus::InvalidContext;return result;}
         char text[8];
@@ -805,6 +808,35 @@ static ActionResult execute(CommandContext &c, Command cmd, bool dispatch) {
     // tail (the Pass key's mount exception, 0x161f, does not apply), DUNGEON 0x0f84 the
     // block 0x0c76. Ready / NewOrder / UseItem stay free per command: the front end
     // sends this once, when the whole interaction ends without a turn of its own.
+    // SPP2 (D-108 / D-112). Ctrl-S: MAINOUT 0x0b80, TOWN 0x1508 and DUNGEON 0x0776 print "Sound "
+    // (DS 0x2b54 / 0x28ae / 0x2d43) and "Off\n" while the sound flag 0xa9ce is set, else "On\n",
+    // on the command row, and toggle it (the front end owns the flag: cmd.member = 1 when it was
+    // on). The other control codes the overworld and town loops have no handler for -- RETURN and
+    // ESC among them -- print "What?" (MAINOUT 0x0bb8 DS 0x2b64; TOWN 0x1544). The turn: MAINOUT
+    // goes on to 0x0c12 with its result still 1 (0x0a94; 0x0ba7 and 0x0aba), one world turn; TOWN
+    // to 0x154b, [bp-0xa]=0, none; DUNGEON's Ctrl-S returns its default 1 (0x070a), one dungeon turn
+    // (its ESC is the dispatcher's free "What?", answered by the front end).
+    if (control_turn_key) {
+        if (cmd.item == 0x13) {
+            GameEvent e; e.kind = GameEventKind::WalkEcho; e.text = cmd.member ? "Sound Off" : "Sound On";
+            ++r.result.event_count;
+            if (c.events.emit) c.events.emit(c.events.context, e);
+            if (c.dungeon) {
+                Command tick; tick.kind = CommandKind::DungeonCommand; tick.item = int16_t(DungeonAction::Tick);
+                auto turn = execute_dungeon_command(c, tick); turn.event_count += r.result.event_count; return turn;
+            }
+        } else if (c.dungeon) {
+            r.result.status = CommandStatus::InvalidContext;
+            return r.result;
+        } else
+            r.message("What?");
+        if (!c.dungeon && c.game.position.map.location == 0) {
+            const auto before = c.game.turns_since_start;
+            r.turn();
+            r.result.turns = c.game.turns_since_start - before;
+        }
+        return r.result;
+    }
     if (cmd.kind == CommandKind::DispatcherTurn) {
         if (c.combat || c.commands.awaiting_troll || c.commands.awaiting_exit || c.commands.pending_camp_enemy >= 0) {
             r.result.status = CommandStatus::NoOp;

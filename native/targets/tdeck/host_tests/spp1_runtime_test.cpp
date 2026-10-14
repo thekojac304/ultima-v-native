@@ -544,8 +544,12 @@ void test_a() {
         surface(h);
         auto c1 = cost(h, [&] { act(h, ch('l')); act(h, ch(' ')); });
         check(transcript_has(h, "Look-Pass") && one_world(c1), "A9 Original: Space at Look- prints \"Look-Pass\" and costs one world turn" + show(c1));
+        // SPP2 correction (2026-10-14, ledger D-112): on the overworld RETURN and ESC are MAINOUT's
+        // control-code "What?" (0x0bb8 -> 0x0aba -> 0x0c12, the loop's result still 1), so each costs a
+        // world turn; SPP1 read them as the kernel dispatcher's free "What?" (0x34d8), which only the
+        // dungeon reaches. In a town they are TOWN 0x1544 -> 0x154b and free (spp2_runtime G6 / G7).
         auto c2 = cost(h, [&] { act(h, kind(UiActionKind::Confirm)); act(h, kind(UiActionKind::Cancel)); });
-        check(c2.turns == 0, "A10 Original: RETURN / ESC at the prompt (\"What?\") stay free" + show(c2));
+        check(c2.turns == 2 && c2.minutes == 4, "A10 Original: RETURN / ESC at the overworld prompt (\"What?\") cost a world turn each (SPP2)" + show(c2));
     }
     // A12 a command that ends on a TIMER, not a key (found by the code review). The device holds
     // "Mixing..." for 10 ticks (A4-UI4 D-71, the dialogue pacer), so the bare prompt comes back with no

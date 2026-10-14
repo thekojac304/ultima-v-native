@@ -113,6 +113,7 @@ const char *shortcut_name(DeviceShortcut s) {
     case DeviceShortcut::MovementModeToggled: return "MovementModeToggled";
     case DeviceShortcut::MusicMute: return "MusicMute";
     case DeviceShortcut::SfxMute: return "SfxMute";
+    case DeviceShortcut::DosSound: return "DosSound";
     }
     return "?";
 }
@@ -506,8 +507,10 @@ void system_mute_window() {
             {"F7", SDL_SCANCODE_F7, kNone, DeviceShortcut::MusicMute, "f7"},
             {"F8", SDL_SCANCODE_F8, kNone, DeviceShortcut::SfxMute, "f8"},
             {"Ctrl+M", SDL_SCANCODE_M, kCtrl, DeviceShortcut::MusicMute, "ctrl-m"},
-            {"Ctrl+S", SDL_SCANCODE_S, kCtrl, DeviceShortcut::SfxMute, "ctrl-s"},
-            {"RCtrl+S", SDL_SCANCODE_S, SDL_KMOD_RCTRL, DeviceShortcut::SfxMute, "ctrl-s"},
+            // SPP2 (D-108): Ctrl+S is the DOS game's Ctrl-S (the mute, plus its echo and turn at
+            // the command prompt); F8 and Alt+Shift+S stay the plain session mute.
+            {"Ctrl+S", SDL_SCANCODE_S, kCtrl, DeviceShortcut::DosSound, "ctrl-s"},
+            {"RCtrl+S", SDL_SCANCODE_S, SDL_KMOD_RCTRL, DeviceShortcut::DosSound, "ctrl-s"},
             {"Alt+Shift+M", SDL_SCANCODE_M, SDL_Keymod(kAlt | kShift), DeviceShortcut::MusicMute, "alt-shift-m"},
             {"Alt+Shift+S", SDL_SCANCODE_S, SDL_Keymod(kAlt | kShift), DeviceShortcut::SfxMute, "alt-shift-s"},
         };

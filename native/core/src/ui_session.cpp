@@ -1428,9 +1428,10 @@ bool UiSession::handle_exploration(const UiAction &a) {
     const bool dos = platform_dos_interface();
     // The 1988 command loop sends RETURN and ESC, like every control code
     // without a handler, to "What?" (MAINOUT 0x0bb8, DS 0x2b64; TOWN 0x1544);
-    // Space is the Pass key.
+    // Space is the Pass key. SPP2 (D-112): the core prints it and runs the
+    // overworld's world turn (MAINOUT 0x0aba -> 0x0c12); a town's is free.
     if (dos && (a.kind == UiActionKind::Confirm || a.kind == UiActionKind::Cancel)) {
-        append(UiTextChannel::Message, "What?"); return true;
+        control_key(a.kind == UiActionKind::Confirm ? char16_t(0x0d) : char16_t(0x1b)); return true;
     }
     if (a.kind == UiActionKind::Confirm) {
         command_echo("Pass"); Command c; c.kind = CommandKind::Pass; command(c); return true;

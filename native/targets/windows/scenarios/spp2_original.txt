@@ -1,0 +1,59 @@
+# SPP2 (docs/SHARED_PRESERVATION_PARITY_SPP2.md) in Original mode, through the real executable.
+# G (D-108): Ctrl+S at a context loop's prompt prints "Sound Off" / "Sound On" (MAINOUT 0x0b80,
+#    TOWN 0x1508, DUNGEON 0x0776): a world turn outdoors (0x0ba7 -> 0x0c12), none in a town
+#    (0x154b), a dungeon turn underground (0x070a).
+# D-112: RETURN and ESC at the overworld prompt are MAINOUT's "What?" (0x0bb8 -> 0x0aba -> 0x0c12),
+#    a world turn each; in a town they are free (TOWN 0x1544 -> 0x154b).
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Purist
+key Return
+text M
+text A
+text A
+text A
+text A
+text A
+text A
+text A
+wait 2500
+expect frontend 0
+teleport grass
+wait 300
+expect remember_turns x
+key S ctrl
+wait 300
+expect console Sound Off
+expect turns_advanced 1
+expect remember_turns x
+key Return
+frames 3
+expect console What?
+expect turns_advanced 1
+expect remember_turns x
+key Escape
+frames 3
+expect turns_advanced 1
+teleport town 2
+wait 300
+expect remember_turns x
+key S ctrl
+wait 300
+expect console Sound On
+expect turns_advanced 0
+key Return
+frames 3
+key Escape
+frames 3
+expect turns_advanced 0
+teleport dungeon 33
+expect dungeon 1
+wait 300
+expect remember_turns x
+key S ctrl
+wait 300
+expect console Sound Off
+expect turns_advanced 1

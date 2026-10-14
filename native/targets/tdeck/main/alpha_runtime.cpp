@@ -134,7 +134,7 @@ const char *frontend_state_name(openu5::FrontendState s){static const char*n[]={
 const char *creation_phase_name(openu5::FrontendCreationPhase p){static const char*n[]={"name","gender","questionnaire"};return n[std::min<size_t>(size_t(p),2)];}
 const char *frontend_intent_name(openu5::FrontendIntentKind k){static const char*n[]={"none","continue","load-slot","create-initial-save","persist-settings","developer","inspect-pc-saves","import-pc-save","export-pc-save"};return n[std::min<size_t>(size_t(k),8)];}
 const char *intent_name(openu5::UiIntentKind k){static const char*n[]={"command","shop","modal","open-party","open-inventory","open-equipment","open-spell","open-target","open-status","open-debug"};return n[std::min<size_t>(size_t(k),9)];}
-const char *shortcut_name(DeviceShortcut s){static const char*n[]={"none","developer","save","load","movement-toggle","music-mute","sfx-mute"};return n[std::min<size_t>(size_t(s),6)];}
+const char *shortcut_name(DeviceShortcut s){static const char*n[]={"none","developer","save","load","movement-toggle","music-mute","sfx-mute","dos-sound"};return n[std::min<size_t>(size_t(s),7)];}
 #if defined(OPENU5_ENABLE_DEVELOPER_TOOLS)
 int debug_depth(const openu5::UiDebugMenuView &v){return v.editing?2:v.category>=0?1:0;}
 #endif
@@ -2325,6 +2325,18 @@ bool AlphaRuntime::route_input_body(openu5::UiAction action,DeviceShortcut short
     // of them can swallow or route the key, and they change no game state.
     if(shortcut==DeviceShortcut::MusicMute||shortcut==DeviceShortcut::SfxMute)
         return toggle_audio_mute(shortcut==DeviceShortcut::MusicMute);
+    // SPP2 (D-108). The desktop's Ctrl+S is the DOS game's own Ctrl-S: the effects' mute, as
+    // Alt+Shift+S, on every screen. At a context loop's command prompt it is also that loop's
+    // key (MAINOUT 0x0b80, TOWN 0x1508, DUNGEON 0x0776): "Sound Off" while the sound is on, else
+    // "Sound On", in place of the session's own line, with the loop's turn rule (the core's
+    // ControlKey 0x13). The arena has no Ctrl-S of its own.
+    if(shortcut==DeviceShortcut::DosSound){
+        if(!at_command_prompt()||context_.combat)return toggle_audio_mute(false);
+        const bool was_on=!audio_.sfx_muted();
+        toggle_audio_mute(false,false);
+        openu5::Command key;key.kind=openu5::CommandKind::ControlKey;key.item=0x13;key.member=was_on?1:0;command(key);
+        drain_pending_npc_initiation();sync_music();dirty_=true;return true;
+    }
     // Alpha 4 A4-ENH1 (ALPHA4_UI.md section 10). Movement (WASD) Mode -- a
     // trackball click, or the Mic held 1.1 s -- is a device control of the
     // same kind: the adapter has already switched it, on every screen, and it
@@ -4268,7 +4280,7 @@ void AlphaRuntime::sync_keyboard_light(){
 // A3-05. A session mute: a flag on top of the volume (AudioService), never a
 // write to settings_ or settings.json, so a reboot is unmuted and the restore
 // is the configured volume. Without music there is nothing to mute.
-bool AlphaRuntime::toggle_audio_mute(bool music){
+bool AlphaRuntime::toggle_audio_mute(bool music,bool announce){
     char line[80]{};
     if(music&&!audio_.has_music())
         std::snprintf(line,sizeof(line),"Music unavailable: %s",openu5::music_unavailable_reason(audio_.music_availability()));
@@ -4276,7 +4288,7 @@ bool AlphaRuntime::toggle_audio_mute(bool music){
     else{audio_.set_sfx_muted(!audio_.sfx_muted());std::snprintf(line,sizeof(line),"%s",audio_.sfx_muted()?"SFX muted.":"SFX restored.");}
     sync_audio_mutes();
     // The title screen has no transcript: there the Settings rows and the sound itself show it.
-    if(!frontend_.active()&&ui_)ui_->append(openu5::UiTextChannel::System,line);
+    if(announce&&!frontend_.active()&&ui_)ui_->append(openu5::UiTextChannel::System,line);
     ESP_LOGI(kTag,"AUDIO_MUTE bus=%s sfx_muted=%d music_muted=%d sfx_volume=%u music_volume=%u line=\"%s\"",
              music?"music":"sfx",audio_.sfx_muted(),audio_.music_muted(),unsigned(audio_.sfx_volume()),
              unsigned(audio_.music_volume()),line);

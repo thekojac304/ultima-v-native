@@ -1,0 +1,664 @@
+'vswhere.exe' is not recognized as an internal or external command,
+operable program or batch file.
+-- The C compiler identification is MSVC 19.51.36260.0
+-- The CXX compiler identification is MSVC 19.51.36260.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Ultima V Native for Windows 0.5.0-dev (git 96dec6b6107b-dirty)
+-- Could NOT find PkgConfig (missing: PKG_CONFIG_EXECUTABLE) 
+-- Detecting Target CPU Architecture
+-- Detecting Target CPU Architecture - X64
+-- Performing Test CAN_PRESEED
+-- Performing Test CAN_PRESEED - Success
+-- Performing Test COMPILER_SUPPORTS_MMX
+-- Performing Test COMPILER_SUPPORTS_MMX - Failed
+-- Performing Test COMPILER_SUPPORTS_SSE
+-- Performing Test COMPILER_SUPPORTS_SSE - Success
+-- Performing Test COMPILER_SUPPORTS_SSE2
+-- Performing Test COMPILER_SUPPORTS_SSE2 - Success
+-- Performing Test COMPILER_SUPPORTS_SSE3
+-- Performing Test COMPILER_SUPPORTS_SSE3 - Success
+-- Performing Test COMPILER_SUPPORTS_SSE4_1
+-- Performing Test COMPILER_SUPPORTS_SSE4_1 - Success
+-- Performing Test COMPILER_SUPPORTS_SSE4_2
+-- Performing Test COMPILER_SUPPORTS_SSE4_2 - Success
+-- Performing Test COMPILER_SUPPORTS_AVX
+-- Performing Test COMPILER_SUPPORTS_AVX - Success
+-- Performing Test COMPILER_SUPPORTS_AVX2
+-- Performing Test COMPILER_SUPPORTS_AVX2 - Success
+-- Performing Test COMPILER_SUPPORTS_AVX512F
+-- Performing Test COMPILER_SUPPORTS_AVX512F - Success
+-- Looking for _copysign
+-- Looking for _copysign - found
+-- Looking for _fseeki64
+-- Looking for _fseeki64 - found
+-- Performing Test HAVE_GAMEINPUT_H
+-- Performing Test HAVE_GAMEINPUT_H - Success
+-- Looking for dxgi1_5.h
+-- Looking for dxgi1_5.h - found
+-- Looking for dxgi1_6.h
+-- Looking for dxgi1_6.h - found
+-- Performing Test HAVE_MFAPI_H
+-- Performing Test HAVE_MFAPI_H - Success
+-- Could NOT find LibUSB (missing: LibUSB_LIBRARY LibUSB_INCLUDE_PATH) (found version "LibUSB_VERSION-NOTFOUND")
+-- 
+-- SDL3 was configured with the following options:
+-- 
+-- Platform: Windows-10.0.26300
+-- 64-bit:   TRUE
+-- Compiler: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe
+-- Revision: SDL-release-3.4.16-0-gfa2c02bb6
+-- Vendor:   
+-- 
+-- Subsystems:
+--   Audio:    ON
+--   Video:    ON
+--   GPU:      ON
+--   Render:   ON
+--   Camera:   ON
+--   Joystick: ON
+--   Haptic:   ON
+--   Hidapi:   ON
+--   Power:    ON
+--   Sensor:   ON
+--   Dialog:   ON
+--   Tray:     ON
+-- 
+-- Options:
+--   SDL_ALSA                    (Wanted: OFF): OFF
+--   SDL_ALSA_SHARED             (Wanted: OFF): OFF
+--   SDL_ALTIVEC                 (Wanted: OFF): OFF
+--   SDL_ARMNEON                 (Wanted: OFF): OFF
+--   SDL_ASAN                    (Wanted: OFF): OFF
+--   SDL_ASSEMBLY                (Wanted: ON): ON
+--   SDL_ASSERTIONS              (Wanted: auto): auto
+--   SDL_AVX                     (Wanted: ON): ON
+--   SDL_AVX2                    (Wanted: ON): ON
+--   SDL_AVX512F                 (Wanted: ON): ON
+--   SDL_BACKGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_CCACHE                  (Wanted: OFF): OFF
+--   SDL_CLANG_TIDY              (Wanted: OFF): OFF
+--   SDL_CLOCK_GETTIME           (Wanted: OFF): OFF
+--   SDL_COCOA                   (Wanted: OFF): OFF
+--   SDL_DBUS                    (Wanted: OFF): OFF
+--   SDL_DEPS_SHARED             (Wanted: ON): OFF
+--   SDL_DIRECTX                 (Wanted: ON): ON
+--   SDL_DISKAUDIO               (Wanted: ON): ON
+--   SDL_DLOPEN_NOTES            (Wanted: OFF): OFF
+--   SDL_DUMMYAUDIO              (Wanted: ON): ON
+--   SDL_DUMMYCAMERA             (Wanted: ON): ON
+--   SDL_DUMMYVIDEO              (Wanted: ON): ON
+--   SDL_EXAMPLES                (Wanted: OFF): OFF
+--   SDL_EXAMPLES_LINK_SHARED    (Wanted: ON): OFF
+--   SDL_FOREGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_FRIBIDI                 (Wanted: OFF): OFF
+--   SDL_FRIBIDI_SHARED          (Wanted: OFF): OFF
+--   SDL_GCC_ATOMICS             (Wanted: OFF): OFF
+--   SDL_HIDAPI                  (Wanted: ON): ON
+--   SDL_HIDAPI_JOYSTICK         (Wanted: ON): ON
+--   SDL_HIDAPI_LIBUSB           (Wanted: ON): OFF
+--   SDL_HIDAPI_LIBUSB_SHARED    (Wanted: ON): OFF
+--   SDL_IBUS                    (Wanted: OFF): OFF
+--   SDL_INSTALL                 (Wanted: OFF): OFF
+--   SDL_INSTALL_TESTS           (Wanted: OFF): OFF
+--   SDL_JACK                    (Wanted: OFF): OFF
+--   SDL_JACK_SHARED             (Wanted: OFF): OFF
+--   SDL_KMSDRM                  (Wanted: OFF): OFF
+--   SDL_KMSDRM_SHARED           (Wanted: OFF): OFF
+--   SDL_LASX                    (Wanted: OFF): OFF
+--   SDL_LIBC                    (Wanted: ON): ON
+--   SDL_LIBICONV                (Wanted: OFF): OFF
+--   SDL_LIBTHAI                 (Wanted: OFF): OFF
+--   SDL_LIBTHAI_SHARED          (Wanted: OFF): OFF
+--   SDL_LIBUDEV                 (Wanted: ON): OFF
+--   SDL_LIBURING                (Wanted: OFF): OFF
+--   SDL_LSX                     (Wanted: OFF): OFF
+--   SDL_METAL                   (Wanted: OFF): OFF
+--   SDL_MMX                     (Wanted: ON): OFF
+--   SDL_OFFSCREEN               (Wanted: ON): ON
+--   SDL_OPENGL                  (Wanted: ON): ON
+--   SDL_OPENGLES                (Wanted: ON): ON
+--   SDL_OPENVR                  (Wanted: OFF): OFF
+--   SDL_OSS                     (Wanted: OFF): OFF
+--   SDL_PIPEWIRE                (Wanted: OFF): OFF
+--   SDL_PIPEWIRE_SHARED         (Wanted: OFF): OFF
+--   SDL_PTHREADS                (Wanted: OFF): OFF
+--   SDL_PTHREADS_SEM            (Wanted: OFF): OFF
+--   SDL_PULSEAUDIO              (Wanted: OFF): OFF
+--   SDL_PULSEAUDIO_SHARED       (Wanted: OFF): OFF
+--   SDL_RENDER_D3D              (Wanted: ON): ON
+--   SDL_RENDER_D3D11            (Wanted: ON): ON
+--   SDL_RENDER_D3D12            (Wanted: ON): ON
+--   SDL_RENDER_GPU              (Wanted: ON): ON
+--   SDL_RENDER_METAL            (Wanted: OFF): OFF
+--   SDL_RENDER_VULKAN           (Wanted: ON): ON
+--   SDL_ROCKCHIP                (Wanted: OFF): OFF
+--   SDL_RPATH                   (Wanted: OFF): OFF
+--   SDL_RPI                     (Wanted: OFF): OFF
+--   SDL_SNDIO                   (Wanted: OFF): OFF
+--   SDL_SNDIO_SHARED            (Wanted: OFF): OFF
+--   SDL_SSE                     (Wanted: ON): ON
+--   SDL_SSE2                    (Wanted: ON): ON
+--   SDL_SSE3                    (Wanted: ON): ON
+--   SDL_SSE4_1                  (Wanted: ON): ON
+--   SDL_SSE4_2                  (Wanted: ON): ON
+--   SDL_SYSTEM_ICONV            (Wanted: OFF): OFF
+--   SDL_TESTS                   (Wanted: OFF): OFF
+--   SDL_TESTS_LINK_SHARED       (Wanted: ON): OFF
+--   SDL_UNINSTALL               (Wanted: OFF): OFF
+--   SDL_VIRTUAL_JOYSTICK        (Wanted: ON): ON
+--   SDL_VIVANTE                 (Wanted: OFF): OFF
+--   SDL_VULKAN                  (Wanted: ON): ON
+--   SDL_WASAPI                  (Wanted: ON): ON
+--   SDL_WAYLAND                 (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR        (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR_SHARED (Wanted: OFF): OFF
+--   SDL_WAYLAND_SHARED          (Wanted: OFF): OFF
+--   SDL_X11                     (Wanted: OFF): OFF
+--   SDL_X11_SHARED              (Wanted: OFF): OFF
+--   SDL_X11_XCURSOR             (Wanted: OFF): OFF
+--   SDL_X11_XDBE                (Wanted: OFF): OFF
+--   SDL_X11_XFIXES              (Wanted: OFF): OFF
+--   SDL_X11_XINPUT              (Wanted: OFF): OFF
+--   SDL_X11_XRANDR              (Wanted: OFF): OFF
+--   SDL_X11_XSCRNSAVER          (Wanted: OFF): OFF
+--   SDL_X11_XSHAPE              (Wanted: OFF): OFF
+--   SDL_X11_XSYNC               (Wanted: OFF): OFF
+--   SDL_X11_XTEST               (Wanted: OFF): OFF
+--   SDL_XINPUT                  (Wanted: ON): ON
+-- 
+--  Build Shared Library: ON
+--  Build Static Library: OFF
+-- 
+-- Enabled backends:
+--   Video drivers: dummy offscreen windows
+--   Render drivers: d3d d3d11 d3d12 gpu ogl ogl_es2 vulkan
+--   GPU drivers: d3d12 vulkan
+--   Audio drivers: disk dsound dummy wasapi
+--   Joystick drivers: dinput gameinput hidapi rawinput virtual wgi xinput
+--   Camera drivers: dummy mediafoundation
+-- 
+-- Configuring done (9.7s)
+-- Generating done (0.3s)
+-- Build files have been written to: C:/Dev/ultima-v-native-spp2/native/targets/windows/build-spp2
+[0/2] Re-checking globbed directories...
+[1/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\poison_tick.cpp.obj
+[2/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\render_pacing.cpp.obj
+[3/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\ambient_sfx.cpp.obj
+[4/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\scene_timing.cpp.obj
+[5/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\sfx_inventory.cpp.obj
+[6/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\platform_profile.cpp.obj
+[7/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\audio.cpp.obj
+[8/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\hud.cpp.obj
+[9/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\world_fx.cpp.obj
+[10/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\display_names.cpp.obj
+[11/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\spell_entry.cpp.obj
+[12/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\combat_hit_cue.cpp.obj
+[13/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\dungeon_encounters.cpp.obj
+[14/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\endgame_scene.cpp.obj
+[15/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\sd_diag_log.cpp.obj
+[16/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\intro_view.cpp.obj
+[17/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\system_menu.cpp.obj
+[18/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\command_char.cpp.obj
+[19/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\audio_pack.cpp.obj
+[20/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\perf_report.cpp.obj
+[21/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\frontend.cpp.obj
+[22/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\narrative_scene.cpp.obj
+[23/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\audio_stream.cpp.obj
+[24/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\sfx_synth.cpp.obj
+[25/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\frontend_settings.cpp.obj
+[26/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\presentation.cpp.obj
+[27/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\world_terrain.cpp.obj
+[28/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\quest.cpp.obj
+[29/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\music_synth.cpp.obj
+[30/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\world_magic.cpp.obj
+[31/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\shrine.cpp.obj
+[32/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\shops.cpp.obj
+[33/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\dungeon.cpp.obj
+[34/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\look.cpp.obj
+[35/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\outdoor.cpp.obj
+[36/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\time.cpp.obj
+[37/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\dungeon_view.cpp.obj
+[38/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\world.cpp.obj
+[39/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\rng.cpp.obj
+[40/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\world_commands.cpp.obj
+[41/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\gem_view.cpp.obj
+[42/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\dungeon_art.cpp.obj
+[43/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\state.cpp.obj
+[44/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\blackthorn_scene.cpp.obj
+[45/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\transport.cpp.obj
+[46/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\ui_session.cpp.obj
+[47/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\dungeon_orchestration.cpp.obj
+[48/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\loot.cpp.obj
+[49/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\gameplay_save.cpp.obj
+[50/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\quest_search.cpp.obj
+[51/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\inventory_picker.cpp.obj
+[52/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\shop_orchestration.cpp.obj
+[53/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\transitions.cpp.obj
+[54/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\save_json.cpp.obj
+[55/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\inventory.cpp.obj
+[56/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\pc_save.cpp.obj
+[57/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\movement.cpp.obj
+[58/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\turn.cpp.obj
+[59/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\scripted_encounter.cpp.obj
+[60/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\quest_world.cpp.obj
+[61/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\npc_path.cpp.obj
+[62/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\enhanced.cpp.obj
+[63/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\actors.cpp.obj
+[64/406] Building CXX object CMakeFiles\uv_platform.dir\src\platform\device_glue.cpp.obj
+[65/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\ritual_fx.cpp.obj
+[66/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\rest.cpp.obj
+[67/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\zstats.cpp.obj
+[68/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\debug_labels.cpp.obj
+[69/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\cmake_pch.c.obj
+[70/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\magic.cpp.obj
+[71/406] Building CXX object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\cmake_pch.cxx.obj
+[72/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\pathfind.cpp.obj
+[73/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\e_atan2.c.obj
+[74/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\e_log.c.obj
+[75/406] Building CXX object CMakeFiles\uv_platform.dir\src\platform\virtual_panel.cpp.obj
+[76/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\e_exp.c.obj
+[77/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\e_fmod.c.obj
+[78/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\dialogue_effects.cpp.obj
+[79/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\e_log10.c.obj
+[80/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\dialogue_pacer.cpp.obj
+[81/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\save_core.cpp.obj
+[82/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\e_pow.c.obj
+[83/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\ui_debug_menu.cpp.obj
+[84/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\blackthorn.cpp.obj
+[85/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\debug_map_picker.cpp.obj
+[86/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\e_rem_pio2.c.obj
+[87/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\e_sqrt.c.obj
+[88/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\k_cos.c.obj
+[89/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\s_atan.c.obj
+[90/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\debug_developer.cpp.obj
+[91/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\dialogue_orchestration.cpp.obj
+[92/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\k_rem_pio2.c.obj
+[93/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\dialogue.cpp.obj
+[94/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\k_sin.c.obj
+[95/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\k_tan.c.obj
+[96/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\s_copysign.c.obj
+[97/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\persistence.cpp.obj
+[98/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\combat.cpp.obj
+[99/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\s_isinff.c.obj
+[100/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\s_fabs.c.obj
+[101/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\s_isnanf.c.obj
+[102/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\s_isnan.c.obj
+[103/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\s_modf.c.obj
+[104/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\s_floor.c.obj
+[105/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\s_sin.c.obj
+[106/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\s_isinf.c.obj
+[107/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\s_scalbn.c.obj
+[108/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\s_tan.c.obj
+[109/406] Building C object _deps\sdl3-build\CMakeFiles\SDL_uclibc.dir\src\libm\s_cos.c.obj
+[110/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\SDL_error.c.obj
+[111/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\SDL_guid.c.obj
+[112/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\SDL_list.c.obj
+[113/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\SDL_hints.c.obj
+[114/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\SDL_hashtable.c.obj
+[115/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\SDL_properties.c.obj
+[116/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\atomic\SDL_atomic.c.obj
+[117/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\SDL_utils.c.obj
+[118/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\SDL_assert.c.obj
+[119/406] Building CXX object CMakeFiles\uv_platform.dir\src\platform\sdlog_windows.cpp.obj
+[120/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\audio\SDL_audiodev.c.obj
+[121/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\SDL.c.obj
+[122/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\audio\SDL_audioqueue.c.obj
+[123/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\SDL_log.c.obj
+[124/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\audio\SDL_audioresample.c.obj
+[125/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\atomic\SDL_spinlock.c.obj
+[126/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\audio\SDL_audiocvt.c.obj
+[127/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\audio\SDL_audio.c.obj
+[128/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\audio\SDL_mixer.c.obj
+[129/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\audio\SDL_audiotypecvt.c.obj
+[130/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\core\SDL_core_unsupported.c.obj
+[131/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\audio\SDL_wave.c.obj
+[132/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\SDL_categories.c.obj
+[133/406] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\ui_input_adapter.cpp.obj
+[134/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\SDL_clipboardevents.c.obj
+[135/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\SDL_displayevents.c.obj
+[136/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\SDL_dropevents.c.obj
+[137/406] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\alpha_dialogue.cpp.obj
+[138/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\SDL_eventwatch.c.obj
+[139/406] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\asset_pack.cpp.obj
+[140/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\SDL_keysym_to_keycode.c.obj
+[141/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\SDL_keyboard.c.obj
+[142/406] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\keyboard_matrix.cpp.obj
+[143/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\SDL_keysym_to_scancode.c.obj
+[144/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\camera\SDL_camera.c.obj
+[145/406] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\native_movement.cpp.obj
+[146/406] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\dungeon_art_cache.cpp.obj
+[147/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\SDL_scancode_tables.c.obj
+[148/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\imKStoUCS.c.obj
+[149/406] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\input_controller.cpp.obj
+[150/406] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\alpha_audio.cpp.obj
+[151/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\filesystem\SDL_filesystem.c.obj
+[152/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\haptic\SDL_haptic.c.obj
+[153/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\SDL_quit.c.obj
+[154/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\SDL_keymap.c.obj
+[155/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\SDL_windowevents.c.obj
+[156/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\SDL_pen.c.obj
+[157/406] Building CXX object CMakeFiles\uv_core.dir\C_\Dev\ultima-v-native-spp2\native\core\src\commands.cpp.obj
+[158/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\cpuinfo\SDL_cpuinfo.c.obj
+[159/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\SDL_touch.c.obj
+[160/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\io\generic\SDL_asyncio_generic.c.obj
+[161/406] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\idle_service.cpp.obj
+[162/406] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\native_renderer.cpp.obj
+[163/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\gpu\SDL_gpu.c.obj
+[164/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\misc\SDL_libusb.c.obj
+[165/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\main\SDL_runapp.c.obj
+[166/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\io\SDL_asyncio.c.obj
+[167/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\power\SDL_power.c.obj
+[168/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\main\SDL_main_callbacks.c.obj
+[169/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\controller_type.c.obj
+[170/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\locale\SDL_locale.c.obj
+[171/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\SDL_render_unsupported.c.obj
+[172/406] Linking CXX static library uv_core.lib
+[173/406] Building CXX object CMakeFiles\uv_platform.dir\src\platform\log.cpp.obj
+[174/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\SDL_mouse.c.obj
+[175/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\misc\SDL_url.c.obj
+[176/406] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\alpha_save_generation.cpp.obj
+[177/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\gpu\SDL_pipeline_gpu.c.obj
+[178/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\ngage\SDL_render_ngage.c.obj
+[179/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\events\SDL_events.c.obj
+[180/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\SDL_yuv_sw.c.obj
+[181/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\gpu\SDL_shaders_gpu.c.obj
+[182/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\SDL_steam_virtual_gamepad.c.obj
+[183/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\gpu\SDL_render_gpu.c.obj
+[184/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\ps2\SDL_render_ps2.c.obj
+[185/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\psp\SDL_render_psp.c.obj
+[186/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\io\SDL_iostream.c.obj
+[187/406] Building CXX object CMakeFiles\uv_platform.dir\src\platform\esp_runtime.cpp.obj
+[188/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\SDL_gamepad.c.obj
+[189/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\opengles2\SDL_shaders_gles2.c.obj
+[190/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\vitagxm\SDL_render_vita_gxm.c.obj
+[191/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\SDL_render.c.obj
+[192/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\vitagxm\SDL_render_vita_gxm_memory.c.obj
+[193/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\software\SDL_drawpoint.c.obj
+[194/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\software\SDL_drawline.c.obj
+[195/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\direct3d\SDL_shaders_d3d.c.obj
+[196/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\SDL_joystick.c.obj
+[197/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\software\SDL_render_sw.c.obj
+[198/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\direct3d11\SDL_shaders_d3d11.c.obj
+[199/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\vitagxm\SDL_render_vita_gxm_tools.c.obj
+[200/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\direct3d12\SDL_shaders_d3d12.c.obj
+[201/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\opengl\SDL_shaders_gl.c.obj
+[202/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\opengles2\SDL_render_gles2.c.obj
+[203/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\software\SDL_blendpoint.c.obj
+[204/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\hidapi\SDL_hidapi.c.obj
+[205/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\direct3d\SDL_render_d3d.c.obj
+[206/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\stdlib\SDL_crc16.c.obj
+[207/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\stdlib\SDL_crc32.c.obj
+[208/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\opengl\SDL_render_gl.c.obj
+[209/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\vulkan\SDL_shaders_vulkan.c.obj
+[210/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\sensor\SDL_sensor.c.obj
+[211/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\direct3d11\SDL_render_d3d11.c.obj
+[212/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\stdlib\SDL_malloc.c.obj
+[213/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\direct3d12\SDL_render_d3d12.c.obj
+[214/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\stdlib\SDL_mslibc.c.obj
+[215/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\stdlib\SDL_murmur3.c.obj
+[216/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\stdlib\SDL_memmove.c.obj
+[217/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\software\SDL_triangle.c.obj
+[218/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\stdlib\SDL_iconv.c.obj
+[219/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\stdlib\SDL_memcpy.c.obj
+[220/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\stdlib\SDL_random.c.obj
+[221/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\stdlib\SDL_memset.c.obj
+[222/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\stdlib\SDL_strtokr.c.obj
+[223/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\stdlib\SDL_qsort.c.obj
+[224/406] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\alpha_save.cpp.obj
+[225/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\stdlib\SDL_stdlib.c.obj
+[226/406] Building CXX object CMakeFiles\uv_platform.dir\src\platform\storage.cpp.obj
+[227/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\storage\SDL_storage.c.obj
+[228/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\time\SDL_time.c.obj
+[229/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_blit_copy.c.obj
+[230/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_blit.c.obj
+[231/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_bmp.c.obj
+[232/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\stdlib\SDL_string.c.obj
+[233/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_clipboard.c.obj
+[234/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\stdlib\SDL_getenv.c.obj
+[235/406] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\tdeck_board.cpp.obj
+[236/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_blit_slow.c.obj
+[237/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_fillrect.c.obj
+[238/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_pixels.c.obj
+[239/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_rect.c.obj
+[240/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\thread\SDL_thread.c.obj
+[241/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_blit_1.c.obj
+[242/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_blit_N.c.obj
+[243/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_blit_0.c.obj
+[244/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\timer\SDL_timer.c.obj
+[245/406] Linking CXX static library uv_platform.lib
+[246/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\dynapi\SDL_dynapi.c.obj
+[247/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_video_unsupported.c.obj
+[248/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\yuv2rgb\yuv_rgb_lsx.c.obj
+[249/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\software\SDL_blendfillrect.c.obj
+[250/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\audio\dummy\SDL_dummyaudio.c.obj
+[251/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\camera\dummy\SDL_camera_dummy.c.obj
+[252/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\audio\disk\SDL_diskaudio.c.obj
+[253/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_blit_A.c.obj
+[254/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_rotate.c.obj
+[255/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\software\SDL_blendline.c.obj
+[256/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\dummy\SDL_nullevents.c.obj
+[257/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\render\vulkan\SDL_render_vulkan.c.obj
+[258/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_stretch.c.obj
+[259/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\virtual\SDL_virtualjoystick.c.obj
+[260/406] Building CXX object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\core\windows\pch_cpp.cpp.obj
+[261/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_blit_auto.c.obj
+[262/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\core\windows\pch.c.obj
+[263/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_RLEaccel.c.obj
+[264/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_egl.c.obj
+[265/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\dummy\SDL_nullframebuffer.c.obj
+[266/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\dummy\SDL_nullvideo.c.obj
+[267/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\yuv2rgb\yuv_rgb_sse.c.obj
+[268/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\yuv2rgb\yuv_rgb_std.c.obj
+[269/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\io\windows\SDL_asyncio_windows_ioring.c.obj
+[270/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_surface.c.obj
+[271/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\core\windows\SDL_xinput.c.obj
+[272/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\core\windows\SDL_hid.c.obj
+[273/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_vulkan_utils.c.obj
+[274/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\core\windows\SDL_windows.c.obj
+[275/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\main\windows\SDL_sysmain_runapp.c.obj
+[276/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\core\windows\SDL_immdevice.c.obj
+[277/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\misc\windows\SDL_sysurl.c.obj
+[278/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\thread\generic\SDL_sysrwlock.c.obj
+[279/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\thread\generic\SDL_syscond.c.obj
+[280/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_stb.c.obj
+[281/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_video.c.obj
+[282/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\SDL_yuv.c.obj
+[283/406] Building CXX object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\core\windows\SDL_gameinput.cpp.obj
+[284/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\windows\SDL_windowsclipboard.c.obj
+[285/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\audio\directsound\SDL_directsound.c.obj
+[286/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\windows\SDL_windowsframebuffer.c.obj
+[287/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\windows\SDL_windowsopengles.c.obj
+[288/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\thread\windows\SDL_syscond_cv.c.obj
+[289/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\windows\SDL_windowskeyboard.c.obj
+[290/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\audio\wasapi\SDL_wasapi.c.obj
+[291/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\windows\SDL_windowsmodes.c.obj
+[292/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\windows\SDL_windowsopengl.c.obj
+[293/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\windows\SDL_windowsshape.c.obj
+[294/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\windows\SDL_windowsmouse.c.obj
+[295/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\windows\SDL_windowsmessagebox.c.obj
+[296/406] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\alpha_resources.cpp.obj
+[297/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\storage\generic\SDL_genericstorage.c.obj
+[298/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\storage\steam\SDL_steamstorage.c.obj
+[299/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\thread\windows\SDL_sysmutex.c.obj
+[300/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\thread\windows\SDL_systls.c.obj
+[301/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\thread\windows\SDL_sysrwlock_srw.c.obj
+[302/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\thread\windows\SDL_syssem.c.obj
+[303/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\windows\SDL_windowsrawinput.c.obj
+[304/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_combined.c.obj
+[305/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_8bitdo.c.obj
+[306/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_flydigi.c.obj
+[307/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_luna.c.obj
+[308/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\power\windows\SDL_syspower.c.obj
+[309/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_ps3.c.obj
+[310/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_lg4ff.c.obj
+[311/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\thread\windows\SDL_systhread.c.obj
+[312/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_gamecube.c.obj
+[313/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_ps4.c.obj
+[314/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\windows\SDL_windowsvulkan.c.obj
+[315/406] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\alpha_runtime.cpp.obj
+[316/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\time\windows\SDL_systime.c.obj
+[317/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\filesystem\windows\SDL_sysfsops.c.obj
+[318/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\timer\windows\SDL_systimer.c.obj
+[319/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\locale\windows\SDL_syslocale.c.obj
+[320/406] Building CXX object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\windows\SDL_windowsgameinput.cpp.obj
+[321/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_ps5.c.obj
+[322/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_sinput.c.obj
+[323/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\windows\SDL_windowswindow.c.obj
+[324/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\windows\SDL_windowsevents.c.obj
+[325/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_gip.c.obj
+[326/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_switch2.c.obj
+[327/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\loadso\windows\SDL_sysloadso.c.obj
+[328/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_stadia.c.obj
+[329/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\haptic\hidapi\SDL_hidapihaptic.c.obj
+[330/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_steam_hori.c.obj
+[331/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_xbox360w.c.obj
+[332/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_zuiki.c.obj
+[333/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_steamdeck.c.obj
+[334/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_xbox360.c.obj
+[335/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_steam_triton.c.obj
+[336/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_shield.c.obj
+[337/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\tray\windows\SDL_tray.c.obj
+[338/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_report_descriptor.c.obj
+[339/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\sensor\windows\SDL_windowssensor.c.obj
+[340/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_rumble.c.obj
+[341/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_steam.c.obj
+[342/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_xboxone.c.obj
+[343/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\windows\SDL_windowsvideo.c.obj
+[344/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_wii.c.obj
+[345/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapi_switch.c.obj
+[346/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\haptic\hidapi\SDL_hidapihaptic_lg4ff.c.obj
+[347/406] Building RC object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\core\windows\version.rc.res
+[348/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\dialog\SDL_dialog.c.obj
+[349/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\offscreen\SDL_offscreenevents.c.obj
+[350/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\offscreen\SDL_offscreenframebuffer.c.obj
+[351/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\process\SDL_process.c.obj
+[352/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\dialog\SDL_dialog_utils.c.obj
+[353/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\tray\SDL_tray_utils.c.obj
+[354/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\main\generic\SDL_sysmain_callbacks.c.obj
+[355/406] Linking C static library _deps\sdl3-build\SDL_uclibc.lib
+[356/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\filesystem\windows\SDL_sysfilesystem.c.obj
+[357/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\offscreen\SDL_offscreenvideo.c.obj
+[358/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\offscreen\SDL_offscreenopengles.c.obj
+[359/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\offscreen\SDL_offscreenvulkan.c.obj
+[360/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\windows\SDL_dinputjoystick.c.obj
+[361/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\process\windows\SDL_windowsprocess.c.obj
+[362/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\windows\SDL_windowsjoystick.c.obj
+[363/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\hidapi\SDL_hidapijoystick.c.obj
+[364/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\haptic\windows\SDL_windowshaptic.c.obj
+[365/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\windows\SDL_xinputjoystick.c.obj
+[366/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\video\offscreen\SDL_offscreenwindow.c.obj
+[367/406] Building RC object CMakeFiles\UltimaVNative.dir\src\app\resources.rc.res
+[368/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\haptic\windows\SDL_dinputhaptic.c.obj
+[369/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\gpu\vulkan\SDL_gpu_vulkan.c.obj
+[370/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\camera\mediafoundation\SDL_camera_mediafoundation.c.obj
+[371/406] Building CXX object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\gdk\SDL_gameinputjoystick.cpp.obj
+[372/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\dialog\windows\SDL_windowsdialog.c.obj
+[373/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\gpu\d3d12\SDL_gpu_d3d12.c.obj
+[374/406] Building CXX object CMakeFiles\uv_desktop.dir\src\app\desktop_profile.cpp.obj
+[375/406] Building CXX object CMakeFiles\uv_desktop.dir\src\app\presentation_layout.cpp.obj
+[376/406] Building CXX object CMakeFiles\uv_desktop.dir\src\app\desktop_input.cpp.obj
+[377/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\windows\SDL_windows_gaming_input.c.obj
+[378/406] Building CXX object CMakeFiles\uv_desktop.dir\src\app\presenter.cpp.obj
+[379/406] Building C object _deps\sdl3-build\CMakeFiles\SDL3-shared.dir\src\joystick\windows\SDL_rawinputjoystick.c.obj
+[380/406] Building CXX object tests\CMakeFiles\uv_storage_test.dir\storage_redirect_probe.cpp.obj
+[381/406] Building CXX object CMakeFiles\uv_desktop.dir\src\app\sdl_audio_backend.cpp.obj
+[382/406] Building CXX object CMakeFiles\UltimaVNative.dir\src\main.cpp.obj
+[383/406] Linking CXX shared library _deps\sdl3-build\SDL3.dll
+[384/406] Building CXX object tests\CMakeFiles\uv_save_layout_test.dir\save_layout_test.cpp.obj
+[385/406] Building CXX object CMakeFiles\uv_desktop.dir\src\app\autotest.cpp.obj
+[386/406] Building CXX object CMakeFiles\uv_desktop.dir\src\app\desktop_settings.cpp.obj
+[387/406] Building CXX object tests\CMakeFiles\uv_virtual_panel_test.dir\virtual_panel_test.cpp.obj
+[388/406] Building CXX object CMakeFiles\uv_desktop.dir\src\app\data_paths.cpp.obj
+[389/406] Building CXX object tests\CMakeFiles\uv_desktop_input_test.dir\desktop_input_test.cpp.obj
+[390/406] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\device_smoke_tests.cpp.obj
+[391/406] Linking CXX static library uv_shared_app.lib
+[392/406] Linking CXX executable tests\uv_virtual_panel_test.exe
+[393/406] Linking CXX executable tests\uv_save_layout_test.exe
+[394/406] Building CXX object tests\CMakeFiles\uv_presentation_test.dir\presentation_test.cpp.obj
+[395/406] Building CXX object tests\CMakeFiles\uv_audio_backend_test.dir\audio_backend_test.cpp.obj
+[396/406] Building CXX object tests\CMakeFiles\uv_desktop_settings_test.dir\desktop_settings_test.cpp.obj
+[397/406] Building CXX object tests\CMakeFiles\uv_storage_test.dir\storage_test.cpp.obj
+[398/406] Linking CXX executable tests\uv_storage_test.exe
+[399/406] Building CXX object CMakeFiles\uv_desktop.dir\src\app\application.cpp.obj
+[400/406] Linking CXX static library uv_desktop.lib
+[401/406] Linking CXX executable UltimaVNative.exe
+[402/406] Linking CXX executable tests\uv_desktop_input_test.exe
+[403/406] Linking CXX executable tests\uv_desktop_settings_test.exe
+[404/406] Linking CXX executable tests\uv_presentation_test.exe
+[405/406] Linking CXX executable tests\uv_audio_backend_test.exe
+Test project C:/Dev/ultima-v-native-spp2/native/targets/windows/build-spp2
+      Start  1: uv_desktop_input_test
+ 1/29 Test  #1: uv_desktop_input_test .................   Passed    0.14 sec
+      Start  2: uv_desktop_settings_test
+ 2/29 Test  #2: uv_desktop_settings_test ..............   Passed    0.19 sec
+      Start  3: uv_storage_test
+ 3/29 Test  #3: uv_storage_test .......................   Passed    0.72 sec
+      Start  4: uv_virtual_panel_test
+ 4/29 Test  #4: uv_virtual_panel_test .................   Passed    1.86 sec
+      Start  5: uv_save_layout_test
+ 5/29 Test  #5: uv_save_layout_test ...................   Passed    0.04 sec
+      Start  6: uv_audio_backend_test
+ 6/29 Test  #6: uv_audio_backend_test .................   Passed   13.62 sec
+      Start  7: uv_presentation_test
+ 7/29 Test  #7: uv_presentation_test ..................   Passed    1.47 sec
+      Start  8: uv_audio_backend_offline_continuity
+ 8/29 Test  #8: uv_audio_backend_offline_continuity ...   Passed    0.01 sec
+      Start  9: scenario_boot_title
+ 9/29 Test  #9: scenario_boot_title ...................   Passed    1.54 sec
+      Start 10: scenario_new_game_original
+10/29 Test #10: scenario_new_game_original ............   Passed    4.83 sec
+      Start 11: scenario_settings_modes
+11/29 Test #11: scenario_settings_modes ...............   Passed    1.49 sec
+      Start 12: scenario_typed_cast_original
+12/29 Test #12: scenario_typed_cast_original ..........   Passed    7.10 sec
+      Start 13: scenario_list_cast_enhanced
+13/29 Test #13: scenario_list_cast_enhanced ...........   Passed    4.15 sec
+      Start 14: scenario_save_load_menu
+14/29 Test #14: scenario_save_load_menu ...............   Passed    6.16 sec
+      Start 15: scenario_quicksave_enhanced
+15/29 Test #15: scenario_quicksave_enhanced ...........   Passed    6.02 sec
+      Start 16: scenario_original_keys
+16/29 Test #16: scenario_original_keys ................   Passed    6.62 sec
+      Start 17: scenario_original_interface
+17/29 Test #17: scenario_original_interface ...........   Passed    5.25 sec
+      Start 18: scenario_enhanced_interface
+18/29 Test #18: scenario_enhanced_interface ...........   Passed    4.63 sec
+      Start 19: scenario_presentation
+19/29 Test #19: scenario_presentation .................   Passed    5.38 sec
+      Start 20: scenario_dungeon_walk
+20/29 Test #20: scenario_dungeon_walk .................   Passed    5.80 sec
+      Start 21: scenario_original_arena
+21/29 Test #21: scenario_original_arena ...............   Passed   13.17 sec
+      Start 22: scenario_original_camp
+22/29 Test #22: scenario_original_camp ................   Passed    5.24 sec
+      Start 23: scenario_surface_combat
+23/29 Test #23: scenario_surface_combat ...............   Passed    7.81 sec
+      Start 24: scenario_typed_cast_combat
+24/29 Test #24: scenario_typed_cast_combat ............   Passed    6.69 sec
+      Start 25: scenario_town_talk
+25/29 Test #25: scenario_town_talk ....................   Passed    5.52 sec
+      Start 26: scenario_spp1_original
+26/29 Test #26: scenario_spp1_original ................   Passed    6.15 sec
+      Start 27: scenario_spp1_original_arena
+27/29 Test #27: scenario_spp1_original_arena ..........   Passed   10.04 sec
+      Start 28: scenario_spp1_enhanced
+28/29 Test #28: scenario_spp1_enhanced ................   Passed    6.16 sec
+      Start 29: scenario_pc_import_export
+29/29 Test #29: scenario_pc_import_export .............   Passed    7.64 sec
+
+100% tests passed, 0 tests failed out of 29
+
+Label Time Summary:
+scenario    = 127.36 sec*proc (21 tests)
+windows     =  18.05 sec*proc (8 tests)
+
+Total Test time (real) = 145.99 sec

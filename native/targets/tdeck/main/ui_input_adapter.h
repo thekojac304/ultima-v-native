@@ -7,7 +7,9 @@
 namespace tdeck {
 
 // A3-05 appends the two session mutes; existing values keep their numbers.
-enum class DeviceShortcut : uint8_t { None, DeveloperMenu, Save, Load, MovementModeToggled, MusicMute, SfxMute };
+// SPP2 (D-108): DosSound, appended, is the desktop's Ctrl+S -- the DOS game's own Ctrl-S. The
+// T-Deck keyboard has no Ctrl and never produces it.
+enum class DeviceShortcut : uint8_t { None, DeveloperMenu, Save, Load, MovementModeToggled, MusicMute, SfxMute, DosSound };
 
 class UiInputAdapter {
   public:

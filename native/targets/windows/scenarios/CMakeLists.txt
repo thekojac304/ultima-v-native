@@ -77,6 +77,10 @@ if(UV_ENABLE_DEVELOPER_TOOLS)
   uv_scenario(spp1_original MODE original DEVELOPER)
   uv_scenario(spp1_original_arena MODE original DEVELOPER)
   uv_scenario(spp1_enhanced MODE enhanced DEVELOPER)
+  # SPP2 (docs/SHARED_PRESERVATION_PARITY_SPP2.md): Ctrl+S at the context prompt and the
+  # overworld's "What?" turn.
+  uv_scenario(spp2_original MODE original DEVELOPER)
+  uv_scenario(spp2_enhanced MODE enhanced DEVELOPER)
 else()
   message(STATUS "Scenarios dungeon_walk, surface_combat, typed_cast_combat, town_talk skipped: UV_ENABLE_DEVELOPER_TOOLS is OFF")
 endif()

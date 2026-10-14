@@ -1,0 +1,34 @@
+# SPP2 (docs/SHARED_PRESERVATION_PARITY_SPP2.md) in Enhanced mode: the desktop's Ctrl+S is the DOS
+# game's Ctrl-S at the command prompt too ("Sound Off", the world turn: MAINOUT 0x0b80 -> 0x0c12);
+# RETURN stays the Pass (control).
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Purist
+key Return
+text M
+text A
+text A
+text A
+text A
+text A
+text A
+text A
+wait 2500
+expect frontend 0
+teleport grass
+wait 300
+expect remember_turns x
+key S ctrl
+wait 300
+expect transcript Sound Off
+expect no_transcript SFX muted.
+expect turns_advanced 1
+expect remember_turns x
+key Return
+frames 3
+expect transcript Pass
+expect no_transcript What?
+expect turns_advanced 1

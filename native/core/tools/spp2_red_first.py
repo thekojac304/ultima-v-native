@@ -27,6 +27,10 @@ GROUPS = {
     'M': ['native/targets/tdeck/main/alpha_runtime.cpp', 'native/targets/tdeck/main/alpha_runtime.h'],
     # T: TALK.OVL's own answers in a town (D-111)
     'T': ['native/core/src/dialogue_orchestration.cpp'],
+    # G: Ctrl-S and the overworld "What?" (D-108, D-112). ui_input_adapter.h is NOT swapped: the
+    # tests name DeviceShortcut::DosSound, so the baseline is the commit that only appended it.
+    'G': ['native/targets/tdeck/main/alpha_runtime.cpp', 'native/targets/tdeck/main/alpha_runtime.h',
+          'native/core/src/commands.cpp', 'native/core/src/ui_session.cpp'],
 }
 EXTRA = {'spp2_runtime': [PACK, os.path.join(ROOT, 'native', 'assets', 'openu5-audio.bin')]}
 
