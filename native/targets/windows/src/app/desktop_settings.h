@@ -20,7 +20,10 @@ namespace uv {
 // (the sidecar's "enhanced" key), whatever the interface mode.
 enum class InterfaceMode : uint8_t { Original = 0, Enhanced = 1 };
 
-enum class Scaling : uint8_t { Integer = 0, Fit = 1 };
+// How the 320x240 picture fills the window (app/presentation_layout.h):
+// Integer = whole pixels, letterboxed; Fit = the largest 4:3 fit; Framed =
+// whole pixels in a thin ring of the game's chrome.
+enum class Scaling : uint8_t { Integer = 0, Fit = 1, Framed = 2 };
 
 struct DesktopSettings {
     InterfaceMode interface_mode = InterfaceMode::Original;

@@ -195,6 +195,7 @@ add_library(uv_desktop STATIC
   src/app/desktop_input.cpp
   src/app/desktop_profile.cpp
   src/app/desktop_settings.cpp
+  src/app/presentation_layout.cpp
   src/app/presenter.cpp
   src/app/sdl_audio_backend.cpp)
 target_include_directories(uv_desktop PUBLIC "${UV_WIN_DIR}/src" "${UV_GENERATED_DIR}")
