@@ -155,30 +155,38 @@ void for_each_wrapped_line(const UiSession &session, size_t columns, Emit emit) 
         spaces = 0;
     };
 
-    // `live` marks the 1988 model's prompt row (UiSession::live_prompt_text()):
-    // a trailing space is kept there, because the cursor blinks after it
-    // ("Player: _", "Save game? _").
-    auto feed = [&](const UiTextBlock &block, bool live) {
-        if (console && (block.flags & UiTextCommand) && !(block.flags & UiTextContinuesBefore) &&
-            block.length && !line_length) {
+    // The 1988 model's live prompt (UiSession::live_prompt_block()) streams as
+    // one more block after the transcript -- below the newest line, and only
+    // while the view follows that line, so a view scrolled back keeps its rows
+    // still while the prompt grows, opens and closes. Its row keeps a trailing
+    // space: the cursor blinks after it ("Player: _", "Save game? _").
+    const UiTextBlock *live_block =
+        console && !session.scroll_offset_lines() && platform_dos_interface() ? session.live_prompt_block() : nullptr;
+    const size_t blocks = session.transcript_size() + (live_block ? 1 : 0);
+    for (size_t i = 0; i < blocks; ++i) {
+        const bool live = i == session.transcript_size();
+        const auto *block = live ? live_block : session.transcript_at(i);
+        if (!block) continue;
+        if (console && (block->flags & UiTextCommand) && !(block->flags & UiTextContinuesBefore) &&
+            block->length && !line_length) {
             // getkey's LF: a blank row, then the echo on the bullet row.
             UiRenderedLine blank{};
-            blank.sequence = block.sequence;
+            blank.sequence = block->sequence;
             emit(blank);
             line = {};
             bullet = true;
         }
-        set_metadata(block);
-        for (size_t j = 0; j < block.length; ++j) {
-            const char c = block.text[j];
+        set_metadata(*block);
+        for (size_t j = 0; j < block->length; ++j) {
+            const char c = block->text[j];
             if (c == '\n') {
-                append_word(block);
-                emit_line(block); // Explicit newlines preserve empty lines.
+                append_word(*block);
+                emit_line(*block); // Explicit newlines preserve empty lines.
                 spaces = 0;
                 continue;
             }
             if (c == ' ' || c == '\t' || c == '\r' || c == '\f' || c == '\v') {
-                append_word(block);
+                append_word(*block);
                 if (line_length) ++spaces;
                 continue;
             }
@@ -186,35 +194,23 @@ void for_each_wrapped_line(const UiSession &session, size_t columns, Emit emit) 
                 // Only a single token can reach this path.  Keep any preceding
                 // prose intact, then hard-break the overlong token (on a
                 // bullet row, one column sooner).
-                if (line_length) emit_line(block);
-                set_metadata(block);
+                if (line_length) emit_line(*block);
+                set_metadata(*block);
                 for (size_t k = 0; k < word_length; ++k) line.text[line_length++] = word[k];
-                emit_line(block);
+                emit_line(*block);
                 word_length = 0;
                 spaces = 0;
             }
             word[word_length++] = c;
         }
-        if (!(block.flags & UiTextContinuesAfter)) {
-            append_word(block);
+        if (!(block->flags & UiTextContinuesAfter)) {
+            append_word(*block);
             if (live && spaces && line_length && line_length < columns) line.text[line_length++] = ' ';
-            if (line_length) emit_line(block);
-            else if (!event_emitted) emit_line(block);
+            if (line_length) emit_line(*block);
+            else if (!event_emitted) emit_line(*block);
             spaces = 0;
             event_emitted = false;
         }
-    };
-    for (size_t i = 0; i < session.transcript_size(); ++i) {
-        const auto *block = session.transcript_at(i);
-        if (block) feed(*block, false);
-    }
-    // The live prompt sits below the newest line: a view scrolled back keeps
-    // its rows still while the prompt grows, opens and closes.
-    if (console && !session.scroll_offset_lines()) {
-        UiTextBlock live{};
-        live.channel = UiTextChannel::CommandEcho;
-        live.length = uint16_t(session.live_prompt_text(live.text, sizeof(live.text)));
-        if (live.length) feed(live, true);
     }
     if (console && session.console_cursor() == UiConsoleCursor::NewCommand) {
         // The live prompt row a command is awaited on, below its blank row.
@@ -1302,6 +1298,13 @@ bool UiSession::dos_live_prompt_mode() const {
     default:
         return false;
     }
+}
+
+const UiTextBlock *UiSession::live_prompt_block() const {
+    live_block_ = {};
+    live_block_.channel = UiTextChannel::CommandEcho;
+    live_block_.length = uint16_t(live_prompt_text(live_block_.text, sizeof(live_block_.text)));
+    return live_block_.length ? &live_block_ : nullptr;
 }
 
 size_t UiSession::live_prompt_text(char *out, size_t capacity) const {

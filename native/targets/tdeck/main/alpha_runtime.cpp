@@ -1048,14 +1048,14 @@ void AlphaRuntime::dispatch(const openu5::UiIntent&i){
             begin_spell_name(mix);
         }else open_selection(openu5::UiMode::SpellSelection,i.request);
     }
-    else if(i.kind==openu5::UiIntentKind::OpenStatusSelection&&context_.combat){
+    else if(i.kind==openu5::UiIntentKind::OpenStatusSelection&&context_.combat&&openu5::platform_dos_interface()){
         // The 1988 interaction model's arena (Z): no "Player: ", the acting
         // member's page at once (ZSTATS 0x000c-0x002c), "\nStatus: " (DS
         // 0x97a2), and the turn ends when the page closes.
         auto *actor=openu5::current_combat_actor(combat_context_);
         ui_->append(openu5::UiTextChannel::CommandEcho,"\nStatus: ");
         open_zstats(actor&&actor->member!=255?actor->member:active_member(game_));
-        zstats_combat_turn_=true;
+        dos_state().zstats_combat_turn=true;
     }
     else if(i.kind==openu5::UiIntentKind::OpenStatusSelection){status_member_=int16_t(active_member(game_));open_selection(openu5::UiMode::PartySelection,i.request);}
     dirty_=true;
@@ -1140,7 +1140,7 @@ void AlphaRuntime::command(openu5::Command cmd){
         // prints nothing when it readies or unreadies -- the list redraws --
         // and frames a refusal as "\n\n<message>\n\nItem: " (print_msg_line
         // 0x0bee) under the "Item: " row it answered.
-        if(openu5::platform_dos_interface()){if(result.item.vanished){ready_ring_vanished_=true;ui_->append(openu5::UiTextChannel::CommandEcho,"Item: \n\nRing vanishes!");}
+        if(openu5::platform_dos_interface()){if(result.item.vanished){dos_state().ready_ring_vanished=true;ui_->append(openu5::UiTextChannel::CommandEcho,"Item: \n\nRing vanishes!");}
             else if(result.status!=openu5::CommandStatus::Success&&result.item.message&&*result.item.message){char framed[160]{};std::snprintf(framed,sizeof(framed),"Item: \n\n%s\n\n",result.item.message);ui_->append(openu5::UiTextChannel::CommandEcho,framed);}}
         else if(result.status==openu5::CommandStatus::Success){char feedback[80]{};const char *name=openu5::equipment_display_name(ready_item);if(now==ready_item)std::snprintf(feedback,sizeof(feedback),"Equipped %s.",name?name:"item");else std::snprintf(feedback,sizeof(feedback),"Unready %s.",name?name:"item");ui_->append(openu5::UiTextChannel::System,feedback);}else if(result.item.message&&*result.item.message)ui_->append(openu5::UiTextChannel::System,result.item.message);}
     ESP_LOGI(kTag,"combat command=%d status=%s turns=%lld events=%lu time=%lu us",int(cmd.kind),status_name(result.status),(long long)result.turns,(unsigned long)result.event_count,(unsigned long)us);
@@ -1523,10 +1523,11 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){const bool dos=openu5::platfo
         // Keep the member selection alive.  command() reports the authoritative
         // result; reopening builds rows from the just-mutated equipment fields.
         c.kind=openu5::CommandKind::Ready;c.member=pending_ready_member_>=0?pending_ready_member_:int16_t(active_member(game_));c.item=selections_[i.value.index].value;
-        ready_ring_vanished_=false;command(c);
+        if(dos_state_)dos_state_->ready_ring_vanished=false;
+        command(c);
         // The 1988 model: a ring that vanishes closes the list (the only
         // success that does, ZSTATS 0x0e45), and in the arena that ends R.
-        if(ready_ring_vanished_){ready_ring_vanished_=false;pending_ready_member_=-1;
+        if(dos_state_&&dos_state_->ready_ring_vanished){dos_state_->ready_ring_vanished=false;pending_ready_member_=-1;
             if(context_.combat){openu5::Command yield;yield.kind=openu5::CommandKind::CombatYield;command(yield);}}
         else open_selection(openu5::UiMode::EquipmentSelection,openu5::UiRequestId::Equipment);
     }
@@ -1662,19 +1663,20 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){const bool dos=openu5::platfo
     // "\nMantra:" (DS 0x958e) THREE times, each its own answer (input_string
     // prints no newline, so that '\n' only ends the answer's row -- which the
     // console's committed answer already does).
-    else if(i.request==openu5::UiRequestId::ShrineVisit){shrine_virtue_length_=0;dos_mantra_count_=0;ui_->begin_text(openu5::UiRequestId::ShrineRestore,dos?"Upon what virtue dost thou meditate?\n\n:":"Virtue?",dos?12:15);}
+    else if(i.request==openu5::UiRequestId::ShrineVisit){shrine_virtue_length_=0;if(dos)dos_state().mantra_count=0;ui_->begin_text(openu5::UiRequestId::ShrineRestore,dos?"Upon what virtue dost thou meditate?\n\n:":"Virtue?",dos?12:15);}
     else if(i.request==openu5::UiRequestId::ShrineRestore&&dos&&shrine_virtue_length_){
-        const auto slot=std::min<size_t>(dos_mantra_count_,2);
-        dos_mantra_length_[slot]=std::min<size_t>(i.value.text_length,15);
-        std::memcpy(dos_mantras_[slot],i.value.text,dos_mantra_length_[slot]*sizeof(char16_t));dos_mantras_[slot][dos_mantra_length_[slot]]=0;
-        if(++dos_mantra_count_<3)ui_->begin_text(openu5::UiRequestId::ShrineRestore,"Mantra:",shrine_.visit>=0?12:15);
-        else{openu5::TalkText mantras[3]={{dos_mantras_[0],dos_mantra_length_[0]},{dos_mantras_[1],dos_mantra_length_[1]},{dos_mantras_[2],dos_mantra_length_[2]}};
+        auto &d=dos_state();
+        const auto slot=std::min<size_t>(d.mantra_count,2);
+        d.mantra_length[slot]=std::min<size_t>(i.value.text_length,15);
+        std::memcpy(d.mantras[slot],i.value.text,d.mantra_length[slot]*sizeof(char16_t));d.mantras[slot][d.mantra_length[slot]]=0;
+        if(++d.mantra_count<3)ui_->begin_text(openu5::UiRequestId::ShrineRestore,"Mantra:",shrine_.visit>=0?12:15);
+        else{openu5::TalkText mantras[3]={{d.mantras[0],d.mantra_length[0]},{d.mantras[1],d.mantra_length[1]},{d.mantras[2],d.mantra_length[2]}};
             openu5::ShrineInput input;input.action=shrine_.visit>=0?openu5::ShrineAction::SubmitVisit:openu5::ShrineAction::SubmitRestore;input.virtue={shrine_virtue_,shrine_virtue_length_};input.mantras={mantras,3};
-            c.kind=openu5::CommandKind::ShrineAction;c.shrine=&input;shrine_virtue_length_=0;dos_mantra_count_=0;command(c);}
+            c.kind=openu5::CommandKind::ShrineAction;c.shrine=&input;shrine_virtue_length_=0;d.mantra_count=0;command(c);}
     }
     else if(i.request==openu5::UiRequestId::ShrineRestore&&dos){
         shrine_virtue_length_=std::min<size_t>(i.value.text_length,63);std::memcpy(shrine_virtue_,i.value.text,shrine_virtue_length_*sizeof(char16_t));shrine_virtue_[shrine_virtue_length_]=0;
-        dos_mantra_count_=0;
+        dos_state().mantra_count=0;
         // An empty answer leaves the shrine (CAST2 0x09ce); the core's own empty test says so.
         if(!shrine_virtue_length_){openu5::TalkText none[3]={};openu5::ShrineInput input;input.action=shrine_.visit>=0?openu5::ShrineAction::SubmitVisit:openu5::ShrineAction::SubmitRestore;input.virtue={shrine_virtue_,0};input.mantras={none,3};c.kind=openu5::CommandKind::ShrineAction;c.shrine=&input;command(c);}
         else ui_->begin_text(openu5::UiRequestId::ShrineRestore,"Mantra:",shrine_.visit>=0?12:15);
@@ -2666,7 +2668,7 @@ bool AlphaRuntime::handle_zstats_input(const openu5::UiAction &action){
         // The 1988 interaction model: "Done" (DS 0x97ce) completes the
         // "Status: " row; in the arena the close ends the acting member's turn.
         if(openu5::platform_dos_interface())ui_->append_continuation(openu5::UiTextChannel::CommandEcho,"Done");
-        if(zstats_combat_turn_){zstats_combat_turn_=false;openu5::Command yield;yield.kind=openu5::CommandKind::CombatYield;command(yield);}
+        if(dos_state_&&dos_state_->zstats_combat_turn){dos_state_->zstats_combat_turn=false;openu5::Command yield;yield.kind=openu5::CommandKind::CombatYield;command(yield);}
         dirty_=true;dirty_reason_="zstats-close";return true;
     }
 
@@ -3538,12 +3540,13 @@ void AlphaRuntime::reset_transient_after_load(){
     const bool questions=commands_.awaiting_exit||commands_.awaiting_troll||blackthorn_.shrine>=0||blackthorn_.password||blackthorn_.tribute||blackthorn_.arrest;
     // Device views and presentation timers.
     gem_view_active_=gem_view_charges_turn_=false;zodiac_view_active_=false;
-    zstats_open_=false;zstats_page_=0;zstats_scroll_=0;zstats_combat_turn_=false;
+    zstats_open_=false;zstats_page_=0;zstats_scroll_=0;
     map_reveal_end_us_=0;magic_invert_start_us_=magic_invert_end_us_=0;quake_start_us_=0;quake_pulses_=0;
     moongate_transit_=false;moongate_settle_=true; // A4-UI4 (D-48)
     // Picks parked across a modal, the picker rows, queued work.
     pending_combat_spell_=pending_ready_member_=pending_use_item_=pending_order_from_=-1;
-    pending_search_={};pending_search_active_=false;pending_caster_=-1;shrine_virtue_length_=0;dos_mantra_count_=0;
+    pending_search_={};pending_search_active_=false;pending_caster_=-1;shrine_virtue_length_=0;
+    if(dos_state_)*dos_state_=DosInterfaceState{};
     pending_mix_spell_=-1;pending_mix_mask_=0; // A3-HF10
     selection_count_=0;selection_request_=openu5::UiRequestId::None;
     pending_npc_initiation_=PendingNpcInitiation::None;pending_npc_slot_=-1;pending_npc_location_=0;

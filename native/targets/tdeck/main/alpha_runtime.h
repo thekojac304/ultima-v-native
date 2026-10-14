@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 #include <cstddef>
 #include <cstdint>
@@ -482,11 +483,24 @@ class AlphaRuntime {
     uint8_t pending_npc_location_ = 0;
     char16_t shrine_virtue_[64]{};
     size_t shrine_virtue_length_ = 0;
-    // The 1988 interaction model asks "Mantra:" three times (CAST2 0x0a1b,
-    // CMDS 0x125e); the answers so far, until the third.
-    char16_t dos_mantras_[3][16]{};
-    size_t dos_mantra_length_[3]{};
-    uint8_t dos_mantra_count_ = 0;
+    // The 1988 interaction model's own state (Windows Original mode only),
+    // allocated the first time that model needs it -- never on the T-Deck, so
+    // the device's internal RAM keeps its size:
+    //  - the shrine asks "Mantra:" three times (CAST2 0x0a1b, CMDS 0x125e):
+    //    the answers so far, until the third;
+    //  - (Z) in the arena shows the acting member's page and, when it closes,
+    //    ends that member's turn (COMBAT 0x09d8 -> 0x07ba, [bp-4]=1);
+    //  - (R)eady: the ring the last Ready lost (equip_item's "Ring vanishes!")
+    //    closes the list instead of reopening it.
+    struct DosInterfaceState {
+        char16_t mantras[3][16]{};
+        size_t mantra_length[3]{};
+        uint8_t mantra_count = 0;
+        bool zstats_combat_turn = false;
+        bool ready_ring_vanished = false;
+    };
+    std::unique_ptr<DosInterfaceState> dos_state_;
+    DosInterfaceState &dos_state() { if (!dos_state_) dos_state_.reset(new DosInterfaceState()); return *dos_state_; }
     openu5::AssetPackReader *tiles_ = nullptr;
     openu5::AssetPackReport tile_report_{};
     AlphaResourceReport alpha_report_{};
@@ -562,13 +576,6 @@ class AlphaRuntime {
     bool zstats_open_ = false;
     int zstats_page_ = 0;
     size_t zstats_scroll_ = 0;
-    // The 1988 interaction model: (Z) in the arena shows the acting member's
-    // page and, when it closes, ends that member's turn (COMBAT 0x09d8 ->
-    // 0x07ba, [bp-4]=1).
-    bool zstats_combat_turn_ = false;
-    // The 1988 model's (R)eady: the ring the last Ready lost (equip_item's
-    // "Ring vanishes!") closes the list instead of reopening it.
-    bool ready_ring_vanished_ = false;
     int32_t combat_world_tile_before_ = openu5::kOffMap;
     bool combat_world_tile_saved_ = false;
     struct DirectTrollTrace {

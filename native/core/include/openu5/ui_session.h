@@ -395,6 +395,8 @@ class UiSession {
     // answer on the console. Writes it and returns its length; 0 when there is
     // none to show (another platform, the console not ready, no such modal).
     size_t live_prompt_text(char *out, size_t capacity) const;
+    /** The same text as one console block (in the session's own storage), or nullptr. */
+    const UiTextBlock *live_prompt_block() const;
 
     void set_base_mode(UiMode);
     void consume(const GameEvent &);
@@ -515,6 +517,9 @@ class UiSession {
     // The 1988 model's getdir ignores ESC; dos_getdir_pass() lets the cancel
     // branch run once for Space.
     bool dos_getdir_cancel_ = false;
+    // live_prompt_block()'s storage: the session's memory, not the stack of
+    // every line count and page render (the device keeps UiSession in PSRAM).
+    mutable UiTextBlock live_block_{};
     size_t transcript_columns_ = 0, transcript_rows_ = 0;
 #if defined(OPENU5_ENABLE_DEVELOPER_TOOLS)
     UiDebugMenu *debug_menu_ = nullptr;
