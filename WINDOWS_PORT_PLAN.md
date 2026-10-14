@@ -122,6 +122,50 @@ five `__attribute__` sites (`perf_report.cpp` ×2, `input_controller.cpp`,
 | D18 | **AltGr from the keyboard layout**: SDL3 delivers AltGr as Right Alt alone, so on a layout with an AltGr level (asked from SDL's keymap at start-up and on every keymap change) Right Alt types characters and the Alt chords use the left Alt | German/French/Polish players can type `@ { ~` and never trigger Alt+S/Alt+L by accident |
 | D19 | **One instance per data folder, by a lock file** (`<data folder>\instance.lock`, no sharing, deleted on close) | every spelling of the folder (case, 8.3, subst, network, another session) meets the same lock |
 | D20 | **Command-line `--mode`, `--fullscreen`, `--windowed` apply to that run only**; `windows.json` keeps the player's own choices; Ctrl+O opens the data folder itself (game files in its `ultima5` folder, F12 pictures in `screenshots`) | a one-off start option never becomes a setting by accident |
+| D21 | **Classic Framed is the default presentation; "Window N×" is the picture at scale N** (below). The presenter places the 320×240 picture itself, in whole output pixels, at the largest whole scale, centred, with a thin ring in the game's chrome where it fits; Settings → Scaling cycles Framed / Whole pixels / Fit window. The window is framed when that fits the work area with its real frame, else bare, else smaller; the Display row and `windows.json` show the scale the window has; with no saved scale it follows the display's scale | presenter-only (D3 untouched, F12 still the raw panel): the T-Deck frame's black glass and console edges merged with the black letterbox, so a desktop screen looked "mostly black" with no edge; the ring gives the picture an edge without resampling a pixel. The window maths had 6 confirmed defects (DEF-1..5, DEF-8) |
+
+### Presentation (Classic Framed)
+
+`src/app/presentation_layout.{h,cpp}` (pure, unit-tested) computes every
+frame; SDL's logical presentation is off, so there is no float centring.
+
+- **Picture**: `u = max(1, min(W div 320, H div 240))` of the renderer's
+  output; origin `((W−320u) div 2, (H−240u) div 2)` — an odd leftover pixel
+  goes right/bottom, deterministically. Nearest sampling.
+- **Ring** (Framed), outward: 4u black (the Board's own 4 px from glass to
+  play window), 1u white rule (`kChromeRule` 0xFFFF), 2u band (`kChromeBand`
+  0x0015, band-outside-rule as the shell frames its menus), its outer corners
+  cut 2u/1u like `kCornerCutSmall`. Full ring when both margins hold 7u;
+  the two side pillars (full height) when only the width does; nothing
+  otherwise (4:3 and 5:4 screens, outputs under 320×240). Drawn from a 2×1
+  RGB565 texture, so the band is the in-game band's exact screen colour on
+  any renderer (D3D11 keeps B5G6R5; a draw colour would round on its own).
+- **Fit**: the largest 4:3 rectangle, `SDL_SCALEMODE_PIXELART` when the
+  scale is fractional (SDL 3.4; nearest on renderers without it).
+- **Window N×**: client (320+16)N × (240+16)N in Framed when the window
+  (client + `SDL_GetWindowBordersSize`) fits the display's usable bounds,
+  else 320N × 240N, else N−1; centred with its whole frame inside the work
+  area (title bar never above it); aspect locked for dragging (21:16 / 4:3);
+  restored from maximised first. Ctrl+= / Ctrl+- and the Display row step
+  1× .. the largest that fits. No `"windowScale"` = automatic:
+  `floor(3 × display content scale)` within what fits, re-derived on
+  `SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED` and not written until the player
+  picks a scale; a scale reduced at start-up (saved on a bigger display) is
+  shown as reduced but kept in `windows.json` until the player changes it.
+- **Measured** (the real exe's frames read back headless, 2c8de821 vs
+  `windows/presentation-wip`): 1920×1080 — before, 4× picture 1280×960 at
+  320,60 = 59.3 % of the screen, 844,800 px (40.7 %) black letterbox with no
+  edge; Framed, the same picture, ring 55,680 px (2.69 %), black 38.1 %;
+  Fit 1440×1080 = 75.0 %. 2560×1440 — 6× = 75 %, pillars 51,840 px.
+  1366×768 — 3× = 65.9 %, full ring 31,320 px. Default window 960×720
+  bare → 1008×768 framed (picture 89.3 %). The research's 1440×1080 / "4×
+  with bands at 150 %" hypothesis does not occur on Windows (SDL window
+  coordinates are physical pixels); the real DPI effect was a physically
+  smaller window, now handled by the automatic scale.
+- **Not done**: a Desktop Adaptive layout (a 480×270-class canvas with the
+  status box and context bar under the map and a 49-column console) needs a
+  `BoardLayout` in the shared Board, runtime panel sizes and new goldens; it
+  was mocked up from real captures only.
 
 ## 5. Layout
 
@@ -219,9 +263,17 @@ Shared-code changes (all behaviour-preserving for the T-Deck):
   base), 19.6 % of the app partition free. Compile evidence only: no T-Deck
   hardware run was made for this branch.
 
+- Presentation (D21): every layout rule by pure-function tests; the real
+  window read back from the renderer and compared pixel for pixel
+  (`scenario_presentation`: first-run framed window, the Display and Scaling
+  rows, Ctrl+= / Ctrl+-, 1920×1080 / 2560×1440 / 1366×768 / odd sizes,
+  fullscreen and back, play).
+
 **Implemented, needs a person at the keyboard** (no automated proof possible
-or done): the feel of the real window (scaling, fullscreen toggling, resizing,
-High-DPI monitors), real sound through speakers, long play sessions,
+or done): the feel of the real window (a real title bar and frame, dragging
+with the aspect lock, maximise then Ctrl+= / Display, moving between
+monitors of different scale, fullscreen on a GPU renderer, Fit's pixel-art
+sampling on D3D11), real sound through speakers, long play sessions,
 vehicles (boarding a ship/horse/carpet, sailing), shops end to end, the
 ending sequence on Windows, music volume behaviour on real hardware, the
 window-close confirmation dialog, the Explorer integration (Ctrl+O), the
@@ -237,8 +289,8 @@ runtime; not pursued); an icon.
 | Suite | Where | Result |
 |---|---|---|
 | Host suite (shared code, T-Deck semantics) | `native/core`, GCC 16.2, serial | 202/202, after each of the shared changes (`win-phase*-ctest.log`, `win-review-host-ctest.log`; untracked evidence in `native/core/`) |
-| Windows unit/integration | `native/targets/windows/tests` | 7/7: desktop input (443 checks), desktop settings (64), storage + force-included redirect (151), virtual panel + real Board (38), save layout (17), audio backend + synth goldens (110; 119 with the music pack), offline continuity |
-| Windows scenarios (real exe, headless) | `native/targets/windows/scenarios` | 13/13: boot_title, new_game_original, settings_modes, typed_cast_original, list_cast_enhanced, save_load_menu, quicksave_enhanced, original_keys, dungeon_walk, surface_combat, typed_cast_combat, town_talk, pc_import_export |
+| Windows unit/integration | `native/targets/windows/tests` | 8/8: desktop input (443 checks), desktop settings (75), storage + force-included redirect (151), virtual panel + real Board (38), save layout (17), audio backend + synth goldens (110; 119 with the music pack), offline continuity, presentation (128: layouts of 19 sizes, ~1.1 million output sizes and 1.15 million window plans against the rules, the frame checker, the Scaling and Display rows) |
+| Windows scenarios (real exe, headless) | `native/targets/windows/scenarios` | 14/14: boot_title, new_game_original, settings_modes, typed_cast_original, list_cast_enhanced, save_load_menu, quicksave_enhanced, original_keys, presentation (50 checks), dungeon_walk, surface_combat, typed_cast_combat, town_talk, pc_import_export |
 | Firmware compile | `native/targets/tdeck`, ESP-IDF 6.1 | builds; 1,053,808 B, app budget check passes |
 | Package | `tools/build-windows.ps1 -Package` + clean-folder check | ZIP 2.15 MB (from `3345eecb`); packs prepared from it byte-identical (SHA-256); packaged exe boots, plays, saves; depends only on `SDL3.dll` and Windows system DLLs |
 
@@ -246,7 +298,12 @@ Mutation evidence: 24 one-edit mutants of the Windows input, settings, panel
 and storage code were all detected; the review fixes' three core mutants
 (refused cast keeps the turn, echo flag ignored, absorb gate without Negate
 Magic) are killed by W1-W3; the re-anchored A4-POLISH3 M11 and A4-ENH1 K3/D1
-are killed again (`win-review-mutants.log`).
+are killed again (`win-review-mutants.log`). Presentation (D21): 9 one-edit
+mutants (ring by draw colour, odd pixel left, fit without the frame,
+effective scale always saved, Ctrl+= storing the request, logical
+presentation on, uncut corners, the Display row's 1x→3x jump, no restore
+before resizing a maximised window): 8 detected; the last is not observable
+on SDL's offscreen driver.
 
 ## 8. Known limitations and risks
 
@@ -282,6 +339,14 @@ are killed again (`win-review-mutants.log`).
 - Confirm the copyright line in `game/src/core/data/LICENSE-Ultima5Redux.txt`
   against Ultima5Redux's own LICENSE (it follows the project's
   ATTRIBUTION.txt: "(c) 2020 Brad Hannah, MIT").
+- Presentation (D21): a `windows.json` written by the first Windows builds
+  always holds `"scaling":"Integer"` and `"windowScale":3`, so those installs
+  keep Whole pixels and a fixed 3× until the player changes them (Integer
+  stays Integer, as required); decide whether a one-time migration to
+  Framed/automatic is wanted. Also: whether the automatic scale should keep
+  re-centring the window when it follows a display-scale change, and
+  whether Desktop Adaptive (a wider canvas in the shared Board) is worth a
+  shared-code batch.
 
 ## 10. Progress log
 
@@ -293,3 +358,4 @@ are killed again (`win-review-mutants.log`).
 | Windows test suite (written by a helper agent on a temporary branch, cherry-picked) | `1bf68a7d` | 6 executables, all green; 24/24 mutants detected |
 | Offline-continuity check enabled as a regular test. Its commit message also claims the `render_offline` remainder and the windows.json BOM fix; both are in `19f064f3` (history is not rewritten) | `c03fbe88` | Windows ctest 19/19 |
 | Adversarial review (30 agents: packaging and licences, T-Deck regression, docs accuracy, Windows platform, DOS fidelity; every finding independently re-verified): 25 findings, all confirmed, all fixed -- bundle data trimmed and allowlisted, licences from the manifest, Z-stats legend, mutation anchors, docs, Brightness, AltGr, instance lock, session-only overrides, the 1988 "Player:" highlight, the arena's typed cast, the Q prompt | `71b128f0` (bundle, licences), `3345eecb` (everything else) | Windows ctest 20/20; host 202/202; firmware 1,053,808 B; mutants killed; ZIP rebuilt and re-checked |
+| Presentation (D21, branch `windows/presentation-wip` from `2c8de821`): window read-back autotest verbs; the Classic Framed layout as a pure function; Framed presenter and the three-way Scaling row; window sizing (DEF-1 effective scale, DEF-2 real frame, DEF-3 restore, DEF-4 automatic scale, DEF-5 aspect lock, DEF-8 one range; DEF-6 pixel-art Fit is in the presenter commit; DEF-7 is what the ring addresses); the pixel-exact window scenario; Windows-only, no shared code | `e428190b`, `0d3d350d`, `e52e753c`, `076c7a95`, `c20733b8`, `4a53957d` | baseline 20/20 at `2c8de821`; Windows ctest 22/22 (uv_presentation_test 128 checks, scenario_presentation 50); 8/9 mutants; before/after window captures from the real exe (1920×1080 letterbox 40.7 % → ring 2.69 % + black 38.1 %, picture unchanged at 59.3 %) |

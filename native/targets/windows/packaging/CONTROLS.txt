@@ -43,7 +43,9 @@ SYSTEM
   F7 / Ctrl+M          music off / on for this session
   F8 / Ctrl+S          sound off / on for this session (Ctrl+S as in 1988)
   Alt+Enter or F11     fullscreen / window
-  Ctrl+= / Ctrl+-      larger / smaller window
+  Ctrl+= / Ctrl+-      larger / smaller window (1x up to the largest that
+                       fits the screen, as Settings -> Display steps)
+  Settings -> Scaling  Framed (the default) / Whole pixels / Fit window
   F12                  screenshot (data folder\screenshots)
   Ctrl+O               open the data folder (the game's files are in its
                        ultima5 folder: saves, PC import/export, logs)

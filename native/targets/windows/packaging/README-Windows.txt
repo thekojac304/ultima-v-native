@@ -76,9 +76,22 @@ packs go in.
 
 3. STARTING THE GAME
 --------------------
-Double-click UltimaVNative.exe. The window opens at three times the
-original 320x240 picture, with sharp, square pixels. Alt+Enter (or F11)
-switches to fullscreen and back.
+Double-click UltimaVNative.exe. The window opens with the original 320x240
+picture at three times its size (more on a high-DPI display: 4x at 150 %,
+6x at 200 % Windows scaling, as far as the screen allows), with sharp,
+square pixels, inside a thin frame in the game's own blue and white.
+Alt+Enter (or F11) switches to fullscreen and back; Ctrl+= / Ctrl+- change
+the window's size. Once you choose a size it is remembered.
+
+The picture is never stretched or blurred. Settings -> "Scaling" chooses
+how it fills a window or the screen:
+  Framed        (the default) whole pixels, centred, in a thin blue frame
+                where there is room; black around it, as on the 1988 screen
+  Whole pixels  the same picture with no frame
+  Fit window    fills as much as it can at 4:3; pixels may then differ in
+                size by one screen pixel
+Settings -> "Display" chooses a window size (1x up to the largest that fits
+your screen) or Fullscreen.
 
 The title sequence plays; press a key for the menu:
   Journey Onward          continue the journey you saved last
@@ -157,7 +170,8 @@ The data folder is  %APPDATA%\Ultima V Native  (Ctrl+O in the game opens it):
       openu5-*.bin            the packs
       saves\                  the save slots
       settings.json           game settings (the same file the T-Deck uses)
-      windows.json            window, scaling and interface mode
+      windows.json            window size, scaling, fullscreen and interface
+                              mode (delete it to return to the defaults)
       import\  export\        PC/DOS save transfer
       logs\windows.log        the log -- attach it to bug reports
   screenshots\                F12 pictures
@@ -177,7 +191,8 @@ Command-line options: UltimaVNative.exe --help  (--mode, --fullscreen and
 ----------------------------------
   - Keyboard only: no mouse or game-controller play yet.
   - The picture is the original 320x240 layout (the T-Deck's screen design),
-    scaled up; there is no higher-resolution mode.
+    scaled up by whole pixels; there is no higher-resolution or widescreen
+    layout, so a wide screen shows black (and the frame) at the sides.
   - Making the packs needs Node.js (or a prepared T-Deck SD card).
   - The rules carry the project's documented, non-blocking differences from
     the 1988 game (see the project's preservation ledger).

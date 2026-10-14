@@ -87,16 +87,49 @@ ctest --test-dir native/targets/windows/build-release --output-on-failure
 - `tests/` — unit and integration tests of the Windows layer (keyboard
   translation in both modes, desktop settings, the `/sd` storage mount and its
   redirect, the virtual panel with the real Board, the save record layout, the
-  SDL audio backend and synth goldens under MSVC).
+  SDL audio backend and synth goldens under MSVC, the presentation layout and
+  window sizing).
 - `scenarios/` — the real executable, headless (SDL offscreen video, dummy
   audio), driven by `--autotest` scripts through synthetic SDL key events:
   title, character creation, play, both interface modes, typed and list
   casting (also in an arena), System Menu save/load, quick save/load, the
-  Original-mode key rules and the PC/DOS save bridge. They need the player's
-  packs (`UV_SCENARIO_PACKS`) and are skipped without them; `dungeon_walk`,
-  `surface_combat`, `typed_cast_combat` and `town_talk` also need
-  `UV_ENABLE_DEVELOPER_TOOLS=ON`. The script language is documented in
-  `src/app/autotest.h`.
+  Original-mode key rules, the PC/DOS save bridge and the presented window
+  itself (`presentation`: read back from the renderer and checked pixel for
+  pixel). They need the player's packs (`UV_SCENARIO_PACKS`) and are skipped
+  without them; `dungeon_walk`, `surface_combat`, `typed_cast_combat` and
+  `town_talk` also need `UV_ENABLE_DEVELOPER_TOOLS=ON`. The script language
+  is documented in `src/app/autotest.h`.
+
+## Presentation
+
+The Board draws the T-Deck's 320×240 screen; the presenter
+(`src/app/presenter.cpp`) never resamples it except by a whole number, and
+places everything itself in whole output pixels
+(`src/app/presentation_layout.{h,cpp}`, pure functions, SDL's logical
+presentation is off). Settings → Scaling, stored in `windows.json` as
+`"scaling"`:
+
+| Row label | `windows.json` | What it does |
+|---|---|---|
+| Scaling: Framed (default) | `"Framed"` | largest whole scale `u = max(1, min(W÷320, H÷240))`, centred (an odd leftover pixel goes right/bottom), with a ring in the game's chrome where it fits: 4u black, 1u white rule (0xFFFF), 2u band (0x0015) with cut corners; side pillars only when the height has no room (7u), nothing when the width has none |
+| Scaling: Whole pixels | `"Integer"` | the same picture, no ring |
+| Scaling: Fit window | `"Fit"` | the largest 4:3 rectangle; sampled with `SDL_SCALEMODE_PIXELART` when the scale is fractional (nearest on renderers without it) |
+
+A missing or unknown `"scaling"` is Framed; the first build's `"Integer"` and
+`"Fit"` keep their meaning. The ring's colours come from a 2×1 RGB565 texture,
+so the band is the in-game band's exact colour on every renderer.
+
+"Window N×" (Settings → Display, Ctrl+= / Ctrl+-) is the picture at scale N:
+a framed client of 336N×256N in Framed when that window fits the display's
+work area with its real frame, else 320N×240N, else a smaller N. Both
+controls step 1× .. the largest that fits; the Display row and
+`windows.json` show the scale the window really has. With no `"windowScale"`
+in `windows.json` the scale follows the display's scale (3× at 100 %, 4× at
+150 %, 6× at 200 %) and is not written until the player picks one. A
+maximised window is restored before a new size; the window's aspect is
+locked while dragging; fullscreen is borderless at the desktop's mode.
+`--autotest`'s `window_screenshot`, `window_size` and `expect window_layout`
+see the window as presented; F12 always saves the raw 320×240 panel.
 
 The shared code keeps its own suite (`native/core`, GCC/MinGW, 202 tests),
 which must stay green for every change made for this target.
@@ -113,7 +146,8 @@ src/platform/         clock/heap/tasks, log, the /sd mount, the virtual ST7789 p
                       the SD-log API, input glue
 src/app/              application (boot, loop, --autotest), desktop_input (keys ->
                       UiAction), desktop_profile (platform words and rows),
-                      desktop_settings, data_paths, presenter (SDL window), SDL audio
+                      desktop_settings, data_paths, presenter (SDL window),
+                      presentation_layout (picture, ring and window size maths), SDL audio
 tests/  scenarios/    see above
 packaging/            player README, controls, asset-preparation wrapper
 tools/                build-windows.ps1 (build, test, package)
