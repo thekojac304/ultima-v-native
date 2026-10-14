@@ -230,9 +230,11 @@ size_t DesktopInput::text(const char *utf8, const InputContext &context, Desktop
         if (c < 0x20 || c > 0x7e) continue;
         // DOS "Player:" prompts (kernel 0x2d7a): a digit 1-6 only moves the
         // highlight to that member (0x2dd4-0x2e19); RETURN or Space chooses
-        // (0x2e58 / 0x2e62). The Camp watch and the Mix reagent picker read
-        // their keys themselves.
-        if (context.mode == UiMode::PartySelection && context.request != openu5::UiRequestId::CampGuard &&
+        // (0x2e58 / 0x2e62). The Mix reagent picker reads its keys itself, and
+        // so does Enhanced's Camp watch (a digit picks at once); in Original
+        // the guard's picker is the same 0x2d7a (kernel 0x3eac -> 0x2e8e).
+        if (context.mode == UiMode::PartySelection &&
+            (context.request != openu5::UiRequestId::CampGuard || mode_ == InterfaceMode::Original) &&
             context.request != openu5::UiRequestId::MixReagents) {
             if (c >= '1' && c <= '6') {
                 UiAction a{};

@@ -44,6 +44,8 @@ uv_scenario(list_cast_enhanced MODE enhanced)
 uv_scenario(save_load_menu MODE original)
 uv_scenario(quicksave_enhanced MODE enhanced)
 uv_scenario(original_keys MODE original)
+uv_scenario(original_interface MODE original)
+uv_scenario(enhanced_interface MODE enhanced)
 # The Developer menu's Teleport page reaches the places a short script cannot
 # walk to; its "teleport" / "fight" steps need the menu compiled in.
 if(UV_ENABLE_DEVELOPER_TOOLS)

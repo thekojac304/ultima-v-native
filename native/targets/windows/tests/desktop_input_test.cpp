@@ -441,9 +441,16 @@ void party_selection() {
             const Out outside = run(in, text(" "), ctx(UiMode::Exploration));
             check(is_game(space, UiActionKind::Confirm), format("P6 %s: Space in a Player: prompt chooses (Confirm)", mode_tag(m)),
                   describe(space));
-            check(is_char(camp, ' ') && is_char(mix, ' ') && is_char(outside, ' '),
-                  format("P6 %s: Space stays a Character for the Camp watch, the Mix picker and outside prompts", mode_tag(m)),
-                  describe(camp) + " / " + describe(mix) + " / " + describe(outside));
+            check(is_char(mix, ' ') && is_char(outside, ' '),
+                  format("P6 %s: Space stays a Character for the Mix picker and outside prompts", mode_tag(m)),
+                  describe(mix) + " / " + describe(outside));
+            // Original: the Camp guard is the same roster picker (kernel 0x3eac
+            // -> 0x2e8e -> 0x2d7a), so Space chooses there too; Enhanced keeps
+            // the watch's own keys.
+            check(m == InterfaceMode::Original ? is_game(camp, UiActionKind::Confirm) : is_char(camp, ' '),
+                  format("P6 %s: Space for the Camp watch is %s", mode_tag(m),
+                         m == InterfaceMode::Original ? "Confirm (0x2d7a)" : "a Character (its own keys)"),
+                  describe(camp));
         }
         {
             DesktopInput in = input_in(m);
@@ -460,9 +467,15 @@ void party_selection() {
                 DesktopInput in = input_in(m);
                 const char s[2] = {d, 0};
                 const Out o = run(in, text(s), ctx(UiMode::PartySelection, own_digits[i]));
-                check(is_char(o, d), format("P3 %s: '%c' with request %s stays a Character (the picker reads digits itself)",
-                                            mode_tag(m), d, own_names[i]),
-                      describe(o));
+                // Original's Camp guard highlights like every 0x2d7a prompt.
+                if (m == InterfaceMode::Original && own_digits[i] == UiRequestId::CampGuard && d != '9')
+                    check(is_highlight(o, d - '1'),
+                          format("P3 %s: '%c' with request CampGuard -> HighlightIndex(%d) (0x2d7a)", mode_tag(m), d, d - '1'),
+                          describe(o));
+                else
+                    check(is_char(o, d), format("P3 %s: '%c' with request %s stays a Character (the picker reads digits itself)",
+                                                mode_tag(m), d, own_names[i]),
+                          describe(o));
             }
         }
         {

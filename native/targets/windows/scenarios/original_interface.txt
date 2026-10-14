@@ -1,0 +1,164 @@
+# Original mode: the 1988 interaction model beyond Cast
+# (native/targets/windows/ORIGINAL_MODE_FIDELITY.md).
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Mage
+key Return
+text F
+text B
+text B
+text B
+text B
+text B
+text B
+text B
+wait 2500
+expect frontend 0
+# (R)eady: ZSTATS 0x0000 always asks "Player: " on the roster; the list is
+# the member's own (banner = the name), "Item: " waits in the console, a
+# ready / unready prints nothing, ESC is "Item: Done".
+text r
+frames 3
+expect mode 9
+expect overlay_panel 0
+expect select_banner 1
+expect console Ready...
+expect console Player:
+key Return
+frames 3
+expect mode 11
+expect overlay_panel 1
+expect overlay_title Mage
+expect context_bar 0
+expect transcript Player: Mage
+key Return
+frames 3
+expect mode 11
+expect no_transcript Unready
+key Return
+frames 3
+expect no_transcript Equipped
+key Escape
+frames 3
+expect mode 0
+expect transcript Item: Done
+# (Z)-stats: "Player: ", then "Status: " under the pages, "Done" on close.
+text z
+frames 3
+expect mode 9
+expect select_banner 1
+text 2
+key Space
+frames 3
+expect transcript Player: Shamino
+expect overlay_panel 1
+expect context_bar 0
+key Escape
+frames 3
+expect overlay_panel 0
+expect transcript Status: Done
+# (U)se: the "Items:" list, "Item: " in the console, ESC is "Item: None!".
+text u
+frames 3
+expect mode 10
+expect overlay_title Items:
+expect context_bar 0
+key Escape
+frames 3
+expect mode 0
+expect transcript Item: None!
+# (N)ew Order: "Swap " / "with " on the roster (CMDS 0x0ddc).
+text n
+frames 3
+expect mode 9
+expect transcript New Order
+text 2
+key Return
+frames 3
+expect console Swap Shamino
+expect console with
+text 3
+key Return
+frames 3
+expect transcript with Iolo!
+text n
+frames 3
+key Return
+frames 3
+expect console Swap Mage
+expect console must lead!
+expect mode 0
+text n
+frames 3
+key Escape
+frames 3
+expect console Swap nobody!
+# getdir (kernel 0x35EC): ESC and RETURN are no answer; Space is "Pass".
+text l
+frames 2
+expect mode 13
+expect context_bar 0
+key Escape
+frames 2
+expect mode 13
+key Return
+frames 2
+expect mode 13
+key Space
+frames 2
+expect mode 0
+expect console Look-Pass
+# Talk's direction word on its echo row (TALK 0x0422 -> 0x35EC).
+text t
+frames 2
+key Up
+frames 3
+expect console Talk-North
+# (Y)ell: "Yell what?" and the word after ':' in capitals (CMDS 0x1458);
+# ESC erases the line, only RETURN ends; an empty word is "Nothing".
+text y
+frames 2
+expect mode 6
+expect console Yell what? | :
+text abc
+frames 2
+expect console :ABC
+key Escape
+frames 2
+expect mode 6
+expect no_console :ABC
+text hi
+key Return
+wait 300
+expect transcript :HI
+text y
+frames 2
+key Return
+frames 2
+expect console Nothing
+# RETURN and ESC at the command prompt are "What?" and pass no turn.
+expect remember_turns x
+key Return
+frames 2
+key Escape
+frames 2
+expect transcript_count 2 What?
+expect turns_advanced 0
+# (M)ix: "For what spell?" and ':'; ESC is "None!" on its own row.
+text m
+frames 2
+expect console For what spell? | :
+key Escape
+frames 2
+expect console : | None!
+# (Q)uit & Save: "Save game? " read on the console, only Y or N.
+text q
+frames 2
+expect console Save game?
+expect context_bar 0
+text n
+frames 2
+expect transcript Save game? No

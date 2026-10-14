@@ -27,7 +27,19 @@
 //                             arena's action counter), combat_actions_advanced
 //                             1|0 (an arena turn ended since / none did),
 //                           panel_changed 0|1 (since the previous expect),
-//                           audio_frames_min N
+//                           audio_frames_min N,
+//                           console TEXT / no_console TEXT (the console rows
+//                             as the screen shows them, joined " | ", contain /
+//                             do not contain TEXT), console_last TEXT (the
+//                             bottom row is exactly TEXT),
+//                           roster_cursor N (the picker's reverse-video roster
+//                             row, -1 none), select_banner 0|1,
+//                           overlay_panel 0|1 (a list/page panel covers the
+//                             right column), overlay_title TEXT,
+//                           context_bar 0|1, prompt TEXT (the open prompt
+//                             contains TEXT),
+//                           remember_turns (any value) / turns_advanced 1|0,
+//                           equipped "<member> <item>"
 //   screenshot PATH       write the panel as a BMP
 //   log TEXT              write TEXT to the log
 //   dump                  print the title/menu page or the console's last lines

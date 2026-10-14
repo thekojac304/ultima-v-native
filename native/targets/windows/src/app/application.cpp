@@ -30,6 +30,7 @@
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
+#include "openu5/inventory.h"
 #include "openu5/outdoor.h"
 #include "openu5/world.h"
 #if defined(OPENU5_ENABLE_DEVELOPER_TOOLS)
@@ -200,6 +201,7 @@ class Game {
     std::deque<std::string> text_buffers_;
     std::string remembered_position_;
     uint32_t remembered_combat_actions_ = 0;
+    int64_t remembered_turns_ = 0;
 };
 
 int Game::run() {
@@ -723,6 +725,66 @@ bool Game::autotest_expect(const AutotestStep &step) {
     } else if (name == "interface") {
         actual = interface_mode_name(settings_.interface_mode);
         ok = actual == value;
+    } else if (name == "console" || name == "no_console" || name == "console_last") {
+        // The console rows as the screen shows them (wrapped at the live text
+        // size, the 1988 model's live prompt row included), joined with " | ";
+        // console_last is the bottom row exactly.
+        const openu5::UiSession *ui = runtime_->ui();
+        size_t columns = 0, rows = 0;
+        tdeck::world_transcript_geometry(runtime_->device_settings().ui_size,
+                                         runtime_->context_bar_for_test().active, columns, rows);
+        openu5::UiRenderedLine lines[tdeck::kConsoleMaxRows]{};
+        const size_t n = ui ? ui->visible_lines(lines, std::min(rows, tdeck::kConsoleMaxRows), columns) : 0;
+        for (size_t i = 0; i < n; ++i) {
+            actual += std::string(lines[i].text, lines[i].length);
+            if (i + 1 < n) actual += " | ";
+        }
+        if (name == "console_last") {
+            actual = n ? std::string(lines[n - 1].text, lines[n - 1].length) : std::string();
+            ok = actual == value;
+        } else {
+            ok = (actual.find(value) != std::string::npos) == (name == "console");
+        }
+    } else if (name == "roster_cursor") {
+        // The roster row in reverse video for the picker's cursor (-1: none).
+        actual = std::to_string(int(runtime_->party_highlight_for_test().cursor));
+        ok = actual == value;
+    } else if (name == "select_banner") {
+        actual = runtime_->party_highlight_for_test().select_banner ? "1" : "0";
+        ok = actual == value;
+    } else if (name == "overlay_panel") {
+        // A list / page panel over the right column (the handheld's pickers).
+        actual = runtime_->selection_view_for_test().active ? "1" : "0";
+        ok = actual == value;
+    } else if (name == "overlay_title") {
+        actual = runtime_->selection_view_for_test().title;
+        ok = actual == value;
+    } else if (name == "context_bar") {
+        actual = runtime_->context_bar_for_test().active ? "1" : "0";
+        ok = actual == value;
+    } else if (name == "prompt") {
+        actual = runtime_->ui() ? runtime_->ui()->prompt() : "";
+        ok = actual.find(value) != std::string::npos;
+    } else if (name == "remember_turns" || name == "turns_advanced") {
+        // GameState::turns_since_start: a world turn passed since remember_turns.
+        const int64_t now = runtime_->game().turns_since_start;
+        if (name == "remember_turns") {
+            remembered_turns_ = now;
+            actual = std::to_string(now);
+            ok = true;
+        } else {
+            actual = now != remembered_turns_ ? "1" : "0";
+            ok = actual == value;
+        }
+    } else if (name == "equipped") {
+        // VALUE = "<member> <item>": that member has the item readied.
+        int member = -1, item = -1;
+        std::sscanf(value.c_str(), "%d %d", &member, &item);
+        const auto &party = runtime_->game().party;
+        const bool equipped = member >= 0 && member < party.character_count && item >= 0 && item < 48 &&
+                              openu5::is_item_equipped(party.characters[member], item);
+        actual = equipped ? "1" : "0";
+        ok = equipped;
     } else {
         actual = "<unknown check>";
     }
@@ -753,6 +815,13 @@ void Game::autotest_dump(int line) {
         if (block) std::fprintf(stderr, "  | %.*s\n", int(block->length), block->text);
     }
     if (const char *overlay = runtime_->status_overlay(); overlay && *overlay) std::fprintf(stderr, "  overlay: %s\n", overlay);
+    // The console's rows as the screen shows them (the live prompt row included).
+    size_t columns = 0, rows = 0;
+    tdeck::world_transcript_geometry(runtime_->device_settings().ui_size, runtime_->context_bar_for_test().active,
+                                     columns, rows);
+    openu5::UiRenderedLine lines[tdeck::kConsoleMaxRows]{};
+    const size_t n = ui ? ui->visible_lines(lines, std::min(rows, tdeck::kConsoleMaxRows), columns) : 0;
+    for (size_t i = n > 8 ? n - 8 : 0; i < n; ++i) std::fprintf(stderr, "  : %.*s\n", int(lines[i].length), lines[i].text);
 }
 
 void Game::autotest_key(const char *name, std::vector<std::string> mods) {

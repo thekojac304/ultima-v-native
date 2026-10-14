@@ -1,0 +1,78 @@
+# Enhanced mode keeps the handheld interface the Original mode replaces: list
+# panels for members and items, the key-legend bar, ESC cancelling a prompt,
+# RETURN passing a turn (native/targets/windows/ORIGINAL_MODE_FIDELITY.md).
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Mage
+key Return
+text F
+text B
+text B
+text B
+text B
+text B
+text B
+text B
+wait 2500
+expect interface Enhanced
+# Cast: the "Choose Companion" list and its bar, then the spell list.
+text c
+frames 3
+expect mode 9
+expect overlay_panel 1
+expect overlay_title Choose Companion
+expect context_bar 1
+expect select_banner 0
+expect roster_cursor -1
+key Return
+frames 3
+expect mode 12
+expect overlay_title Cast Spell
+key Escape
+frames 2
+expect mode 0
+# Ready: "Ready Whom?" for a party, then "Ready Equipment".
+text r
+frames 3
+expect overlay_title Ready Whom?
+key Return
+frames 3
+expect overlay_title Ready Equipment
+key Escape
+frames 3
+expect mode 0
+# Use: the "Use Item" list.
+text u
+frames 3
+expect overlay_title Use Item
+key Escape
+frames 3
+expect mode 0
+# A getdir wears the "Direction?" bar and ESC leaves it.
+text l
+frames 2
+expect mode 13
+expect context_bar 1
+key Escape
+frames 2
+expect mode 0
+expect no_console Look-Pass
+# Yell asks in the bar; ESC leaves it.
+text y
+frames 2
+expect mode 6
+expect context_bar 1
+key Escape
+frames 2
+expect mode 0
+# RETURN passes a turn; Q is no command.
+expect remember_turns x
+key Return
+wait 300
+expect turns_advanced 1
+text q
+frames 2
+expect transcript What?

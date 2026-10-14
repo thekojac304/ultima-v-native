@@ -1,4 +1,11 @@
-# Original mode: Cast takes the 1988 typed spell name (syllable initials).
+# Original mode: (C)ast as the 1988 game asks for it.
+#  - "Player: " on the console and the roster row in reverse video under a
+#    "Select:" caption (kernel 0x4988 -> 0x2d7a); no list panel, no key bar;
+#    the cursor starts on member 1, a digit only moves it, the arrows clamp,
+#    RETURN or Space chooses, ESC is "Player: None!".
+#  - "Spell name:" and the typed syllables on the ':' row (CAST2 0x00DE);
+#    ESC keeps what was typed (":XEN QUAS None!"); a name that is no spell is
+#    "No effect!" on its own row; a repeated initial counts once (0x02b2).
 frames 5
 key Return
 frames 3
@@ -19,33 +26,69 @@ expect frontend 0
 text c
 frames 3
 expect mode 9
-text 1
+expect overlay_panel 0
+expect context_bar 0
+expect select_banner 1
+expect roster_cursor 0
+expect console Cast... | Player:
+text 2
 frames 3
 # Kernel 0x2d7a: the digit only moves the highlight; RETURN chooses.
 expect mode 9
+expect roster_cursor 1
+key Down
+frames 2
+key Down
+frames 2
+expect roster_cursor 2
+key Up
+key Up
+key Up
+frames 2
+expect roster_cursor 0
 key Return
 frames 3
 expect mode 6
+expect select_banner 0
+expect context_bar 0
+expect console Player: Mage | Spell name: | :
 text i
 text j
 text o
 text l
 frames 2
+expect console Spell name: | :IN LOR
 key Backspace
 text l
 key Return
 wait 800
-expect transcript Spell name: IN LOR
+expect transcript Player: Mage
+expect console :IN LOR
+# Space chooses; "IIL" is In Lor (CAST2 0x02b2-0x02cb skips a repeat).
 text c
 frames 2
 text 1
 key Space
 frames 2
-text l
 text i
+text i
+text l
 key Return
 wait 800
-expect transcript Spell name: LOR IN
+expect console :IN IN LOR
+expect no_console No effect!
+# ESC after typing: nothing cast, the syllables stay on the row.
+text c
+frames 2
+text 1
+key Return
+frames 2
+text x
+text q
+key Escape
+wait 300
+expect console :XEN QUAS None!
+# A name that is no spell.
 text c
 frames 2
 text 1
@@ -54,13 +97,13 @@ frames 2
 text x
 text q
 key Space
-frames 2
-expect transcript No effect!
+wait 300
+expect console :XEN QUAS | No effect!
+# ESC at "Player: ".
 text c
-frames 2
-text 1
-key Return
 frames 2
 key Escape
 wait 300
-expect transcript Spell name:  | None!
+expect mode 0
+expect console Player: None!
+expect roster_cursor -1

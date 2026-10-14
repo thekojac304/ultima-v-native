@@ -67,7 +67,7 @@ frames 2
 expect mode 8
 text n
 frames 2
-expect transcript Quit: | No
+expect transcript Quit: | Save game? No
 text q
 frames 2
 text y

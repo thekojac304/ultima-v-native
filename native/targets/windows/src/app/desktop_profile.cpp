@@ -123,6 +123,11 @@ void DesktopProfile::install(const Hooks &hooks) {
     // Original restores the 1988 (Q)uit & Save; Enhanced has F5/F9 and the menu.
     p.quit_save_key = &DesktopProfile::original_mode;
     p.quit_save_context = this;
+    // Original follows the 1988 interaction model: roster pickers, console
+    // prompts, the DOS key rules (ORIGINAL_MODE_FIDELITY.md); Enhanced keeps
+    // the handheld's list panels and key legends.
+    p.dos_interface = &DesktopProfile::original_mode;
+    p.dos_interface_context = this;
     openu5::set_platform_profile(p);
 }
 
