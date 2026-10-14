@@ -78,9 +78,11 @@ std::string describe_layout(const PresentationLayout &layout);
  * Compares a presented frame (w x h pixels, 0xRRGGBB) with the layout and the
  * 320x240 RGB565 panel it showed. Each frame pixel is reduced to RGB565 (its
  * top bits), which undoes any renderer's 5/6-to-8-bit expansion exactly, so
- * the picture, the ring and the black are compared colour for colour. A
- * fractional Fit picture may show any of the 3x3 texels around the nearest
- * one. Returns an empty string when they agree, else the first difference.
+ * the picture, the ring and the black are compared colour for colour; and
+ * each RGB565 colour must appear as one screen colour throughout, so the
+ * ring's band is the picture's own band to the 8-bit level. A fractional
+ * Fit picture may show any of the 3x3 texels around the nearest one.
+ * Returns an empty string when they agree, else the first difference.
  */
 std::string check_presented_frame(const PresentationLayout &layout, const uint16_t *panel, const uint32_t *frame,
                                   int w, int h);

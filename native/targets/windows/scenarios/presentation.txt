@@ -13,7 +13,6 @@ expect window_scale 3
 expect window_layout 1008x768 full 960x720@24,24
 window_screenshot window-framed-3x.bmp
 screenshot panel.bmp
-expect no_windows_json windowScale
 # The Settings page: Interface, Display, Scaling.
 key Return
 frames 3
@@ -21,6 +20,14 @@ text S
 frames 3
 expect menu_line Display: Window 3x
 expect menu_line Scaling: Framed
+# Saving another setting leaves the automatic scale out of windows.json.
+key Right
+frames 2
+expect windows_json "interfaceMode":"Enhanced"
+expect no_windows_json windowScale
+key Left
+frames 2
+expect interface Original
 key Down
 frames 2
 # Display: right of the largest window (3x here) is Fullscreen, then 1x.

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <vector>
 
 namespace uv {
 namespace {
@@ -118,9 +119,14 @@ std::string check_presented_frame(const PresentationLayout &l, const uint16_t *p
         return text;
     }
     const PixelRect &p = l.picture;
+    // Each RGB565 colour must reach the screen as one colour wherever it is
+    // drawn: the ring's band exactly as the picture's own band, not one
+    // 8-bit level off (as a ring drawn another way could be).
+    std::vector<uint32_t> screen_colour(65536, ~0u);
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
-            const uint16_t got = to_rgb565(frame[size_t(y) * size_t(w) + size_t(x)]);
+            const uint32_t rgb = frame[size_t(y) * size_t(w) + size_t(x)] & 0xFFFFFF;
+            const uint16_t got = to_rgb565(rgb);
             const char *where = "letterbox";
             bool ok = false;
             uint16_t want = 0;
@@ -150,7 +156,14 @@ std::string check_presented_frame(const PresentationLayout &l, const uint16_t *p
             }
             if (!ok) {
                 std::snprintf(text, sizeof(text), "%s pixel %d,%d is %04x (0x%06x), expected %04x", where, x, y,
-                              unsigned(got), unsigned(frame[size_t(y) * size_t(w) + size_t(x)]), unsigned(want));
+                              unsigned(got), unsigned(rgb), unsigned(want));
+                return text;
+            }
+            uint32_t &seen = screen_colour[got];
+            if (seen == ~0u) seen = rgb;
+            if (seen != rgb) {
+                std::snprintf(text, sizeof(text), "%s pixel %d,%d shows %04x as 0x%06x, elsewhere as 0x%06x", where, x, y,
+                              unsigned(got), unsigned(rgb), unsigned(seen));
                 return text;
             }
         }

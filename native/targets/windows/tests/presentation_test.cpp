@@ -282,6 +282,17 @@ void frame_checker() {
     const std::vector<uint32_t> bare = draw(layout_presentation(1920, 1080, Scaling::Integer), panel, expand);
     check(!uv::check_presented_frame(l, panel.data(), bare.data(), 1920, 1080).empty(), "C7 a frame without its ring is caught");
     check(!uv::check_presented_frame(l, panel.data(), good.data(), 1366, 768).empty(), "C8 a frame of another size is refused");
+    // The ring's band one 8-bit level off the picture's band (0,0,172 beside
+    // 0,0,173: the same RGB565 value, as SDL_SetRenderDrawColor could give).
+    f = good;
+    for (int i = 0; i < l.piece_count; ++i) {
+        if (l.pieces[i].colour != RingColour::Band) continue;
+        const PixelRect &r = l.pieces[i].rect;
+        for (int y = r.y; y < r.y + r.h; ++y)
+            for (int x = r.x; x < r.x + r.w; ++x) at(x, y) = 0x0000AC;
+    }
+    const std::string level = uv::check_presented_frame(l, panel.data(), f.data(), 1920, 1080);
+    check(!level.empty() && expand(0x0015) == 0x0000AD, "C9 a ring band one 8-bit level off the picture's band is caught", level);
 }
 
 // --- 4. The Settings page's Scaling row -------------------------------------------------
