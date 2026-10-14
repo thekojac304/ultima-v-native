@@ -2244,6 +2244,10 @@ bool AlphaRuntime::handle_input_event(const RawInputEvent&raw){service_combat();
 // (handle_input_event above) or a desktop keyboard (handle_action).
 bool AlphaRuntime::route_input(openu5::UiAction action,DeviceShortcut shortcut,int64_t timestamp_us,
                                const char*source,const char*movement_source){
+    // SPP1 A. A command can end on a timer instead of a key (Mix's "Mixing..." hold, a
+    // map reveal): its turn is still owed, so it is charged here, before this input
+    // runs -- the 1988 loop ran it before reading the next key.
+    settle_dispatcher_turn();
     arm_dispatcher_turn(action,shortcut);
     const bool routed=route_input_body(action,shortcut,timestamp_us,source,movement_source);
     settle_dispatcher_turn();
@@ -2257,7 +2261,7 @@ bool AlphaRuntime::at_command_prompt() const{
     const auto m=ui_->mode();
     if(m!=openu5::UiMode::Exploration&&m!=openu5::UiMode::Dungeon)return false;
     return !zstats_open_&&!gem_view_active_&&!zodiac_view_active_&&!moongate_transit_active()&&
-           pending_combat_spell_<0&&pending_ready_member_<0&&pending_use_item_<0&&pending_order_from_<0&&
+           !(map_reveal_end_us_>esp_timer_get_time())&&pending_combat_spell_<0&&pending_ready_member_<0&&pending_use_item_<0&&pending_order_from_<0&&
            !pending_search_active_&&pending_caster_<0&&pending_mix_spell_<0&&
            !narrative_pacer_.modal()&&!blackthorn_pacer_.modal()&&!dialogue_pacer_.holding()&&
            commands_.camp_advance.phase==openu5::CommandState::CampAdvance::Phase::None&&

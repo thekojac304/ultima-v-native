@@ -109,6 +109,10 @@ MUTANTS = [
      '            return "someone";', CORE, CORE),
     ('B5', 'B', SHO, '"says %s."', '"says %s"', CORE, CORE),
     ('A8', 'A', RT, "m==openu5::UiMode::Shop||dialogue_.active)", "m==openu5::UiMode::Shop)", SPP1, SPP1),
+    ('A9', 'A', RT, "    // runs -- the 1988 loop ran it before reading the next key.\n    settle_dispatcher_turn();\n",
+     "    // runs -- the 1988 loop ran it before reading the next key.\n", SPP1, SPP1),
+    ('A10', 'A', RT, "           !(map_reveal_end_us_>esp_timer_get_time())&&pending_combat_spell_<0&&",
+     "           pending_combat_spell_<0&&", SPP1, SPP1),
 ]
 
 

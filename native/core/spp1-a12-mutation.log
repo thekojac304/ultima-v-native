@@ -1,0 +1,4 @@
+A9 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED A12 paced: a Mix whose prompt returns on the pacer's clock, then a Pass, costs two world turns (turns +1, clock +2 min)
+A10 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED A13 Z and L pressed during the map reveal are swallowed and cost nothing (turns +2, clock +4 min)
+restored tree: GREEN
+KILLED 2 SURVIVED 0 INVALID 0 STALE 0

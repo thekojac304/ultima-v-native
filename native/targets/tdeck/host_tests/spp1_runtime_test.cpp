@@ -547,6 +547,47 @@ void test_a() {
         auto c2 = cost(h, [&] { act(h, kind(UiActionKind::Confirm)); act(h, kind(UiActionKind::Cancel)); });
         check(c2.turns == 0, "A10 Original: RETURN / ESC at the prompt (\"What?\") stay free" + show(c2));
     }
+    // A12 a command that ends on a TIMER, not a key (found by the code review). The device holds
+    // "Mixing..." for 10 ticks (A4-UI4 D-71, the dialogue pacer), so the bare prompt comes back with no
+    // input to settle on. The Mix's turn (K:0x3340 -> 1) is still charged exactly once, before the next
+    // input runs: here a Pass, its own turn, so two turns in all (it was one -- the Pass swallowed it).
+    {
+        Run h(kParty, true); // paced, as the device runs
+        surface(h);
+        auto &g = h.rt->game();
+        for (auto &r : g.reagent_quantities) r = 0;
+        g.reagent_quantities[0] = 5; // Sulfur Ash
+        g.spell_quantities[0] = 2;   // In Lor
+        const Snap before = snap(h);
+        h.key('m');
+        h.key('\r'); // In Lor, row 0
+        h.key('\r'); // mark Sulfur Ash, row 0
+        h.key('m');  // mix
+        h.key('1');
+        h.key('\r');
+        h.run(2000); // the "Mixing..." hold ends on the clock
+        const bool mixed = g.spell_quantities[0] == 3 && g.reagent_quantities[0] == 4;
+        h.key('\r'); // Pass
+        h.run(200);
+        const Snap after = snap(h);
+        const Cost c{after.turns - before.turns, minutes(after) - minutes(before)};
+        check(mixed && c.turns == 2 && c.minutes == 4,
+              "A12 paced: a Mix whose prompt returns on the pacer's clock, then a Pass, costs two world turns" + show(c));
+    }
+    // A13 the map reveal swallows every key (R-12, route_input_body): a swallowed letter is no command and
+    // must charge nothing (it charged a full world turn per key).
+    {
+        Run h(kParty);
+        surface(h);
+        GameEvent reveal{};
+        reveal.kind = GameEventKind::MapReveal;
+        reveal.note = 40; // 2.2 s
+        auto &ctx = h.rt->command_context_for_test();
+        ctx.events.emit(ctx.events.context, reveal);
+        const bool active = h.rt->transient_probe_for_test().map_reveal;
+        auto c = cost(h, [&] { h.key('z'); h.key('l'); });
+        check(active && c.turns == 0 && c.minutes == 0, "A13 Z and L pressed during the map reveal are swallowed and cost nothing" + show(c));
+    }
     // A11 a town conversation is TALK's own time. TALK 0x041c returns nonzero after a conversation and the
     // dispatcher then returns 2, whose handling by the town loop is UNRESOLVED (spp1-findings/A-turn-costs.md):
     // SPP1 leaves the conversation's cost as it was (none). The probe found the device's conversation runs in

@@ -33,6 +33,7 @@ using namespace a4_ui2;
 
 namespace {
 AudioPackInfo g_audio{};
+bool g_paced = false; // --paced: the device's scene and dialogue pacers, as on hardware
 uint64_t fnv(const void *p, size_t n, uint64_t h = 1469598103934665603ull) {
     const auto *b = static_cast<const uint8_t *>(p);
     for (size_t i = 0; i < n; ++i) h = (h ^ b[i]) * 1099511628211ull;
@@ -229,7 +230,7 @@ void walk_world(bool active) {
     const char *letters = "abcdefghijklmnopqrstuvwxyz";
     for (const char *L = letters; *L; ++L)
         for (size_t s = 0; s < kScripts.size(); ++s) {
-            Run h(kParty, false, &g_audio);
+            Run h(kParty, g_paced, &g_audio);
             stock(h);
             if (!to_grass(h)) { std::printf("A no grass\n"); return; }
             if (active) h.rt->game().party.active_character = 1;
@@ -288,7 +289,7 @@ void walk_arena() {
         {"^K", "WAIT"},
     };
     for (size_t s = 0; s < scripts.size(); ++s) {
-        Run h(kParty, false, &g_audio);
+        Run h(kParty, g_paced, &g_audio);
         stock(h);
         if (!enter_arena(h)) { std::printf("B no arena\n"); return; }
         Probe p(h, "B-" + std::to_string(s));
@@ -370,7 +371,7 @@ void walk_shops() {
         const NpcSlot *slot = find_slot(dialog, location, hour);
         if (!slot) { std::printf("C-%02x none\n", dialog); continue; }
         for (size_t s = 0; s < scripts.size(); ++s) {
-            Run h(kParty, false, &g_audio);
+            Run h(kParty, g_paced, &g_audio);
             stock(h);
             h.rt->game().gold = 5000;
             h.rt->game().party.characters[1].current_hp = 20;
@@ -389,7 +390,7 @@ void walk_shops() {
             if (!n.slots[i].dialog || n.slots[i].dialog >= 0x81) continue;
             int hour = -1;
             for (int hr = 9; hr < 18 && hour < 0; ++hr) hour = hr;
-            Run h(kParty, false, &g_audio);
+            Run h(kParty, g_paced, &g_audio);
             stock(h);
             if (!talk_to(h, int(l) + 1, hour, n.slots[i].slot)) continue;
             Probe p(h, "T-" + std::to_string(l) + "-" + std::to_string(i));
@@ -410,7 +411,7 @@ void walk_places() {
     for (const auto &pl : places)
         for (const char *L = letters; *L; ++L)
             for (size_t s : {size_t(0), size_t(1), size_t(3), size_t(6)}) {
-                Run h(kParty, false, &g_audio);
+                Run h(kParty, g_paced, &g_audio);
                 stock(h);
                 if (!teleport(h, pl.kind, pl.location, pl.floor)) { std::printf("%s no teleport\n", pl.name); break; }
                 Probe p(h, std::string(pl.name) + "-" + *L + "-" + std::to_string(s));
@@ -437,7 +438,7 @@ void walk_dungeon_look() {
     };
     for (int where : {33, 40})
         for (size_t s = 0; s < scripts.size(); ++s) {
-            Run h(kParty, false, &g_audio);
+            Run h(kParty, g_paced, &g_audio);
             stock(h);
             if (!teleport(h, DebugDestinationKind::Dungeon, where, where == 40 ? 2 : 0)) { std::printf("G no teleport\n"); return; }
             Probe p(h, "G-" + std::to_string(where) + "-" + std::to_string(s));
@@ -460,7 +461,7 @@ void walk_controls() {
     };
     for (int place = 0; place < 2; ++place)
         for (size_t s = 0; s < scripts.size(); ++s) {
-            Run h(kParty, false, &g_audio);
+            Run h(kParty, g_paced, &g_audio);
             stock(h);
             if (place == 0 ? !to_grass(h) : !teleport(h, DebugDestinationKind::SmallMap, 1)) { std::printf("H no place\n"); return; }
             Probe p(h, "H-" + std::to_string(place) + "-" + std::to_string(s));
@@ -492,7 +493,7 @@ void walk_menus() {
     };
     for (size_t s = 0; s < scripts.size(); ++s) {
         tdeck::host_memory_save_forget_for_test();
-        Run h(kParty, false, &g_audio);
+        Run h(kParty, g_paced, &g_audio);
         stock(h);
         if (!to_grass(h)) return;
         Probe p(h, "E-" + std::to_string(s));
@@ -510,7 +511,7 @@ void walk_shrines() {
     const auto &sh = pack->shrine_data;
     for (int v = 0; v < sh.count && v < 3; ++v)
         for (int variant = 0; variant < 5; ++variant) {
-            Run h(kParty, false, &g_audio);
+            Run h(kParty, g_paced, &g_audio);
             stock(h);
             auto &g = h.rt->game();
             if (variant >= 3) { g.quest.shrine_quest = 1; g.quest.shrine_visited = 0xff; }
@@ -561,7 +562,8 @@ int main(int argc, char **argv) {
         set_platform_profile(p);
     }
 #endif
-    const char *only = argc > 3 ? argv[3] : "ABCDEFGH";
+    for (int i = 3; i < argc; ++i) g_paced = g_paced || !std::strcmp(argv[i], "--paced");
+    const char *only = argc > 3 && argv[3][0] != '-' ? argv[3] : "ABCDEFGH";
     if (std::strchr(only, 'A')) { walk_world(false); walk_world(true); }
     if (std::strchr(only, 'B')) walk_arena();
     if (std::strchr(only, 'C')) walk_shops();

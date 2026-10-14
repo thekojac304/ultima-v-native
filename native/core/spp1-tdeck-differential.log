@@ -1600,3 +1600,20 @@ exit 0
       head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[X-it ][what?]
 
 differing walks by family prefix: {'A': 134, 'Aact': 132, 'B': 10, 'C': 16, 'T': 6, 'Dtown': 71, 'Dpalace': 73, 'Ddun': 34, 'Ddun40': 34, 'E': 4, 'G': 24, 'H': 12}
+
+== RERUN after the review fixes (A12/A13: the latch settles a timer-ended command at the next input; the map reveal is not the bare prompt), 2026-10-14
+unpaced: head3.txt sha256 c471a6efeebb4ba70008d25730d549399c7020c707a338be6460916ea1a07f19 -- byte-identical to head.txt above (no unpaced walk reaches a timer-ended command)
+
+== PACED run (--paced: the device's scene and dialogue pacers, as on hardware), same baseline e089f2c5
+  base-paced.txt 62588 lines sha256 57de5d22749cd18783d0c2a3aaaea1a84969c042535c44cab3633a415ae1754f
+  head-paced.txt 63266 lines sha256 9830e5f6487469b9c3af56458b43299b39946154511c6089b6c2ec45c5f1adee
+walks 1044: identical 494, differing 550
+  A     484  e.g. A-b-7, A-c-0, A-c-1, A-c-2, A-c-3, A-c-5
+  A*      6  e.g. Dtown-b-3, Dtown-d-3, Dtown-e-3, Dtown-h-3, Dtown-q-3, Dtown-w-3
+  F+A     2  e.g. A-u-4, Aact-u-4
+  B       2  e.g. C-82-8, C-82-10
+  C      10  e.g. B-21, B-33, B-34, B-35, B-36, B-37
+  E      36  e.g. Ddun-d-0, Ddun-d-1, Ddun-d-3, Ddun-d-6, Ddun-l-0, Ddun-l-1
+  G      10  e.g. G-33-10, G-33-11, G-40-10, G-40-11, H-0-0, H-0-1
+UNEXPLAINED 0
+exit 0

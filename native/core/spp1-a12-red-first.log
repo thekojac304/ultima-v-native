@@ -1,0 +1,6 @@
+RED A12 paced: a Mix whose prompt returns on the pacer's clock, then a Pass, costs two world turns (turns +1, clock +2 min)
+RED A13 Z and L pressed during the map reveal are swallowed and cost nothing (turns +2, clock +4 min)
+GREEN A11 a town conversation, ended with an empty answer, keeps its pre-SPP1 cost (none) [T-Deck] (turns +0, clock +0 min)
+GREEN A11 a town conversation, ended with an empty answer, keeps its pre-SPP1 cost (none) [Original] (turns +0, clock +0 min)
+SPP1 runtime: 94/96 checks
+exit 1
