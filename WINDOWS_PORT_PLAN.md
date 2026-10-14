@@ -122,6 +122,10 @@ five `__attribute__` sites (`perf_report.cpp` ×2, `input_controller.cpp`,
 | D18 | **AltGr from the keyboard layout**: SDL3 delivers AltGr as Right Alt alone, so on a layout with an AltGr level (asked from SDL's keymap at start-up and on every keymap change) Right Alt types characters and the Alt chords use the left Alt | German/French/Polish players can type `@ { ~` and never trigger Alt+S/Alt+L by accident |
 | D19 | **One instance per data folder, by a lock file** (`<data folder>\instance.lock`, no sharing, deleted on close) | every spelling of the folder (case, 8.3, subst, network, another session) meets the same lock |
 | D20 | **Command-line `--mode`, `--fullscreen`, `--windowed` apply to that run only**; `windows.json` keeps the player's own choices; Ctrl+O opens the data folder itself (game files in its `ultima5` folder, F12 pictures in `screenshots`) | a one-off start option never becomes a setting by accident |
+| D22 | **Original mode uses the 1988 interaction model, behind one platform-profile predicate** (`PlatformProfile::dos_interface` / `openu5::platform_dos_interface()`, installed by `DesktopProfile` as "interface mode is Original"; null on the T-Deck). UiSession reads it for key rules, prompt rows and committed answers; AlphaRuntime for picker prompts, echoes and the composed views; the Board draws what the views say (reverse-video roster row, "Select:" caption, overlays without a legend). Enhanced and the T-Deck take the old branches. The tracked matrix is [`native/targets/windows/ORIGINAL_MODE_FIDELITY.md`](native/targets/windows/ORIGINAL_MODE_FIDELITY.md) | "Original" was the T-Deck's menu interface with typed spell names; the 1988 game has no list panels for member choice, no key-legend bars, and its own rule for every prompt. One predicate keeps the gameplay implementation single and the device untouched |
+| D23 | **The 1988 prompt primitives, from the binaries**: the roster picker (ULTIMA.EXE 0x2d7a: digits only highlight, arrows clamp, RETURN/Space choose, ESC = −1, "Select:"), `resolve_command_char` (0x4988: `Player: `, `Disabled!`, `None!`), `input_string`/`input_number` (**ESC erases and keeps reading; only RETURN ends**; capitals), Y/N getkeys (only Y or N; the town exit's ESC = No), getdir (0x35EC: **ESC ignored, Space = Pass**), RETURN/ESC at the command prompt = `What?`. Answers complete the prompt row (`Player: Iolo`, `Save game? Yes`, `Look-North`) | the player of the 1988 game expects these keys; native's T-Deck rules (ESC cancels, RETURN passes) are the handheld's declared adaptations and stay in Enhanced and on the device |
+| D24 | **Arena turns end as in COMBAT.OVL in Original** — a cancelled aim (`Nothing!`), a cancelled cast, Ready/Use/Z — through the core's existing actions (`CombatAttackCancel`, `CombatYield`); **world turn costs are not changed** (the kernel charges a turn for Ready, Z-stats, New Order, Use and a getdir Pass; native does not, on both platforms) | the arena's free cancels were a handheld UI contract and Original is the DOS contract; world turn rules belong to the shared core and need a parity batch with RED-first core tests (recorded in the matrix §5/§7) |
+| D25 | **The T-Deck is unchanged by construction and by audit**: the 1988 model's own state is allocated only when Original first needs it (`AlphaRuntime::DosInterfaceState`), the live prompt row lives in UiSession storage (PSRAM on the device), and every shared change is compared with the baseline commit by a differential run of the device runtime (identical raw T-Deck inputs, hashes of panel, transcript, state, audio and saves) as well as the host suite and the firmware's sections | the owner's requirement; a compile is not evidence of unchanged behaviour. The audit found one ungated branch and 112 B of `.bss` (both fixed, `81fb61d2`); results in the matrix §8 |
 
 ## 5. Layout
 
@@ -189,8 +193,15 @@ Shared-code changes (all behaviour-preserving for the T-Deck):
   and the list in Enhanced, a typed cast in an arena ("Cast..." first and
   once, a refused name ends the turn), (Q)uit & Save (RETURN/ESC ignored),
   System Menu save/load, F5/F9 quick save/load, the Original-mode key rules,
-  the interface-mode switch and its persistence (13 scenarios of the real
+  the interface-mode switch and its persistence (17 scenarios of the real
   executable).
+- Original mode's 1988 interaction model (D22-D24): the roster picker for
+  Cast/Ready/Z-stats/New Order/Camp, `Player:` / `Spell name:` / `Item:` /
+  `Status:` rows, ESC/RETURN/Space rules at text, Y/N and getdir prompts,
+  `What?`, the arena's turn endings, the camp's questions; Enhanced keeps its
+  panels and bars (`scenario_original_interface`, `_arena`, `_camp`,
+  `_typed_cast_original`, `scenario_enhanced_interface`; host
+  `win_dos_interface` 95 checks, `win_dos_runtime` 19 pixel checks).
 - Saves: real `alpha_save.cpp` through the `/sd` mount (slot files, commit
   record layout = the T-Deck's 32 bytes), save/load round trips; the PC/DOS
   bridge imports an original `SAVED.GAM`/`SAVED.OOL` into Slot 1 and exports
@@ -214,10 +225,14 @@ Shared-code changes (all behaviour-preserving for the T-Deck):
   holds only whitelisted files; unzipped into a clean folder, packs prepared,
   the packaged exe boots in portable mode, creates a character, plays and
   saves.
-- T-Deck: host suite 202/202 after every shared change; the firmware still
-  compiles under ESP-IDF 6.1 (`-Werror`), image 1,053,808 B (+4,288 B over the
-  base), 19.6 % of the app partition free. Compile evidence only: no T-Deck
-  hardware run was made for this branch.
+- T-Deck: host suite 202/202 after every shared change of the port, 204/204
+  with the two Original-mode tests (the 202 unchanged, every panel golden
+  included); the firmware compiles under ESP-IDF 6.1 (`-Werror`), image
+  1,065,008 B (+11,200 B over `2c8de821`; DIRAM `.bss` +16 B, no IRAM or
+  `.data` change; 18.7 % of the app partition free; Launcher allocation still
+  1088 KiB). A differential run of the device runtime against `2c8de821`
+  (7,653 raw-input steps) is byte-identical (D25). No T-Deck hardware run was
+  made and no device was flashed.
 
 **Implemented, needs a person at the keyboard** (no automated proof possible
 or done): the feel of the real window (scaling, fullscreen toggling, resizing,
@@ -236,17 +251,22 @@ runtime; not pursued); an icon.
 
 | Suite | Where | Result |
 |---|---|---|
-| Host suite (shared code, T-Deck semantics) | `native/core`, GCC 16.2, serial | 202/202, after each of the shared changes (`win-phase*-ctest.log`, `win-review-host-ctest.log`; untracked evidence in `native/core/`) |
-| Windows unit/integration | `native/targets/windows/tests` | 7/7: desktop input (443 checks), desktop settings (64), storage + force-included redirect (151), virtual panel + real Board (38), save layout (17), audio backend + synth goldens (110; 119 with the music pack), offline continuity |
-| Windows scenarios (real exe, headless) | `native/targets/windows/scenarios` | 13/13: boot_title, new_game_original, settings_modes, typed_cast_original, list_cast_enhanced, save_load_menu, quicksave_enhanced, original_keys, dungeon_walk, surface_combat, typed_cast_combat, town_talk, pc_import_export |
-| Firmware compile | `native/targets/tdeck`, ESP-IDF 6.1 | builds; 1,053,808 B, app budget check passes |
+| Host suite (shared code, T-Deck semantics) | `native/core`, GCC 16.2, serial | 202/202, after each of the shared changes (`win-phase*-ctest.log`, `win-review-host-ctest.log`; untracked evidence in `native/core/`); 204/204 with `win_dos_interface` and `win_dos_runtime` (`fid-step*-host-ctest.log`) |
+| Windows unit/integration | `native/targets/windows/tests` | 7/7: desktop input (445 checks), desktop settings (64), storage + force-included redirect (151), virtual panel + real Board (38), save layout (17), audio backend + synth goldens (110; 119 with the music pack), offline continuity |
+| Windows scenarios (real exe, headless) | `native/targets/windows/scenarios` | 17/17: boot_title, new_game_original, settings_modes, typed_cast_original, list_cast_enhanced, save_load_menu, quicksave_enhanced, original_keys, original_interface, enhanced_interface, original_arena, original_camp, dungeon_walk, surface_combat, typed_cast_combat, town_talk, pc_import_export |
+| Firmware compile | `native/targets/tdeck`, ESP-IDF 6.1 | builds; 1,065,008 B, app budget check passes |
+| T-Deck preservation (D25) | baseline worktree at `2c8de821` vs HEAD | code audit of every shared hunk; `esp_idf_size --diff`; `-fstack-usage` per function; a differential run of the device runtime, byte-identical over 7,653 raw-input steps, and different under the DOS profile (positive control) |
 | Package | `tools/build-windows.ps1 -Package` + clean-folder check | ZIP 2.15 MB (from `3345eecb`); packs prepared from it byte-identical (SHA-256); packaged exe boots, plays, saves; depends only on `SDL3.dll` and Windows system DLLs |
 
 Mutation evidence: 24 one-edit mutants of the Windows input, settings, panel
 and storage code were all detected; the review fixes' three core mutants
 (refused cast keeps the turn, echo flag ignored, absorb gate without Negate
 Magic) are killed by W1-W3; the re-anchored A4-POLISH3 M11 and A4-ENH1 K3/D1
-are killed again (`win-review-mutants.log`).
+are killed again (`win-review-mutants.log`). Original mode's host tests
+were written RED-first: against the shared code before the change,
+`win_dos_interface` failed 39 of its 95 checks and `win_dos_runtime` 10 of
+its 19 (the remaining ones are the T-Deck controls, which must pass on both);
+the duplicate-initials matcher check failed 2 before its fix.
 
 ## 8. Known limitations and risks
 
@@ -270,6 +290,12 @@ are killed again (`win-review-mutants.log`).
   checked against the binary.
 - The rules carry the project's documented, non-blocking differences from the
   1988 game (the preservation ledgers); the port adds none.
+- Original mode's remaining interaction differences from 1988 are listed in
+  `ORIGINAL_MODE_FIDELITY.md` §7: world turn costs (shared core), shop offers
+  in a panel instead of console lines, arena J/P/Y, line and charm spell
+  targeting, the dungeon's Look, the 22-column console, and the "Select:"
+  placement. Each needs a shared-core or presenter change and is recorded,
+  not approximated silently.
 
 ## 9. Open items for the owner
 
@@ -293,3 +319,6 @@ are killed again (`win-review-mutants.log`).
 | Windows test suite (written by a helper agent on a temporary branch, cherry-picked) | `1bf68a7d` | 6 executables, all green; 24/24 mutants detected |
 | Offline-continuity check enabled as a regular test. Its commit message also claims the `render_offline` remainder and the windows.json BOM fix; both are in `19f064f3` (history is not rewritten) | `c03fbe88` | Windows ctest 19/19 |
 | Adversarial review (30 agents: packaging and licences, T-Deck regression, docs accuracy, Windows platform, DOS fidelity; every finding independently re-verified): 25 findings, all confirmed, all fixed -- bundle data trimmed and allowlisted, licences from the manifest, Z-stats legend, mutation anchors, docs, Brightness, AltGr, instance lock, session-only overrides, the 1988 "Player:" highlight, the arena's typed cast, the Q prompt | `71b128f0` (bundle, licences), `3345eecb` (everything else) | Windows ctest 20/20; host 202/202; firmware 1,053,808 B; mutants killed; ZIP rebuilt and re-checked |
+| Original-mode fidelity (D22-D24): the 1988 interaction model in the core (UiSession) behind `dos_interface`; roster pickers and console prompts in the runtime and Board; Windows wiring and scenarios for both modes; host tests RED-first | `6c09ed27`, `5b03a700`, `6ed38b37`, `fef0bab0` | host 204/204; Windows 22/22; firmware compiles |
+| Fidelity review (DOS-fidelity, T-Deck regression and code reviewers; findings re-verified): firmware `-Werror=misleading-indentation`, arrest echo, town-exit ESC, the reticle's own cell, To phase, arena cancels, the ring, Use order, troll/tribute sums, Hole up, shop gates, shrine rows, the scrolled console | `295da718`, `761a13f3` (arena and camp scenarios) | host 204/204; Windows 24/24; firmware builds |
+| T-Deck preservation audit against `2c8de821` (D25): arena Z gated, the 1988 state off the device, one-loop line streamer; matrix §8 | `81fb61d2`, `a4f27d0b` (matrix) | DIRAM `.bss` +16 B; stack ≤ +80 B per frame; host 204/204; Windows 24/24; differential run byte-identical (7,653 steps), DOS-profile control differs |

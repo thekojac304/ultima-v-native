@@ -96,9 +96,15 @@ Settings -> "Interface" switches between the two. It applies at once and is
 remembered.
 
 ORIGINAL (the default) is the preservation mode:
-  - the 1988 keyboard: the original letter commands, arrow keys to move,
-    Esc to cancel, Space to pass; in a "Player:" prompt a member's number
-    highlights that member and Enter or Space chooses, as in 1988;
+  - the 1988 keyboard and prompts: the original letter commands, arrow keys
+    to move, Space to pass; a "Player:" question is answered on the party
+    list itself (the row in reverse video; a member's number highlights,
+    Enter or Space chooses, Esc = "None!"); in typed answers Esc erases the
+    text and only Enter answers; Yes/No questions take only Y or N; a
+    direction takes an arrow or Space (Pass), not Esc; Enter or Esc at the
+    command prompt says "What?". The questions and answers appear in the
+    message console as they did in 1988 ("Player: Iolo", "Save game? Yes",
+    "Look-North"), with no key bar under them. CONTROLS.txt lists the rules;
   - Cast and Mix ask "Spell name:" / "For what spell?" and you TYPE the
     first letter of each syllable, as in 1988 (I L = IN LOR, V F = VAS FLAM;
     the order does not matter; Backspace removes a syllable, Enter accepts,
@@ -110,6 +116,8 @@ ORIGINAL (the default) is the preservation mode:
     work in both modes; see CONTROLS.txt).
 
 ENHANCED adds the project's optional conveniences:
+  - the handheld's menus: lists and panels to choose a member or an item,
+    a key bar under every question, Esc to cancel, Enter to pass a turn;
   - Difficulty presets (Original, Relaxed, Easy, Custom) and Cheats in the
     System Menu -- a journey that uses them keeps that in its save;
   - choosing spells from a list for Cast and Mix;

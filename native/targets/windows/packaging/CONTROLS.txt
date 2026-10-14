@@ -16,23 +16,52 @@ COMMANDS (both modes, as in the 1988 game)
   I  Ignite a torch    R  Ready             Space  Pass a turn
   J  Jimmy a lock      S  Search            1-6 / 0  set / clear the active player
 Commands that need a direction ask for it ("Look-"): answer with an arrow.
+In Original mode Space answers "Pass" and Esc does nothing there, as in 1988.
 
 MOVING AND CHOOSING
   Arrow keys           move; choose in menus and lists; aim
   Numpad 8 4 6 2       the same, with Num Lock off
   Enter                accept / confirm
-  Esc                  cancel / back
+  Esc                  cancel / back (Enhanced; Original: see below)
   Backspace            back; erase while typing
   PgUp / PgDn          scroll the message console (also Shift+Up / Shift+Down)
   1-6 in "Player:"     highlight that party member; Enter or Space chooses
                        (as in 1988)
   Dungeons: Up = forward, Down = back, Left/Right = turn
 
+ORIGINAL MODE: THE 1988 PROMPTS
+  "Player:"            the party list itself is the menu: the chosen row is
+                       shown in reverse video and the panel says "Select:";
+                       arrows move (they stop at the ends), 1-6 move to that
+                       member, Enter or Space chooses, Esc answers "None!"
+  Typed answers        (Talk, Yell, the shrine, how much, how many hours...)
+                       letters appear in capitals; Esc ERASES what you typed
+                       and the question stays; only Enter answers. An empty
+                       answer in Talk ends the conversation (BYE).
+  Yes/No questions     only Y or N answer (Enter and Esc are ignored; leaving
+                       a town also takes Esc as No)
+  Directions           arrows; Space = Pass; Esc and Enter are ignored
+  Enter / Esc          at the command prompt: "What?" (outside an arena they
+                       do not pass a turn)
+  Shops                questions take Y or N; Esc does not leave a shop
+                       menu; the healer and the innkeeper ask "Who...?" on
+                       the party list
+  In an arena          Esc is Escape (flee); Enter and Backspace say "What?";
+                       A then Esc loses the swing ("Nothing!"); a cancelled
+                       spell, Ready, Use or Z-stats ends that member's turn
+  Ready / Z-stats      always ask "Player:" (0 in Z-stats shows the party's
+                       equipment); Esc leaves Ready's list, Space or Esc
+                       closes Z-stats ("Done")
+  ENHANCED mode keeps the menus and the key bar: Esc cancels, Enter passes a
+  turn, lists and panels for choosing a member.
+
 CASTING AND MIXING
   ORIGINAL mode: type the first letter of each syllable, as in 1988, then
   Enter (or Space):   I L = IN LOR    V F = VAS FLAM    A X C = AN XEN CORP
-  The order does not matter. Backspace removes the last syllable; Esc cancels.
-  J and O have no rune and are ignored.
+  The order does not matter, and a repeated letter counts once (I I L is
+  also IN LOR). Backspace removes the last syllable; Esc cancels ("None!").
+  J and O have no rune and are ignored. Mix asks "For what spell?" the same
+  way; a name that is no spell still goes on to the reagents, as in 1988.
   ENHANCED mode: choose the spell from a list (arrows, Enter).
 
 SYSTEM

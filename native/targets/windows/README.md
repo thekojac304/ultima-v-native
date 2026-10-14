@@ -92,14 +92,22 @@ ctest --test-dir native/targets/windows/build-release --output-on-failure
   audio), driven by `--autotest` scripts through synthetic SDL key events:
   title, character creation, play, both interface modes, typed and list
   casting (also in an arena), System Menu save/load, quick save/load, the
-  Original-mode key rules and the PC/DOS save bridge. They need the player's
+  Original-mode key rules, the 1988 interaction model (roster pickers,
+  console prompts, the arena's turns, the camp) against Enhanced's panels,
+  and the PC/DOS save bridge. They need the player's
   packs (`UV_SCENARIO_PACKS`) and are skipped without them; `dungeon_walk`,
-  `surface_combat`, `typed_cast_combat` and `town_talk` also need
-  `UV_ENABLE_DEVELOPER_TOOLS=ON`. The script language is documented in
+  `surface_combat`, `typed_cast_combat`, `town_talk`, `original_arena` and
+  `original_camp` also need `UV_ENABLE_DEVELOPER_TOOLS=ON`. The script language is documented in
   `src/app/autotest.h`.
 
-The shared code keeps its own suite (`native/core`, GCC/MinGW, 202 tests),
-which must stay green for every change made for this target.
+The shared code keeps its own suite (`native/core`, GCC/MinGW, 204 tests,
+two of them for Original mode's 1988 interaction model), which must stay
+green for every change made for this target. A shared change must also leave
+the T-Deck's behaviour unchanged: see `ORIGINAL_MODE_FIDELITY.md` §8 for how
+that was checked.
+
+Original mode's interaction rules, with the 1988 evidence for each, are in
+[`ORIGINAL_MODE_FIDELITY.md`](ORIGINAL_MODE_FIDELITY.md).
 
 ## Layout
 
