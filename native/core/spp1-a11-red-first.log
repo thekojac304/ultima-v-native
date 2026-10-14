@@ -1,0 +1,4 @@
+RED A11 a town conversation, ended with an empty answer, keeps its pre-SPP1 cost (none) [T-Deck] (turns +1, clock +1 min)
+RED A11 a town conversation, ended with an empty answer, keeps its pre-SPP1 cost (none) [Original] (turns +1, clock +1 min)
+SPP1 runtime: 92/94 checks
+exit 1

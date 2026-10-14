@@ -2291,8 +2291,11 @@ void AlphaRuntime::settle_dispatcher_turn(){
     if(!dispatcher_turn_.armed)return;
     if(frontend_.active()){dispatcher_turn_={};return;}
     const auto m=ui_?ui_->mode():openu5::UiMode::Exploration;
-    // A conversation, a shop or a fight runs on its own loop's time.
-    if(context_.combat||m==openu5::UiMode::Dialogue||m==openu5::UiMode::Shop)dispatcher_turn_.saw_session=true;
+    // A conversation, a shop or a fight runs on its own loop's time. The conversation is
+    // read from its session: the device asks "Your interest?" in TextEntry, never in
+    // UiMode::Dialogue (found by the SPP1 T-Deck differential, spp1_runtime A11).
+    if(context_.combat||m==openu5::UiMode::Dialogue||m==openu5::UiMode::Shop||dialogue_.active)
+        dispatcher_turn_.saw_session=true;
     if(!at_command_prompt())return; // still inside the command
     const auto latch=dispatcher_turn_;dispatcher_turn_={};
     if(latch.saw_session||context_.combat||dungeon_.active!=latch.dungeon||game_.position.map.location!=latch.location)return;

@@ -427,6 +427,7 @@ void test_f() {
 //      A10 controls that stay free: overworld Attack cancelled (MAINOUT 0x06ec), D ("D-What?"),
 //          Ctrl-K, a valid digit; and Ignite / Pass, charged by the core, cost one, not two
 UiAction dir(Direction d) { UiAction a; a.kind = UiActionKind::Direction; a.direction = d; return a; }
+bool beside(Run &h, int location, int slot, int hour, Direction &toward);
 struct Cost { int64_t turns; int minutes; };
 template <class F> Cost cost(Run &h, F &&f) {
     const Snap a = snap(h);
@@ -545,6 +546,54 @@ void test_a() {
         check(transcript_has(h, "Look-Pass") && one_world(c1), "A9 Original: Space at Look- prints \"Look-Pass\" and costs one world turn" + show(c1));
         auto c2 = cost(h, [&] { act(h, kind(UiActionKind::Confirm)); act(h, kind(UiActionKind::Cancel)); });
         check(c2.turns == 0, "A10 Original: RETURN / ESC at the prompt (\"What?\") stay free" + show(c2));
+    }
+    // A11 a town conversation is TALK's own time. TALK 0x041c returns nonzero after a conversation and the
+    // dispatcher then returns 2, whose handling by the town loop is UNRESOLVED (spp1-findings/A-turn-costs.md):
+    // SPP1 leaves the conversation's cost as it was (none). The probe found the device's conversation runs in
+    // TextEntry (request Dialogue), never UiMode::Dialogue, so the latch has to read the session itself.
+    // A11b CONTROL, from the binary: Talk at no one is TALK -> 0 -> the dispatcher's 1 -> one town turn.
+    for (int dos = 0; dos < 2; ++dos) {
+        std::unique_ptr<DosProfile> profile;
+        if (dos) profile = std::make_unique<DosProfile>();
+        const std::string tag = dos ? " [Original]" : " [T-Deck]";
+        const auto &npcs = pack->npc_locations[0];
+        bool talked = false;
+        for (size_t i = 0; i < npcs.count && !talked; ++i) {
+            if (!npcs.slots[i].dialog || npcs.slots[i].dialog >= 0x81) continue;
+            Run h(kParty);
+            Direction toward{};
+            if (!beside(h, 1, npcs.slots[i].slot, 9, toward)) continue;
+            bool open = false;
+            auto c = cost(h, [&] {
+                act(h, ch('t'));
+                act(h, dir(toward));
+                const auto *ds = h.rt->command_context_for_test().dialogue_services;
+                open = ds && ds->session.active;
+                for (int k = 0; k < 12 && mode(h) != UiMode::Exploration; ++k) act(h, kind(UiActionKind::Confirm));
+            });
+            if (!open || !transcript_has(h, "You see")) continue;
+            talked = true;
+            check(c.turns == 0 && mode(h) == UiMode::Exploration,
+                  "A11 a town conversation, ended with an empty answer, keeps its pre-SPP1 cost (none)" + tag + show(c));
+        }
+        if (!talked) check(false, "A11 no conversation could be opened in location 1" + tag);
+        Run h(kParty);
+        enter_town(h, 2);
+        auto &g = h.rt->game();
+        auto &cx = h.rt->command_context_for_test();
+        int nx = -1, ny = -1;
+        for (int y = 2; y < 30 && nx < 0; ++y)
+            for (int x = 2; x < 30 && nx < 0; ++x) {
+                bool ok = is_passable(cx.terrain->effective(cx.world, g.position.map, x, y), TransportMode::Foot).value &&
+                          is_passable(cx.terrain->effective(cx.world, g.position.map, x + 1, y), TransportMode::Foot).value &&
+                          !cx.shop_services->occupied(cx.shop_services->context, x, y) &&
+                          !cx.shop_services->occupied(cx.shop_services->context, x + 1, y);
+                if (ok) { nx = x; ny = y; }
+            }
+        g.position.xy = {uint8_t(nx), uint8_t(ny)};
+        auto c = cost(h, [&] { act(h, ch('t')); act(h, dir(Direction::East)); });
+        check(nx >= 0 && transcript_has(h, "Funny, no response!") && c.turns == 1 && c.minutes == 1,
+              "A11b CONTROL: Talk at no one (\"Funny, no response!\") costs one town turn" + tag + show(c));
     }
 }
 // --- Candidate C: the arena's J / P / Y through the real runtime ----------------------------
@@ -838,30 +887,39 @@ Tavern find_tavern() {
     }
     return {};
 }
-/** Into the tavern's town, beside the barkeeper, (T)alk toward it and be served a drink (the rumour's T is only
- *  answered once served: ShopSession::tavern_served); true = the shop session is back at its menu. */
-bool open_tavern(Run &h, const Tavern &t) {
+/** In `location` at `hour`, stand beside the actor of schedule `slot` and face it; true = placed. */
+bool beside(Run &h, int location, int slot, int hour, Direction &toward) {
     auto &g = h.rt->game();
     auto &c = h.rt->command_context_for_test();
-    g.time.hour = uint8_t(t.hour);
-    g.gold = 5000;
+    g.time.hour = uint8_t(hour);
     h.rt->turn().transport_tile = 0x1c;
-    enter_town(h, t.location);
-    if (g.position.map.location != t.location) return false;
-    const NpcActor *keeper = nullptr;
+    enter_town(h, location);
+    if (g.position.map.location != location) return false;
+    const NpcActor *npc = nullptr;
     for (size_t i = 0; i < h.rt->actors().count; ++i) {
         const auto &a = h.rt->actors().actors[i];
-        if (a.location == t.location && a.schedule.slot == t.slot) keeper = &a;
+        if (a.location == location && a.schedule.slot == slot) npc = &a;
     }
-    if (!keeper) return false;
+    if (!npc) return false;
     for (const auto d : {Direction::South, Direction::North, Direction::East, Direction::West}) {
         const auto dd = direction_delta(d);
-        const int x = keeper->x + dd.dx, y = keeper->y + dd.dy;
+        const int x = npc->x + dd.dx, y = npc->y + dd.dy;
         const int tile = c.terrain->effective(c.world, g.position.map, x, y);
         if (!is_passable(tile, TransportMode::Foot).value || c.shop_services->occupied(c.shop_services->context, x, y)) continue;
         g.position.xy = {uint8_t(x), uint8_t(y)};
-        const Direction toward = d == Direction::South ? Direction::North : d == Direction::North ? Direction::South
-                               : d == Direction::East ? Direction::West : Direction::East;
+        toward = d == Direction::South ? Direction::North : d == Direction::North ? Direction::South
+               : d == Direction::East ? Direction::West : Direction::East;
+        return true;
+    }
+    return false;
+}
+/** Into the tavern's town, beside the barkeeper, (T)alk toward it and be served a drink (the rumour's T is only
+ *  answered once served: ShopSession::tavern_served); true = the shop session is back at its menu. */
+bool open_tavern(Run &h, const Tavern &t) {
+    auto &c = h.rt->command_context_for_test();
+    h.rt->game().gold = 5000;
+    Direction toward{};
+    if (beside(h, t.location, t.slot, t.hour, toward)) {
         act(h, ch('t'));
         act(h, dir(toward));
         if (mode(h) != UiMode::Shop) return false;

@@ -1,0 +1,1602 @@
+SPP1 T-Deck differential -- 2026-10-14
+baseline: C:/Dev/uvw-spp1-base @ e089f2c5 (build-probe); SPP1: C:/Dev/ultima-v-native-parity @ c4f53082 + the A11 latch fix (build-spp1)
+packs (both runs): native/assets/openu5-alpha1-resources.bin 85b38994eea674e4..., openu5-audio.bin 28c1533b7b061da1...
+
+FIRST RUN (before the A11 fix, same baseline): the classifier's precursor flagged six conversation walks
+(T-0-3, T-0-4, T-0-5, T-1-4, T-1-5, T-2-4) whose first divergence was the RET that ENDS a town
+conversation, with the SPP1 build one turn ahead (e.g. T-0-3 step 7: base turns=0 clock 5:09:00,
+SPP1 turns=1 clock 5:09:01; text, mode and prompt identical). Cause: the device asks "Your interest?"
+in TextEntry with request Dialogue and never enters UiMode::Dialogue, so settle_dispatcher_turn's
+"a conversation runs on its own loop's time" latch never fired. Unexpected (TALK's nonzero return is
+unresolved, so SPP1 must not change a conversation's cost) -> fixed: the latch also reads
+dialogue_.active; spp1_runtime A11 (RED before, GREEN after, both profiles) and mutant A8 pin it.
+In the rerun below those walks diverge later, at a cancelled town Jimmy / X-it (A), as expected.
+
+outputs (not committed, 7.5-7.7 MB each):
+  base.txt 62610 lines sha256 d657ae1139be71ea8675cdde4d04423feea545e515f23bffdc3461e0ac11a42f
+  head.txt 63288 lines sha256 c471a6efeebb4ba70008d25730d549399c7020c707a338be6460916ea1a07f19
+  head2.txt 63288 lines sha256 c471a6efeebb4ba70008d25730d549399c7020c707a338be6460916ea1a07f19
+  dos.txt 61480 lines sha256 816a50c7235a104f5a6e883bc09bf23e78369188cf13e2e27db24e84eedca0fe
+  head.txt == head2.txt byte for byte (deterministic)
+
+== spp1_probe_compare.py base.txt head.txt (summary)
+walks 1044 (head 1044), steps 8376 (head 8376)
+identical walks 494, differing walks 550, walks in one output only 0 []
+non-snapshot lines: base 1, head 1; equal=True
+differing walks by family prefix: {'A': 134, 'Aact': 132, 'B': 10, 'C': 16, 'T': 6, 'Dtown': 71, 'Dpalace': 73, 'Ddun': 34, 'Ddun40': 34, 'E': 4, 'G': 24, 'H': 12}
+
+== positive control: spp1_probe_compare.py head.txt dos.txt (summary)
+walks 1044 (head 1044), steps 8376 (head 8376)
+identical walks 11, differing walks 1033, walks in one output only 0 []
+
+== spp1_probe_acheck.py base.txt head.txt
++1-turn first divergences by (context, command letter, base turns spent on the step, head turns spent):
+   ('dungeon', None, 0, 1): 4
+   ('dungeon', 'a', 0, 1): 2
+   ('dungeon', 'c', 0, 1): 4
+   ('dungeon', 'm', 0, 1): 8
+   ('dungeon', 'n', 0, 1): 8
+   ('dungeon', 'r', 0, 1): 8
+   ('dungeon', 's', 0, 1): 8
+   ('dungeon', 'u', 0, 1): 8
+   ('dungeon', 'z', 0, 1): 6
+   ('town', None, 0, 0): 11
+   ('town', 'a', 0, 1): 27
+   ('town', 'c', 0, 1): 8
+   ('town', 'f', 0, 1): 8
+   ('town', 'g', 0, 1): 8
+   ('town', 'j', 0, 1): 11
+   ('town', 'l', 0, 1): 8
+   ('town', 'm', 0, 1): 8
+   ('town', 'n', 0, 1): 10
+   ('town', 'o', 0, 1): 8
+   ('town', 'p', 0, 1): 8
+   ('town', 'r', 0, 1): 8
+   ('town', 's', 0, 1): 8
+   ('town', 't', 0, 1): 8
+   ('town', 'u', 0, 1): 9
+   ('town', 'x', 0, 1): 12
+   ('town', 'z', 0, 1): 7
+   ('world', 'a', 0, 1): 2
+   ('world', 'c', 0, 1): 12
+   ('world', 'f', 0, 1): 16
+   ('world', 'g', 0, 1): 16
+   ('world', 'j', 0, 1): 16
+   ('world', 'k', 0, 1): 16
+   ('world', 'l', 0, 1): 18
+   ('world', 'm', 0, 1): 16
+   ('world', 'n', 0, 1): 35
+   ('world', 'o', 0, 1): 16
+   ('world', 'p', 0, 1): 16
+   ('world', 'r', 0, 1): 16
+   ('world', 's', 0, 1): 12
+   ('world', 't', 0, 1): 16
+   ('world', 'u', 0, 1): 17
+   ('world', 'x', 0, 1): 17
+   ('world', 'z', 0, 1): 16
+
+command letters OUTSIDE the arm set (must be explained): 19
+   A-z-3 step 6 token 'MIC' cmd=a ctx=world base[0,][Z-stats...]  head[0,][Z-stats...]
+   Aact-z-3 step 6 token 'MIC' cmd=a ctx=world base[0,][Z-stats...]  head[0,][Z-stats...]
+   C-86-0 step 0 token 'start' cmd=None ctx=town base[0,][Talk-][north][Funny, no response!]  head[0,][Talk-][north][Funny, no response!]
+   C-86-1 step 0 token 'start' cmd=None ctx=town base[0,][Talk-][north][Funny, no response!]  head[0,][Talk-][north][Funny, no response!]
+   C-86-2 step 0 token 'start' cmd=None ctx=town base[0,][Talk-][north][Funny, no response!]  head[0,][Talk-][north][Funny, no response!]
+   C-86-3 step 0 token 'start' cmd=None ctx=town base[0,][Talk-][north][Funny, no response!]  head[0,][Talk-][north][Funny, no response!]
+   C-86-4 step 0 token 'start' cmd=None ctx=town base[0,][Talk-][north][Funny, no response!]  head[0,][Talk-][north][Funny, no response!]
+   C-86-5 step 0 token 'start' cmd=None ctx=town base[0,][Talk-][north][Funny, no response!]  head[0,][Talk-][north][Funny, no response!]
+   C-86-6 step 0 token 'start' cmd=None ctx=town base[0,][Talk-][north][Funny, no response!]  head[0,][Talk-][north][Funny, no response!]
+   C-86-7 step 0 token 'start' cmd=None ctx=town base[0,][Talk-][north][Funny, no response!]  head[0,][Talk-][north][Funny, no response!]
+   C-86-8 step 0 token 'start' cmd=None ctx=town base[0,][Talk-][north][Funny, no response!]  head[0,][Talk-][north][Funny, no response!]
+   C-86-9 step 0 token 'start' cmd=None ctx=town base[0,][Talk-][north][Funny, no response!]  head[0,][Talk-][north][Funny, no response!]
+   C-86-10 step 0 token 'start' cmd=None ctx=town base[0,][Talk-][north][Funny, no response!]  head[0,][Talk-][north][Funny, no response!]
+   Ddun-z-3 step 6 token 'MIC' cmd=a ctx=dungeon base[1,][Deceit][Z-stats...]  head[1,][Deceit][Z-stats...]
+   Ddun40-z-3 step 6 token 'MIC' cmd=a ctx=dungeon base[1,][Doom][Z-stats...]  head[1,][Doom][Z-stats...]
+   G-33-10 step 1 token '^K' cmd=None ctx=dungeon base[1,][Deceit][What?]  head[1,][Deceit][60]
+   G-33-11 step 1 token '^V' cmd=None ctx=dungeon base[1,][Deceit][What?]  head[1,][Deceit][1.16]
+   G-40-10 step 1 token '^K' cmd=None ctx=dungeon base[1,][Doom][What?]  head[1,][Doom][60]
+   G-40-11 step 1 token '^V' cmd=None ctx=dungeon base[1,][Doom][What?]  head[1,][Doom][1.16]
+
++1 divergences that ALSO change the text, mode or prompt: 12
+   A-u-4 step 4 token 'MIC' cmd=u
+    base mode=0 req=0 prompt=[] [Use item][]
+    head mode=0 req=0 prompt=[] [Use item][][Potion]
+   Aact-u-4 step 4 token 'MIC' cmd=u
+    base mode=0 req=0 prompt=[] [Use item][]
+    head mode=0 req=0 prompt=[] [Use item][][Potion]
+   Dtown-b-3 step 6 token 'MIC' cmd=a
+    base mode=0 req=0 prompt=[] [Iolo][Pass][Attack-]
+    head mode=8 req=10 prompt=[Pay tribute?] [Iolo][Pass][Attack-]
+   Dtown-d-3 step 6 token 'MIC' cmd=a
+    base mode=0 req=0 prompt=[] [Iolo][Pass][Attack-]
+    head mode=8 req=10 prompt=[Pay tribute?] [Iolo][Pass][Attack-]
+   Dtown-e-3 step 6 token 'MIC' cmd=a
+    base mode=0 req=0 prompt=[] [Iolo][Pass][Attack-]
+    head mode=8 req=10 prompt=[Pay tribute?] [Iolo][Pass][Attack-]
+   Dtown-h-3 step 6 token 'MIC' cmd=a
+    base mode=0 req=0 prompt=[] [Hole up][Hole up- Only in bed!\n][Attack-]
+    head mode=8 req=10 prompt=[Pay tribute?] [Hole up][Hole up- Only in bed!\n][Attack-]
+   Dtown-q-3 step 6 token 'MIC' cmd=a
+    base mode=0 req=0 prompt=[] [Iolo][Pass][Attack-]
+    head mode=8 req=10 prompt=[Pay tribute?] [Iolo][Pass][Attack-]
+   Dtown-w-3 step 6 token 'MIC' cmd=a
+    base mode=0 req=0 prompt=[] [Iolo][Pass][Attack-]
+    head mode=8 req=10 prompt=[Pay tribute?] [Iolo][Pass][Attack-]
+   G-33-10 step 1 token '^K' cmd=None
+    base mode=1 req=0 prompt=[] [Deceit][What?]
+    head mode=1 req=0 prompt=[] [Deceit][60]
+   G-33-11 step 1 token '^V' cmd=None
+    base mode=1 req=0 prompt=[] [Deceit][What?]
+    head mode=1 req=0 prompt=[] [Deceit][1.16]
+   G-40-10 step 1 token '^K' cmd=None
+    base mode=1 req=0 prompt=[] [Doom][What?]
+    head mode=1 req=0 prompt=[] [Doom][60]
+   G-40-11 step 1 token '^V' cmd=None
+    base mode=1 req=0 prompt=[] [Doom][What?]
+    head mode=1 req=0 prompt=[] [Doom][1.16]
+
+== spp1_probe_classify.py base.txt head.txt
+walks 1044: identical 494, differing 550
+  A     484  e.g. A-b-7, A-c-0, A-c-1, A-c-2, A-c-3, A-c-5
+  A*      6  e.g. Dtown-b-3, Dtown-d-3, Dtown-e-3, Dtown-h-3, Dtown-q-3, Dtown-w-3
+  F+A     2  e.g. A-u-4, Aact-u-4
+  B       2  e.g. C-82-8, C-82-10
+  C      10  e.g. B-21, B-33, B-34, B-35, B-36, B-37
+  E      36  e.g. Ddun-d-0, Ddun-d-1, Ddun-d-3, Ddun-d-6, Ddun-l-0, Ddun-l-1
+  G      10  e.g. G-33-10, G-33-11, G-40-10, G-40-11, H-0-0, H-0-1
+UNEXPLAINED 0
+exit 0
+
+== first-divergence classes (spp1_probe_compare.py --examples 1)
+290 classes (family, token at the first divergence, differing fields):
+
+== A-b  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-b-7 step 9 after [r RET RET]
+      base: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[What?][Ignite torch!][Avatar must lead!]
+      head: mode=0 req=0 turns=2 clock=5:12:04 prompt=[] tail=[What?][Ignite torch!][Avatar must lead!]
+
+== A-c  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-c-0 step 2 after [c MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Cast...][None!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Cast...][None!]
+
+== A-c  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   A-c-1 step 3 after [c RET RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Cast...]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Cast...]
+
+== A-c  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   A-c-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Cast...][None!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Cast...][None!]
+
+== A-d  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-d-7 step 9 after [r RET RET]
+      base: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[D-What?][Ignite torch!][Avatar must lead!]
+      head: mode=0 req=0 turns=2 clock=5:12:04 prompt=[] tail=[D-What?][Ignite torch!][Avatar must lead!]
+
+== A-e  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-e-7 step 9 after [r RET RET]
+      base: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Enter What?][Ignite torch!][Avatar must lead!]
+      head: mode=0 req=0 turns=2 clock=5:12:04 prompt=[] tail=[Enter What?][Ignite torch!][Avatar must lead!]
+
+== A-f  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   A-f-0 step 2 after [f MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Fire-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Fire-]
+
+== A-f  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   A-f-2 step 4 after [DOWN DOWN RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Fire-][south][What?]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Fire-][south][What?]
+
+== A-f  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   A-f-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Fire-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Fire-]
+
+== A-g  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   A-g-0 step 2 after [g MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Get-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Get-]
+
+== A-g  token='DOWN'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-g-2 step 2 after [g DOWN]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Get-South][Nothing to get!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Get-South][Nothing to get!]
+
+== A-g  token='RIGHT'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-g-4 step 2 after [g RIGHT]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Get-East][Nothing to get!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Get-East][Nothing to get!]
+
+== A-g  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   A-g-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Get-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Get-]
+
+== A-h  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-h-7 step 10 after [RET RET MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Hole up & camp!][Look-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Hole up & camp!][Look-]
+
+== A-i  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-i-7 step 9 after [r RET RET]
+      base: mode=0 req=0 turns=2 clock=5:12:04 prompt=[] tail=[Ignite torch!][Ignite torch!][Avatar must lead!]
+      head: mode=0 req=0 turns=3 clock=5:12:06 prompt=[] tail=[Ignite torch!][Ignite torch!][Avatar must lead!]
+
+== A-j  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   A-j-0 step 2 after [j MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Jimmy-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Jimmy-]
+
+== A-j  token='DOWN'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-j-2 step 2 after [j DOWN]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Jimmy-South][No lock!\n]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Jimmy-South][No lock!\n]
+
+== A-j  token='RIGHT'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-j-4 step 2 after [j RIGHT]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Jimmy-East][No lock!\n]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Jimmy-East][No lock!\n]
+
+== A-j  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   A-j-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Jimmy-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Jimmy-]
+
+== A-k  token='k'  fields=gram,state,turns,clock,seed,dturns=+1  walks=8
+   A-k-0 step 1 after [k]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Klimb-][With what?]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Klimb-][With what?]
+
+== A-l  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   A-l-0 step 2 after [l MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Look-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Look-]
+
+== A-l  token='DOWN'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-l-2 step 2 after [l DOWN]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Look-South][Thou dost see something]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Look-South][Thou dost see something]
+
+== A-l  token='RIGHT'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-l-4 step 2 after [l RIGHT]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Look-East][Thou dost see something]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Look-East][Thou dost see something]
+
+== A-l  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   A-l-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Look-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Look-]
+
+== A-m  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=6
+   A-m-0 step 2 after [m MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Mix Reagents][]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Mix Reagents][]
+
+== A-m  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   A-m-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Mix Reagents][]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Mix Reagents][]
+
+== A-n  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   A-n-0 step 2 after [n MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=
+
+== A-n  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   A-n-1 step 3 after [n RET RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Avatar must lead!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Avatar must lead!]
+
+== A-n  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   A-n-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=
+
+== A-o  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   A-o-0 step 2 after [o MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Open-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Open-]
+
+== A-o  token='DOWN'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-o-2 step 2 after [o DOWN]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Open-South][Nothing to open!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Open-South][Nothing to open!]
+
+== A-o  token='RIGHT'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-o-4 step 2 after [o RIGHT]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Open-East][Nothing to open!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Open-East][Nothing to open!]
+
+== A-o  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   A-o-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Open-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Open-]
+
+== A-p  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   A-p-0 step 2 after [p MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Push-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Push-]
+
+== A-p  token='DOWN'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-p-2 step 2 after [p DOWN]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Push-South][Won't budge!\n]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Push-South][Won't budge!\n]
+
+== A-p  token='RIGHT'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-p-4 step 2 after [p RIGHT]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Push-East][Won't budge!\n]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Push-East][Won't budge!\n]
+
+== A-p  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   A-p-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Push-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Push-]
+
+== A-q  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-q-7 step 9 after [r RET RET]
+      base: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[What?][Ignite torch!][Avatar must lead!]
+      head: mode=0 req=0 turns=2 clock=5:12:04 prompt=[] tail=[What?][Ignite torch!][Avatar must lead!]
+
+== A-r  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=5
+   A-r-0 step 2 after [r MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Ready...][]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Ready...][]
+
+== A-r  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   A-r-2 step 7 after [DOWN RET BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Ready...][][Remove first thy present helm!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Ready...][][Remove first thy present helm!]
+
+== A-s  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   A-s-0 step 2 after [s MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Search-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Search-]
+
+== A-s  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   A-s-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Search-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Search-]
+
+== A-t  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   A-t-0 step 2 after [t MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Talk-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Talk-]
+
+== A-t  token='DOWN'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-t-2 step 2 after [t DOWN]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Talk-][south][Funny, no response!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Talk-][south][Funny, no response!]
+
+== A-t  token='RIGHT'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-t-4 step 2 after [t RIGHT]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Talk-][east][Funny, no response!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Talk-][east][Funny, no response!]
+
+== A-t  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   A-t-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Talk-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Talk-]
+
+== A-u  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-u-0 step 2 after [u MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Use item][]
+
+== A-u  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   A-u-1 step 3 after [u RET RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][][Potion]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Use item][][Potion]
+
+== A-u  token='MIC'  fields=gram,text,state,turns,clock,seed,dturns=+1  walks=1
+   A-u-4 step 4 after [RIGHT RET MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Use item][][Potion]
+
+== A-u  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   A-u-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Use item][]
+
+== A-v  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-v-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[View a gem!]
+      head: mode=0 req=0 turns=2 clock=5:12:04 prompt=[] tail=[View a gem!]
+
+== A-v  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-v-7 step 9 after [r RET RET]
+      base: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[View a gem!][Avatar must lead!]
+      head: mode=0 req=0 turns=2 clock=5:12:04 prompt=[] tail=[View a gem!][Avatar must lead!]
+
+== A-w  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   A-w-7 step 9 after [r RET RET]
+      base: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[W-What?][Ignite torch!][Avatar must lead!]
+      head: mode=0 req=0 turns=2 clock=5:12:04 prompt=[] tail=[W-What?][Ignite torch!][Avatar must lead!]
+
+== A-x  token='x'  fields=gram,state,turns,clock,seed,dturns=+1  walks=8
+   A-x-0 step 1 after [x]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[X-it ][what?]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[X-it ][what?]
+
+== A-z  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=5
+   A-z-0 step 2 after [z MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Z-stats...]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Z-stats...]
+
+== A-z  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   A-z-2 step 7 after [DOWN RET BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Z-stats...]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Z-stats...]
+
+== Aact-b  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-b-7 step 9 after [r RET RET]
+      base: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Board][What?][Ignite torch!]
+      head: mode=0 req=0 turns=2 clock=5:12:04 prompt=[] tail=[Board][What?][Ignite torch!]
+
+== Aact-c  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=5
+   Aact-c-1 step 2 after [c RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Cast...]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Cast...]
+
+== Aact-d  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-d-7 step 9 after [r RET RET]
+      base: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[D-What?][Ignite torch!]
+      head: mode=0 req=0 turns=2 clock=5:12:04 prompt=[] tail=[D-What?][Ignite torch!]
+
+== Aact-e  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-e-7 step 9 after [r RET RET]
+      base: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Enter][Enter What?][Ignite torch!]
+      head: mode=0 req=0 turns=2 clock=5:12:04 prompt=[] tail=[Enter][Enter What?][Ignite torch!]
+
+== Aact-f  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   Aact-f-0 step 2 after [f MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Fire-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Fire-]
+
+== Aact-f  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Aact-f-2 step 4 after [DOWN DOWN RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Fire-][south][What?]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Fire-][south][What?]
+
+== Aact-f  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Aact-f-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Fire-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Fire-]
+
+== Aact-g  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   Aact-g-0 step 2 after [g MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Get-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Get-]
+
+== Aact-g  token='DOWN'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-g-2 step 2 after [g DOWN]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Get-South][Nothing to get!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Get-South][Nothing to get!]
+
+== Aact-g  token='RIGHT'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-g-4 step 2 after [g RIGHT]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Get-East][Nothing to get!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Get-East][Nothing to get!]
+
+== Aact-g  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Aact-g-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Get-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Get-]
+
+== Aact-h  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-h-7 step 10 after [RET RET MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Hole up & camp!][Look-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Hole up & camp!][Look-]
+
+== Aact-i  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-i-7 step 9 after [r RET RET]
+      base: mode=0 req=0 turns=2 clock=5:12:04 prompt=[] tail=[Ignite torch!][Ignite torch!]
+      head: mode=0 req=0 turns=3 clock=5:12:06 prompt=[] tail=[Ignite torch!][Ignite torch!]
+
+== Aact-j  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   Aact-j-0 step 2 after [j MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Jimmy-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Jimmy-]
+
+== Aact-j  token='DOWN'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-j-2 step 2 after [j DOWN]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Jimmy-South][No lock!\n]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Jimmy-South][No lock!\n]
+
+== Aact-j  token='RIGHT'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-j-4 step 2 after [j RIGHT]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Jimmy-East][No lock!\n]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Jimmy-East][No lock!\n]
+
+== Aact-j  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Aact-j-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Jimmy-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Jimmy-]
+
+== Aact-k  token='k'  fields=gram,state,turns,clock,seed,dturns=+1  walks=8
+   Aact-k-0 step 1 after [k]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Klimb-][With what?]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Klimb-][With what?]
+
+== Aact-l  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   Aact-l-0 step 2 after [l MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Look-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Look-]
+
+== Aact-l  token='DOWN'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-l-2 step 2 after [l DOWN]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Look-South][Thou dost see something]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Look-South][Thou dost see something]
+
+== Aact-l  token='RIGHT'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-l-4 step 2 after [l RIGHT]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Look-East][Thou dost see something]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Look-East][Thou dost see something]
+
+== Aact-l  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Aact-l-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Look-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Look-]
+
+== Aact-m  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=6
+   Aact-m-0 step 2 after [m MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Mix Reagents][]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Mix Reagents][]
+
+== Aact-m  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Aact-m-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Mix Reagents][]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Mix Reagents][]
+
+== Aact-n  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Aact-n-0 step 2 after [n MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=
+
+== Aact-n  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   Aact-n-1 step 3 after [n RET RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=
+
+== Aact-n  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Aact-n-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=
+
+== Aact-o  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   Aact-o-0 step 2 after [o MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Open-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Open-]
+
+== Aact-o  token='DOWN'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-o-2 step 2 after [o DOWN]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Open-South][Nothing to open!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Open-South][Nothing to open!]
+
+== Aact-o  token='RIGHT'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-o-4 step 2 after [o RIGHT]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Open-East][Nothing to open!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Open-East][Nothing to open!]
+
+== Aact-o  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Aact-o-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Open-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Open-]
+
+== Aact-p  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   Aact-p-0 step 2 after [p MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Push-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Push-]
+
+== Aact-p  token='DOWN'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-p-2 step 2 after [p DOWN]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Push-South][Won't budge!\n]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Push-South][Won't budge!\n]
+
+== Aact-p  token='RIGHT'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-p-4 step 2 after [p RIGHT]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Push-East][Won't budge!\n]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Push-East][Won't budge!\n]
+
+== Aact-p  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Aact-p-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Push-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Push-]
+
+== Aact-q  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-q-7 step 9 after [r RET RET]
+      base: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[What?][Ignite torch!]
+      head: mode=0 req=0 turns=2 clock=5:12:04 prompt=[] tail=[What?][Ignite torch!]
+
+== Aact-r  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=5
+   Aact-r-0 step 2 after [r MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Ready...][]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Ready...][]
+
+== Aact-r  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Aact-r-2 step 7 after [DOWN RET BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Ready...][][Unready Chain Coif.]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Ready...][][Unready Chain Coif.]
+
+== Aact-s  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   Aact-s-0 step 2 after [s MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Search-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Search-]
+
+== Aact-s  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Aact-s-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Search-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Search-]
+
+== Aact-t  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   Aact-t-0 step 2 after [t MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Talk-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Talk-]
+
+== Aact-t  token='DOWN'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-t-2 step 2 after [t DOWN]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Talk-][south][Funny, no response!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Talk-][south][Funny, no response!]
+
+== Aact-t  token='RIGHT'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-t-4 step 2 after [t RIGHT]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Talk-][east][Funny, no response!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Talk-][east][Funny, no response!]
+
+== Aact-t  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Aact-t-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Talk-]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Talk-]
+
+== Aact-u  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-u-0 step 2 after [u MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Use item][]
+
+== Aact-u  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   Aact-u-1 step 3 after [u RET RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][][Potion]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Use item][][Potion]
+
+== Aact-u  token='MIC'  fields=gram,text,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-u-4 step 4 after [RIGHT RET MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Use item][][Potion]
+
+== Aact-u  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Aact-u-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Use item][]
+
+== Aact-v  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-v-5 step 4 after [y n BS]
+      base: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[View a gem!]
+      head: mode=0 req=0 turns=2 clock=5:12:04 prompt=[] tail=[View a gem!]
+
+== Aact-v  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-v-7 step 9 after [r RET RET]
+      base: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[View a gem!]
+      head: mode=0 req=0 turns=2 clock=5:12:04 prompt=[] tail=[View a gem!]
+
+== Aact-w  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Aact-w-7 step 9 after [r RET RET]
+      base: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[W-What?][Ignite torch!]
+      head: mode=0 req=0 turns=2 clock=5:12:04 prompt=[] tail=[W-What?][Ignite torch!]
+
+== Aact-x  token='x'  fields=gram,state,turns,clock,seed,dturns=+1  walks=8
+   Aact-x-0 step 1 after [x]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[X-it ][what?]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[X-it ][what?]
+
+== Aact-z  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=5
+   Aact-z-0 step 2 after [z MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Z-stats...]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Z-stats...]
+
+== Aact-z  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Aact-z-2 step 7 after [DOWN RET BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Z-stats...]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Z-stats...]
+
+== B-21  token='y'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   B-21 step 2 after [b y]
+      base: mode=2 req=0 turns=1 clock=5:12:02 prompt=[] tail=[*** CONFLICT ***\n][What?][What?]
+      head: mode=6 req=21 turns=1 clock=5:12:02 prompt=[Yell what?] tail=[*** CONFLICT ***\n][What?][Yell]
+
+== B-33  token='j'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   B-33 step 1 after [j]
+      base: mode=2 req=0 turns=1 clock=5:12:02 prompt=[] tail=[     TROLLS\n][*** CONFLICT ***\n][What?]
+      head: mode=13 req=1 turns=1 clock=5:12:02 prompt=[Direction?] tail=[     TROLLS\n][*** CONFLICT ***\n][Jimmy-]
+
+== B-34  token='j'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   B-34 step 1 after [j]
+      base: mode=2 req=0 turns=1 clock=5:12:02 prompt=[] tail=[     TROLLS\n][*** CONFLICT ***\n][What?]
+      head: mode=13 req=1 turns=1 clock=5:12:02 prompt=[Direction?] tail=[     TROLLS\n][*** CONFLICT ***\n][Jimmy-]
+
+== B-35  token='j'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   B-35 step 1 after [j]
+      base: mode=2 req=0 turns=1 clock=5:12:02 prompt=[] tail=[     TROLLS\n][*** CONFLICT ***\n][What?]
+      head: mode=13 req=1 turns=1 clock=5:12:02 prompt=[Direction?] tail=[     TROLLS\n][*** CONFLICT ***\n][Jimmy-]
+
+== B-36  token='p'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   B-36 step 1 after [p]
+      base: mode=2 req=0 turns=1 clock=5:12:02 prompt=[] tail=[     TROLLS\n][*** CONFLICT ***\n][What?]
+      head: mode=13 req=1 turns=1 clock=5:12:02 prompt=[Direction?] tail=[     TROLLS\n][*** CONFLICT ***\n][Push-]
+
+== B-37  token='p'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   B-37 step 1 after [p]
+      base: mode=2 req=0 turns=1 clock=5:12:02 prompt=[] tail=[     TROLLS\n][*** CONFLICT ***\n][What?]
+      head: mode=13 req=1 turns=1 clock=5:12:02 prompt=[Direction?] tail=[     TROLLS\n][*** CONFLICT ***\n][Push-]
+
+== B-38  token='p'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   B-38 step 1 after [p]
+      base: mode=2 req=0 turns=1 clock=5:12:02 prompt=[] tail=[     TROLLS\n][*** CONFLICT ***\n][What?]
+      head: mode=13 req=1 turns=1 clock=5:12:02 prompt=[Direction?] tail=[     TROLLS\n][*** CONFLICT ***\n][Push-]
+
+== B-39  token='y'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   B-39 step 1 after [y]
+      base: mode=2 req=0 turns=1 clock=5:12:02 prompt=[] tail=[     TROLLS\n][*** CONFLICT ***\n][What?]
+      head: mode=6 req=21 turns=1 clock=5:12:02 prompt=[Yell what?] tail=[     TROLLS\n][*** CONFLICT ***\n][Yell]
+
+== B-40  token='y'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   B-40 step 1 after [y]
+      base: mode=2 req=0 turns=1 clock=5:12:02 prompt=[] tail=[     TROLLS\n][*** CONFLICT ***\n][What?]
+      head: mode=6 req=21 turns=1 clock=5:12:02 prompt=[Yell what?] tail=[     TROLLS\n][*** CONFLICT ***\n][Yell]
+
+== B-41  token='y'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   B-41 step 1 after [y]
+      base: mode=2 req=0 turns=1 clock=5:12:02 prompt=[] tail=[     TROLLS\n][*** CONFLICT ***\n][What?]
+      head: mode=6 req=21 turns=1 clock=5:12:02 prompt=[Yell what?] tail=[     TROLLS\n][*** CONFLICT ***\n][Yell]
+
+== C-82  token='y'  fields=gram,text,dturns=+0  walks=2
+   C-82-8 step 11 after [t RET y]
+      base: mode=4 req=0 turns=0 clock=5:09:00 prompt=[Enter: continue  Mic: back] tail=["Jolly good morning, mate! Welcome to The Honest Meal! I am Sam. Canst I get anything for thee?"][\nEnjoy!"\n\n][]
+      head: mode=4 req=0 turns=0 clock=5:09:00 prompt=[Enter: continue  Mic: back] tail=[]["Seek ye a daemon in the desert!"][says Sam.]
+
+== C-83  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   C-83-0 step 9 after [y n MIC]
+      base: mode=0 req=0 turns=0 clock=5:08:00 prompt=[] tail=[Yes!]["A pleasure doing business with thee!"][Attack-]
+      head: mode=0 req=0 turns=1 clock=5:08:01 prompt=[] tail=[Yes!]["A pleasure doing business with thee!"][Attack-]
+
+== C-86  token='start'  fields=gram,state,turns,clock,seed,dturns=+1  walks=11
+   C-86-0 step 0 after []
+      base: mode=0 req=0 turns=0 clock=5:09:00 prompt=[] tail=[Talk-][north][Funny, no response!]
+      head: mode=0 req=0 turns=1 clock=5:09:01 prompt=[] tail=[Talk-][north][Funny, no response!]
+
+== C-88  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   C-88-9 step 13 after [n WAIT MIC]
+      base: mode=0 req=0 turns=0 clock=6:06:00 prompt=[] tail=["Welcome to The Wayfarer Inn, adventurer. My name is Donya, and I own this hostel. May I help thee?"][Morning!]["It was a pleasure to serve thee!"]
+      head: mode=0 req=0 turns=1 clock=6:06:01 prompt=[] tail=["Welcome to The Wayfarer Inn, adventurer. My name is Donya, and I own this hostel. May I help thee?"][Morning!]["It was a pleasure to serve thee!"]
+
+== T-0-3  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   T-0-3 step 14 after [WAIT RET BS]
+      base: mode=0 req=0 turns=0 clock=5:09:00 prompt=[] tail=["My name is Zachariah"]["Good journeys."][Jimmy-]
+      head: mode=0 req=0 turns=1 clock=5:09:01 prompt=[] tail=["My name is Zachariah"]["Good journeys."][Jimmy-]
+
+== T-0-4  token='x'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   T-0-4 step 15 after [RET BS x]
+      base: mode=0 req=0 turns=1 clock=5:09:01 prompt=[] tail=[Pass][X-it ][what?]
+      head: mode=0 req=0 turns=2 clock=5:09:02 prompt=[] tail=[Pass][X-it ][what?]
+
+== T-0-5  token='x'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   T-0-5 step 15 after [RET BS x]
+      base: mode=0 req=0 turns=0 clock=5:09:00 prompt=[] tail=["Farewell!"][X-it ][what?]
+      head: mode=0 req=0 turns=1 clock=5:09:01 prompt=[] tail=["Farewell!"][X-it ][what?]
+
+== T-1-4  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   T-1-4 step 14 after [WAIT RET BS]
+      base: mode=0 req=0 turns=0 clock=5:09:00 prompt=[] tail=["My name is Justin"]["Until then."][Jimmy-]
+      head: mode=0 req=0 turns=1 clock=5:09:01 prompt=[] tail=["My name is Justin"]["Until then."][Jimmy-]
+
+== T-1-5  token='x'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   T-1-5 step 15 after [RET BS x]
+      base: mode=0 req=0 turns=0 clock=5:09:00 prompt=[] tail=["Farewell!"][X-it ][what?]
+      head: mode=0 req=0 turns=1 clock=5:09:01 prompt=[] tail=["Farewell!"][X-it ][what?]
+
+== T-2-4  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   T-2-4 step 14 after [WAIT RET BS]
+      base: mode=0 req=0 turns=1 clock=5:09:01 prompt=[] tail=[Then thou art trespassing! Buzz off! ][Pass][Jimmy-]
+      head: mode=0 req=0 turns=2 clock=5:09:02 prompt=[] tail=[Then thou art trespassing! Buzz off! ][Pass][Jimmy-]
+
+== Dtown-a  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dtown-a-0 step 2 after [a MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Attack-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Attack-]
+
+== Dtown-a  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-a-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Attack-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Attack-]
+
+== Dtown-b  token='MIC'  fields=gram,state,mode,req,prompt,cursor,turns,clock,seed,dturns=+1  walks=1
+   Dtown-b-3 step 6 after [a RET MIC]
+      base: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Iolo][Pass][Attack-]
+      head: mode=8 req=10 turns=2 clock=5:12:02 prompt=[Pay tribute?] tail=[Iolo][Pass][Attack-]
+
+== Dtown-c  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-c-0 step 2 after [c MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Cast...][None!]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Cast...][None!]
+
+== Dtown-c  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Dtown-c-1 step 3 after [c RET RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Cast...]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Cast...]
+
+== Dtown-c  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-c-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Cast...][None!]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Cast...][None!]
+
+== Dtown-d  token='MIC'  fields=gram,state,mode,req,prompt,cursor,turns,clock,seed,dturns=+1  walks=1
+   Dtown-d-3 step 6 after [a RET MIC]
+      base: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Iolo][Pass][Attack-]
+      head: mode=8 req=10 turns=2 clock=5:12:02 prompt=[Pay tribute?] tail=[Iolo][Pass][Attack-]
+
+== Dtown-e  token='MIC'  fields=gram,state,mode,req,prompt,cursor,turns,clock,seed,dturns=+1  walks=1
+   Dtown-e-3 step 6 after [a RET MIC]
+      base: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Iolo][Pass][Attack-]
+      head: mode=8 req=10 turns=2 clock=5:12:02 prompt=[Pay tribute?] tail=[Iolo][Pass][Attack-]
+
+== Dtown-f  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dtown-f-0 step 2 after [f MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Fire-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Fire-]
+
+== Dtown-f  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-f-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Fire-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Fire-]
+
+== Dtown-g  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dtown-g-0 step 2 after [g MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Get-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Get-]
+
+== Dtown-g  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-g-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Get-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Get-]
+
+== Dtown-h  token='MIC'  fields=gram,state,mode,req,prompt,cursor,turns,clock,seed,dturns=+1  walks=1
+   Dtown-h-3 step 6 after [a RET MIC]
+      base: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Hole up][Hole up- Only in bed!\n][Attack-]
+      head: mode=8 req=10 turns=2 clock=5:12:02 prompt=[Pay tribute?] tail=[Hole up][Hole up- Only in bed!\n][Attack-]
+
+== Dtown-j  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dtown-j-0 step 2 after [j MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Jimmy-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Jimmy-]
+
+== Dtown-j  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-j-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Jimmy-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Jimmy-]
+
+== Dtown-l  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dtown-l-0 step 2 after [l MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Look-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Look-]
+
+== Dtown-l  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-l-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Look-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Look-]
+
+== Dtown-m  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dtown-m-0 step 2 after [m MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Mix Reagents][]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Mix Reagents][]
+
+== Dtown-m  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-m-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Mix Reagents][]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Mix Reagents][]
+
+== Dtown-n  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-n-0 step 2 after [n MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=
+
+== Dtown-n  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Dtown-n-1 step 3 after [n RET RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Avatar must lead!]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Avatar must lead!]
+
+== Dtown-n  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-n-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=
+
+== Dtown-o  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dtown-o-0 step 2 after [o MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Open-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Open-]
+
+== Dtown-o  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-o-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Open-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Open-]
+
+== Dtown-p  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dtown-p-0 step 2 after [p MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Push-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Push-]
+
+== Dtown-p  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-p-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Push-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Push-]
+
+== Dtown-q  token='MIC'  fields=gram,state,mode,req,prompt,cursor,turns,clock,seed,dturns=+1  walks=1
+   Dtown-q-3 step 6 after [a RET MIC]
+      base: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Iolo][Pass][Attack-]
+      head: mode=8 req=10 turns=2 clock=5:12:02 prompt=[Pay tribute?] tail=[Iolo][Pass][Attack-]
+
+== Dtown-r  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dtown-r-0 step 2 after [r MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Ready...][]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Ready...][]
+
+== Dtown-r  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-r-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Ready...][]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Ready...][]
+
+== Dtown-s  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dtown-s-0 step 2 after [s MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Search-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Search-]
+
+== Dtown-s  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-s-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Search-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Search-]
+
+== Dtown-t  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dtown-t-0 step 2 after [t MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Talk-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Talk-]
+
+== Dtown-t  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-t-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Talk-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Talk-]
+
+== Dtown-u  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-u-0 step 2 after [u MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Use item][]
+
+== Dtown-u  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Dtown-u-1 step 3 after [u RET RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][][Potion]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Use item][][Potion]
+
+== Dtown-u  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-u-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Use item][]
+
+== Dtown-w  token='MIC'  fields=gram,state,mode,req,prompt,cursor,turns,clock,seed,dturns=+1  walks=1
+   Dtown-w-3 step 6 after [a RET MIC]
+      base: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Iolo][Pass][Attack-]
+      head: mode=8 req=10 turns=2 clock=5:12:02 prompt=[Pay tribute?] tail=[Iolo][Pass][Attack-]
+
+== Dtown-x  token='x'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   Dtown-x-0 step 1 after [x]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[X-it ][what?]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[X-it ][what?]
+
+== Dtown-y  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-y-3 step 6 after [a RET MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Yell][\nNo effect!\n][Attack-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Yell][\nNo effect!\n][Attack-]
+
+== Dtown-z  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dtown-z-0 step 2 after [z MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Z-stats...]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Z-stats...]
+
+== Dtown-z  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dtown-z-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Z-stats...]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Z-stats...]
+
+== Dpalace-a  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dpalace-a-0 step 2 after [a MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Attack-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Attack-]
+
+== Dpalace-a  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-a-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Attack-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Attack-]
+
+== Dpalace-b  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-b-3 step 6 after [a RET MIC]
+      base: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Iolo][Pass][Attack-]
+      head: mode=0 req=0 turns=2 clock=5:12:02 prompt=[] tail=[Iolo][Pass][Attack-]
+
+== Dpalace-c  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-c-0 step 2 after [c MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Cast...][None!]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Cast...][None!]
+
+== Dpalace-c  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Dpalace-c-1 step 3 after [c RET RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Cast...][Absorbed!]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Cast...][Absorbed!]
+
+== Dpalace-c  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-c-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Cast...][None!]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Cast...][None!]
+
+== Dpalace-d  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-d-3 step 6 after [a RET MIC]
+      base: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Iolo][Pass][Attack-]
+      head: mode=0 req=0 turns=2 clock=5:12:02 prompt=[] tail=[Iolo][Pass][Attack-]
+
+== Dpalace-e  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-e-3 step 6 after [a RET MIC]
+      base: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Iolo][Pass][Attack-]
+      head: mode=0 req=0 turns=2 clock=5:12:02 prompt=[] tail=[Iolo][Pass][Attack-]
+
+== Dpalace-f  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dpalace-f-0 step 2 after [f MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Fire-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Fire-]
+
+== Dpalace-f  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-f-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Fire-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Fire-]
+
+== Dpalace-g  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dpalace-g-0 step 2 after [g MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Get-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Get-]
+
+== Dpalace-g  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-g-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Get-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Get-]
+
+== Dpalace-h  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-h-3 step 6 after [a RET MIC]
+      base: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Hole up][Hole up- Only in bed!\n][Attack-]
+      head: mode=0 req=0 turns=2 clock=5:12:02 prompt=[] tail=[Hole up][Hole up- Only in bed!\n][Attack-]
+
+== Dpalace-i  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-i-3 step 6 after [a RET MIC]
+      base: mode=0 req=0 turns=2 clock=5:12:02 prompt=[] tail=[Iolo][Pass][Attack-]
+      head: mode=0 req=0 turns=3 clock=5:12:03 prompt=[] tail=[Iolo][Pass][Attack-]
+
+== Dpalace-j  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dpalace-j-0 step 2 after [j MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Jimmy-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Jimmy-]
+
+== Dpalace-j  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-j-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Jimmy-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Jimmy-]
+
+== Dpalace-l  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dpalace-l-0 step 2 after [l MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Look-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Look-]
+
+== Dpalace-l  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-l-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Look-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Look-]
+
+== Dpalace-m  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dpalace-m-0 step 2 after [m MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Mix Reagents][]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Mix Reagents][]
+
+== Dpalace-m  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-m-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Mix Reagents][]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Mix Reagents][]
+
+== Dpalace-n  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-n-0 step 2 after [n MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=
+
+== Dpalace-n  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Dpalace-n-1 step 3 after [n RET RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Avatar must lead!]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Avatar must lead!]
+
+== Dpalace-n  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-n-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=
+
+== Dpalace-o  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dpalace-o-0 step 2 after [o MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Open-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Open-]
+
+== Dpalace-o  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-o-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Open-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Open-]
+
+== Dpalace-p  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dpalace-p-0 step 2 after [p MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Push-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Push-]
+
+== Dpalace-p  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-p-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Push-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Push-]
+
+== Dpalace-q  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-q-3 step 6 after [a RET MIC]
+      base: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Iolo][Pass][Attack-]
+      head: mode=0 req=0 turns=2 clock=5:12:02 prompt=[] tail=[Iolo][Pass][Attack-]
+
+== Dpalace-r  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dpalace-r-0 step 2 after [r MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Ready...][]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Ready...][]
+
+== Dpalace-r  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-r-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Ready...][]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Ready...][]
+
+== Dpalace-s  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dpalace-s-0 step 2 after [s MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Search-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Search-]
+
+== Dpalace-s  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-s-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Search-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Search-]
+
+== Dpalace-t  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dpalace-t-0 step 2 after [t MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Talk-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Talk-]
+
+== Dpalace-t  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-t-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Talk-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Talk-]
+
+== Dpalace-u  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-u-0 step 2 after [u MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Use item][]
+
+== Dpalace-u  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=2
+   Dpalace-u-1 step 3 after [u RET RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][][Potion]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Use item][][Potion]
+
+== Dpalace-u  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-u-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Use item][]
+
+== Dpalace-v  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-v-3 step 6 after [a RET MIC]
+      base: mode=0 req=0 turns=2 clock=5:12:02 prompt=[] tail=[View a gem!][Pass][Attack-]
+      head: mode=0 req=0 turns=3 clock=5:12:03 prompt=[] tail=[View a gem!][Pass][Attack-]
+
+== Dpalace-w  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-w-3 step 6 after [a RET MIC]
+      base: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Iolo][Pass][Attack-]
+      head: mode=0 req=0 turns=2 clock=5:12:02 prompt=[] tail=[Iolo][Pass][Attack-]
+
+== Dpalace-x  token='x'  fields=gram,state,turns,clock,seed,dturns=+1  walks=4
+   Dpalace-x-0 step 1 after [x]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[X-it ][what?]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[X-it ][what?]
+
+== Dpalace-y  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-y-3 step 6 after [a RET MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Yell][\nNo effect!\n][Attack-]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Yell][\nNo effect!\n][Attack-]
+
+== Dpalace-z  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=3
+   Dpalace-z-0 step 2 after [z MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Z-stats...]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Z-stats...]
+
+== Dpalace-z  token='BS'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   Dpalace-z-6 step 4 after [0 1 BS]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Z-stats...]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Z-stats...]
+
+== Ddun-c  token='MIC'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun-c-0 step 2 after [c MIC]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][Cast...][None!]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Cast...][None!]
+
+== Ddun-c  token='BS'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun-c-6 step 4 after [0 1 BS]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][Cast...][None!]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Cast...][None!]
+
+== Ddun-d  token='d'  fields=gram,text,state,mode,req,prompt,cursor,turns,clock,dturns=-1  walks=4
+   Ddun-d-0 step 1 after [d]
+      base: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Drink][No fountain here.]
+      head: mode=9 req=42 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Deceit][Look...]
+
+== Ddun-l  token='l'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=4
+   Ddun-l-0 step 1 after [l]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][What?]
+      head: mode=9 req=41 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Deceit][Look...]
+
+== Ddun-m  token='MIC'  fields=gram,state,turns,clock,dturns=+1  walks=3
+   Ddun-m-0 step 2 after [m MIC]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][Mix Reagents][]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Mix Reagents][]
+
+== Ddun-m  token='BS'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun-m-6 step 4 after [0 1 BS]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][Mix Reagents][]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Mix Reagents][]
+
+== Ddun-n  token='MIC'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun-n-0 step 2 after [n MIC]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit]
+
+== Ddun-n  token='RET'  fields=gram,state,turns,clock,dturns=+1  walks=2
+   Ddun-n-1 step 3 after [n RET RET]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][Avatar must lead!]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Avatar must lead!]
+
+== Ddun-n  token='BS'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun-n-6 step 4 after [0 1 BS]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit]
+
+== Ddun-r  token='MIC'  fields=gram,state,turns,clock,dturns=+1  walks=3
+   Ddun-r-0 step 2 after [r MIC]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][Ready...][]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Ready...][]
+
+== Ddun-r  token='BS'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun-r-6 step 4 after [0 1 BS]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][Ready...][]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Ready...][]
+
+== Ddun-s  token='MIC'  fields=gram,state,turns,clock,dturns=+1  walks=3
+   Ddun-s-0 step 2 after [s MIC]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][Search-][Pass]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Search-][Pass]
+
+== Ddun-s  token='BS'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun-s-6 step 4 after [0 1 BS]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][Search-][Pass]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Search-][Pass]
+
+== Ddun-u  token='MIC'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun-u-0 step 2 after [u MIC]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][Use item][]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Use item][]
+
+== Ddun-u  token='RET'  fields=gram,state,turns,clock,dturns=+1  walks=2
+   Ddun-u-1 step 3 after [u RET RET]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][][Potion]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Use item][][Potion]
+
+== Ddun-u  token='BS'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun-u-6 step 4 after [0 1 BS]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][Use item][]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Use item][]
+
+== Ddun-z  token='MIC'  fields=gram,state,turns,clock,dturns=+1  walks=3
+   Ddun-z-0 step 2 after [z MIC]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][Z-stats...]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Z-stats...]
+
+== Ddun-z  token='BS'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun-z-6 step 4 after [0 1 BS]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][Z-stats...]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Z-stats...]
+
+== Ddun40-c  token='MIC'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun40-c-0 step 2 after [c MIC]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][Cast...][None!]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Cast...][None!]
+
+== Ddun40-c  token='BS'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun40-c-6 step 4 after [0 1 BS]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][Cast...][None!]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Cast...][None!]
+
+== Ddun40-d  token='d'  fields=gram,text,state,mode,req,prompt,cursor,turns,clock,dturns=-1  walks=4
+   Ddun40-d-0 step 1 after [d]
+      base: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Drink][No fountain here.]
+      head: mode=9 req=42 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Doom][Look...]
+
+== Ddun40-l  token='l'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=4
+   Ddun40-l-0 step 1 after [l]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][What?]
+      head: mode=9 req=41 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Doom][Look...]
+
+== Ddun40-m  token='MIC'  fields=gram,state,turns,clock,dturns=+1  walks=3
+   Ddun40-m-0 step 2 after [m MIC]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][Mix Reagents][]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Mix Reagents][]
+
+== Ddun40-m  token='BS'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun40-m-6 step 4 after [0 1 BS]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][Mix Reagents][]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Mix Reagents][]
+
+== Ddun40-n  token='MIC'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun40-n-0 step 2 after [n MIC]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom]
+
+== Ddun40-n  token='RET'  fields=gram,state,turns,clock,dturns=+1  walks=2
+   Ddun40-n-1 step 3 after [n RET RET]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][Avatar must lead!]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Avatar must lead!]
+
+== Ddun40-n  token='BS'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun40-n-6 step 4 after [0 1 BS]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom]
+
+== Ddun40-r  token='MIC'  fields=gram,state,turns,clock,dturns=+1  walks=3
+   Ddun40-r-0 step 2 after [r MIC]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][Ready...][]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Ready...][]
+
+== Ddun40-r  token='BS'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun40-r-6 step 4 after [0 1 BS]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][Ready...][]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Ready...][]
+
+== Ddun40-s  token='MIC'  fields=gram,state,turns,clock,dturns=+1  walks=3
+   Ddun40-s-0 step 2 after [s MIC]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][Search-][Pass]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Search-][Pass]
+
+== Ddun40-s  token='BS'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun40-s-6 step 4 after [0 1 BS]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][Search-][Pass]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Search-][Pass]
+
+== Ddun40-u  token='MIC'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun40-u-0 step 2 after [u MIC]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][Use item][]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Use item][]
+
+== Ddun40-u  token='RET'  fields=gram,state,turns,clock,dturns=+1  walks=2
+   Ddun40-u-1 step 3 after [u RET RET]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][][Potion]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Use item][][Potion]
+
+== Ddun40-u  token='BS'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun40-u-6 step 4 after [0 1 BS]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][Use item][]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Use item][]
+
+== Ddun40-z  token='MIC'  fields=gram,state,turns,clock,dturns=+1  walks=3
+   Ddun40-z-0 step 2 after [z MIC]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][Z-stats...]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Z-stats...]
+
+== Ddun40-z  token='BS'  fields=gram,state,turns,clock,dturns=+1  walks=1
+   Ddun40-z-6 step 4 after [0 1 BS]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][Z-stats...]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Z-stats...]
+
+== E-7  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   E-7 step 3 after [q n MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[What?]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[What?]
+
+== E-11  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   E-11 step 5 after [3 RET MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=
+
+== E-12  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   E-12 step 3 after [n 2 MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=
+
+== E-13  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   E-13 step 7 after [RET LEFT MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Z-stats...]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Z-stats...]
+
+== G-33-0  token='l'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   G-33-0 step 1 after [l]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][What?]
+      head: mode=9 req=41 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Deceit][Look...]
+
+== G-33-1  token='l'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   G-33-1 step 1 after [l]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][What?]
+      head: mode=9 req=41 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Deceit][Look...]
+
+== G-33-2  token='l'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   G-33-2 step 1 after [l]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][What?]
+      head: mode=9 req=41 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Deceit][Look...]
+
+== G-33-3  token='l'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   G-33-3 step 1 after [l]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][What?]
+      head: mode=9 req=41 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Deceit][Look...]
+
+== G-33-4  token='l'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   G-33-4 step 1 after [l]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][What?]
+      head: mode=9 req=41 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Deceit][Look...]
+
+== G-33-5  token='l'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   G-33-5 step 1 after [l]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][What?]
+      head: mode=9 req=41 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Deceit][Look...]
+
+== G-33-6  token='l'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   G-33-6 step 1 after [l]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][What?]
+      head: mode=9 req=41 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Deceit][Look...]
+
+== G-33-7  token='d'  fields=gram,text,state,mode,req,prompt,cursor,turns,clock,dturns=-1  walks=1
+   G-33-7 step 1 after [d]
+      base: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Drink][No fountain here.]
+      head: mode=9 req=42 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Deceit][Look...]
+
+== G-33-8  token='d'  fields=gram,text,state,mode,req,prompt,cursor,turns,clock,dturns=-1  walks=1
+   G-33-8 step 1 after [d]
+      base: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Drink][No fountain here.]
+      head: mode=9 req=42 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Deceit][Look...]
+
+== G-33-9  token='d'  fields=gram,text,state,mode,req,prompt,cursor,turns,clock,dturns=-1  walks=1
+   G-33-9 step 1 after [d]
+      base: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][Drink][No fountain here.]
+      head: mode=9 req=42 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Deceit][Look...]
+
+== G-33-10  token='^K'  fields=gram,text,state,turns,clock,dturns=+1  walks=1
+   G-33-10 step 1 after [^K]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][What?]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][60]
+
+== G-33-11  token='^V'  fields=gram,text,state,turns,clock,dturns=+1  walks=1
+   G-33-11 step 1 after [^V]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Deceit][What?]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Deceit][1.16]
+
+== G-40-0  token='l'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   G-40-0 step 1 after [l]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][What?]
+      head: mode=9 req=41 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Doom][Look...]
+
+== G-40-1  token='l'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   G-40-1 step 1 after [l]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][What?]
+      head: mode=9 req=41 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Doom][Look...]
+
+== G-40-2  token='l'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   G-40-2 step 1 after [l]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][What?]
+      head: mode=9 req=41 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Doom][Look...]
+
+== G-40-3  token='l'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   G-40-3 step 1 after [l]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][What?]
+      head: mode=9 req=41 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Doom][Look...]
+
+== G-40-4  token='l'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   G-40-4 step 1 after [l]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][What?]
+      head: mode=9 req=41 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Doom][Look...]
+
+== G-40-5  token='l'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   G-40-5 step 1 after [l]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][What?]
+      head: mode=9 req=41 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Doom][Look...]
+
+== G-40-6  token='l'  fields=gram,text,mode,req,prompt,cursor,dturns=+0  walks=1
+   G-40-6 step 1 after [l]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][What?]
+      head: mode=9 req=41 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Doom][Look...]
+
+== G-40-7  token='d'  fields=gram,text,state,mode,req,prompt,cursor,turns,clock,dturns=-1  walks=1
+   G-40-7 step 1 after [d]
+      base: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Drink][No fountain here.]
+      head: mode=9 req=42 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Doom][Look...]
+
+== G-40-8  token='d'  fields=gram,text,state,mode,req,prompt,cursor,turns,clock,dturns=-1  walks=1
+   G-40-8 step 1 after [d]
+      base: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Drink][No fountain here.]
+      head: mode=9 req=42 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Doom][Look...]
+
+== G-40-9  token='d'  fields=gram,text,state,mode,req,prompt,cursor,turns,clock,dturns=-1  walks=1
+   G-40-9 step 1 after [d]
+      base: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][Drink][No fountain here.]
+      head: mode=9 req=42 turns=0 clock=5:12:00 prompt=[Player: ] tail=[Doom][Look...]
+
+== G-40-10  token='^K'  fields=gram,text,state,turns,clock,dturns=+1  walks=1
+   G-40-10 step 1 after [^K]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][What?]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][60]
+
+== G-40-11  token='^V'  fields=gram,text,state,turns,clock,dturns=+1  walks=1
+   G-40-11 step 1 after [^V]
+      base: mode=1 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Doom][What?]
+      head: mode=1 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Doom][1.16]
+
+== H-0-0  token='^K'  fields=gram,text,dturns=+0  walks=1
+   H-0-0 step 1 after [^K]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[What?]
+      head: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[60]
+
+== H-0-1  token='^V'  fields=gram,text,dturns=+0  walks=1
+   H-0-1 step 1 after [^V]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[What?]
+      head: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[1.16]
+
+== H-0-2  token='^K'  fields=gram,text,dturns=+0  walks=1
+   H-0-2 step 1 after [^K]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[What?]
+      head: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[60]
+
+== H-0-4  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   H-0-4 step 3 after [z RET MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Z-stats...]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Z-stats...]
+
+== H-0-6  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   H-0-6 step 3 after [u RET RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][][Potion]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[Use item][][Potion]
+
+== H-0-7  token='x'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   H-0-7 step 1 after [x]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[X-it ][what?]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[X-it ][what?]
+
+== H-1-0  token='^K'  fields=gram,text,dturns=+0  walks=1
+   H-1-0 step 1 after [^K]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[What?]
+      head: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[60]
+
+== H-1-1  token='^V'  fields=gram,text,dturns=+0  walks=1
+   H-1-1 step 1 after [^V]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[What?]
+      head: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[1.16]
+
+== H-1-2  token='^K'  fields=gram,text,dturns=+0  walks=1
+   H-1-2 step 1 after [^K]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[What?]
+      head: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[60]
+
+== H-1-4  token='MIC'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   H-1-4 step 3 after [z RET MIC]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Z-stats...]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Z-stats...]
+
+== H-1-6  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   H-1-6 step 3 after [u RET RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[Use item][][Potion]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Use item][][Potion]
+
+== H-1-7  token='x'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   H-1-7 step 1 after [x]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[X-it ][what?]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[X-it ][what?]
+
+differing walks by family prefix: {'A': 134, 'Aact': 132, 'B': 10, 'C': 16, 'T': 6, 'Dtown': 71, 'Dpalace': 73, 'Ddun': 34, 'Ddun40': 34, 'E': 4, 'G': 24, 'H': 12}

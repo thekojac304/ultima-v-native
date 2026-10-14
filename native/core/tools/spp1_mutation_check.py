@@ -108,6 +108,7 @@ MUTANTS = [
     ('B4', 'B', SHO, '            return size_t(s.item) < std::size(RUMOR_SUBJECTS) ? RUMOR_SUBJECTS[s.item] : "someone";',
      '            return "someone";', CORE, CORE),
     ('B5', 'B', SHO, '"says %s."', '"says %s"', CORE, CORE),
+    ('A8', 'A', RT, "m==openu5::UiMode::Shop||dialogue_.active)", "m==openu5::UiMode::Shop)", SPP1, SPP1),
 ]
 
 
