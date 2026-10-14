@@ -865,6 +865,21 @@ class AlphaRuntime {
     /** One translated input, from handle_input_event() or handle_action(). */
     bool route_input(openu5::UiAction action, DeviceShortcut shortcut, int64_t timestamp_us,
                      const char *source, const char *movement_source);
+    bool route_input_body(openu5::UiAction action, DeviceShortcut shortcut, int64_t timestamp_us,
+                          const char *source, const char *movement_source);
+    // SPP1 A. The kernel dispatcher's turn (CommandKind::DispatcherTurn): armed when a
+    // command whose dispatcher arm returns 1 is typed at the bare prompt, settled once
+    // the interaction is over -- one turn unless the command charged its own, left the
+    // location or the dungeon, or became a conversation, a shop or a fight.
+    struct DispatcherTurnLatch {
+        bool armed = false, saw_session = false, dungeon = false;
+        uint8_t location = 0;
+        int64_t turns = 0;
+    };
+    DispatcherTurnLatch dispatcher_turn_{};
+    bool at_command_prompt() const;
+    void arm_dispatcher_turn(const openu5::UiAction &, DeviceShortcut);
+    void settle_dispatcher_turn();
     // A3-01. The one binder of the Developer diagnostics services, shared by
     // initialize() and the host fixture (the fixture used to copy the call).
     void bind_developer_diagnostics();

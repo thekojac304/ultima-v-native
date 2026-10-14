@@ -50,6 +50,15 @@ MUTANTS = [
      '         (platform_dos_interface() && (request == UiRequestId::Inventory || request == UiRequestId::Target)));', SPP1, SPP1),
     ('F8', 'F', MAG, '    if (caster.level < d->circle)\n        return CastGate::LowLevel;\n', '', SPP1, SPP1),
     ('F9', 'F', MAG, '    if (caster.current_mp < d->circle)\n        return CastGate::LowMp;\n', '', SPP1, SPP1),
+    ('A1', 'A', RT, '    if(!armed)return;\n    dispatcher_turn_.armed=true;', '    armed=false;if(!armed)return;\n    dispatcher_turn_.armed=true;', SPP1, SPP1),
+    ('A2', 'A', RT, '    if(game_.turns_since_start!=latch.turns)return; // the command charged its own turn\n', '', SPP1, SPP1),
+    ('A3', 'A', RT, 'town?"rznucmlgojspftx":"rznucmlgojspftxk";', 'town?"rznucmlgojspftx":"rznucmlgojspftxka";', SPP1, SPP1),
+    ('A4', 'A', CMD, '        if (c.dungeon) {\n            Command tick; tick.kind = CommandKind::DungeonCommand; tick.item = int16_t(DungeonAction::Tick);\n            return execute_dungeon_command(c, tick);\n        }\n        const auto before = c.game.turns_since_start;',
+     '        const auto before = c.game.turns_since_start;', SPP1, SPP1),
+    ('A5', 'A', RT, '    if(!at_command_prompt())return; // still inside the command\n', '', SPP1, SPP1),
+    ('A6', 'A', RT, 'const char *set=dungeon?"rznumcs":', 'const char *set=dungeon?"cs":', SPP1, SPP1),
+    ('A7', 'A', RT, '           pending_combat_spell_<0&&pending_ready_member_<0&&pending_use_item_<0&&pending_order_from_<0&&',
+     '           pending_combat_spell_<0&&pending_use_item_<0&&pending_order_from_<0&&', SPP1, SPP1),
 ]
 
 

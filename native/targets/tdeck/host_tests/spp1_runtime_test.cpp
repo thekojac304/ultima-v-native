@@ -404,6 +404,147 @@ void test_f() {
         if (dos) check(transcript_has(h, "On who: None!") && !transcript_has(h, "Failed!"), "F6 Original: \"On who: None!\" and no Failed!");
     }
 }
+// --- Candidate A: the kernel dispatcher's turn (spp1-findings/A-turn-costs.md) ---------------
+//   K:0x3178 returns 1 -- one world turn for the context loop -- on EVERY path of (R)eady 0x339a,
+//   (Z)-stats 0x3472, (N)ew order 0x334e, (U)se 0x340c, (C)ast 0x3242 (CAST 0x0dba always
+//   returns [bp-6] = 1) and (M)ix, and of the getdir commands L/G/O/J/S/P/F/T/X, a Space `Pass`
+//   included (getdir 0x35EC has no ESC; its only "no direction" is Space). Overworld A returns 0
+//   (MAINOUT 0x06ec); town A returns 1 except "On foot!". MAINOUT 0x0c39 then runs advance_clock(2)
+//   and the turn block, TOWN 0x15d0 advance_clock(1); DUNGEON 0x0f84 the turn block 0x0c76.
+//      A1  R: Cancel at Player:, and two items equipped then the list closed -- one turn each
+//      A2  Z: Cancel at Player:, and the pages browsed and closed -- one turn each
+//      A3  N: Cancel at Swap, and a completed swap -- one turn each
+//      A4  U: Cancel at the list, and a potion drunk -- one turn each
+//      A5  C: Cancel at Player:, and a completed Mani -- one turn each; M: Cancel -- one turn
+//      A6  the getdir: Look / Get cancelled (the T-Deck's Cancel is the binary's Pass), a
+//          completed Look -- one turn each; Search, whose core command already charges its
+//          turn, still costs exactly one
+//      A7  the town: one turn of one minute (TOWN 0x15d0) for R and for a Look-Pass
+//      A8  the dungeon: R / U / Z cost one dungeon turn (DUNGEON 0x0f84 -> 0x0c76)
+//      A9  Original: Space at Look- prints "Look-Pass" and costs one turn
+//      A10 controls that stay free: overworld Attack cancelled (MAINOUT 0x06ec), D ("D-What?"),
+//          Ctrl-K, a valid digit; and Ignite / Pass, charged by the core, cost one, not two
+UiAction dir(Direction d) { UiAction a; a.kind = UiActionKind::Direction; a.direction = d; return a; }
+struct Cost { int64_t turns; int minutes; };
+template <class F> Cost cost(Run &h, F &&f) {
+    const Snap a = snap(h);
+    f();
+    const Snap b = snap(h);
+    return {b.turns - a.turns, minutes(b) - minutes(a)};
+}
+std::string show(const Cost &c) { return " (turns +" + n(c.turns) + ", clock +" + n(c.minutes) + " min)"; }
+bool one_world(const Cost &c) { return c.turns == 1 && c.minutes == 2; }
+void equip_two(Run &h) {
+    auto &g = h.rt->game();
+    for (auto &q : g.equipment_quantities) q = 0;
+    g.equipment_quantities[0] = 1;  // Leather Helm
+    g.equipment_quantities[16] = 1; // Dagger
+}
+
+void test_a() {
+    std::printf("A  the dispatcher's turn: R / Z / N / U / C / M and the getdir, every path\n");
+    {
+        Run h(kParty);
+        surface(h);
+        equip_two(h);
+        auto c1 = cost(h, [&] { act(h, ch('r')); act(h, kind(UiActionKind::Cancel)); });
+        check(one_world(c1), "A1 R cancelled at Player: costs one world turn" + show(c1));
+        auto c2 = cost(h, [&] {
+            act(h, ch('r'));
+            act(h, select(0));
+            act(h, select(0));
+            act(h, select(1));
+            act(h, kind(UiActionKind::Cancel));
+        });
+        check(one_world(c2), "A1 R with two items readied, then closed, costs ONE world turn" + show(c2));
+        auto c3 = cost(h, [&] { act(h, ch('z')); act(h, kind(UiActionKind::Cancel)); });
+        check(one_world(c3), "A2 Z cancelled at Player: costs one world turn" + show(c3));
+        bool viewer_open = false, viewer_closed = false;
+        auto c4 = cost(h, [&] {
+            act(h, ch('z'));
+            act(h, select(1));
+            viewer_open = h.rt->transient_probe_for_test().zstats; // the page viewer is the runtime's, not a UiMode
+            act(h, dir(Direction::East));                           // turn a page
+            for (int i = 0; i < 3 && h.rt->transient_probe_for_test().zstats; ++i) act(h, kind(UiActionKind::Cancel));
+            viewer_closed = !h.rt->transient_probe_for_test().zstats;
+        });
+        check(viewer_open && viewer_closed && one_world(c4), "A2 Z browsed and closed costs one world turn" + show(c4));
+        auto c5 = cost(h, [&] { act(h, ch('n')); act(h, kind(UiActionKind::Cancel)); });
+        check(one_world(c5), "A3 N cancelled at Swap costs one world turn" + show(c5));
+        auto c6 = cost(h, [&] { act(h, ch('n')); act(h, select(1)); act(h, select(2)); });
+        check(one_world(c6) && std::string(h.rt->game().party.characters[1].name) == "Shamino",
+              "A3 a completed swap (Iolo <-> Shamino) costs one world turn" + show(c6));
+        auto &g = h.rt->game();
+        for (auto &q : g.scroll_quantities) q = 0;
+        for (auto &q : g.potion_quantities) q = 0;
+        g.potion_quantities[0] = 2;
+        auto c7 = cost(h, [&] { act(h, ch('u')); act(h, kind(UiActionKind::Cancel)); });
+        check(one_world(c7), "A4 U cancelled at the list costs one world turn" + show(c7));
+        auto c8 = cost(h, [&] { act(h, ch('u')); act(h, select(0)); act(h, select(0)); });
+        check(one_world(c8) && g.potion_quantities[0] == 1, "A4 U a potion drunk costs one world turn" + show(c8));
+        caster_party(h, kMani);
+        auto c9 = cost(h, [&] { act(h, ch('c')); act(h, kind(UiActionKind::Cancel)); });
+        check(one_world(c9) && g.spell_quantities[kMani] == 2, "A5 C cancelled at Player: costs one world turn, nothing spent" + show(c9));
+        auto c10 = cost(h, [&] { world_cast(h, kMani, 1, 2); });
+        check(one_world(c10) && g.spell_quantities[kMani] == 1, "A5 C a completed Mani costs one world turn" + show(c10));
+        auto c11 = cost(h, [&] { act(h, ch('m')); act(h, kind(UiActionKind::Cancel)); });
+        check(one_world(c11), "A5 M cancelled at the spell costs one world turn" + show(c11));
+        auto c12 = cost(h, [&] { act(h, ch('l')); act(h, kind(UiActionKind::Cancel)); });
+        check(one_world(c12), "A6 Look cancelled at the direction (the binary's Pass) costs one world turn" + show(c12));
+        auto c13 = cost(h, [&] { act(h, ch('g')); act(h, kind(UiActionKind::Cancel)); });
+        check(one_world(c13), "A6 Get cancelled at the direction costs one world turn" + show(c13));
+        auto c14 = cost(h, [&] { act(h, ch('l')); act(h, dir(Direction::North)); });
+        check(one_world(c14), "A6 a completed Look costs one world turn (K:0x3310 -> 0x333c returns 1)" + show(c14));
+        auto c15 = cost(h, [&] {
+            act(h, ch('s'));
+            act(h, dir(Direction::North));
+            if (mode(h) == UiMode::PartySelection) act(h, select(0));
+        });
+        check(one_world(c15), "A6 Search, which charges its own turn in the core, still costs exactly one" + show(c15));
+        // A10 controls
+        auto z1 = cost(h, [&] { act(h, ch('a')); act(h, kind(UiActionKind::Cancel)); });
+        check(z1.turns == 0 && z1.minutes == 0, "A10 overworld Attack cancelled stays free (MAINOUT 0x06ec returns 0)" + show(z1));
+        auto z2 = cost(h, [&] { act(h, ch('d')); });
+        check(z2.turns == 0 && z2.minutes == 0, "A10 D (\"D-What?\") stays free (K:0x324e)" + show(z2));
+        auto z3 = cost(h, [&] { act(h, ch(0x0b)); });
+        check(z3.turns == 0, "A10 Ctrl-K stays free on the surface" + show(z3));
+        auto z4 = cost(h, [&] { act(h, ch('1')); });
+        check(z4.turns == 0, "A10 a valid digit stays free" + show(z4));
+        g.torches = 3;
+        auto z5 = cost(h, [&] { act(h, ch('i')); });
+        check(one_world(z5), "A10 Ignite (charged by the core) costs one turn, not two" + show(z5));
+        auto z6 = cost(h, [&] { act(h, kind(UiActionKind::Confirm)); });
+        check(one_world(z6), "A10 Pass costs one turn, not two" + show(z6));
+    }
+    {
+        Run h(kParty);
+        enter_town(h, 2);
+        equip_two(h);
+        auto c1 = cost(h, [&] { act(h, ch('r')); act(h, kind(UiActionKind::Cancel)); });
+        check(c1.turns == 1 && c1.minutes == 1, "A7 town: R cancelled costs one turn of one minute (TOWN 0x15d0)" + show(c1));
+        auto c2 = cost(h, [&] { act(h, ch('l')); act(h, kind(UiActionKind::Cancel)); });
+        check(c2.turns == 1 && c2.minutes == 1, "A7 town: Look-Pass costs one turn of one minute" + show(c2));
+    }
+    {
+        Run h(kParty);
+        enter_deceit(h);
+        auto c1 = cost(h, [&] { act(h, ch('r')); act(h, kind(UiActionKind::Cancel)); });
+        check(in_dungeon(h) && c1.turns == 1 && c1.minutes == 1, "A8 dungeon: R cancelled costs one dungeon turn" + show(c1));
+        auto c2 = cost(h, [&] { act(h, ch('u')); act(h, kind(UiActionKind::Cancel)); });
+        check(c2.turns == 1 && c2.minutes == 1, "A8 dungeon: U cancelled costs one dungeon turn" + show(c2));
+        auto c3 = cost(h, [&] { act(h, ch('z')); act(h, kind(UiActionKind::Cancel)); });
+        check(c3.turns == 1 && c3.minutes == 1, "A8 dungeon: Z cancelled costs one dungeon turn" + show(c3));
+    }
+    {
+        DosProfile dos;
+        Run h(kParty);
+        surface(h);
+        auto c1 = cost(h, [&] { act(h, ch('l')); act(h, ch(' ')); });
+        check(transcript_has(h, "Look-Pass") && one_world(c1), "A9 Original: Space at Look- prints \"Look-Pass\" and costs one world turn" + show(c1));
+        auto c2 = cost(h, [&] { act(h, kind(UiActionKind::Confirm)); act(h, kind(UiActionKind::Cancel)); });
+        check(c2.turns == 0, "A10 Original: RETURN / ESC at the prompt (\"What?\") stay free" + show(c2));
+    }
+}
 } // namespace
 
 int main(int argc, char **argv) {
@@ -421,6 +562,7 @@ int main(int argc, char **argv) {
     g_arena_count = arenas.size();
     test_g();
     test_f();
+    test_a();
     std::printf("SPP1 runtime: %d/%d checks\n", checks - failures, checks);
     return failures ? 1 : 0;
 }

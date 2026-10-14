@@ -639,12 +639,16 @@ void test_leak() {
     h.key('\r');
     check(h.g().spell_quantities[kInLor] == 1 && h.mode() == UiMode::Exploration, "N12.6", "precondition: mixed");
     const int32_t minute = h.g().time.hour * 60 + h.g().time.minute;
+    const int64_t turns = h.g().turns_since_start;
     h.set_mark();
     h.key('m');
     check(h.mode() == UiMode::SpellSelection, "N12.7", "the next 'm' is a fresh Mix, not a leftover");
     h.mic();
-    check(h.mode() == UiMode::Exploration && h.g().time.hour * 60 + h.g().time.minute == minute, "N12.8",
-          "and Mic leaves it; no turn was spent");
+    // SPP1 A: the dispatcher's M arm (K:0x3340 -> 0x334a jmp 0x31ee) returns 1 on every path,
+    // a Mix left at the spell included: one world turn (spp1-findings/A-turn-costs.md).
+    check(h.mode() == UiMode::Exploration && h.g().turns_since_start == turns + 1 &&
+              h.g().time.hour * 60 + h.g().time.minute != minute,
+          "N12.8", "and Mic leaves it; the Mix command's one world turn is spent (K:0x3340)");
 }
 
 // ---- N13: a load in the middle ----------------------------------------------

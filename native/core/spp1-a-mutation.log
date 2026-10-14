@@ -1,0 +1,9 @@
+A1 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED A1 R cancelled at Player: costs one world turn (turns +0, clock +0 min) | RED A1 R with two items readied, then closed, costs ONE world turn (turns +0, clock +0 min) | RED A2 Z cancelled at Player: costs one world turn (turns +0, clock +0 min)
+A2 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED A6 Search, which charges its own turn in the core, still costs exactly one (turns +2, clock +4 min)
+A3 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED A10 overworld Attack cancelled stays free (MAINOUT 0x06ec returns 0) (turns +1, clock +2 min)
+A4 KILLED native/core/src/commands.cpp  <- RED A8 dungeon: R cancelled costs one dungeon turn (turns +1, clock +2 min) | RED A8 dungeon: U cancelled costs one dungeon turn (turns +1, clock +2 min) | RED A8 dungeon: Z cancelled costs one dungeon turn (turns +1, clock +2 min)
+A5 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED A6 Search, which charges its own turn in the core, still costs exactly one (turns +2, clock +4 min)
+A6 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED A8 dungeon: R cancelled costs one dungeon turn (turns +0, clock +0 min) | RED A8 dungeon: U cancelled costs one dungeon turn (turns +0, clock +0 min) | RED A8 dungeon: Z cancelled costs one dungeon turn (turns +0, clock +0 min)
+A7 SURVIVED native/targets/tdeck/main/alpha_runtime.cpp
+restored tree: GREEN
+KILLED 6 SURVIVED 1 INVALID 0 STALE 0

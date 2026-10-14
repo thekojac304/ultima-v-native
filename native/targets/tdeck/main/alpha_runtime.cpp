@@ -2196,6 +2196,64 @@ bool AlphaRuntime::handle_input_event(const RawInputEvent&raw){service_combat();
 // (handle_input_event above) or a desktop keyboard (handle_action).
 bool AlphaRuntime::route_input(openu5::UiAction action,DeviceShortcut shortcut,int64_t timestamp_us,
                                const char*source,const char*movement_source){
+    arm_dispatcher_turn(action,shortcut);
+    const bool routed=route_input_body(action,shortcut,timestamp_us,source,movement_source);
+    settle_dispatcher_turn();
+    return routed;
+}
+
+// SPP1 A. The bare command prompt: the world or dungeon mode with nothing parked --
+// no picker, list, viewer, pacer, menu or scene between a command and the next key.
+bool AlphaRuntime::at_command_prompt() const{
+    if(!ui_||frontend_.active()||system_menu_.active())return false;
+    const auto m=ui_->mode();
+    if(m!=openu5::UiMode::Exploration&&m!=openu5::UiMode::Dungeon)return false;
+    return !zstats_open_&&!gem_view_active_&&!zodiac_view_active_&&!moongate_transit_active()&&
+           pending_combat_spell_<0&&pending_ready_member_<0&&pending_use_item_<0&&pending_order_from_<0&&
+           !pending_search_active_&&pending_caster_<0&&pending_mix_spell_<0&&
+           !narrative_pacer_.modal()&&!blackthorn_pacer_.modal()&&!dialogue_pacer_.holding()&&
+           commands_.camp_advance.phase==openu5::CommandState::CampAdvance::Phase::None&&
+           !commands_.awaiting_troll&&!commands_.awaiting_exit;
+}
+
+// SPP1 A. The commands whose kernel dispatcher arm returns 1 on every path
+// (spp1-findings/A-turn-costs.md section 1): R 0x339a, Z 0x3472, N 0x334e, U 0x340c,
+// C 0x3242 (CAST 0x0dba returns [bp-6] = 1 whatever happens), M, and the getdir
+// commands L G O J S P F T X (a Space `Pass` included; the T-Deck's Cancel, the ESC
+// of ledger A-1, is the only "no direction" its getdir has, so it counts as that
+// Pass). Overworld K too (CMDS 0x1c20); town A on foot (TOWN 0x09e6, "On foot!" = 0);
+// never overworld A (MAINOUT 0x06ec returns 0). Underground the letters go through
+// DUNGEON 0x07a3 to the same dispatcher; dungeon P is 0 ("Not here!") and its other
+// actions and Look have their own turn.
+void AlphaRuntime::arm_dispatcher_turn(const openu5::UiAction&a,DeviceShortcut shortcut){
+    if(shortcut!=DeviceShortcut::None||a.kind!=openu5::UiActionKind::Character||context_.combat)return;
+    if(!at_command_prompt())return;
+    const char16_t c=a.character>=u'A'&&a.character<=u'Z'?char16_t(a.character-u'A'+u'a'):a.character;
+    if(c>127)return;
+    const bool dungeon=dungeon_.active,town=!dungeon&&game_.position.map.location!=0;
+    const char *set=dungeon?"rznumcs":town?"rznucmlgojspftx":"rznucmlgojspftxk";
+    bool armed=c!=0&&std::strchr(set,char(c))!=nullptr;
+    if(!armed&&town&&c==u'a'&&game_.transport==openu5::TransportMode::Foot)armed=true;
+    if(!armed)return;
+    dispatcher_turn_.armed=true;dispatcher_turn_.saw_session=false;dispatcher_turn_.dungeon=dungeon;
+    dispatcher_turn_.location=uint8_t(game_.position.map.location);dispatcher_turn_.turns=game_.turns_since_start;
+}
+
+void AlphaRuntime::settle_dispatcher_turn(){
+    if(!dispatcher_turn_.armed)return;
+    if(frontend_.active()){dispatcher_turn_={};return;}
+    const auto m=ui_?ui_->mode():openu5::UiMode::Exploration;
+    // A conversation, a shop or a fight runs on its own loop's time.
+    if(context_.combat||m==openu5::UiMode::Dialogue||m==openu5::UiMode::Shop)dispatcher_turn_.saw_session=true;
+    if(!at_command_prompt())return; // still inside the command
+    const auto latch=dispatcher_turn_;dispatcher_turn_={};
+    if(latch.saw_session||context_.combat||dungeon_.active!=latch.dungeon||game_.position.map.location!=latch.location)return;
+    if(game_.turns_since_start!=latch.turns)return; // the command charged its own turn
+    openu5::Command turn;turn.kind=openu5::CommandKind::DispatcherTurn;command(turn);
+}
+
+bool AlphaRuntime::route_input_body(openu5::UiAction action,DeviceShortcut shortcut,int64_t timestamp_us,
+                                    const char*source,const char*movement_source){
     const bool in_frontend=frontend_.active();
     const auto mode_before=input_mode();
     // A3-05. The session mutes are output controls, not commands: they act on
@@ -3574,6 +3632,7 @@ void AlphaRuntime::reset_transient_after_load(){
     moongate_transit_=false;moongate_settle_=true; // A4-UI4 (D-48)
     // Picks parked across a modal, the picker rows, queued work.
     pending_combat_spell_=pending_spell_caster_=pending_ready_member_=pending_use_item_=pending_order_from_=-1;
+    dispatcher_turn_={}; // SPP1 A: a command of the replaced game charges nothing in this one
     pending_search_={};pending_search_active_=false;pending_caster_=-1;shrine_virtue_length_=0;
     if(dos_state_)*dos_state_=DosInterfaceState{};
     pending_mix_spell_=-1;pending_mix_mask_=0; // A3-HF10

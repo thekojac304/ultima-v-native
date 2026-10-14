@@ -281,14 +281,17 @@ void test_exit_and_turns() {
     f.key(' ');
     expect(!f.rt.zstats_active(), "Z10-1", "Space closes the modal (0x0a78)");
     expect(f.mode() == UiMode::Exploration, "Z10-2", "and gameplay UI is restored");
-    expect(f.turns() == turns0, "Z11-4", "closing charges no turn either");
+    // SPP1 A: the kernel dispatcher's Z arm (K:0x3472 -> 0x347c jmp 0x31ee) returns 1 when
+    // cmd_zstats returns -- one world turn per Z, charged as it closes (the old "free" reading
+    // rested on g_unk_24e6, a repaint flag; spp1-findings/A-turn-costs.md).
+    expect(f.turns() == turns0 + 1, "Z11-4", "closing charges the Z command's one turn (K:0x3472)");
 
     // Gameplay resumes immediately.
     const auto pos_before = f.rt.game().position;
     f.ball(tdeck::RawInputKind::TrackballUp);
     expect(std::memcmp(&f.rt.game().position, &pos_before, sizeof(pos_before)) != 0, "Z10-3",
            "the very next direction moves the player again");
-    expect(f.turns() == turns0 + 1, "Z10-4", "and charges exactly one turn");
+    expect(f.turns() == turns0 + 2, "Z10-4", "and charges exactly one turn of its own");
 
     // ESC (the device's Mic short press) closes the same way.
     Fixture g;
@@ -325,7 +328,7 @@ void test_lifecycle() {
     }
     expect(stable, "Z14-1",
            "six open/navigate/close cycles leave no stale page, scroll or mode");
-    expect(f.turns() == turns0, "Z14-2", "and charge no turn across any of them");
+    expect(f.turns() == turns0 + 6, "Z14-2", "and charge exactly one turn per Z, six in all (SPP1 A)");
 
     // A member chosen in one cycle must not leak into the next cycle's page
     // without the picker confirming it again.

@@ -791,6 +791,28 @@ static ActionResult execute(CommandContext &c, Command cmd, bool dispatch) {
         r.result.status = CommandStatus::InvalidContext;
         return r.result;
     }
+    // SPP1 A. The kernel dispatcher (K:0x3178) set its result to 1 in the prologue
+    // (0x317e) and returned it for R / Z / N / U / C / M and the getdir commands on
+    // every path -- a cancel, a refusal and a getdir `Pass` included (spp1-findings/
+    // A-turn-costs.md). The context loop then ran one turn: MAINOUT 0x0c39
+    // advance_clock(2) and the turn block, TOWN 0x15d0 advance_clock(1) and its NPC
+    // tail (the Pass key's mount exception, 0x161f, does not apply), DUNGEON 0x0f84 the
+    // block 0x0c76. Ready / NewOrder / UseItem stay free per command: the front end
+    // sends this once, when the whole interaction ends without a turn of its own.
+    if (cmd.kind == CommandKind::DispatcherTurn) {
+        if (c.combat || c.commands.awaiting_troll || c.commands.awaiting_exit || c.commands.pending_camp_enemy >= 0) {
+            r.result.status = CommandStatus::NoOp;
+            return r.result;
+        }
+        if (c.dungeon) {
+            Command tick; tick.kind = CommandKind::DungeonCommand; tick.item = int16_t(DungeonAction::Tick);
+            return execute_dungeon_command(c, tick);
+        }
+        const auto before = c.game.turns_since_start;
+        r.turn();
+        r.result.turns = c.game.turns_since_start - before;
+        return r.result;
+    }
     if(!c.combat&&(cmd.kind==CommandKind::NewOrder||cmd.kind==CommandKind::SetActivePlayer)){
         auto &g=c.game;auto &party=g.party;if(party.character_count>kRosterCapacity||party.party_size<0||party.party_size>kMaxParty){r.result.status=CommandStatus::InvalidContext;return r.result;}
         if(cmd.kind==CommandKind::NewOrder){

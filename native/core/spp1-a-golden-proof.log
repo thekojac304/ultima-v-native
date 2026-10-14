@@ -1,0 +1,4 @@
+SPP1 A -- a3_04f panel golden re-record proof
+states old 301 new 301; render calls 2766 both; phase starts unchanged [1, 21, 132, 145, 165, 210, 232, 261]
+identical prefix: states 0..150; first difference: state 151 (phase 3, the Z cancel)
+differing states: 149 of 301, all at index >= 151

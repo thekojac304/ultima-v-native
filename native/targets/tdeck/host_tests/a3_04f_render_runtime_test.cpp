@@ -569,6 +569,10 @@ int main(int argc, char **argv) {
         h.run(300);
         apply_debug_preset(h.ctx(), DebugPreset::Combat);
         h.render(true);
+        // SPP1 A: Z now costs the dispatcher's world turn (K:0x3472), so the RNG draws before
+        // this point depend on the turn rules. The fight starts from the script's own seed, so
+        // the census measures the same arena whatever the steps above consumed.
+        h.rt->game().rng.seed(kSeed);
         census.push_back(measure(h, "B13 combat entry (+1.5 s)", [&] { troll_attack(h); }));
         bool won = false;
         census.push_back(measure(h, "B14 the fight (all frames)", [&] { won = fight(h); }));
@@ -817,6 +821,7 @@ int main(int argc, char **argv) {
         phase(); // 4: combat -- entry, the fight, leaving the arena
         apply_debug_preset(h.ctx(), DebugPreset::Combat);
         h.render(true);
+        h.rt->game().rng.seed(kSeed); // SPP1 A: the fight from the script's own seed (see B13)
         troll_attack(h);
         fight(h);
         h.key('\b');

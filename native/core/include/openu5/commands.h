@@ -43,7 +43,12 @@ enum class CommandKind : uint8_t {
     // fixtures encode command kinds as ordinals.
     // The context loops' control keys, item = the raw code: 0x0B Ctrl-K (the karma)
     // and 0x16 Ctrl-V (the version), MAINOUT 0x0bbe / TOWN 0x1552 / DUNGEON 0x06c4.
-    ControlKey
+    ControlKey,
+    // The kernel dispatcher (K:0x3178) returned 1 for a command whose own handler
+    // charged nothing: the context loop's turn, once (MAINOUT 0x0c39 advance_clock(2)
+    // + the turn block, TOWN 0x15d0 advance_clock(1) + its tail, DUNGEON 0x0f84 the
+    // turn block 0x0c76). The front end sends it when such a command ends.
+    DispatcherTurn
 };
 struct Command {
     CommandKind kind = CommandKind::Pass;

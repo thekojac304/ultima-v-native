@@ -241,7 +241,9 @@ void test_illegal_klimb() {
 
     const bool routed = f.key('k');
     expect(routed, "E-1", "the key itself is still accepted by handle() (a real key, just an invalid command)");
-    expect(f.turns() == turns0, "E-2", "Klimb over open ground charges no turn");
+    // SPP1 A: overworld K is CMDS 0x1c20 behind the dispatcher arm K:0x32e8, which returns 1 on
+    // every path ("With what?", "On foot!", a getdir Pass): one world turn (A-turn-costs.md).
+    expect(f.turns() == turns0 + 1, "E-2", "Klimb over open ground costs the dispatcher's one turn (K:0x32f9)");
     expect(std::memcmp(&f.rt.game().position, &pos0, sizeof(pos0)) == 0, "E-3",
            "Klimb over open ground does not move or otherwise mutate the player");
     std::printf("       turns=%lld->%lld\n", (long long)turns0, (long long)f.turns());

@@ -27,6 +27,8 @@ GROUPS = {
           'native/core/src/ui_session.cpp', 'native/core/src/world_magic.cpp', 'native/core/src/commands.cpp',
           'native/core/src/dungeon_orchestration.cpp', 'native/targets/tdeck/main/alpha_runtime.cpp',
           'native/targets/tdeck/main/alpha_runtime.h'],
+    'A': ['native/core/include/openu5/commands.h', 'native/core/src/commands.cpp',
+          'native/targets/tdeck/main/alpha_runtime.cpp', 'native/targets/tdeck/main/alpha_runtime.h'],
 }
 
 
