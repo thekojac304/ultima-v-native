@@ -524,7 +524,7 @@ with the Developer rows: a party with keys, torches and MP; a dungeon fountain c
 | `af582375` | The first test package's log (built from `b984fee0`, before the review fixes) |
 | `37d20f27` | Docs corrections from the documentation review |
 | `5ba2fa46` | A: a timer-ended command's turn; no turns during the map reveal (the code review) |
-| (this commit) | Docs and firmware figures for `5ba2fa46`; the package is rebuilt from it |
+| `96f5de63` | Docs and firmware figures for `5ba2fa46`; the test package is rebuilt from this commit |
 
 All RED-first, mutation, ctest and differential logs are under `native/core/spp1-*.log`. Mutant A8's
 run is `spp1-a8-mutation.log`.

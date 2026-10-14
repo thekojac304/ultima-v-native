@@ -1,19 +1,8 @@
-SPP1 Windows test package -- 2026-10-14
+SPP1 Windows test package -- 2026-10-14 (rebuilt after the review fixes; the first build, from b984fee0, SHA-256 2f93a717...72b7, is superseded)
 path:    C:/Dev/ultima-v-native-parity/native/targets/windows/dist/UltimaV-Native-Windows-x64-SPP1-test.zip (git-ignored; inside the parity worktree only)
 built:   native/targets/windows/tools/build-windows.ps1 -Config Release -BuildDir build-spp1 -Package -PackageName UltimaV-Native-Windows-x64-SPP1-test
-commit:  b984fee015c8 (the asset-prep manifest names it)
-size:    2279256 B
-sha256:  2f93a71708394e3c789143a91f6606f24e5ce716985cb6943bb42d99ec4672b7
-bundle:  prepare-assets.mjs 1,086,758 B sha256 a95a4d9935020d1ec8e3b415508b83bfa636b1cea3a05b3074d40b6038f83b50
-not replaced: C:/Dev/ultima-v-native-windows/native/targets/windows/dist/UltimaV-Native-Windows-x64-dev.zip (2,355,043 B, mtime 2026-10-14 05:41, untouched)
-contents:
-        1411  BUILD-INFO.txt
-        5396  CONTROLS.txt
-       35149  LICENSE.txt
-         994  NOTICE.txt
-     1086758  prepare-assets.mjs
-        6716  Prepare-Game-Data.cmd
-       11145  README-Windows.txt
-     2990592  SDL3.dll
-        4213  THIRD-PARTY-LICENSES.txt
-     1735680  UltimaVNative.exe
+BUILD-INFO Source:       96f5de63ab15aeef71f0bd7173942ea17d9960aa (parity/shared-preservation-1)
+size:    2279354 B
+sha256:  dc5f3c3eb06c605a639d7eb3954d682c5da7a83722a0a3d7590c1aa8f4c210de
+bundle:  prepare-assets.mjs 1,086,758 B sha256 f38ffc281dd95516acfaa0eefac69e06383f56ae2b1e6dafbb674d0c6859cc72
+not replaced: C:/Dev/ultima-v-native-windows/native/targets/windows/dist/UltimaV-Native-Windows-x64-dev.zip (2355043 B, mtime 2026-10-14 05:41:44, untouched)
