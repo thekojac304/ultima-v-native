@@ -781,6 +781,10 @@ bool Game::autotest_expect(const AutotestStep &step) {
             actual = diff.empty() ? describe_layout(presenter_.layout()) : "pixels differ: " + diff;
         }
         ok = actual == value;
+    } else if (name == "picture_sampling") {
+        // The picture's sampler as of the last frame drawn (a window_layout draws one).
+        actual = presenter_.picture_sampling();
+        ok = actual == value;
     } else if (name == "window_scale") {
         actual = std::to_string(int(settings_.window_scale));
         ok = actual == value;

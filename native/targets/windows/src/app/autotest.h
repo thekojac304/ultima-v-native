@@ -36,6 +36,9 @@
 //                             colour -- picture, ring, black -- and this is
 //                             its layout: output size, ring form, picture
 //                             rectangle; else "pixels differ: ..."),
+//                           picture_sampling nearest|pixelart (the picture's
+//                             sampler as the presenter set it for the last
+//                             frame drawn),
 //                           window_scale N (the window's scale, as the
 //                             Display row shows it), scaling Framed|Integer|Fit,
 //                           fullscreen 0|1,

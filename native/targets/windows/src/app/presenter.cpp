@@ -17,11 +17,24 @@ constexpr char kTag[] = "Presenter";
 constexpr int kW = panel::kWidth, kH = panel::kHeight;
 static_assert(kW == kPictureW && kH == kPictureH, "the layout places the virtual panel");
 
-// The ring's colours as RGB565 texels, drawn through the same path as the
-// picture, so the band is exactly the in-game band's blue on any renderer.
-constexpr uint16_t kRingTexels[2] = {kRingBandRgb565, kRingRuleRgb565};
-
 SDL_FRect frect(const PixelRect &r) { return SDL_FRect{float(r.x), float(r.y), float(r.w), float(r.h)}; }
+
+// One of the ring's colours as a 1x1 RGB565 texture, drawn through the same
+// path as the picture, so the band is exactly the in-game band's blue on any
+// renderer. One texture per colour, stretched whole: one texel of a wider
+// atlas, stretched over a band row a thousand pixels long, reaches the
+// neighbouring texel at its far end within a GPU's sub-texel precision
+// (Direct3D 11 drew the last 2-4 px of every band row white). A fractional
+// source rectangle inside the texel is no way out: the software renderer
+// truncates it to whole texels.
+SDL_Texture *colour_texture(SDL_Renderer *renderer, uint16_t rgb565) {
+    SDL_Texture *t = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_STATIC, 1, 1);
+    if (t && (!SDL_UpdateTexture(t, nullptr, &rgb565, int(sizeof(rgb565))) || !SDL_SetTextureScaleMode(t, SDL_SCALEMODE_NEAREST))) {
+        SDL_DestroyTexture(t);
+        t = nullptr;
+    }
+    return t;
+}
 
 /** A 24-bit BMP (bottom-up rows, BGR, rows padded to 4 bytes) of w x h 0xRRGGBB pixels. */
 bool write_bmp(const std::wstring &path, int w, int h, const uint32_t *rgb) {
@@ -78,15 +91,15 @@ bool Presenter::create(const char *title, const DesktopSettings &settings) {
         return false;
     }
     texture_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_STREAMING, kW, kH);
-    ring_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_STATIC, 2, 1);
-    if (!texture_ || !ring_ || !SDL_UpdateTexture(ring_, nullptr, kRingTexels, int(sizeof(kRingTexels)))) {
+    ring_band_ = colour_texture(renderer_, kRingBandRgb565);
+    ring_rule_ = colour_texture(renderer_, kRingRuleRgb565);
+    if (!texture_ || !ring_band_ || !ring_rule_) {
         error_ = std::string("SDL_CreateTexture: ") + SDL_GetError();
         destroy();
         return false;
     }
     SDL_SetTextureScaleMode(texture_, SDL_SCALEMODE_NEAREST);
     texture_scale_mode_ = int(SDL_SCALEMODE_NEAREST);
-    SDL_SetTextureScaleMode(ring_, SDL_SCALEMODE_NEAREST);
     // Every rectangle is placed in whole output pixels here (layout_presentation),
     // never by SDL's logical presentation and its float centring.
     SDL_SetRenderLogicalPresentation(renderer_, 0, 0, SDL_LOGICAL_PRESENTATION_DISABLED);
@@ -101,11 +114,13 @@ bool Presenter::create(const char *title, const DesktopSettings &settings) {
 }
 
 void Presenter::destroy() {
-    if (ring_) SDL_DestroyTexture(ring_);
+    if (ring_rule_) SDL_DestroyTexture(ring_rule_);
+    if (ring_band_) SDL_DestroyTexture(ring_band_);
     if (texture_) SDL_DestroyTexture(texture_);
     if (renderer_) SDL_DestroyRenderer(renderer_);
     if (window_) SDL_DestroyWindow(window_);
-    ring_ = nullptr;
+    ring_rule_ = nullptr;
+    ring_band_ = nullptr;
     texture_ = nullptr;
     renderer_ = nullptr;
     window_ = nullptr;
@@ -144,9 +159,8 @@ void Presenter::draw() {
     SDL_RenderClear(renderer_);
     for (int i = 0; i < layout_.piece_count; ++i) {
         const RingPiece &piece = layout_.pieces[i];
-        const SDL_FRect texel{piece.colour == RingColour::Band ? 0.0f : 1.0f, 0.0f, 1.0f, 1.0f};
         const SDL_FRect dst = frect(piece.rect);
-        SDL_RenderTexture(renderer_, ring_, &texel, &dst);
+        SDL_RenderTexture(renderer_, piece.colour == RingColour::Band ? ring_band_ : ring_rule_, nullptr, &dst);
     }
     const SDL_FRect picture = frect(layout_.picture);
     SDL_RenderTexture(renderer_, texture_, nullptr, &picture);
@@ -191,6 +205,20 @@ bool Presenter::save_window_screenshot(const std::wstring &path) {
     std::vector<uint32_t> pixels;
     int w = 0, h = 0;
     return read_window(pixels, w, h) && write_bmp(path, w, h, pixels.data());
+}
+
+const char *Presenter::picture_sampling() const {
+    // What the presenter asked for, as SDL keeps it: the software renderer
+    // keeps PIXELART although it samples it as nearest, so this pins the
+    // choice where the pixels cannot show it.
+    SDL_ScaleMode mode = SDL_SCALEMODE_INVALID;
+    if (!texture_ || !SDL_GetTextureScaleMode(texture_, &mode)) return "none";
+    switch (mode) {
+    case SDL_SCALEMODE_NEAREST: return "nearest";
+    case SDL_SCALEMODE_PIXELART: return "pixelart";
+    case SDL_SCALEMODE_LINEAR: return "linear";
+    default: return "none";
+    }
 }
 
 void Presenter::resize_client(int w, int h) {

@@ -11,6 +11,7 @@ expect fullscreen 0
 # First run: no saved scale, display scale 1.0 -> Window 3x, framed.
 expect window_scale 3
 expect window_layout 1008x768 full 960x720@24,24
+expect picture_sampling nearest
 window_screenshot window-framed-3x.bmp
 screenshot panel.bmp
 # The Settings page: Interface, Display, Scaling.
@@ -78,15 +79,21 @@ frames 3
 expect scaling Fit
 expect menu_line Scaling: Fit window
 expect window_layout 960x720 fit 960x720@0,0
+# A whole Fit scale samples nearest; a fractional one as pixel art (DEF-6;
+# the software renderer here draws it as nearest, so the sampler is pinned).
+expect picture_sampling nearest
 window_size 1920 1080
 expect window_layout 1920x1080 fit 1440x1080@240,0
+expect picture_sampling pixelart
 window_size 1366 768
 expect window_layout 1366x768 fit 1024x768@171,0
+expect picture_sampling pixelart
 key Right
 frames 3
 expect scaling Framed
 # The scaling change gives Window 3x its framed shape again.
 expect window_layout 1008x768 full 960x720@24,24
+expect picture_sampling nearest
 # Larger outputs (as a maximised or snapped window): the full ring, pillars,
 # odd leftovers (the extra pixel right / bottom).
 window_size 1920 1080

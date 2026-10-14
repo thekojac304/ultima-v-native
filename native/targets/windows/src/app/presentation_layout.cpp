@@ -128,7 +128,7 @@ std::string check_presented_frame(const PresentationLayout &l, const uint16_t *p
             const uint32_t rgb = frame[size_t(y) * size_t(w) + size_t(x)] & 0xFFFFFF;
             const uint16_t got = to_rgb565(rgb);
             const char *where = "letterbox";
-            bool ok = false;
+            bool ok = false, blended = false;
             uint16_t want = 0;
             if (p.contains(x, y)) {
                 where = "picture";
@@ -136,14 +136,27 @@ std::string check_presented_frame(const PresentationLayout &l, const uint16_t *p
                     want = panel[size_t((y - p.y) / l.scale) * kPictureW + size_t((x - p.x) / l.scale)];
                     ok = got == want;
                 } else {
-                    // Fractional Fit: the nearest texel or one of its neighbours.
+                    // Fractional Fit: the nearest texel or one of its
+                    // neighbours (nearest sampling), or a blend of them
+                    // (pixel art on Direct3D 11): channel by channel within
+                    // the range of the 3x3 texels around the nearest one.
                     const int sx = int(int64_t(x - p.x) * kPictureW / p.w), sy = int(int64_t(y - p.y) * kPictureH / p.h);
                     want = panel[size_t(sy) * kPictureW + size_t(sx)];
-                    for (int dy = -1; dy <= 1 && !ok; ++dy)
-                        for (int dx = -1; dx <= 1 && !ok; ++dx) {
+                    int lo[3] = {31, 63, 31}, hi[3] = {0, 0, 0};
+                    for (int dy = -1; dy <= 1; ++dy)
+                        for (int dx = -1; dx <= 1; ++dx) {
                             const int tx = std::clamp(sx + dx, 0, kPictureW - 1), ty = std::clamp(sy + dy, 0, kPictureH - 1);
-                            ok = got == panel[size_t(ty) * kPictureW + size_t(tx)];
+                            const uint16_t t = panel[size_t(ty) * kPictureW + size_t(tx)];
+                            const int c[3] = {t >> 11, (t >> 5) & 63, t & 31};
+                            for (int k = 0; k < 3; ++k) {
+                                lo[k] = std::min(lo[k], c[k]);
+                                hi[k] = std::max(hi[k], c[k]);
+                            }
                         }
+                    const int g[3] = {got >> 11, (got >> 5) & 63, got & 31};
+                    ok = true;
+                    for (int k = 0; k < 3; ++k) ok = ok && g[k] >= lo[k] && g[k] <= hi[k];
+                    blended = true;
                 }
             } else {
                 for (int i = 0; i < l.piece_count; ++i)
@@ -159,6 +172,7 @@ std::string check_presented_frame(const PresentationLayout &l, const uint16_t *p
                               unsigned(got), unsigned(rgb), unsigned(want));
                 return text;
             }
+            if (blended) continue; // a blend's low bits are its own
             uint32_t &seen = screen_colour[got];
             if (seen == ~0u) seen = rgb;
             if (seen != rgb) {

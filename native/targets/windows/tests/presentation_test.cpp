@@ -7,12 +7,15 @@
 // ring's three forms and their thresholds, nothing outside the output,
 // nothing over the picture, no overlaps, mirror symmetry -- then the frame
 // checker the --autotest window_layout step uses, against frames drawn here
-// from the layout (and against deliberately wrong ones), and the Settings
-// page's Scaling row.
+// from the layout (nearest, and a fractional Fit blended as Direct3D 11's
+// pixel-art sampling does; and against deliberately wrong ones), and the
+// Settings page's Scaling row.
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <iterator>
 #include <limits>
 #include <string>
 #include <vector>
@@ -295,6 +298,70 @@ void frame_checker() {
     check(!level.empty() && expand(0x0015) == 0x0000AD, "C9 a ring band one 8-bit level off the picture's band is caught", level);
 }
 
+// A fractional Fit as Direct3D 11 samples SDL_SCALEMODE_PIXELART: each screen
+// pixel is the average of the texels under its footprint, weighted by area,
+// in 8-bit colour -- even texels with a one-pixel blend where they meet.
+std::vector<uint32_t> draw_pixelart(const PresentationLayout &l, const std::vector<uint16_t> &panel) {
+    std::vector<uint32_t> frame(size_t(l.output_w) * size_t(l.output_h), 0);
+    const PixelRect &p = l.picture;
+    // The texels under screen pixels [i, i+1) of an axis of n texels over `span` pixels, with their weights.
+    auto footprint = [](int i, int n, int span, int &first, double w[2]) {
+        const double a = double(i) * n / span, b = double(i + 1) * n / span;
+        first = int(a);
+        const double split = std::min(b, double(first + 1));
+        w[0] = (split - a) / (b - a);
+        w[1] = 1.0 - w[0];
+    };
+    for (int y = 0; y < p.h; ++y)
+        for (int x = 0; x < p.w; ++x) {
+            int tx = 0, ty = 0;
+            double wx[2], wy[2];
+            footprint(x, 320, p.w, tx, wx);
+            footprint(y, 240, p.h, ty, wy);
+            double sum[3] = {0, 0, 0};
+            for (int j = 0; j < 2; ++j)
+                for (int i = 0; i < 2; ++i) {
+                    const uint32_t c = unorm(panel[size_t(std::min(ty + j, 239)) * 320 + size_t(std::min(tx + i, 319))]);
+                    const double k = wx[i] * wy[j];
+                    sum[0] += k * double(c >> 16);
+                    sum[1] += k * double((c >> 8) & 0xFF);
+                    sum[2] += k * double(c & 0xFF);
+                }
+            frame[size_t(p.y + y) * size_t(l.output_w) + size_t(p.x + x)] =
+                uint32_t(std::lround(sum[0])) << 16 | uint32_t(std::lround(sum[1])) << 8 | uint32_t(std::lround(sum[2]));
+        }
+    return frame;
+}
+
+void pixelart_fit() {
+    // A picture of 7x7 blocks in the chrome's colours: blends at the block
+    // edges (7 texels never span whole screen pixels at these scales), plain colour inside.
+    std::vector<uint16_t> panel(320 * 240);
+    const uint16_t colours[] = {0x0000, 0xFFFF, 0x0015, 0x52AA, 0x07FF, 0xF800, 0xAD55};
+    for (int y = 0; y < 240; ++y)
+        for (int x = 0; x < 320; ++x) panel[size_t(y) * 320 + size_t(x)] = colours[size_t((x / 7) * 3 + (y / 7) * 5) % 7];
+    for (const int w : {1920, 1000, 1366}) {
+        const int h = w == 1920 ? 1080 : w == 1000 ? 750 : 768;
+        const PresentationLayout l = layout_presentation(w, h, Scaling::Fit);
+        const std::vector<uint32_t> f = draw_pixelart(l, panel);
+        bool blends = false; // the frame really has colours that are no texel's
+        for (const uint32_t c : f)
+            blends = blends || std::none_of(std::begin(colours), std::end(colours), [&](uint16_t t) { return unorm(t) == c; });
+        const std::string r = uv::check_presented_frame(l, panel.data(), f.data(), w, h);
+        check(r.empty() && blends && l.scale == 0,
+              "C10 a fractional Fit sampled as pixel art (blended texel edges, as Direct3D 11 draws it) passes: " +
+                  describe_layout(l),
+              r);
+    }
+    // Inside a block every texel around is the same colour: anything else is caught.
+    const PresentationLayout l = layout_presentation(1920, 1080, Scaling::Fit);
+    std::vector<uint32_t> f = draw_pixelart(l, panel);
+    const int x = l.picture.x + int(4.5 * 4.5), y = l.picture.y + int(4.5 * 4.5); // texel (4, 4): block (0, 0), colour 0x0000
+    f[size_t(y) * 1920 + size_t(x)] = 0x404040;
+    check(!uv::check_presented_frame(l, panel.data(), f.data(), 1920, 1080).empty(),
+          "C11 a fractional Fit pixel no blend of the texels around it can give is caught");
+}
+
 // --- 4. The Settings page's Scaling row -------------------------------------------------
 struct ProfileProbe {
     uv::DesktopSettings settings;
@@ -526,6 +593,7 @@ int main() {
     exact_sizes();
     every_size();
     frame_checker();
+    pixelart_fit();
     scaling_row();
     window_plans();
     display_row();

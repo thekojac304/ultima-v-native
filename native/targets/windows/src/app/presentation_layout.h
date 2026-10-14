@@ -16,7 +16,9 @@
 //            when the width has none (or the output is under 320x240).
 //   Integer  ("Whole pixels") the same picture without the ring.
 //   Fit      ("Fit window") the largest 4:3 rectangle; the scale may be
-//            fractional (the presenter samples it as pixel art).
+//            fractional (the presenter samples it as pixel art: on Direct3D
+//            11, even pixels with a one-pixel blend at their edges; nearest,
+//            so uneven pixels, on renderers without it).
 //
 // Everything else is black, as the 1988 game's surround was. Placement is in
 // whole output pixels: an odd leftover puts its extra pixel on the right (or
@@ -81,7 +83,9 @@ std::string describe_layout(const PresentationLayout &layout);
  * the picture, the ring and the black are compared colour for colour; and
  * each RGB565 colour must appear as one screen colour throughout, so the
  * ring's band is the picture's own band to the 8-bit level. A fractional
- * Fit picture may show any of the 3x3 texels around the nearest one.
+ * Fit picture pixel may be any of the 3x3 texels around the nearest one, or
+ * a blend of them (pixel-art sampling): each of its RGB565 channels must lie
+ * within those texels' range, and it is left out of the one-colour rule.
  * Returns an empty string when they agree, else the first difference.
  */
 std::string check_presented_frame(const PresentationLayout &layout, const uint16_t *panel, const uint32_t *frame,
