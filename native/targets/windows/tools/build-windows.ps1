@@ -77,16 +77,46 @@ if ($Package) {
 
     # The asset-preparation script: one bundled file, built from the project's
     # own TypeScript tooling (native/tools/asset-prep), run by the player's Node.js.
+    # It is rebuilt for every package, so it can never be older than this
+    # checkout; build.mjs refuses data that is not on its allowlist and writes
+    # a manifest (hash, commit, bundled packages and data) read below.
     $bundle = Join-Path $RepoRoot 'native\tools\asset-prep\dist\prepare-assets.mjs'
+    $manifestPath = Join-Path $RepoRoot 'native\tools\asset-prep\dist\prepare-assets.manifest.json'
     $builder = Join-Path $RepoRoot 'native\tools\asset-prep\build.mjs'
-    if ((Test-Path $builder) -and (Get-Command node -ErrorAction SilentlyContinue) -and (Test-Path (Join-Path $RepoRoot 'node_modules'))) {
-        Push-Location $RepoRoot
-        try { & node $builder; if ($LASTEXITCODE) { throw "asset-prep bundle build failed" } } finally { Pop-Location }
-    }
-    if (-not (Test-Path $bundle)) { throw "The asset-preparation bundle is missing ($bundle). Run 'node native/tools/asset-prep/build.mjs' from a checkout with node_modules." }
+    if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw "Packaging needs Node.js 18+ on PATH to build the asset-preparation script." }
+    if (-not (Test-Path (Join-Path $RepoRoot 'node_modules'))) { throw "Packaging needs node_modules in the checkout ('npm install') to build the asset-preparation script." }
+    Push-Location $RepoRoot
+    try { & node $builder; if ($LASTEXITCODE) { throw "asset-prep bundle build failed" } } finally { Pop-Location }
+    $manifest = Get-Content -Raw -Path $manifestPath | ConvertFrom-Json
+    $bundleHash = (Get-FileHash -Algorithm SHA256 -Path $bundle).Hash.ToLower()
+    if ($bundleHash -ne $manifest.sha256) { throw "prepare-assets.mjs does not match its manifest ($bundleHash vs $($manifest.sha256))" }
+    $head12 = (git -C $RepoRoot rev-parse --short=12 HEAD).Trim()
+    if (($manifest.commit -replace '\+dirty$', '') -ne $head12) { throw "prepare-assets.mjs was built from $($manifest.commit), not HEAD $head12" }
 
-    $sdlLicense = Get-ChildItem -Path (Join-Path $BuildDir '_deps') -Filter 'LICENSE.txt' -Recurse -ErrorAction SilentlyContinue |
-        Where-Object { $_.FullName -match 'sdl3-src' } | Select-Object -First 1
+    # SDL3: the licence and version of the SDL this build actually used.
+    $cache = Get-Content -Path (Join-Path $BuildDir 'CMakeCache.txt')
+    function CacheValue($name) {
+        $line = $cache | Where-Object { $_ -match "^$name(:[A-Z]+)?=" } | Select-Object -First 1
+        if ($line) { return ($line -split '=', 2)[1] } else { return '' }
+    }
+    if ((CacheValue 'UV_USE_SYSTEM_SDL3') -match '^(ON|TRUE|1|YES)$') {
+        throw "This build uses an installed SDL3 (UV_USE_SYSTEM_SDL3=ON); package from a build of the pinned SDL release."
+    }
+    $sdlSource = CacheValue 'FETCHCONTENT_SOURCE_DIR_SDL3'
+    $sdlOrigin = 'local source folder FETCHCONTENT_SOURCE_DIR_SDL3 (not hash-checked)'
+    if (-not $sdlSource) {
+        $sdlSource = Join-Path $BuildDir '_deps\sdl3-src'
+        $sdlOrigin = 'official source release, SHA-256 pinned in CMakeLists.txt'
+    }
+    $sdlLicense = Join-Path $sdlSource 'LICENSE.txt'
+    $sdlVersionHeader = Join-Path $sdlSource 'include\SDL3\SDL_version.h'
+    if (-not (Test-Path $sdlLicense)) { throw "SDL3 LICENSE.txt not found in $sdlSource" }
+    if (-not (Test-Path $sdlVersionHeader)) { throw "SDL3 SDL_version.h not found in $sdlSource" }
+    $sdlHeader = Get-Content -Raw -Path $sdlVersionHeader
+    $sdlVersion = (@('MAJOR', 'MINOR', 'MICRO') | ForEach-Object {
+        if ($sdlHeader -match "#define\s+SDL_$($_)_VERSION\s+(\d+)") { $Matches[1] } else { throw "SDL_$($_)_VERSION not found in $sdlVersionHeader" }
+    }) -join '.'
+
     $files = [ordered]@{
         'UltimaVNative.exe'      = $exe
         'SDL3.dll'               = $sdl
@@ -101,25 +131,35 @@ if ($Package) {
         if (-not (Test-Path $files[$name])) { throw "Missing package input: $($files[$name])" }
         Copy-Item -Path $files[$name] -Destination (Join-Path $stage $name)
     }
+    # The bundle's npm packages and data come from its manifest, so this list
+    # cannot drift from what build.mjs actually bundled.
+    $redux = Join-Path $RepoRoot 'game\src\core\data\LICENSE-Ultima5Redux.txt'
+    if (-not (Test-Path $redux)) { throw "Missing $redux" }
     $third = @(
         'Third-party software in this package',
         '=====================================',
         '',
-        'SDL3 (Simple DirectMedia Layer) 3.4.16 -- SDL3.dll',
+        "SDL3 (Simple DirectMedia Layer) $sdlVersion -- SDL3.dll",
         'https://www.libsdl.org/  -- zlib licence, reproduced below.',
         '',
-        'prepare-assets.mjs bundles, besides this project''s own GPL-3.0 tooling:',
-        '  pngjs (MIT licence) https://github.com/lukeapage/pngjs',
-        '  fflate (MIT licence) https://github.com/101arrowz/fflate',
+        'prepare-assets.mjs bundles, besides this project''s own GPL-3.0 tooling:'
+    )
+    foreach ($pkg in $manifest.packages) { $third += "  $pkg (npm package; licence reproduced below)" }
+    $third += @(
+        "  data from Ultima5Redux by Brad Hannah (MIT licence, reproduced below): $((@($manifest.dataInputs | ForEach-Object { Split-Path -Leaf $_ }) + @($manifest.embeddedData)) -join ', ')",
         '',
         '---------------------------------------------------------------- SDL3',
         ''
     )
-    if ($sdlLicense) { $third += Get-Content -Path $sdlLicense.FullName } else { $third += '(SDL3 LICENSE.txt not found in the build tree)' }
-    foreach ($pkg in @('pngjs', 'fflate')) {
+    $third += Get-Content -Path $sdlLicense
+    foreach ($pkg in $manifest.packages) {
         $lic = Get-ChildItem -Path (Join-Path $RepoRoot "node_modules\$pkg") -Filter 'LICENSE*' -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($lic) { $third += @('', "---------------------------------------------------------------- $pkg", ''); $third += Get-Content -Path $lic.FullName }
+        if (-not $lic) { throw "No licence file for the bundled package $pkg in node_modules\$pkg" }
+        $third += @('', "---------------------------------------------------------------- $pkg", '')
+        $third += Get-Content -Path $lic.FullName
     }
+    $third += @('', '---------------------------------------------------------------- Ultima5Redux data', '')
+    $third += Get-Content -Path $redux
     Set-Content -Path (Join-Path $stage 'THIRD-PARTY-LICENSES.txt') -Value $third -Encoding UTF8
 
     # Provenance.
@@ -138,7 +178,8 @@ if ($Package) {
         "Built:        $((Get-Date).ToString('yyyy-MM-dd HH:mm:ss zzz'))",
         "Toolchain:    MSVC $($env:VCToolsVersion), Windows SDK $($env:WindowsSDKVersion.TrimEnd('\')), CMake $((& $cmake --version | Select-Object -First 1) -replace 'cmake version ','')",
         "Config:       $Config, x64, static C/C++ runtime",
-        'SDL:          3.4.16 (official source release, SHA-256 pinned in CMakeLists.txt)',
+        "SDL:          $sdlVersion ($sdlOrigin)",
+        "Asset prep:   prepare-assets.mjs from $($manifest.commit), $($manifest.bytes) bytes, SHA-256 $($manifest.sha256)",
         '',
         'This package contains no Ultima V game data.',
         '',

@@ -1,10 +1,10 @@
 // The inputs the asset preparation takes from this CHECKOUT rather than from the player's own game:
 //
-//   - three tracked data files under game/src/core/data that the stage scripts read at run time
+//   - two tracked data files under game/src/core/data that the stage scripts read at run time
 //     (pack:alpha1 reads AdditionalEnemyFlags.json and ShoppeKeeperMap.json; the fixture generator reads
-//     AdditionalEnemyFlags.json and longEquipNames.json). They are project data already in the repository
-//     (game/src/core/data/ATTRIBUTION.txt: from Ultima5Redux, (c) 2020 Brad Hannah, MIT) -- no original
-//     game file is ever read here;
+//     AdditionalEnemyFlags.json, and would read longEquipNames.json for loot_names.inc, which is
+//     skipped). They are enemy-flag and shop-keeper metadata from Ultima5Redux ((c) 2020 Brad Hannah,
+//     MIT; game/src/core/data/ATTRIBUTION.txt) -- no original game file is ever read here;
 //   - the identity constants the game checks the two main packs against (exact size + payload CRC32, and
 //     the SHA-256 it logs), parsed from the C++ headers so they can never drift from what the game enforces.
 //
@@ -15,7 +15,10 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 export const DATA_DIR = "game/src/core/data";
-export const DATA_FILES = ["AdditionalEnemyFlags.json", "ShoppeKeeperMap.json", "longEquipNames.json"];
+// longEquipNames.json is NOT carried: it is the equipment names dumped from DATA.OVL, and the only
+// stage that read it (the fixture generator's loot_names.inc, a C++ build input) is run with
+// --skip-loot-names here.
+export const DATA_FILES = ["AdditionalEnemyFlags.json", "ShoppeKeeperMap.json"];
 
 const IDENTITY_HEADERS = [
   { file: "openu5-assets.bin", header: "native/targets/tdeck/main/asset_pack.h", prefix: "kExpectedAssetPack" },

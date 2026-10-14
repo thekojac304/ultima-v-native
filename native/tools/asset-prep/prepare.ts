@@ -393,7 +393,8 @@ async function orchestrate(argv: string[]): Promise<number> {
     const stage = (name: string, label: string, args: string[]) =>
       stages.push(runStage(self, name, label, args, work!, opts.verbose, stages.length + 1, total));
     stage("extract", "Extracting the original data", ["--src", opts.game, "--out", assets]);
-    stage("fixtures", "Deriving the combat tables", ["--assets", assets, "--data", data, "--source", opts.game, "--out", core]);
+    stage("fixtures", "Deriving the combat tables", ["--assets", assets, "--data", data, "--source", opts.game, "--out", core,
+      "--skip-loot-names"]);
     stage("pack-native", `Building ${ASSETS_PACK}`, ["--source", opts.game, "--output", join(packs, ASSETS_PACK)]);
     stage("alpha1", `Building ${ALPHA_PACK}`, ["--assets", assets, "--data", data, "--fixtures", join(core, "fixtures"),
       "--source", opts.game, "--output", join(packs, ALPHA_PACK)]);
