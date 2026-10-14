@@ -122,10 +122,73 @@ five `__attribute__` sites (`perf_report.cpp` ×2, `input_controller.cpp`,
 | D18 | **AltGr from the keyboard layout**: SDL3 delivers AltGr as Right Alt alone, so on a layout with an AltGr level (asked from SDL's keymap at start-up and on every keymap change) Right Alt types characters and the Alt chords use the left Alt | German/French/Polish players can type `@ { ~` and never trigger Alt+S/Alt+L by accident |
 | D19 | **One instance per data folder, by a lock file** (`<data folder>\instance.lock`, no sharing, deleted on close) | every spelling of the folder (case, 8.3, subst, network, another session) meets the same lock |
 | D20 | **Command-line `--mode`, `--fullscreen`, `--windowed` apply to that run only**; `windows.json` keeps the player's own choices; Ctrl+O opens the data folder itself (game files in its `ultima5` folder, F12 pictures in `screenshots`) | a one-off start option never becomes a setting by accident |
+| D21 | **Classic Framed is the default presentation; "Window N×" is the picture at scale N** (below). The presenter places the 320×240 picture itself, in whole output pixels, at the largest whole scale, centred, with a thin ring in the game's chrome where it fits; Settings → Scaling cycles Framed / Whole pixels / Fit window. The window is framed when that fits the work area with its real frame, else bare, else smaller; the Display row shows the scale the window has (also after a drag), `windows.json` keeps the player's last choice (nothing for the automatic scale); with no saved scale it follows the display's scale | presenter-only (D3 untouched, F12 still the raw panel): the T-Deck frame's black glass and console edges merged with the black letterbox, so a desktop screen looked "mostly black" with no edge; the ring gives the picture an edge without resampling a pixel. The window maths had 6 confirmed defects (DEF-1..5, DEF-8) |
 | D22 | **Original mode uses the 1988 interaction model, behind one platform-profile predicate** (`PlatformProfile::dos_interface` / `openu5::platform_dos_interface()`, installed by `DesktopProfile` as "interface mode is Original"; null on the T-Deck). UiSession reads it for key rules, prompt rows and committed answers; AlphaRuntime for picker prompts, echoes and the composed views; the Board draws what the views say (reverse-video roster row, "Select:" caption, overlays without a legend). Enhanced and the T-Deck take the old branches. The tracked matrix is [`native/targets/windows/ORIGINAL_MODE_FIDELITY.md`](native/targets/windows/ORIGINAL_MODE_FIDELITY.md) | "Original" was the T-Deck's menu interface with typed spell names; the 1988 game has no list panels for member choice, no key-legend bars, and its own rule for every prompt. One predicate keeps the gameplay implementation single and the device untouched |
 | D23 | **The 1988 prompt primitives, from the binaries**: the roster picker (ULTIMA.EXE 0x2d7a: digits only highlight, arrows clamp, RETURN/Space choose, ESC = −1, "Select:"), `resolve_command_char` (0x4988: `Player: `, `Disabled!`, `None!`), `input_string`/`input_number` (**ESC erases and keeps reading; only RETURN ends**; capitals), Y/N getkeys (only Y or N; the town exit's ESC = No), getdir (0x35EC: **ESC ignored, Space = Pass**), RETURN/ESC at the command prompt = `What?`. Answers complete the prompt row (`Player: Iolo`, `Save game? Yes`, `Look-North`) | the player of the 1988 game expects these keys; native's T-Deck rules (ESC cancels, RETURN passes) are the handheld's declared adaptations and stay in Enhanced and on the device |
 | D24 | **Arena turns end as in COMBAT.OVL in Original** — a cancelled aim (`Nothing!`), a cancelled cast, Ready/Use/Z — through the core's existing actions (`CombatAttackCancel`, `CombatYield`); **world turn costs are not changed** (the kernel charges a turn for Ready, Z-stats, New Order, Use and a getdir Pass; native does not, on both platforms) | the arena's free cancels were a handheld UI contract and Original is the DOS contract; world turn rules belong to the shared core and need a parity batch with RED-first core tests (recorded in the matrix §5/§7) |
 | D25 | **The T-Deck is unchanged by construction and by audit**: the 1988 model's own state is allocated only when Original first needs it (`AlphaRuntime::DosInterfaceState`), the live prompt row lives in UiSession storage (PSRAM on the device), and every shared change is compared with the baseline commit by a differential run of the device runtime (identical raw T-Deck inputs, hashes of panel, transcript, state, audio and saves) as well as the host suite and the firmware's sections | the owner's requirement; a compile is not evidence of unchanged behaviour. The audit found one ungated branch and 112 B of `.bss` (both fixed, `81fb61d2`); results in the matrix §8 |
+
+### Presentation (Classic Framed)
+
+`src/app/presentation_layout.{h,cpp}` (pure, unit-tested) computes every
+frame; SDL's logical presentation is off, so there is no float centring.
+
+- **Picture**: `u = max(1, min(W div 320, H div 240))` of the renderer's
+  output; origin `((W−320u) div 2, (H−240u) div 2)` — an odd leftover pixel
+  goes right/bottom, deterministically. Nearest sampling.
+- **Ring** (Framed), outward: 4u black (the Board's own 4 px from glass to
+  play window), 1u white rule (`kChromeRule` 0xFFFF), 2u band (`kChromeBand`
+  0x0015, band-outside-rule as the shell frames its menus), its outer corners
+  cut 2u/1u like `kCornerCutSmall`. Full ring when both margins hold 7u;
+  the two side pillars (full height) when only the width does; nothing
+  otherwise (4:3 and 5:4 screens, outputs under 320×240). Each colour is a
+  1×1 RGB565 texture stretched whole, so the band is the in-game band's
+  exact screen colour on any renderer (D3D11 keeps B5G6R5; a draw colour
+  shows 0x0000AC beside the picture's 0x0000AD there). The first build used
+  one texel of a 2×1 atlas: on D3D11 the last 2–4 px of every band row
+  sampled the white texel (review finding; a source rectangle inside the
+  texel is no fix, the software renderer truncates it to nothing).
+- **Fit**: the largest 4:3 rectangle, `SDL_SCALEMODE_PIXELART` when the
+  scale is fractional (SDL 3.4). On D3D11 that is a pixel-sized box filter:
+  even pixels with a one-pixel blend at each texel edge, so Fit is the one
+  mode that is not pixel-exact; software and D3D9 treat it as nearest
+  (uneven pixels). `expect window_layout` accepts a fractional-Fit pixel
+  that is a blend of the 3×3 texels around it; `expect picture_sampling`
+  pins the sampler, which the software renderer cannot show in pixels.
+- **Window N×**: client (320+16)N × (240+16)N in Framed when the window
+  (client + `SDL_GetWindowBordersSize`) fits the display's usable bounds,
+  else 320N × 240N, else N−1; centred with its whole frame inside the work
+  area (title bar never above it); aspect locked for dragging (21:16 / 4:3);
+  restored from maximised first. Ctrl+= / Ctrl+- and the Display row step
+  1× .. the largest that fits. A normal window's N follows a drag or a snap
+  (`max(1, min(w div 320, h div 240))`), so the Display row and Ctrl+= / -
+  start from the picture the player sees; that N is shown, never saved.
+  A Scaling change resizes only when the window's shape changes (framed ↔
+  bare): the new mode's Window N× around the old centre, inside the work
+  area; Whole pixels ↔ Fit keeps size and place. While fullscreen or
+  maximised (Windows ignores sizes then) the new shape waits until the
+  window is a normal window again (leaving fullscreen, or
+  `SDL_EVENT_WINDOW_RESTORED`). No `"windowScale"` = automatic:
+  `floor(3 × display content scale)` within what fits, re-derived on
+  `SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED` and not written until the player
+  picks a scale; a scale reduced at start-up (saved on a bigger display) is
+  shown as reduced but kept in `windows.json` until the player changes it.
+  `windows.json` always holds the player's last choice (as the window got
+  it), or nothing for the automatic scale.
+- **Measured** (the real exe's frames read back headless, 2c8de821 vs
+  `windows/presentation-wip`): 1920×1080 — before, 4× picture 1280×960 at
+  320,60 = 59.3 % of the screen, 844,800 px (40.7 %) black letterbox with no
+  edge; Framed, the same picture, ring 55,680 px (2.69 %), black 38.1 %;
+  Fit 1440×1080 = 75.0 %. 2560×1440 — 6× = 75 %, pillars 51,840 px.
+  1366×768 — 3× = 65.9 %, full ring 31,320 px. Default window 960×720
+  bare → 1008×768 framed (picture 89.3 %). The research's 1440×1080 / "4×
+  with bands at 150 %" hypothesis does not occur on Windows (SDL window
+  coordinates are physical pixels); the real DPI effect was a physically
+  smaller window, now handled by the automatic scale.
+- **Not done**: a Desktop Adaptive layout (a 480×270-class canvas with the
+  status box and context bar under the map and a 49-column console) needs a
+  `BoardLayout` in the shared Board, runtime panel sizes and new goldens; it
+  was mocked up from real captures only.
 
 ## 5. Layout
 
@@ -193,8 +256,9 @@ Shared-code changes (all behaviour-preserving for the T-Deck):
   and the list in Enhanced, a typed cast in an arena ("Cast..." first and
   once, a refused name ends the turn), (Q)uit & Save (RETURN/ESC ignored),
   System Menu save/load, F5/F9 quick save/load, the Original-mode key rules,
-  the interface-mode switch and its persistence (17 scenarios of the real
-  executable).
+  the interface-mode switch and its persistence, the presented window
+  (18 scenarios of the real executable, plus the opt-in Direct3D 11 window
+  scenario).
 - Original mode's 1988 interaction model (D22-D24): the roster picker for
   Cast/Ready/Z-stats/New Order/Camp, `Player:` / `Spell name:` / `Item:` /
   `Status:` rows, ESC/RETURN/Space rules at text, Y/N and getdir prompts,
@@ -234,9 +298,17 @@ Shared-code changes (all behaviour-preserving for the T-Deck):
   (7,653 raw-input steps) is byte-identical (D25). No T-Deck hardware run was
   made and no device was flashed.
 
+- Presentation (D21): every layout rule by pure-function tests; the real
+  window read back from the renderer and compared pixel for pixel
+  (`scenario_presentation`: first-run framed window, the Display and Scaling
+  rows, Ctrl+= / Ctrl+-, 1920×1080 / 2560×1440 / 1366×768 / odd sizes,
+  fullscreen and back, play).
+
 **Implemented, needs a person at the keyboard** (no automated proof possible
-or done): the feel of the real window (scaling, fullscreen toggling, resizing,
-High-DPI monitors), real sound through speakers, long play sessions,
+or done): the feel of the real window (a real title bar and frame, dragging
+with the aspect lock, maximise then Ctrl+= / Display, moving between
+monitors of different scale, fullscreen on a GPU renderer, Fit's pixel-art
+sampling on D3D11), real sound through speakers, long play sessions,
 vehicles (boarding a ship/horse/carpet, sailing), shops end to end, the
 ending sequence on Windows, music volume behaviour on real hardware, the
 window-close confirmation dialog, the Explorer integration (Ctrl+O), the
@@ -252,8 +324,8 @@ runtime; not pursued); an icon.
 | Suite | Where | Result |
 |---|---|---|
 | Host suite (shared code, T-Deck semantics) | `native/core`, GCC 16.2, serial | 202/202, after each of the shared changes (`win-phase*-ctest.log`, `win-review-host-ctest.log`; untracked evidence in `native/core/`); 204/204 with `win_dos_interface` and `win_dos_runtime` (`fid-step*-host-ctest.log`) |
-| Windows unit/integration | `native/targets/windows/tests` | 7/7: desktop input (445 checks), desktop settings (64), storage + force-included redirect (151), virtual panel + real Board (38), save layout (17), audio backend + synth goldens (110; 119 with the music pack), offline continuity |
-| Windows scenarios (real exe, headless) | `native/targets/windows/scenarios` | 17/17: boot_title, new_game_original, settings_modes, typed_cast_original, list_cast_enhanced, save_load_menu, quicksave_enhanced, original_keys, original_interface, enhanced_interface, original_arena, original_camp, dungeon_walk, surface_combat, typed_cast_combat, town_talk, pc_import_export |
+| Windows unit/integration | `native/targets/windows/tests` | 8/8: desktop input (445 checks), desktop settings (75), storage + force-included redirect (151), virtual panel + real Board (38), save layout (17), audio backend + synth goldens (110; 119 with the music pack), offline continuity, presentation (155: layouts of 19 sizes, ~1.1 million output sizes and 1.15 million window plans against the rules, the frame checker incl. pixel-art Fit, shape changes, a client's N, the Scaling and Display rows) |
+| Windows scenarios (real exe, headless) | `native/targets/windows/scenarios` | 18/18 (+1 opt-in): boot_title, new_game_original, settings_modes, typed_cast_original, list_cast_enhanced, save_load_menu, quicksave_enhanced, original_keys, original_interface, enhanced_interface, presentation (80 checks), dungeon_walk, original_arena, original_camp, surface_combat, typed_cast_combat, town_talk, pc_import_export; opt-in `presentation_desktop` (24 checks, a real D3D11 window) passes on a 2560×1440 display |
 | Firmware compile | `native/targets/tdeck`, ESP-IDF 6.1 | builds; 1,065,008 B, app budget check passes |
 | T-Deck preservation (D25) | baseline worktree at `2c8de821` vs HEAD | code audit of every shared hunk; `esp_idf_size --diff`; `-fstack-usage` per function; a differential run of the device runtime, byte-identical over 7,653 raw-input steps, and different under the DOS profile (positive control) |
 | Package | `tools/build-windows.ps1 -Package` + clean-folder check | ZIP 2.15 MB (from `3345eecb`); packs prepared from it byte-identical (SHA-256); packaged exe boots, plays, saves; depends only on `SDL3.dll` and Windows system DLLs |
@@ -262,7 +334,23 @@ Mutation evidence: 24 one-edit mutants of the Windows input, settings, panel
 and storage code were all detected; the review fixes' three core mutants
 (refused cast keeps the turn, echo flag ignored, absorb gate without Negate
 Magic) are killed by W1-W3; the re-anchored A4-POLISH3 M11 and A4-ENH1 K3/D1
-are killed again (`win-review-mutants.log`). Original mode's host tests
+are killed again (`win-review-mutants.log`). Presentation (D21): the first round's
+claim "9 one-edit mutants, 8 detected" was wrong for one of them: its M3
+(fit without the frame) did not compile (`C2220`), and the driver reverted
+without rebuilding, so ctest ran the previous mutant's binaries and M3 was
+counted as detected without evidence. The second round, after the review
+fixes, rebuilds after every apply and every revert, records a mutant that
+does not build as NOT RUN, and also runs the opt-in D3D11 scenario: 18
+mutants (the first round's nine, M3 in a form that compiles; plus the ring
+from one texel of a 2×1 texture, a Scaling change forgotten while
+fullscreen/maximised, a resize on a same-shape change, N not following a
+drag, a restored window not taking its pending shape, nearest sampling for a
+fractional Fit, a nearest-only frame checker, a shape change off the work
+area, N above 8×). All 18 built, all 18 detected: 15 by the default suite
+(`uv_presentation_test`, `scenario_presentation`), and three only by
+`scenario_presentation_desktop` (no restore before resizing a maximised
+window, the restored window's pending shape, the ring's texel), which need
+a real window and Direct3D 11 (`mutants-r3.log`, scratch evidence). Original mode's host tests
 were written RED-first: against the shared code before the change,
 `win_dos_interface` failed 39 of its 95 checks and `win_dos_runtime` 10 of
 its 19 (the remaining ones are the T-Deck controls, which must pass on both);
@@ -308,6 +396,14 @@ the duplicate-initials matcher check failed 2 before its fix.
 - Confirm the copyright line in `game/src/core/data/LICENSE-Ultima5Redux.txt`
   against Ultima5Redux's own LICENSE (it follows the project's
   ATTRIBUTION.txt: "(c) 2020 Brad Hannah, MIT").
+- Presentation (D21): a `windows.json` written by the first Windows builds
+  always holds `"scaling":"Integer"` and `"windowScale":3`, so those installs
+  keep Whole pixels and a fixed 3× until the player changes them (Integer
+  stays Integer, as required); decide whether a one-time migration to
+  Framed/automatic is wanted. Also: whether the automatic scale should keep
+  re-centring the window when it follows a display-scale change, and
+  whether Desktop Adaptive (a wider canvas in the shared Board) is worth a
+  shared-code batch.
 
 ## 10. Progress log
 
@@ -319,6 +415,9 @@ the duplicate-initials matcher check failed 2 before its fix.
 | Windows test suite (written by a helper agent on a temporary branch, cherry-picked) | `1bf68a7d` | 6 executables, all green; 24/24 mutants detected |
 | Offline-continuity check enabled as a regular test. Its commit message also claims the `render_offline` remainder and the windows.json BOM fix; both are in `19f064f3` (history is not rewritten) | `c03fbe88` | Windows ctest 19/19 |
 | Adversarial review (30 agents: packaging and licences, T-Deck regression, docs accuracy, Windows platform, DOS fidelity; every finding independently re-verified): 25 findings, all confirmed, all fixed -- bundle data trimmed and allowlisted, licences from the manifest, Z-stats legend, mutation anchors, docs, Brightness, AltGr, instance lock, session-only overrides, the 1988 "Player:" highlight, the arena's typed cast, the Q prompt | `71b128f0` (bundle, licences), `3345eecb` (everything else) | Windows ctest 20/20; host 202/202; firmware 1,053,808 B; mutants killed; ZIP rebuilt and re-checked |
+| Presentation (D21, branch `windows/presentation-wip` from `2c8de821`): window read-back autotest verbs; the Classic Framed layout as a pure function; Framed presenter and the three-way Scaling row; window sizing (DEF-1 effective scale, DEF-2 real frame, DEF-3 restore, DEF-4 automatic scale, DEF-5 aspect lock, DEF-8 one range; DEF-6 pixel-art Fit is in the presenter commit; DEF-7 is what the ring addresses); the pixel-exact window scenario; Windows-only, no shared code | `e428190b`, `0d3d350d`, `e52e753c`, `076c7a95`, `c20733b8`, `4a53957d` | baseline 20/20 at `2c8de821`; Windows ctest 22/22 (uv_presentation_test 128 checks, scenario_presentation 50); 8/9 mutants; before/after window captures from the real exe (1920×1080 letterbox 40.7 % → ring 2.69 % + black 38.1 %, picture unchanged at 59.3 %) |
+| Presentation review fixes (D21): D3D11 ring colours from 1×1 textures; the frame checker accepts pixel-art Fit and pins the sampler (DEF-6); the window's shape follows Scaling (also after fullscreen/maximised), only a shape change resizes, the Display row follows drags, `windows.json` keeps the player's choice; opt-in D3D11 scenario; docs (Fit softens edges, never blurred only in Framed/Whole pixels) | `e54d5729`, `f986c94a`, this commit | Windows ctest 22/22 (uv_presentation_test 155 checks, scenario_presentation 80); `scenario_presentation_desktop` passes on a real 2560×1440 D3D11 display; 18/18 valid mutants detected (the first round's M3 corrected above) |
 | Original-mode fidelity (D22-D24): the 1988 interaction model in the core (UiSession) behind `dos_interface`; roster pickers and console prompts in the runtime and Board; Windows wiring and scenarios for both modes; host tests RED-first | `6c09ed27`, `5b03a700`, `6ed38b37`, `fef0bab0` | host 204/204; Windows 22/22; firmware compiles |
 | Fidelity review (DOS-fidelity, T-Deck regression and code reviewers; findings re-verified): firmware `-Werror=misleading-indentation`, arrest echo, town-exit ESC, the reticle's own cell, To phase, arena cancels, the ring, Use order, troll/tribute sums, Hole up, shop gates, shrine rows, the scrolled console | `295da718`, `761a13f3` (arena and camp scenarios) | host 204/204; Windows 24/24; firmware builds |
 | T-Deck preservation audit against `2c8de821` (D25): arena Z gated, the 1988 state off the device, one-loop line streamer; matrix §8 | `81fb61d2`, `a4f27d0b` (matrix) | DIRAM `.bss` +16 B; stack ≤ +80 B per frame; host 204/204; Windows 24/24; differential run byte-identical (7,653 steps), DOS-profile control differs |
+| Merge of `windows/presentation-wip` (D21, Classic Framed) into `windows/initial-port`: code conflicts resolved as unions (autotest facts, scenario list, `expect` handlers), D21 before D22-D25; no shared file touched by the merge | this merge commit | Windows ctest 26/26 (8 unit, 18 scenarios); `scenario_presentation_desktop` passes on the merged build (real D3D11 window); host and firmware unchanged by the merge |

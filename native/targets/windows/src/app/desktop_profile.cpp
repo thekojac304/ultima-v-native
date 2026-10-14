@@ -9,9 +9,9 @@ namespace uv {
 namespace {
 using openu5::SettingsRowId;
 
-// Window sizes the Display row steps through, then fullscreen.
-constexpr uint8_t kDisplayScales[] = {2, 3, 4, 5, 6};
-constexpr int kDisplayStates = int(sizeof(kDisplayScales)) + 1; // + fullscreen
+// The Scaling row's cycle (right / Enter steps forward, left back).
+constexpr Scaling kScalingOrder[] = {Scaling::Framed, Scaling::Integer, Scaling::Fit};
+constexpr int kScalingStates = int(sizeof(kScalingOrder) / sizeof(kScalingOrder[0]));
 
 char g_banner[64];
 } // namespace
@@ -63,33 +63,47 @@ const char *DesktopProfile::display_label(void *context, char *out, size_t capac
     return "Left/right: window size or fullscreen (Alt+Enter)";
 }
 
+// Window 1x .. the largest that fits, then Fullscreen: the same range as
+// Ctrl+= / Ctrl+-, so neither shows a size the window cannot have.
 bool DesktopProfile::display_adjust(void *context, int delta) {
     auto *self = static_cast<DesktopProfile *>(context);
     auto &s = *self->hooks_.settings;
-    int state = kDisplayStates - 1; // fullscreen
-    if (!s.fullscreen) {
-        state = 0;
-        for (int i = 0; i < int(sizeof(kDisplayScales)); ++i)
-            if (kDisplayScales[i] <= s.window_scale) state = i;
-    }
-    state = (state + (delta < 0 ? kDisplayStates - 1 : 1)) % kDisplayStates;
-    s.fullscreen = state == kDisplayStates - 1;
-    if (!s.fullscreen) s.window_scale = kDisplayScales[state];
+    const int largest = std::clamp<int>(
+        self->hooks_.largest_window_scale ? self->hooks_.largest_window_scale(self->hooks_.context) : kMaxWindowScale,
+        kMinWindowScale, kMaxWindowScale);
+    // States 0 .. largest-1 are Window 1x .. largest x; state `largest` is Fullscreen.
+    int state = s.fullscreen ? largest : std::clamp<int>(s.window_scale, kMinWindowScale, largest) - 1;
+    state = (state + (delta < 0 ? largest : 1)) % (largest + 1);
+    s.fullscreen = state == largest;
+    if (!s.fullscreen) s.window_scale = uint8_t(state + 1);
     if (self->hooks_.changed) self->hooks_.changed(self->hooks_.context, Change::Display);
     return true;
 }
 
 const char *DesktopProfile::scaling_label(void *context, char *out, size_t capacity) {
     const auto *self = static_cast<const DesktopProfile *>(context);
-    const bool fit = self->hooks_.settings->scaling == Scaling::Fit;
-    std::snprintf(out, capacity, "Scaling: %s", fit ? "Fit window" : "Whole pixels");
-    return fit ? "Fills the window; pixels may differ in size" : "Every pixel the same size; may letterbox";
+    switch (self->hooks_.settings->scaling) {
+    case Scaling::Integer:
+        std::snprintf(out, capacity, "Scaling: Whole pixels");
+        return "Every pixel the same size; may letterbox";
+    case Scaling::Fit:
+        std::snprintf(out, capacity, "Scaling: Fit window");
+        // Fractional scales sample as pixel art: even pixels with blended
+        // edges on Direct3D 11; uneven ones where a renderer lacks it.
+        return "Fills the window; pixel edges may soften";
+    default:
+        std::snprintf(out, capacity, "Scaling: Framed");
+        return "Whole pixels, centred in a thin blue frame";
+    }
 }
 
-bool DesktopProfile::scaling_adjust(void *context, int) {
+bool DesktopProfile::scaling_adjust(void *context, int delta) {
     auto *self = static_cast<DesktopProfile *>(context);
     auto &scaling = self->hooks_.settings->scaling;
-    scaling = scaling == Scaling::Fit ? Scaling::Integer : Scaling::Fit;
+    int at = 0;
+    for (int i = 0; i < kScalingStates; ++i)
+        if (kScalingOrder[i] == scaling) at = i;
+    scaling = kScalingOrder[(at + (delta < 0 ? kScalingStates - 1 : 1)) % kScalingStates];
     if (self->hooks_.changed) self->hooks_.changed(self->hooks_.context, Change::Scaling);
     return true;
 }

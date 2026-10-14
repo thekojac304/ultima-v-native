@@ -13,6 +13,8 @@
 #   uv_virtual_panel_test     the virtual ST7789 by hand, then the real tdeck::Board
 #   uv_save_layout_test       the 32-byte save commit record, settings.json
 #   uv_audio_backend_test     SdlAudioBackend (offline, dummy, failed) + synth goldens
+#   uv_presentation_test      the picture's placement and the Framed ring, the window's
+#                             size per scale, the Settings page's Display/Scaling rows
 #
 #   ctest --test-dir <build> --output-on-failure
 
@@ -83,6 +85,12 @@ uv_add_test(uv_audio_backend_test
   TIMEOUT 600)
 target_include_directories(uv_audio_backend_test PRIVATE "${UV_CORE_DIR}/tests")
 uv_copy_runtime_dlls(uv_audio_backend_test)
+
+# 7. The presentation: layout arithmetic (no window), window sizing, the Settings rows.
+uv_add_test(uv_presentation_test
+  SOURCES presentation_test.cpp
+  LIBS uv_desktop SDL3::SDL3)
+uv_copy_runtime_dlls(uv_presentation_test)
 
 # The golden printer (not a test; built on request):
 #   cmake --build <dir> --target uv_print_synth_fingerprints

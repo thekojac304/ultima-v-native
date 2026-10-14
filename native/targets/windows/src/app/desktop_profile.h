@@ -25,6 +25,8 @@ class DesktopProfile {
         void *context = nullptr;
         /** A desktop row changed `settings`; apply and persist it. */
         void (*changed)(void *context, Change what) = nullptr;
+        /** The largest window scale the display holds now; the Display row steps 1..it, then Fullscreen (null = 8). */
+        uint8_t (*largest_window_scale)(void *context) = nullptr;
     };
 
     /** Installs the profile (call again after the interface mode changed: the banner keys follow it). */

@@ -69,38 +69,47 @@ void write_all(const std::filesystem::path &p, const std::string &text) {
 
 void defaults_and_names() {
     const DesktopSettings d;
-    check(d.interface_mode == InterfaceMode::Original && d.window_scale == 3 && !d.fullscreen && d.scaling == Scaling::Integer &&
-              d.vsync,
-          "S1 defaults: Original, window scale 3, windowed, Integer scaling, vsync on", describe(d));
-    check(uv::kMinWindowScale == 1 && uv::kMaxWindowScale == 8, "S2 window scale range is 1..8");
+    check(d.interface_mode == InterfaceMode::Original && d.window_scale == uv::kAutoWindowScale && !d.fullscreen &&
+              d.scaling == Scaling::Framed && d.vsync,
+          "S1 defaults: Original, automatic window scale, windowed, Framed scaling, vsync on", describe(d));
+    check(uv::kMinWindowScale == 1 && uv::kMaxWindowScale == 8 && uv::kAutoWindowScale == 0,
+          "S2 window scale range is 1..8; 0 is automatic");
     check(std::string(uv::interface_mode_name(InterfaceMode::Original)) == "Original" &&
               std::string(uv::interface_mode_name(InterfaceMode::Enhanced)) == "Enhanced",
           "S3 interface_mode_name: Original / Enhanced");
-    check(std::string(uv::scaling_name(Scaling::Integer)) == "Integer" && std::string(uv::scaling_name(Scaling::Fit)) == "Fit",
-          "S4 scaling_name: Integer / Fit");
+    check(std::string(uv::scaling_name(Scaling::Integer)) == "Integer" && std::string(uv::scaling_name(Scaling::Fit)) == "Fit" &&
+              std::string(uv::scaling_name(Scaling::Framed)) == "Framed",
+          "S4 scaling_name: Integer / Fit / Framed");
     const std::string text = uv::encode_desktop_settings(d);
     const std::string want =
-        "{\"version\":1,\"interfaceMode\":\"Original\",\"windowScale\":3,\"fullscreen\":false,\"scaling\":\"Integer\",\"vsync\":true}\n";
-    check(text == want, "S5 the default document is exactly the compact JSON windows.json holds", "got " + text);
+        "{\"version\":1,\"interfaceMode\":\"Original\",\"fullscreen\":false,\"scaling\":\"Framed\",\"vsync\":true}\n";
+    check(text == want, "S5 the default document is exactly the compact JSON windows.json holds (no windowScale: automatic)",
+          "got " + text);
+    DesktopSettings chosen = d;
+    chosen.window_scale = 4;
+    const std::string with_scale = uv::encode_desktop_settings(chosen);
+    check(with_scale ==
+              "{\"version\":1,\"interfaceMode\":\"Original\",\"windowScale\":4,\"fullscreen\":false,\"scaling\":\"Framed\",\"vsync\":true}\n",
+          "S5b a chosen scale is written in the first build's place", "got " + with_scale);
 }
 
 void round_trips() {
     int good = 0, total = 0;
     std::string first_bad;
     for (InterfaceMode m : {InterfaceMode::Original, InterfaceMode::Enhanced})
-        for (uint8_t scale = uv::kMinWindowScale; scale <= uv::kMaxWindowScale; ++scale)
+        for (uint8_t scale = uv::kAutoWindowScale; scale <= uv::kMaxWindowScale; ++scale)
             for (bool fs : {false, true})
-                for (Scaling sc : {Scaling::Integer, Scaling::Fit})
+                for (Scaling sc : {Scaling::Integer, Scaling::Fit, Scaling::Framed})
                     for (bool vs : {false, true}) {
                         const DesktopSettings in = make(m, scale, fs, sc, vs);
-                        DesktopSettings out = make(InterfaceMode::Original, 1, !fs, Scaling::Integer, !vs);
+                        DesktopSettings out = make(InterfaceMode::Original, 1, !fs, sc == Scaling::Fit ? Scaling::Integer : Scaling::Fit, !vs);
                         const bool ok = uv::decode_desktop_settings(uv::encode_desktop_settings(in), out) && same(in, out);
                         ++total;
                         if (ok) ++good;
                         else if (first_bad.empty()) first_bad = describe(in) + " -> " + describe(out);
                     }
-    check(good == total && total == 2 * 8 * 2 * 2 * 2,
-          format("S6 encode -> decode round-trips every combination (%d/%d: 2 modes x 8 scales x fullscreen x scaling x vsync)",
+    check(good == total && total == 2 * 9 * 2 * 3 * 2,
+          format("S6 encode -> decode round-trips every combination (%d/%d: 2 modes x (automatic + 8 scales) x fullscreen x 3 scalings x vsync)",
                  good, total),
           first_bad);
 }
@@ -155,7 +164,7 @@ void malformed_and_unknown() {
             "\"version\":99}",
             s);
         check(ok && s.interface_mode == InterfaceMode::Enhanced && s.window_scale == 5 && !s.fullscreen &&
-                  s.scaling == Scaling::Integer && s.vsync,
+                  s.scaling == Scaling::Framed && s.vsync,
               "S9 unknown keys (and an unknown version) are ignored; absent keys take the defaults", describe(s));
     }
     {
@@ -174,7 +183,7 @@ void malformed_and_unknown() {
     {
         DesktopSettings s;
         const bool ok = uv::decode_desktop_settings("{\"interfaceMode\":\"enhanced\",\"scaling\":\"fit\"}", s);
-        check(ok && s.interface_mode == InterfaceMode::Original && s.scaling == Scaling::Integer,
+        check(ok && s.interface_mode == InterfaceMode::Original && s.scaling == Scaling::Framed,
               "S12 names are case-sensitive: \"enhanced\"/\"fit\" are not recognised (defaults)", describe(s));
         DesktopSettings t;
         const bool ok2 = uv::decode_desktop_settings("{\"interfaceMode\":\"Enh\\u0061nced\",\"scaling\":\"Fit\"}", t);
@@ -183,6 +192,44 @@ void malformed_and_unknown() {
         DesktopSettings u;
         const bool ok3 = uv::decode_desktop_settings("{\"interfaceMode\":\"Enhanced\\u00e9\"}", u);
         check(ok3 && u.interface_mode == InterfaceMode::Original, "S14 a non-ASCII mode name is not Enhanced", describe(u));
+    }
+    {
+        // windows.json files the earlier builds wrote, and future or mistyped scaling names.
+        struct Legacy {
+            const char *name;
+            const char *text;
+            Scaling want;
+        };
+        const Legacy legacy[] = {
+            {"the first build's default document (Integer stays Integer)",
+             "{\"version\":1,\"interfaceMode\":\"Original\",\"windowScale\":3,\"fullscreen\":false,\"scaling\":\"Integer\",\"vsync\":true}\n",
+             Scaling::Integer},
+            {"a first-build document with Fit (Fit stays Fit)",
+             "{\"version\":1,\"interfaceMode\":\"Enhanced\",\"windowScale\":4,\"fullscreen\":true,\"scaling\":\"Fit\",\"vsync\":false}\n",
+             Scaling::Fit},
+            {"no scaling key (Framed)", "{\"version\":1,\"windowScale\":2}", Scaling::Framed},
+            {"\"Framed\"", "{\"scaling\":\"Framed\"}", Scaling::Framed},
+            {"a later build's name, \"Adaptive\" (the default, Framed)", "{\"scaling\":\"Adaptive\"}", Scaling::Framed},
+            {"an empty name (Framed)", "{\"scaling\":\"\"}", Scaling::Framed},
+        };
+        for (const Legacy &l : legacy) {
+            DesktopSettings s = sentinel;
+            const bool ok = uv::decode_desktop_settings(l.text, s);
+            check(ok && s.scaling == l.want, format("S15 %s -> %s", l.name, uv::scaling_name(l.want)), describe(s));
+        }
+        DesktopSettings first;
+        uv::decode_desktop_settings(legacy[0].text, first);
+        check(first.window_scale == 3 && first.interface_mode == InterfaceMode::Original && !first.fullscreen && first.vsync,
+              "S16 the first build's document keeps its other values", describe(first));
+        check(uv::scaling_from_name("Integer") == Scaling::Integer && uv::scaling_from_name("Fit") == Scaling::Fit &&
+                  uv::scaling_from_name("Framed") == Scaling::Framed && uv::scaling_from_name("integer") == Scaling::Framed,
+              "S17 scaling_from_name inverts scaling_name; anything else is Framed");
+        DesktopSettings no_scale;
+        no_scale.window_scale = 5;
+        check(uv::decode_desktop_settings("{\"version\":1,\"scaling\":\"Framed\"}", no_scale) &&
+                  no_scale.window_scale == uv::kAutoWindowScale,
+              "S18 no windowScale key: the scale is automatic (derived from the display at start-up)", describe(no_scale));
+        check(first.window_scale == 3, "S19 the first build's windowScale 3 is a saved choice, kept as 3", describe(first));
     }
     {
         // A document with a BOM, as Notepad writes it, is not JSON the core parser accepts.

@@ -20,20 +20,31 @@ namespace uv {
 // (the sidecar's "enhanced" key), whatever the interface mode.
 enum class InterfaceMode : uint8_t { Original = 0, Enhanced = 1 };
 
-enum class Scaling : uint8_t { Integer = 0, Fit = 1 };
+// How the 320x240 picture fills the window (app/presentation_layout.h):
+// Integer = whole pixels, letterboxed; Fit = the largest 4:3 fit; Framed =
+// whole pixels in a thin ring of the game's chrome.
+enum class Scaling : uint8_t { Integer = 0, Fit = 1, Framed = 2 };
+
+// The window scale the player has not chosen: the game derives it from the
+// display's scale (app/presentation_layout.h, default_window_scale) and
+// windows.json leaves "windowScale" out.
+constexpr uint8_t kAutoWindowScale = 0;
 
 struct DesktopSettings {
     InterfaceMode interface_mode = InterfaceMode::Original;
-    uint8_t window_scale = 3;  // 320x240 x N for the windowed size (1..8)
+    uint8_t window_scale = kAutoWindowScale;  // the picture's scale N in a window (1..8), or automatic
     bool fullscreen = false;
-    Scaling scaling = Scaling::Integer;
+    Scaling scaling = Scaling::Framed;
     bool vsync = true;
 };
 
 constexpr uint8_t kMinWindowScale = 1, kMaxWindowScale = 8;
 
 const char *interface_mode_name(InterfaceMode);
+/** "Framed", "Integer" or "Fit": the names windows.json holds. */
 const char *scaling_name(Scaling);
+/** The inverse; an unknown name is the default, Framed. */
+Scaling scaling_from_name(const std::string &name);
 
 /** Reads `path`; a missing or malformed file (or key) keeps the defaults. False only on a malformed file. */
 bool load_desktop_settings(const std::wstring &path, DesktopSettings &out);

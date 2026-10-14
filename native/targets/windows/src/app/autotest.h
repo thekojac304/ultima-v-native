@@ -39,8 +39,32 @@
 //                           context_bar 0|1, prompt TEXT (the open prompt
 //                             contains TEXT),
 //                           remember_turns (any value) / turns_advanced 1|0,
-//                           equipped "<member> <item>"
-//   screenshot PATH       write the panel as a BMP
+//                           equipped "<member> <item>",
+//                           menu_line TEXT (a line of the title or System Menu
+//                             page contains TEXT),
+//                           window_layout "<W>x<H> <full|pillars|none|fit>
+//                             <w>x<h>@<x>,<y>" (the presented frame, read back,
+//                             matches app/presentation_layout.h colour for
+//                             colour -- picture, ring, black -- and this is
+//                             its layout: output size, ring form, picture
+//                             rectangle; else "pixels differ: ..."),
+//                           picture_sampling nearest|pixelart (the picture's
+//                             sampler as the presenter set it for the last
+//                             frame drawn),
+//                           window_scale N (the window's scale, as the
+//                             Display row shows it: also after a drag),
+//                           scaling Framed|Integer|Fit,
+//                           fullscreen 0|1,
+//                           windows_json TEXT / no_windows_json TEXT
+//                             (ultima5\windows.json contains / lacks TEXT)
+//   screenshot PATH       write the panel as a BMP (what F12 saves)
+//   window_screenshot PATH  write the whole window as presented (read back
+//                         from the renderer) as a BMP
+//   window_size W H       set the window's client area to W x H, as a drag,
+//                         a snap or a maximise does
+//   window_state maximize|restore  maximise or restore the window as its
+//                         title bar does (needs a video driver that can:
+//                         not SDL's offscreen one, where it fails the script)
 //   log TEXT              write TEXT to the log
 //   dump                  print the title/menu page or the console's last lines
 //   teleport KIND [LOC | X Y]  through the Developer menu's Teleport page (needs
@@ -50,6 +74,8 @@
 //   fight DEF [N]         a surface fight: open grass, N enemies of definition
 //                         DEF beside the party, Pass until the arena opens
 //   quit                  stop (the script's end stops too)
+// The scenario runner starts the game in its scratch data folder, so a
+// relative PATH lands there.
 #include <cstdint>
 #include <string>
 #include <vector>
