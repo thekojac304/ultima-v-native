@@ -1,0 +1,35 @@
+// Ultima V Native for Windows: version information and the application manifest.
+#include <winver.h>
+#include "build_info.h.rc"
+
+1 24 "UltimaVNative.manifest"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION UV_RC_MAJOR,UV_RC_MINOR,UV_RC_PATCH,0
+ PRODUCTVERSION UV_RC_MAJOR,UV_RC_MINOR,UV_RC_PATCH,0
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "Ultima V Native contributors"
+            VALUE "FileDescription", "Ultima V Native for Windows"
+            VALUE "FileVersion", UV_RC_VERSION_STRING
+            VALUE "InternalName", "UltimaVNative"
+            VALUE "LegalCopyright", "GPL-3.0-or-later. Ultima V game data is not included."
+            VALUE "OriginalFilename", "UltimaVNative.exe"
+            VALUE "ProductName", "Ultima V Native"
+            VALUE "ProductVersion", UV_RC_VERSION_STRING
+            VALUE "Comments", UV_RC_COMMENTS
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

@@ -35,7 +35,12 @@ struct ReportLines {
     char *lines;
     size_t line_bytes, max_lines, count = 0;
 };
-__attribute__((format(printf, 2, 3))) void put(ReportLines &r, const char *format, ...) {
+#if defined(__GNUC__)
+#define OPENU5_PRINTF_FORMAT(f, a) __attribute__((format(printf, f, a)))
+#else
+#define OPENU5_PRINTF_FORMAT(f, a) // MSVC (the Windows target): no format check
+#endif
+OPENU5_PRINTF_FORMAT(2, 3) void put(ReportLines &r, const char *format, ...) {
     if (r.count >= r.max_lines || !r.line_bytes) return;
     va_list args;
     va_start(args, format);

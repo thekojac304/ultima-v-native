@@ -1,0 +1,3 @@
+# Local build and packaging output of the Windows target.
+/build*/
+/dist/

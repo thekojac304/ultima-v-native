@@ -56,8 +56,13 @@ constexpr uint32_t kInternal=MALLOC_CAP_INTERNAL|MALLOC_CAP_8BIT,kPsram=MALLOC_C
 // proving either read pure and hoisting it out of the timing loop.
 struct GuardProbe{int value;GuardProbe():value(1){}};
 int g_unguarded_probe=1;
-__attribute__((noipa)) int guarded_probe_read(){static GuardProbe probe;return probe.value;}
-__attribute__((noipa)) int unguarded_probe_read(){return g_unguarded_probe;}
+#if defined(__GNUC__)
+#define OPENU5_NOIPA __attribute__((noipa))
+#else
+#define OPENU5_NOIPA __declspec(noinline) // MSVC (the Windows target): its nearest equivalent
+#endif
+OPENU5_NOIPA int guarded_probe_read(){static GuardProbe probe;return probe.value;}
+OPENU5_NOIPA int unguarded_probe_read(){return g_unguarded_probe;}
 /** Nanoseconds one guarded read costs over a plain one (4,000 of each, ~10 ms on the device). */
 uint32_t measure_guard_ns(){
     constexpr int kReads=4000;
@@ -1807,13 +1812,38 @@ bool AlphaRuntime::handle(const RawInputEvent&raw){
     return routed;
 }
 
-bool AlphaRuntime::handle_input_event(const RawInputEvent&raw){service_combat();openu5::UiAction action;DeviceShortcut shortcut;
+// The mode an input is translated for: the title's name entry is text entry,
+// the title's other pages and the System Menu are lists, else the session's.
+openu5::UiMode AlphaRuntime::input_mode() const {
     const bool in_frontend=frontend_.active();
     const bool frontend_name=in_frontend&&frontend_.state()==openu5::FrontendState::CharacterCreation&&
                              frontend_.creation_phase()==openu5::FrontendCreationPhase::Name;
-    const auto mode_before=in_frontend?(frontend_name?openu5::UiMode::TextEntry:openu5::UiMode::InventorySelection):system_menu_.active()?openu5::UiMode::InventorySelection:ui_->mode();
-    const bool translated=input_.translate(raw,mode_before,action,shortcut,
-                                           !in_frontend&&ui_->accepts_direction_input());
+    return in_frontend?(frontend_name?openu5::UiMode::TextEntry:openu5::UiMode::InventorySelection):system_menu_.active()?openu5::UiMode::InventorySelection:ui_->mode();
+}
+
+bool AlphaRuntime::accepts_direction_input() const { return !frontend_.active()&&ui_->accepts_direction_input(); }
+
+// Windows port: a desktop keyboard's input, already translated (see the
+// header). The same routing as a T-Deck key after UiInputAdapter::translate,
+// timed the same way as handle().
+bool AlphaRuntime::handle_action(const openu5::UiAction&action,DeviceShortcut shortcut,int64_t timestamp_us,const char*source){
+    const int64_t t0=esp_timer_get_time();
+    service_combat();
+    // The adapter switches Movement Mode itself before a T-Deck toggle is
+    // routed; a desktop toggle arrives as the shortcut alone.
+    if(shortcut==DeviceShortcut::MovementModeToggled)input_.set_movement_mode_enabled(!input_.movement_mode_enabled());
+    const bool routed=route_input(action,shortcut,timestamp_us,source?source:"desktop",source?source:"desktop");
+    const int64_t t1=esp_timer_get_time();
+    if(routed){
+        render_perf_.on_input(uint32_t(t1-t0));
+        if(input_pending_us_<0)input_pending_us_=timestamp_us>0&&timestamp_us<=t1?timestamp_us:t0;
+    }
+    return routed;
+}
+
+bool AlphaRuntime::handle_input_event(const RawInputEvent&raw){service_combat();openu5::UiAction action;DeviceShortcut shortcut;
+    const auto mode_before=input_mode();
+    const bool translated=input_.translate(raw,mode_before,action,shortcut,accepts_direction_input());
     if(raw.kind==RawInputKind::Keyboard){
         const bool mic=raw.column==kMicrophoneKeyColumn&&raw.row==kMicrophoneKeyRow;
         const bool sym=raw.column==0&&raw.row==2;
@@ -1827,6 +1857,16 @@ bool AlphaRuntime::handle_input_event(const RawInputEvent&raw){service_combat();
     }else if(raw.kind==RawInputKind::KeyboardResynchronized)
         ESP_LOGW(kTag,"INPUT_RESYNC ui=%s held gestures abandoned",mode_name(mode_before));
     if(!translated)return false;
+    return route_input(action,shortcut,raw.timestamp_us,raw_input_name(raw.kind),
+                       raw.kind==RawInputKind::TrackballClick?"trackball-click":"mic-hold");
+}
+
+// One translated input, from either front end: the T-Deck's UiInputAdapter
+// (handle_input_event above) or a desktop keyboard (handle_action).
+bool AlphaRuntime::route_input(openu5::UiAction action,DeviceShortcut shortcut,int64_t timestamp_us,
+                               const char*source,const char*movement_source){
+    const bool in_frontend=frontend_.active();
+    const auto mode_before=input_mode();
     // A3-05. The session mutes are output controls, not commands: they act on
     // every screen (title, Camp, the menus, modal scenes, combat) before any
     // of them can swallow or route the key, and they change no game state.
@@ -1840,7 +1880,7 @@ bool AlphaRuntime::handle_input_event(const RawInputEvent&raw){service_combat();
     // the Settings row's. The title used to save it and then reload the old
     // value from the frontend's copy, so the live mode reverted at once.
     if(shortcut==DeviceShortcut::MovementModeToggled)
-        return announce_movement_mode(raw.kind==RawInputKind::TrackballClick?"trackball-click":"mic-hold");
+        return announce_movement_mode(movement_source);
     if(in_frontend){
         const auto state_before=frontend_.state();const auto phase_before=frontend_.creation_phase();
         char name_before[9]{};std::snprintf(name_before,sizeof(name_before),"%s",frontend_.creation_name());
@@ -1852,11 +1892,11 @@ bool AlphaRuntime::handle_input_event(const RawInputEvent&raw){service_combat();
             if(asked)service_frontend_intent();
             return asked;
         }
-        const bool accepted=frontend_.handle(action,uint32_t(raw.timestamp_us/1000));
+        const bool accepted=frontend_.handle(action,uint32_t(timestamp_us/1000));
         if(accepted){settings_=frontend_.settings();apply_device_settings();apply_volume_edits(frontend_.take_volume_edits());}
         const auto state_after=frontend_.state();const auto phase_after=frontend_.creation_phase();
         ESP_LOGI(kTag,"FRONTEND_INPUT raw=%s action=%s char=%u accepted=%d state=%s->%s phase=%s->%s name=\"%s\"->\"%s\"",
-                 raw_input_name(raw.kind),action_name(action.kind),unsigned(action.character),accepted,
+                 source,action_name(action.kind),unsigned(action.character),accepted,
                  frontend_state_name(state_before),frontend_state_name(state_after),
                  creation_phase_name(phase_before),creation_phase_name(phase_after),name_before,frontend_.creation_name());
         if(state_before==openu5::FrontendState::CharacterCreation||state_after==openu5::FrontendState::CharacterCreation){

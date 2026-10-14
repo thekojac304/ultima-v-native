@@ -3,6 +3,14 @@
 #include <cstdarg>
 #include <cstdio>
 
+// The format check is GCC/Clang's; other compilers (MSVC, for the Windows
+// target) build the same code without it.
+#if defined(__GNUC__)
+#define OPENU5_PRINTF_FORMAT(f, a) __attribute__((format(printf, f, a)))
+#else
+#define OPENU5_PRINTF_FORMAT(f, a)
+#endif
+
 // Alpha 3 A3-04B -- see perf_report.h and ALPHA3_AUDIO.md section 19.
 namespace openu5 {
 
@@ -264,7 +272,7 @@ namespace {
 class Lines {
   public:
     Lines(char (*lines)[kPerfReportLineBytes], size_t max) : lines_(lines), max_(max) {}
-    __attribute__((format(printf, 2, 3))) void add(const char *format, ...) {
+    OPENU5_PRINTF_FORMAT(2, 3) void add(const char *format, ...) {
         if (n_ >= max_) return;
         va_list args;
         va_start(args, format);
@@ -504,7 +512,7 @@ namespace {
 class LineOut {
   public:
     LineOut(char *out, size_t cap) : out_(out), cap_(cap) { out_[0] = 0; }
-    __attribute__((format(printf, 2, 3))) void add(const char *format, ...) {
+    OPENU5_PRINTF_FORMAT(2, 3) void add(const char *format, ...) {
         if (n_ + 1 >= cap_) return;
         va_list args;
         va_start(args, format);

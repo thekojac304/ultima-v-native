@@ -55,6 +55,21 @@ class AlphaRuntime {
     esp_err_t initialize(AlphaResourcePack &, AlphaResourceReport &, openu5::AssetPackReader &,
                          const openu5::AssetPackReport &);
     bool handle(const RawInputEvent &);
+    // Windows port (WINDOWS_PORT_PLAN.md): a desktop keyboard has its own
+    // front end (native/targets/windows) that turns keys into the same
+    // UiAction / DeviceShortcut values UiInputAdapter::translate produces for a
+    // T-Deck key; this routes one of them through exactly the path a
+    // translated T-Deck key takes. `timestamp_us` is the key's capture time on
+    // esp_timer_get_time()'s clock; `source` names the front end in the log.
+    // A MovementModeToggled shortcut switches Movement Mode here (the T-Deck
+    // adapter has switched it already when its toggle arrives).
+    bool handle_action(const openu5::UiAction &action, DeviceShortcut shortcut, int64_t timestamp_us,
+                       const char *source);
+    // The UiMode an input is translated for (the title and the System Menu
+    // count as lists, the title's name entry as text entry), and whether the
+    // current prompt takes a direction -- what UiInputAdapter::translate is given.
+    openu5::UiMode input_mode() const;
+    bool accepts_direction_input() const;
     esp_err_t render(Board &, bool force = false);
     void log_metrics(const char *checkpoint) const;
     // A3-01. The audio seam: the pack's capability (read at boot by
@@ -815,6 +830,9 @@ class AlphaRuntime {
     void show_report(const char *reason);
     /** handle()'s body; handle() wraps it to time each input (section 19.5). */
     bool handle_input_event(const RawInputEvent &);
+    /** One translated input, from handle_input_event() or handle_action(). */
+    bool route_input(openu5::UiAction action, DeviceShortcut shortcut, int64_t timestamp_us,
+                     const char *source, const char *movement_source);
     // A3-01. The one binder of the Developer diagnostics services, shared by
     // initialize() and the host fixture (the fixture used to copy the call).
     void bind_developer_diagnostics();
