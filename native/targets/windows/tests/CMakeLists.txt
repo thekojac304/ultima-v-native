@@ -93,10 +93,8 @@ target_link_libraries(uv_print_synth_fingerprints PRIVATE uv_core)
 target_compile_options(uv_print_synth_fingerprints PRIVATE ${UV_COMMON_OPTIONS} ${UV_OWN_WARNINGS})
 target_include_directories(uv_print_synth_fingerprints PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${UV_CORE_DIR}/tests")
 
-# KNOWN-BUG: SdlAudioBackend::render_offline() drops the rest of the last
-# 128-frame block when `frames` is not a multiple of 128, so successive
-# offline calls are not one continuous stream (src/app/sdl_audio_backend.cpp,
-# StreamSink::deliver). Test hook only -- the SDL callback path keeps the
-# remainder. The check (K1) runs with --known-bugs; enable this test once fixed.
-add_test(NAME uv_audio_backend_known_bugs COMMAND uv_audio_backend_test --known-bugs)
-set_tests_properties(uv_audio_backend_known_bugs PROPERTIES DISABLED TRUE LABELS "windows;known-bug")
+# Formerly a KNOWN-BUG: render_offline() dropped the rest of a 128-frame block
+# when `frames` was not a multiple of 128 (fixed: the remainder is carried to
+# the next call). K1 now guards the fix.
+add_test(NAME uv_audio_backend_offline_continuity COMMAND uv_audio_backend_test --known-bugs)
+set_tests_properties(uv_audio_backend_offline_continuity PROPERTIES LABELS "windows")
