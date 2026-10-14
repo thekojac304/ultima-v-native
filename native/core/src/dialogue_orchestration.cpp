@@ -133,13 +133,25 @@ ActionResult execute_dialogue_command(CommandContext &c, Command cmd) {
             (n.z == c.game.position.map.floor && n.x == int(c.game.position.xy.x)+delta.dx && n.y == int(c.game.position.xy.y)+delta.dy);
         if (match) { npc = &n; break; }
     }
-    if (!npc) { out.message("Funny, no response!"); out.result.status = CommandStatus::Rejected; return out.result; }
+    // SPP2 (ledger D-111). "Funny, no response!" (DS 0xa216) is the kernel T arm's own answer
+    // outdoors (0x33c2). A town Talk is TALK 0x041c's: no NPC at the target (0x048a, after the
+    // counter step) prints DS 0x91d6 "\nNobody's here!\n" (0x0491) and returns 0.
+    if (!npc) { out.message(loc ? "Nobody's here!" : "Funny, no response!"); out.result.status = CommandStatus::Rejected; return out.result; }
     s.npc = *npc; s.deferred = DialogueHandoff::None;
     const auto dialog = npc->schedule.dialog;
     if (dialog >= 0x81 && dialog <= 0x88) { out.handoff(DialogueHandoff::Shop); return out.result; }
     if (dialog == 0xff && loc == 0x12) { out.handoff(DialogueHandoff::Guard); return out.result; }
     if (dialog == 0xfd || dialog == 0xfe) {
         out.message(dialog == 0xfd ? "\"Don't hurt me!\nPlease go away!\"\n" : "\"Begone,\nvermin!\"\n"); return out.result;
+    }
+    // SPP2 (D-111). Dialog number 0, through TALK's converse dispatch 0x031e: "No response!"
+    // (0x0364, DS 0x9168); a guard (object type 0x70, 0x0371) is "The guard offers\nno response!"
+    // (0x0387, DS 0x9148). An NPC whose served schedule AI is 4 (approach) skips the guard test
+    // (0x0350; the binary also resets that AI to 1 at 0x0354, which native does not port).
+    if (dialog == 0) {
+        const bool approach = npc->served_slot < 3 && npc->schedule.ai[npc->served_slot] == 4;
+        out.message(npc->schedule.type == 0x70 && !approach ? "The guard offers\nno response!" : "No response!");
+        out.result.status = CommandStatus::Rejected; return out.result;
     }
     const auto *script = talk_script_for(d.registry,loc,dialog);
     if (!script) { out.message("Funny, no response!"); out.result.status = CommandStatus::Rejected; return out.result; }

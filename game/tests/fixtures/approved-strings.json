@@ -887,5 +887,8 @@
   "Zzzzzz...\n": "[D] DS 0x288d (DATA.OVL fileoff 0x289d, bytes b'Zzzzzz...\\n') — guarda de la CABECERA del bucle de pueblo TOWN.OVL 0x1436-0x1452: con `party_conscious_state` (CS 0x39fc) == 1 (ningun 'G'/'P' pero al menos un 'S' dormido) el original NO lee tecla — `143c cmp ax,1` / `144b mov ax,0x288d` + print_string / `1452 jmp 0x15a6` — e igual CONSUME el turno, porque la bandera [bp-0xa] puesta en 0x1431 sigue a 1 (solo la apaga el refuge en 0x145f) y el gate de D7 en 0x15bf re-consulta y obtiene 1, no -1. Hermana de la guarda del CIERRE de #181. Tarjeta #185",
   "Zzzzzz...\n\n": "[D] re/notes/loops.md — Camp/rest derivado",
   "Zzzzzz....\n\n": "[D] DS 0x4e44 (fileoff 0x4e54) — la noche, SHOPPES3 0x1ae (F2-T2; testigo P05)",
-  "Zzzzzzz...\n": "[D] DATA.OVL 0x421e — dormir en cama de pueblo (CMDS 0x0552, 0x060d)"
+  "Zzzzzzz...\n": "[D] DATA.OVL 0x421e — dormir en cama de pueblo (CMDS 0x0552, 0x060d)",
+  "Nobody's here!": "[D] DS 0x91d6 (fileoff 0x91e6) «\\nNobody's here!\\n» — TALK 0x048a sin NPC en la celda → 0x0491 (print 0x58d0) → 0x0429 ax=0; game.talkRefusal (SPP2, ledger D-111)",
+  "No response!": "[D] DS 0x9168 (fileoff 0x9178) — talk_converse_dispatch TALK 0x0364 (dialogNumber 0); game.talkRefusal (SPP2, ledger D-111)",
+  "The guard offers\nno response!": "[D] DS 0x9148 (fileoff 0x9158) — TALK 0x0387: guardia (tipo de objeto 0x70, 0x0371) con dialogNumber 0 o ranura servida par; game.talkRefusal (SPP2, ledger D-111)"
 }

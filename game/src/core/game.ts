@@ -5461,6 +5461,29 @@ export class Game {
   }
 
   /**
+   * SPP2 (ledger D-111): lo que imprime un (T)alk que no abre conversación, del binario.
+   * Al aire libre responde el propio brazo T del kernel (0x33c2): «Funny, no response!»
+   * (DS 0xa216). En un pueblo el Talk es de TALK 0x041c: sin NPC en la celda (0x048a, tras
+   * el paso del mostrador) imprime DS 0x91d6 «\nNobody's here!\n» (0x0491) y devuelve 0. Un
+   * NPC con dialogNumber 0 lo contesta `talk_converse_dispatch` 0x031e: «No response!»
+   * (0x0364, DS 0x9168) o, si es un guardia (tipo de objeto 0x70, 0x0371), «The guard
+   * offers\nno response!» (0x0387, DS 0x9148) — salvo que la IA de su ranura servida sea 4
+   * (acercarse), que 0x0350 salta (y 0x0354 resetea a 1: no portado aquí).
+   */
+  talkRefusal(dir: Direction): string {
+    const pos = this.state.position;
+    if (pos.location === 0 || !this.npcManager) return "Funny, no response!";
+    const { nx, ny } = this.targetCoord(dir);
+    const npc = this.npcManager.npcAt(pos.location, pos.floor, nx, ny);
+    if (!npc) return "Nobody's here!";
+    if (npc.dialogNumber === 0) {
+      const approach = npc.servedSlot < 3 && npc.aiTypes[npc.servedSlot] === 4;
+      return npc.type === 0x70 && !approach ? "The guard offers\nno response!" : "No response!";
+    }
+    return "Funny, no response!";
+  }
+
+  /**
    * El script TLK de un NPC CONCRETO, con el predicado de `talk_converse_dispatch`
    * (TALK 0x031E): `dlgNum == 0` → «No response!» (0x0357-0x0362) y `dlgNum >= 0x80`
    * → las ramas hardcodeadas (tendero por gate horario, 0xFD/0xFE poseídos, 0xFF

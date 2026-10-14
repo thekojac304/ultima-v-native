@@ -1,0 +1,33 @@
+== spp2_runtime against 7b2ff6a5 (T)
+GREEN M1 control: the paced Mix holds "Mixing..." and nothing is charged inside it (turns +0, clock +0 min)
+GREEN M1 control: the hold ended by itself and the Mix is done
+GREEN M1 the Mix's world turn is charged when the hold ends, with no further input (MAINOUT 0x0c39 before 0x0b14) (turns +1, clock +2 min)
+GREEN M2 waiting charges nothing more (turns +1, clock +2 min)
+GREEN M2 a delayed Pass adds its own turn: two in all (turns +2, clock +4 min)
+GREEN M3 a key pressed during the hold is swallowed (no Z-stats) and the Mix still costs exactly one turn (turns +1, clock +2 min)
+GREEN M3 the turn is on the frame the hold ends (turns +1, clock +2 min)
+GREEN M3 an immediate Pass is its own turn: nothing absorbed, nothing twice (turns +2, clock +4 min)
+GREEN M4 control: (U)se the View scroll opens the map reveal
+GREEN M4 nothing is charged while the reveal holds (turns +0, clock +0 min)
+GREEN M4 the Use's turn is charged when the reveal ends, without input (turns +1, clock +2 min)
+GREEN M6 a key that comes before the first frame after the reveal: the Use's turn, then the Pass's (turns +2, clock +4 min)
+GREEN M5 a save right after the Mix holds its turn (turns +1, clock +2 min)
+GREEN M5 control: Alt+S inside the hold saves (the device shortcuts keep their meaning)
+GREEN M5 the live game still charges the Mix's turn once, when the hold ends (turns +1, clock +2 min)
+GREEN M5 the save made inside the hold has the Mix without its turn, and its load charges nothing (turns +0, clock +0 min)
+GREEN N1 control: a Pass with an approaching NPC beside the party opens the conversation at once (turns +1, clock +1 min)
+GREEN N2 an R cancelled at Player: charges the town turn, and the NPC's approach opens the conversation before any key (turns +1, clock +1 min)
+GREEN N3 control: a Pass beside a troll starts the fight, with its music (hut -> combat)
+GREEN N3 an R cancelled beside a troll: the turn starts the fight, and its music plays without another key (hut -> combat)
+RED T1 a town Talk at an empty cell answers "Nobody's here!" (TALK 0x0491, DS 0x91d6) [T-Deck]: Talk-|east|Funny, no response!|
+GREEN T5 ... opens nothing and costs one town turn [T-Deck] (turns +1, clock +1 min)
+RED T1 a town Talk at an empty cell answers "Nobody's here!" (TALK 0x0491, DS 0x91d6) [Original]: Talk-East|Funny, no response!|
+GREEN T5 ... opens nothing and costs one town turn [Original] (turns +1, clock +1 min)
+GREEN T2 control: the overworld Talk keeps the kernel's "Funny, no response!" (0x33c2): Talk-|east|Funny, no response!|
+RED T3 an NPC of dialog 0 answers "No response!" (TALK 0x0364, DS 0x9168): Talk-|north|Funny, no response!| [location 4 slot 18 type 80]
+GREEN T5 ... opens nothing and costs one town turn (turns +1, clock +1 min)
+RED T4 a guard of dialog 0 answers "The guard offers no response!" (TALK 0x0387, DS 0x9148): Talk-|north|Funny, no response!| [location 1 slot 6 type 112]
+GREEN T5 ... opens nothing and costs one town turn (turns +1, clock +1 min)
+RED T4 a guard of dialog 0 whose AI is 4 (approach) answers "No response!" (TALK 0x0350 skips the guard test): Talk-|north|Funny, no response!| [location 1 slot 6 type 112]
+SPP2 runtime: 25/30 checks
+exit 1

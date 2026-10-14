@@ -29,9 +29,23 @@
 //         battle music at once; SPP1 left the surface's song on until the next key (the music
 //         selector runs on key polls, ALPHA4_UI.md's render-driven-transition rule)
 //
+//   T  TALK.OVL's own answers in a town (ledger D-111). The kernel's T arm (0x33c2) sends a town
+//      Talk to TALK 0x041c. No NPC at the target (0x048a, after the counter step 0x046b) prints
+//      DS 0x91d6 "\nNobody's here!\n" (0x0491) and returns 0. An NPC whose dialog number is 0 is
+//      answered by the converse dispatch 0x031e: "No response!" (DS 0x9168, 0x0364), or, for a
+//      guard (object type 0x70, 0x0371), "The guard offers\nno response!" (DS 0x9148, 0x0387).
+//      "Funny, no response!" (DS 0xa216) is the kernel's own overworld / dungeon string.
+//      T1 a town Talk at an empty cell: "Nobody's here!", not "Funny, no response!" (both profiles)
+//      T2 control: the overworld Talk keeps "Funny, no response!"
+//      T3 a town NPC with dialog 0 that is no guard: "No response!"
+//      T4 a town guard with dialog 0: "The guard offers no response!"; one whose served schedule AI
+//         is 4 (approach) skips the guard test (0x0350) and answers "No response!"
+//      T5 each opens no conversation and costs one town turn (TALK -> 0, the dispatcher's 1)
+//
 //   spp2_runtime <openu5-alpha1-resources.bin> [openu5-audio.bin]
 #include "a4_ui2_harness.h"
 #include "openu5/dialogue.h"
+#include "openu5/platform_profile.h"
 #include "openu5/world.h"
 
 using namespace a4_ui2;
@@ -344,6 +358,161 @@ void test_n3() {
                   " (" + music_context_name(song) + " -> " + music_context_name(now) + ")");
     }
 }
+// --- T: TALK.OVL's answers -----------------------------------------------------------------------
+bool g_dos = false;
+struct DosProfile {
+    DosProfile() {
+        g_dos = true;
+        PlatformProfile p{};
+        p.back_key = "Esc";
+        p.move_keys = "Arrows";
+        p.menu_key = "F10";
+        p.typed_spell_names = [](void *) { return g_dos; };
+        p.quit_save_key = [](void *) { return g_dos; };
+        p.dos_interface = [](void *) { return g_dos; };
+        set_platform_profile(p);
+    }
+    ~DosProfile() {
+        g_dos = false;
+        set_platform_profile(PlatformProfile{});
+    }
+    DosProfile(const DosProfile &) = delete;
+    DosProfile &operator=(const DosProfile &) = delete;
+};
+UiAction dir(Direction d) { UiAction a; a.kind = UiActionKind::Direction; a.direction = d; return a; }
+std::string since_mark(Run &h, size_t mark) {
+    std::string out;
+    for (size_t i = mark; i < h.rt->ui()->transcript_size(); ++i)
+        if (const auto *b = h.rt->ui()->transcript_at(i)) out += std::string(b->text) + "|";
+    return out;
+}
+/** In `location` at noon, beside the actor of schedule `slot`; `toward` faces it. */
+bool beside_actor(Run &h, int location, int slot, Direction &toward) {
+    auto &g = h.rt->game();
+    auto &c = h.rt->command_context_for_test();
+    g.time.hour = 12;
+    h.rt->turn().transport_tile = 0x1c;
+    enter_town(h, location);
+    if (g.position.map.location != location) return false;
+    const NpcActor *npc = nullptr;
+    for (size_t i = 0; i < c.actors->count; ++i)
+        if (c.actors->actors[i].location == location && c.actors->actors[i].schedule.slot == slot) npc = &c.actors->actors[i];
+    if (!npc || npc->z != g.position.map.floor) return false;
+    for (const auto d : {Direction::South, Direction::North, Direction::East, Direction::West}) {
+        const auto dd = direction_delta(d);
+        const int x = npc->x + dd.dx, y = npc->y + dd.dy;
+        const int tile = c.terrain->effective(c.world, g.position.map, x, y);
+        if (!is_passable(tile, TransportMode::Foot).value || c.shop_services->occupied(c.shop_services->context, x, y)) continue;
+        g.position.xy = {uint8_t(x), uint8_t(y)};
+        toward = d == Direction::South ? Direction::North : d == Direction::North ? Direction::South
+               : d == Direction::East ? Direction::West : Direction::East;
+        return true;
+    }
+    return false;
+}
+struct TalkRun {
+    bool placed = false, opened = false;
+    std::string text;
+    Cost cost{};
+};
+/** Talk toward an NPC of dialog 0 (guard or not) somewhere in the towns; the first one that can be reached. */
+TalkRun talk_to_dialog_zero(bool guard, bool approach = false) {
+    for (int location = 1; location <= 32; ++location) {
+        const auto &npcs = pack->npc_locations[location - 1];
+        for (size_t i = 0; i < npcs.count; ++i) {
+            const auto &npc = npcs.slots[i];
+            if (npc.dialog != 0 || !npc.type || (npc.type == 0x70) != guard) continue;
+            Run h(kParty);
+            Direction toward{};
+            if (!beside_actor(h, location, npc.slot, toward)) continue;
+            TalkRun r;
+            r.placed = true;
+            if (approach) {
+                auto &c = h.rt->command_context_for_test();
+                for (size_t k = 0; k < c.actors->count; ++k) {
+                    auto &a = c.actors->actors[k];
+                    if (a.location == location && a.schedule.slot == npc.slot && a.served_slot < 3) a.schedule.ai[a.served_slot] = 4;
+                }
+            }
+            const Snap before = snap(h);
+            const size_t mark = h.rt->ui()->transcript_size();
+            act(h, ch('t'));
+            act(h, dir(toward));
+            const auto *ds = h.rt->command_context_for_test().dialogue_services;
+            r.opened = (ds && ds->session.active) || mode(h) != UiMode::Exploration;
+            r.text = since_mark(h, mark) + " [location " + n(location) + " slot " + n(npc.slot) + " type " + n(npc.type) + "]";
+            r.cost = since(before, h);
+            return r;
+        }
+    }
+    return {};
+}
+
+void test_t() {
+    std::printf("T  TALK.OVL's own answers in a town (D-111)\n");
+    for (int dos = 0; dos < 2; ++dos) {
+        std::unique_ptr<DosProfile> profile;
+        if (dos) profile = std::make_unique<DosProfile>();
+        const std::string tag = dos ? " [Original]" : " [T-Deck]";
+        Run h(kParty);
+        enter_town(h, 2);
+        auto &g = h.rt->game();
+        auto &cx = h.rt->command_context_for_test();
+        int nx = -1, ny = -1;
+        const auto clear = [&](int x, int y) {
+            for (size_t i = 0; i < cx.actors->count; ++i) {
+                const auto &a = cx.actors->actors[i];
+                if (a.location == g.position.map.location && std::abs(a.x - x) + std::abs(a.y - y) <= 4) return false;
+            }
+            return true;
+        };
+        for (int y = 2; y < 30 && nx < 0; ++y)
+            for (int x = 2; x < 30 && nx < 0; ++x)
+                if (is_passable(cx.terrain->effective(cx.world, g.position.map, x, y), TransportMode::Foot).value &&
+                    is_passable(cx.terrain->effective(cx.world, g.position.map, x + 1, y), TransportMode::Foot).value &&
+                    !cx.shop_services->occupied(cx.shop_services->context, x, y) &&
+                    !cx.shop_services->occupied(cx.shop_services->context, x + 1, y) && clear(x, y)) { nx = x; ny = y; }
+        g.position.xy = {uint8_t(nx), uint8_t(ny)};
+        const Snap before = snap(h);
+        const size_t mark = h.rt->ui()->transcript_size();
+        act(h, ch('t'));
+        act(h, dir(Direction::East));
+        const std::string text = since_mark(h, mark);
+        const Cost c = since(before, h);
+        const auto *ds = h.rt->command_context_for_test().dialogue_services;
+        check(nx >= 0 && text.find("Nobody's here!") != std::string::npos && text.find("Funny") == std::string::npos,
+              "T1 a town Talk at an empty cell answers \"Nobody's here!\" (TALK 0x0491, DS 0x91d6)" + tag + ": " + text);
+        check(!(ds && ds->session.active) && mode(h) == UiMode::Exploration && c.turns == 1 && c.minutes == 1,
+              "T5 ... opens nothing and costs one town turn" + tag + show(c));
+    }
+    {
+        Run h(kParty);
+        surface(h);
+        const size_t mark = h.rt->ui()->transcript_size();
+        act(h, ch('t'));
+        act(h, dir(Direction::East));
+        const std::string text = since_mark(h, mark);
+        check(text.find("Funny, no response!") != std::string::npos && text.find("Nobody") == std::string::npos,
+              "T2 control: the overworld Talk keeps the kernel's \"Funny, no response!\" (0x33c2): " + text);
+    }
+    {
+        const TalkRun r = talk_to_dialog_zero(false);
+        check(r.placed && r.text.find("No response!") != std::string::npos && r.text.find("Funny") == std::string::npos,
+              "T3 an NPC of dialog 0 answers \"No response!\" (TALK 0x0364, DS 0x9168): " + r.text);
+        check(r.placed && !r.opened && r.cost.turns == 1, "T5 ... opens nothing and costs one town turn" + show(r.cost));
+    }
+    {
+        const TalkRun r = talk_to_dialog_zero(true);
+        check(r.placed && r.text.find("The guard offers\nno response!") != std::string::npos && r.text.find("Funny") == std::string::npos,
+              "T4 a guard of dialog 0 answers \"The guard offers no response!\" (TALK 0x0387, DS 0x9148): " + r.text);
+        check(r.placed && !r.opened && r.cost.turns == 1, "T5 ... opens nothing and costs one town turn" + show(r.cost));
+    }
+    {
+        const TalkRun r = talk_to_dialog_zero(true, true);
+        check(r.placed && r.text.find("|No response!|") != std::string::npos && r.text.find("guard") == std::string::npos,
+              "T4 a guard of dialog 0 whose AI is 4 (approach) answers \"No response!\" (TALK 0x0350 skips the guard test): " + r.text);
+    }
+}
 } // namespace
 
 int main(int argc, char **argv) {
@@ -359,6 +528,7 @@ int main(int argc, char **argv) {
     test_m();
     test_n();
     test_n3();
+    test_t();
     std::printf("SPP2 runtime: %d/%d checks\n", checks - failures, checks);
     return failures ? 1 : 0;
 }

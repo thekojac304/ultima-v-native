@@ -21,6 +21,7 @@ PACK = os.path.join(ROOT, 'native', 'assets', 'openu5-alpha1-resources.bin')
 AUDIO = os.path.join(ROOT, 'native', 'assets', 'openu5-audio.bin')
 ARGS = {'spp2_runtime': [PACK, AUDIO]}
 RT = 'native/targets/tdeck/main/alpha_runtime.cpp'
+DLG = 'native/core/src/dialogue_orchestration.cpp'
 
 SPP2 = ('spp2_runtime',)
 BOTH_RT = ('spp2_runtime', 'spp1_runtime')
@@ -53,6 +54,12 @@ MUTANTS = [
      '    drain_pending_npc_initiation();\n    dirty_=true;\n    return true;', SPP2, SPP2),
     # the re-entrancy guard: never settle inside command()
     ('N3', 'N', RT, '    if(!dispatcher_turn_.armed||command_depth_)return false;', '    if(!dispatcher_turn_.armed)return false;', SPP2, SPP2),
+    # T: TALK.OVL's own answers in a town (D-111)
+    ('T1', 'T', DLG, 'out.message(loc ? "Nobody\'s here!" : "Funny, no response!");', 'out.message("Funny, no response!");', SPP2, SPP2),
+    ('T2', 'T', DLG, 'out.message(loc ? "Nobody\'s here!" : "Funny, no response!");', 'out.message("Nobody\'s here!");', SPP2, SPP2),
+    ('T3', 'T', DLG, '    if (dialog == 0) {\n', '    if (false) {\n', SPP2, SPP2),
+    ('T4', 'T', DLG, 'npc->schedule.type == 0x70 && !approach ?', 'false && !approach ?', SPP2, SPP2),
+    ('T5', 'T', DLG, 'npc->schedule.type == 0x70 && !approach ?', 'npc->schedule.type == 0x70 && (approach || !approach) ?', SPP2, SPP2),
 ]
 EQUIVALENT = {
     'N3': 'defensive: the only render() nested in command() is the unpaced Camp scene (route_event -> '

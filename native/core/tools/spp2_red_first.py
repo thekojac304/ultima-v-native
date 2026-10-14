@@ -25,6 +25,8 @@ GROUPS = {
     # M / N: the dispatcher-turn latch settled at the command's end (render) and followed by its
     # NPC approach and music.
     'M': ['native/targets/tdeck/main/alpha_runtime.cpp', 'native/targets/tdeck/main/alpha_runtime.h'],
+    # T: TALK.OVL's own answers in a town (D-111)
+    'T': ['native/core/src/dialogue_orchestration.cpp'],
 }
 EXTRA = {'spp2_runtime': [PACK, os.path.join(ROOT, 'native', 'assets', 'openu5-audio.bin')]}
 

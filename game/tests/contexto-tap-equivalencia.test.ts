@@ -172,7 +172,7 @@ function conBucle(fn: (game: Game) => void): Corrida {
       if (cmd === "talk") {
         const t = game.talkTarget(rumbo);
         objetivo = t ? `slot${t.npc.slot}:${t.script.npcIndex}` : null;
-        consola.push(t ? `dlg:${t.npc.slot}` : "msg:Funny, no response!");
+        consola.push(t ? `dlg:${t.npc.slot}` : `msg:${game.talkRefusal(rumbo)}`);
       }
       return;
     }
@@ -250,7 +250,9 @@ describe("★ el tap contextual produce la MISMA corrida que teclear t + flecha"
       press("t");
       press("ArrowUp"); // al norte no hay nadie
     });
-    expect(alAire.consola).toEqual([`echo:${CMD_STRINGS.talk}`, "msg:Funny, no response!"]);
+    // SPP2 (D-111): en un pueblo, sin NPC en la celda, TALK 0x0491 imprime DS 0x91d6
+    // «Nobody's here!»; «Funny, no response!» es la cadena del kernel al aire libre.
+    expect(alAire.consola).toEqual([`echo:${CMD_STRINGS.talk}`, "msg:Nobody's here!"]);
   });
 });
 

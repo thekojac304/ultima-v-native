@@ -1,0 +1,7 @@
+T1 KILLED native/core/src/dialogue_orchestration.cpp  <- RED T1 a town Talk at an empty cell answers "Nobody's here!" (TALK 0x0491, DS 0x91d6) [T-Deck]: Talk-|east|Funny, no response!| | RED T1 a town Talk at an empty cell answers "Nobody's here!" (TALK 0x0491, DS 0x91d6) [Original]: Talk-East|Funny, no response!|
+T2 KILLED native/core/src/dialogue_orchestration.cpp  <- RED T2 control: the overworld Talk keeps the kernel's "Funny, no response!" (0x33c2): Talk-|east|Nobody's here!|
+T3 KILLED native/core/src/dialogue_orchestration.cpp  <- RED T3 an NPC of dialog 0 answers "No response!" (TALK 0x0364, DS 0x9168): Talk-|north|Funny, no response!| [location 4 slot 18 type 80] | RED T4 a guard of dialog 0 answers "The guard offers no response!" (TALK 0x0387, DS 0x9148): Talk-|north|Funny, no response!| [location 1 slot 6 type 112] | RED T4 a guard of dialog 0 whose AI is 4 (approach) answers "No response!" (TALK 0x0350 skips the guard test): Talk-|north|Funny, no response!| [location 1 slot 6 type 112]
+T4 KILLED native/core/src/dialogue_orchestration.cpp  <- RED T4 a guard of dialog 0 answers "The guard offers no response!" (TALK 0x0387, DS 0x9148): Talk-|north|No response!| [location 1 slot 6 type 112]
+T5 KILLED native/core/src/dialogue_orchestration.cpp  <- RED T4 a guard of dialog 0 whose AI is 4 (approach) answers "No response!" (TALK 0x0350 skips the guard test): Talk-|north|The guard offers
+restored tree: GREEN
+KILLED 5 SURVIVED 0 EQUIVALENT 0 INVALID 0 STALE 0

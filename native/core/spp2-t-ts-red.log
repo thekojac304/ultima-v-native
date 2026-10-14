@@ -1,0 +1,84 @@
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mC:/Dev/ultima-v-native-spp2/game[39m
+
+ [31m❯[39m tests/spp2-talk-refusal.test.ts [2m([22m[2m5 tests[22m[2m | [22m[31m5 failed[39m[2m)[22m[32m 14[2mms[22m[39m
+[31m   [31m×[31m SPP2 D-111 — el Talk sin conversación imprime la cadena del binario[2m > [22men un pueblo, sin NPC en la celda: «Nobody's here!» (TALK 0x0491, DS 0x91d6)[39m[32m 5[2mms[22m[39m
+[31m     → g.talkRefusal is not a function[39m
+[31m   [31m×[31m SPP2 D-111 — el Talk sin conversación imprime la cadena del binario[2m > [22mcontrol: al aire libre, el kernel 0x33c2 «Funny, no response!» (DS 0xa216)[39m[32m 2[2mms[22m[39m
+[31m     → partida(...).talkRefusal is not a function[39m
+[31m   [31m×[31m SPP2 D-111 — el Talk sin conversación imprime la cadena del binario[2m > [22mun NPC con dialogNumber 0 que no es guardia: «No response!» (TALK 0x0364, DS 0x9168)[39m[32m 2[2mms[22m[39m
+[31m     → g.talkRefusal is not a function[39m
+[31m   [31m×[31m SPP2 D-111 — el Talk sin conversación imprime la cadena del binario[2m > [22mun guardia (tipo 0x70) con dialogNumber 0: «The guard offers\nno response!» (TALK 0x0387, DS 0x9148)[39m[32m 2[2mms[22m[39m
+[31m     → partida(...).talkRefusal is not a function[39m
+[31m   [31m×[31m SPP2 D-111 — el Talk sin conversación imprime la cadena del binario[2m > [22m…salvo que la IA de su ranura servida sea 4 (0x0350 salta el test del guardia): «No response!»[39m[32m 2[2mms[22m[39m
+[31m     → partida(...).talkRefusal is not a function[39m
+ [32m✓[39m tests/contexto-tap-equivalencia.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 5 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/spp2-talk-refusal.test.ts[2m > [22mSPP2 D-111 — el Talk sin conversación imprime la cadena del binario[2m > [22men un pueblo, sin NPC en la celda: «Nobody's here!» (TALK 0x0491, DS 0x91d6)
+[31m[1mTypeError[22m: g.talkRefusal is not a function[39m
+[36m [2m❯[22m tests/spp2-talk-refusal.test.ts:[2m83:14[22m[39m
+    [90m 81| [39m    [35mconst[39m g [33m=[39m [34mpartida[39m([33mTOWN[39m[33m,[39m [35mnull[39m)[33m;[39m
+    [90m 82| [39m    [34mexpect[39m(g[33m.[39m[34mtalkTarget[39m([32m"east"[39m))[33m.[39m[34mtoBeNull[39m()[33m;[39m
+    [90m 83| [39m    [34mexpect[39m(g[33m.[39m[34mtalkRefusal[39m([32m"east"[39m))[33m.[39m[34mtoBe[39m([32m"Nobody's here!"[39m)[33m;[39m
+    [90m   | [39m             [31m^[39m
+    [90m 84| [39m  })[33m;[39m
+    [90m 85| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/spp2-talk-refusal.test.ts[2m > [22mSPP2 D-111 — el Talk sin conversación imprime la cadena del binario[2m > [22mcontrol: al aire libre, el kernel 0x33c2 «Funny, no response!» (DS 0xa216)
+[31m[1mTypeError[22m: partida(...).talkRefusal is not a function[39m
+[36m [2m❯[22m tests/spp2-talk-refusal.test.ts:[2m87:29[22m[39m
+    [90m 85| [39m
+    [90m 86| [39m  it("control: al aire libre, el kernel 0x33c2 «Funny, no response!» (…
+    [90m 87| [39m    expect(partida(0, null).talkRefusal("east")).toBe("Funny, no respo…
+    [90m   | [39m                            [31m^[39m
+    [90m 88| [39m  })[33m;[39m
+    [90m 89| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/spp2-talk-refusal.test.ts[2m > [22mSPP2 D-111 — el Talk sin conversación imprime la cadena del binario[2m > [22mun NPC con dialogNumber 0 que no es guardia: «No response!» (TALK 0x0364, DS 0x9168)
+[31m[1mTypeError[22m: g.talkRefusal is not a function[39m
+[36m [2m❯[22m tests/spp2-talk-refusal.test.ts:[2m93:14[22m[39m
+    [90m 91| [39m    [35mconst[39m g [33m=[39m [34mpartida[39m([33mTOWN[39m[33m,[39m { type[33m:[39m [34m0x50[39m[33m,[39m dialogNumber[33m:[39m [34m0[39m })[33m;[39m
+    [90m 92| [39m    [34mexpect[39m(g[33m.[39m[34mtalkTarget[39m([32m"east"[39m))[33m.[39m[34mtoBeNull[39m()[33m;[39m
+    [90m 93| [39m    [34mexpect[39m(g[33m.[39m[34mtalkRefusal[39m([32m"east"[39m))[33m.[39m[34mtoBe[39m([32m"No response!"[39m)[33m;[39m
+    [90m   | [39m             [31m^[39m
+    [90m 94| [39m  })[33m;[39m
+    [90m 95| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/spp2-talk-refusal.test.ts[2m > [22mSPP2 D-111 — el Talk sin conversación imprime la cadena del binario[2m > [22mun guardia (tipo 0x70) con dialogNumber 0: «The guard offers\nno response!» (TALK 0x0387, DS 0x9148)
+[31m[1mTypeError[22m: partida(...).talkRefusal is not a function[39m
+[36m [2m❯[22m tests/spp2-talk-refusal.test.ts:[2m97:59[22m[39m
+    [90m 95| [39m
+    [90m 96| [39m  it("un guardia (tipo 0x70) con dialogNumber 0: «The guard offers\\nn…
+    [90m 97| [39m    expect(partida(TOWN, { type: 0x70, dialogNumber: 0 }).talkRefusal(…
+    [90m   | [39m                                                          [31m^[39m
+    [90m 98| [39m  })[33m;[39m
+    [90m 99| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/spp2-talk-refusal.test.ts[2m > [22mSPP2 D-111 — el Talk sin conversación imprime la cadena del binario[2m > [22m…salvo que la IA de su ranura servida sea 4 (0x0350 salta el test del guardia): «No response!»
+[31m[1mTypeError[22m: partida(...).talkRefusal is not a function[39m
+[36m [2m❯[22m tests/spp2-talk-refusal.test.ts:[2m101:94[22m[39m
+    [90m 99| [39m
+    [90m100| [39m  it("…salvo que la IA de su ranura servida sea 4 (0x0350 salta el tes…
+    [90m101| [39m    expect(partida(TOWN, { type: 0x70, dialogNumber: 0, aiTypes: [1, 4…
+    [90m   | [39m                                                                                             [31m^[39m
+    [90m102| [39m      [32m"No response!"[39m[33m,[39m
+    [90m103| [39m    )[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m8 passed[39m[22m[90m (13)[39m
+[2m   Start at [22m 17:03:42
+[2m   Duration [22m 1.61s[2m (transform 931ms, setup 0ms, collect 1.44s, tests 40ms, environment 561ms, prepare 165ms)[22m
+

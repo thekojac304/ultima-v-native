@@ -28,7 +28,8 @@
 //   N3  a successful load mid-speech drops the rest of it
 //   N4  a failed load mid-speech leaves it running
 //   N5  the System Menu mid-speech: nothing is released behind it
-//   N6  ordinary text stays immediate (unpaused answers, "Funny, no response!")
+//   N6  ordinary text stays immediate (unpaused answers, TALK's "Nobody's here!" -- SPP2 D-111:
+//       it was the overworld's "Funny, no response!")
 //   N7  the unpaced harness contract: a zero cadence drains synchronously
 //   N9  an NPC approach queued by the same turn waits for the last line
 //   N8  the A3-04F transcript row cache: every release draws exactly the rows it
@@ -552,8 +553,8 @@ void test_immediate() {
     r.step(Direction::North);
     const auto none = r.since_mark();
     bool funny = false;
-    for (const auto &s : none) funny |= s.find("Funny, no response!") != std::string::npos;
-    check(funny && r.mode() == UiMode::Exploration, "N6.3", "\"Funny, no response!\" is immediate");
+    for (const auto &s : none) funny |= s.find("Nobody's here!") != std::string::npos;
+    check(funny && r.mode() == UiMode::Exploration, "N6.3", "\"Nobody's here!\" is immediate");
 }
 
 void test_unpaced() {

@@ -3780,7 +3780,8 @@ async function boot(): Promise<void> {
       }
       const target = game.talkTarget(dir);
       if (!target) {
-        hud.message("Funny, no response!");
+        // SPP2 (D-111): TALK.OVL's own answers in a town, the kernel's outdoors.
+        hud.message(game.talkRefusal(dir));
         return;
       }
       // Conversación por CONSOLA del marco EGA (getstring inline), como el binario
