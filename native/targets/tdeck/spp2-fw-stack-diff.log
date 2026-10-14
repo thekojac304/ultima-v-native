@@ -1,0 +1,11 @@
+SPP2 firmware stack usage (-fstack-usage, the main component: native/core + targets/tdeck/main) vs the frozen SPP1 build-spp1
+functions: SPP1 2414, SPP2 2414
+largest frame: SPP1 5920 B, SPP2 5920 B
+changed frames: 1
+  alpha_runtime.cpp          void tdeck::AlphaRuntime::command(openu5::Command)                      1728 ->  1744 (+16)
+new functions: 2
+  alpha_runtime.cpp          bool tdeck::AlphaRuntime::toggle_audio_mute(bool, bool)                  144
+  alpha_runtime.cpp          bool tdeck::AlphaRuntime::settle_dispatcher_turn()                       144
+removed functions: 2
+  alpha_runtime.cpp          void tdeck::AlphaRuntime::settle_dispatcher_turn()                       144
+  alpha_runtime.cpp          bool tdeck::AlphaRuntime::toggle_audio_mute(bool)                        144

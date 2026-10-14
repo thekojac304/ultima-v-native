@@ -93,6 +93,30 @@ which was fixed in the same batch. An independent code review then found two mor
 turn latch, also fixed with RED-first tests (`5ba2fa46`). A Mix whose prompt returned on the pacer's
 clock lost its turn; keys swallowed by a map reveal each cost a turn.
 
+**Shared Preservation Parity 2 (SPP2, 2026-10-14) — [`docs/SHARED_PRESERVATION_PARITY_SPP2.md`](../SHARED_PRESERVATION_PARITY_SPP2.md).**
+Branch `parity/shared-preservation-2` (from SPP1's `fc4a63aa`), not merged. **SOFTWARE FIXED — HARDWARE
+UNTESTED**, in shared code:
+
+- **M / N.** A timer-ended command's dispatcher turn now lands when the hold ends (Mix, the map
+  reveal), as MAINOUT 0x0c39 runs it before 0x0b14 reads the next key. SPP1 charged it at the next
+  input. The turn's NPC approach and music follow it in the same pass.
+- **D-111** (TALK's `Nobody's here!` / `No response!` / `The guard offers no response!`), native and
+  the reference.
+- **D-108** (Ctrl-S at the context prompt: `Sound Off/On` and that loop's turn rule) and the new
+  **D-112** (the overworld's control-code `What?`, RETURN/ESC, costs a world turn). Both are visible
+  on Windows only.
+
+The rest:
+
+- **Amended.** D-107 (traced: the conversation's town turn and Hole up's every path; both deferred).
+- **New.** D-113 – D-116.
+- **Deferred.** D-104 – D-106, D-109 and D-110.
+- **Correction to SPP1's A10.** Original's RETURN/ESC at the **overworld** prompt are not free
+  (MAINOUT 0x0bb8 → 0x0c12).
+
+A T-Deck differential against `fc4a63aa` (1,052 walks, 8,430 inputs; unpaced and paced) gives
+0 unexplained.
+
 ---
 
 ## 1. Reference-faithful behaviour (the default)
@@ -290,11 +314,16 @@ answer or a product decision; none is scheduled in Alpha 2 unless marked.
 | D-104 | Shop transaction semantics, `spp1-findings/B-shops.md` §2, S1–S19. The buyer's INT is `characters[0]`, not the active or first able member (S1). The haggle and sale arithmetic do not truncate like the binary's (S2, S3). No Falsehood drain on a ship (S4). The shipwright's `0x6605` state machine is missing (S5). The inn: the time spell is not cleared (S6), extra farewells (S7), the pickup's guards / HP / months (S8–S10), Leave marking (S11). S12 is D-96. The tavern: the drink counter is never reset in the binary (S13); every price line resets the active player (S14); an unpaid rumour ends the visit (S15); negative ration counts (S16). Also: the mounted mask `0x12` (S17), full stables (S18), the healer's `HP == max` (S19) | native **and** reference | SPP1 (2026-10-14). The shop corpora (`shop_parity`, `shop_flow`) pin the TypeScript ShopConsole, so each needs the reference fixed at the pinned layer first | open |
 | D-105 | Shop presentation, `B-shops.md` §4: P1, the 1988 console shop (lists, pitches and prices as console lines) for Windows Original; P3, the reagent cap checked before the pitch; P4, Original's Y/N for rounds and house drinks the binary charges at once; P5, each tavern's own letters (M/A/R/C, C/W/–/T, …), the shipwright's F / S, the guild's D; P6, the shipwright always says `sir`; P7, `for the  of ye` with one living member. P2 (the paid rumour shown) is fixed by SPP1 B | P1/P4/P5: Windows Original presenter; P3/P6/P7: native **and** reference | SPP1 (2026-10-14). P1 is a new presenter for the whole flow; P3/P6/P7 are texts pinned by the shop corpus | open |
 | D-106 | Spell targeting remainder, `DF-spell-targeting-heal-cancel.md`. Rel Hur's `Direction-` and chosen wind; Charm / Polymorph validity (hostility; Blackthorn / Lord British / Shadowlord immunity; `Failed!`); Rel Xen Bet's crosshair; the arena An Ylem / An Sanct / An Grav / An Ex Por / In Ex Por adjacency and effects; Mani `Success!` at full HP; An Zu's silent success | native **and** reference | SPP1 (2026-10-14). `gameplay_parity` / `advanced_combat` pin the reference's behaviour; reference first | open |
-| D-107 | Dispatcher-turn remainder (SPP1 A). (1) The town conversation: TALK `0x041c` returns nonzero after a conversation, and the dispatcher returns 2, which the town loop's handling is not traced for. The conversation keeps its pre-SPP1 cost (none). (2) H (`0x3288` returns 1, `Only in bed!` included) is not charged. (3) The B / E / Y overlays' return values and town / dungeon K (the overlay's ax) are untraced. Related: D-91, D-94 | native **and** reference | SPP1 (2026-10-14), `A-turn-costs.md` §8–§9 | open |
-| D-108 | Ctrl-S prints no `Sound On/Off` echo and costs no dungeon turn. Ctrl-B (the dispatcher's `Buffer On/Off`: getkey `0x2712` code 2 → 0xFC, kernel `0x31c6` toggles the BIOS type-ahead flush `0x1b24`) is deliberately unmapped, a keyboard-hardware switch with no counterpart | native | SPP1 G (2026-10-14). Ctrl-S's echo path is untraced; Ctrl-B is recorded, not ported | open |
+| D-107 | Dispatcher-turn remainder (SPP1 A). (1) The town conversation: TALK `0x041c` returns nonzero after a conversation, and the dispatcher returns 2, which the town loop's handling is not traced for. The conversation keeps its pre-SPP1 cost (none). (2) H (`0x3288` returns 1, `Only in bed!` included) is not charged. (3) The B / E / Y overlays' return values and town / dungeon K (the overlay's ax) are untraced. Related: D-91, D-94 | native **and** reference | SPP1 (2026-10-14), `A-turn-costs.md` §8–§9 | open. SPP2 (2026-10-14): (1) traced -- TALK's nonzero makes the dispatcher return 2; TOWN runs advance_clock(1), 0x0f02 with housekeeping and 0x0c78, skips the NPC.OVL movement and runs 0x1352(1) (D-115, deferred). (2) traced -- every H path returns 1; native's refusal is already charged; the cancel, the ship repair and the trailing turn after a Camp / bed rest are not (D-116, deferred: re-deriving the camp batches' pins; RED harness `spp2_runtime --deferred-h`). (3) untraced |
+| D-108 | Ctrl-S prints no `Sound On/Off` echo and costs no dungeon turn. Ctrl-B (the dispatcher's `Buffer On/Off`: getkey `0x2712` code 2 → 0xFC, kernel `0x31c6` toggles the BIOS type-ahead flush `0x1b24`) is deliberately unmapped, a keyboard-hardware switch with no counterpart | native | SPP1 G (2026-10-14). Ctrl-S's echo path is untraced; Ctrl-B is recorded, not ported | SPP2 (2026-10-14): Ctrl-S **SOFTWARE FIXED — HARDWARE UNTESTED** (`5869fa20`): MAINOUT 0x0b80 / TOWN 0x1508 / DUNGEON 0x0776 echo `Sound Off/On`; a world turn outdoors (→ 0x0c12), none in a town (0x154b), a dungeon turn (0x070a). Desktop Ctrl+S only. Ctrl-B stays unmapped |
 | D-109 | TypeScript reference divergences found by SPP1, where the native ports follow the binary. The TS dungeon Look uses the active member, makes `Player:` and Pass free, and runs the turn before the drink (`E-dungeon-look.md` §5.3 T1–T4). `main.ts`: ESC at J/S/P prints `Pass` and spends the turn, and Yell's ESC = `Nothing` + turn (`C-arena-jpy.md` §3 D1/D2) | reference | SPP1 (2026-10-14); a reference batch | open |
 | D-110 | Arena J/P/Y residuals (SPP1 C). The chest `Key broke!` tone (SJOG `0x0c31`) is not ported. Off-grid reads: the binary reads raw buffer bytes. Whether corridor arenas carry live plates is unknown. Related: D-100's `0x84` / `0x85` scheduler skip | native | SPP1 (2026-10-14), `C-arena-jpy.md` | open |
-| D-111 | A town Talk at an empty cell prints the kernel's overworld `Funny, no response!` (DS 0xa216). The binary prints TALK `0x0491`'s `Nobody's here!` (DS 0x91d6) after `0x048a` finds no NPC, and returns 0, so the turn is charged (SPP1 A does charge it). Windows fidelity matrix §7 item 5 | native **and** reference (to check) | SPP1 (2026-10-14), verified while writing A11b; outside SPP1's seven families | open |
+| D-111 | A town Talk at an empty cell prints the kernel's overworld `Funny, no response!` (DS 0xa216). The binary prints TALK `0x0491`'s `Nobody's here!` (DS 0x91d6) after `0x048a` finds no NPC, and returns 0, so the turn is charged (SPP1 A does charge it). Windows fidelity matrix §7 item 5 | native **and** reference (to check) | SPP1 (2026-10-14), verified while writing A11b; outside SPP1's seven families | SPP2 (2026-10-14): **SOFTWARE FIXED — HARDWARE UNTESTED** (`68743160`, `96dec6b6`), native and reference; also dialog 0 (`No response!`, TALK 0x0364) and a dialog-0 guard (`The guard offers no response!`, 0x0387) |
+| D-112 | The overworld's control-code `What?` -- RETURN, ESC and every code MAINOUT has no handler for -- costs a world turn: 0x0bb8 → 0x0aba → 0x0c12 with the loop result still 1 (0x0a94). TOWN's 0x1544 is free (0x154b); the dungeon's ESC is the dispatcher's free `What?` | native (Windows Original) | SPP2 (2026-10-14); corrects SPP1's A10 reading | SPP2: RETURN / ESC **SOFTWARE FIXED — HARDWARE UNTESTED** (`5869fa20`); Backspace and the other unhandled codes still do nothing in Original |
+| D-113 | Talking to an NPC whose served schedule AI is 4 resets it to 1 (TALK 0x0354); native resets it only on the NPC-initiated approach (`blackthorn_turn_effect`) | native **and** reference (to check) | SPP2 (2026-10-14), TALK 0x0348-0x0354 | open |
+| D-114 | TALK's converse dispatch answers a guard (object type 0x70) on an even served slot with `The guard offers\nno response!` (0x0378-0x0387) before any dialog; dialog 0xFF calls the guard talk 0x01e2 in every town (0x03d8). Native hands 0xFF to the guard flow only in Blackthorn's palace and otherwise prints `Funny, no response!` | native **and** reference (to check) | SPP2 (2026-10-14) | open |
+| D-115 | A town conversation costs a town turn without the NPC movement: TALK nonzero → dispatcher 2 → TOWN advance_clock(1), 0x0f02 (housekeeping), 0x0c78, then 0x1352(1) instead of NPC.OVL (0x1662 / 0x1671). Native: free (D-107 (1)) | native **and** reference | SPP2 (2026-10-14); 0x1352's purpose PROBABLE | open |
+| D-116 | Hole up's dispatcher turn: a cancelled hours question (kernel 0x3ddc / CMDS 0x0587 → the arm's `jmp 0x31ee`), the ship repair, and the trailing turn after a completed Camp or bed rest. Native charges only the refusal (D-107 (2)) | native **and** reference | SPP2 (2026-10-14), K:0x3288 | open; deferred -- the camp batches (batch32/36/38/44) pin "no final housekeeping pass"; `spp2_runtime --deferred-h` |
 
 ---
 
@@ -529,6 +558,13 @@ Every row checked against the Phase 6T–7D hardware results and the Batch 52 au
 **Alpha 4 A4-END1 status (the full ending, 2026-09-30; `ALPHA4_UI.md` §7, `GAMEPLAY_INTEGRATION_AUDIT.md` "Alpha 4 A4-END1").** **D-54, D-56 (device) and D-57 software complete; hardware pending.**
 - **What is new.** ENDGAME.OVL is played on the device: `openu5::EndgameScene` (the overlay as a pure sequencer) with the device presenter, the pack's pre-composed story pages and scroll backdrop, fn34's fizzle and the patch's music selectors. No DOSBox was available: the evidence is static (`re/notes/a4-end1-ending-reconstruction.md`).
 - **Rows.** A-15 revised (the new last screens); A-16 new (the ending's device adaptations); D-72 / H-214 (`VICTORY!` before the ending) and D-73 / H-215 (the reference's rescue narration) new and queued.
+
+**Totals after SPP2 (2026-10-14, branch `parity/shared-preservation-2`, not merged).**
+- **Software fixed, hardware untested:** D-108, D-111 and D-112; SPP2's M/N timing (no row of its
+  own, the SPP1 A latch).
+- **Amended:** D-107.
+- **New and open:** D-113 – D-116.
+- **Still open:** D-104 – D-107, D-109 and D-110. Otherwise as after SPP1.
 
 **Totals after SPP1 (2026-10-14, branch `parity/shared-preservation-1`, not merged).**
 - **Deliberate:** 33, unchanged; E-3 is amended in place.

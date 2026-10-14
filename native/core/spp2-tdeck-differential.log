@@ -1,0 +1,86 @@
+== unpaced (SPP1 fc4a63aa vs SPP2 5869fa20)
+walks 1052 (head 1052), steps 8430 (head 8430)
+identical walks 1038, differing walks 14, walks in one output only 0 []
+non-snapshot lines: base 1, head 1; equal=True
+
+4 classes (family, token at the first divergence, differing fields):
+
+== C-86  token='start'  fields=gram,text,dturns=+0  walks=11
+   C-86-0 step 0 after []
+      base: mode=0 req=0 turns=1 clock=5:09:01 prompt=[] tail=[Talk-][north][Funny, no response!]
+      head: mode=0 req=0 turns=1 clock=5:09:01 prompt=[] tail=[Talk-][north][Nobody's here!]
+
+== I-view  token='WAIT'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   I-view step 3 after [u RET WAIT]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[][Scroll][View!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[][Scroll][View!]
+
+== I-talk-empty  token='RIGHT'  fields=gram,text,dturns=+0  walks=1
+   I-talk-empty step 2 after [t RIGHT]
+      base: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Talk-][east][Funny, no response!]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Talk-][east][Nobody's here!]
+
+== I-approach  token='MIC'  fields=gram,text,state,mode,req,prompt,cursor,seed,dturns=+0  walks=1
+   I-approach step 2 after [r MIC]
+      base: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Ready...][]
+      head: mode=6 req=3 turns=1 clock=5:12:01 prompt=[Your interest?] tail=[Ready...][][You see a spicy ol' chef.]
+
+differing walks by family prefix: {'C': 11, 'I': 3}
+differing walks 14: M 1, N 1, T 12, unexplained 0
+T/M walks that end on a different turn count or clock: 0
+exit 0
+
+== paced
+walks 1052 (head 1052), steps 8430 (head 8430)
+identical walks 1035, differing walks 17, walks in one output only 0 []
+non-snapshot lines: base 1, head 1; equal=True
+
+7 classes (family, token at the first divergence, differing fields):
+
+== C-86  token='start'  fields=gram,text,dturns=+0  walks=11
+   C-86-0 step 0 after []
+      base: mode=0 req=0 turns=1 clock=5:09:01 prompt=[] tail=[Talk-][north][Funny, no response!]
+      head: mode=0 req=0 turns=1 clock=5:09:01 prompt=[] tail=[Talk-][north][Nobody's here!]
+
+== I-mix-0  token='WAIT'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   I-mix-0 step 7 after [1 RET WAIT]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[][Mixing...][Done!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[][Mixing...][Done!]
+
+== I-mix-1  token='RET'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   I-mix-1 step 7 after [1 RET RET]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[][Mixing...][Done!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[][Mixing...][Done!]
+
+== I-mix-2  token='WAIT'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   I-mix-2 step 7 after [1 RET WAIT]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[][Mixing...][Done!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[][Mixing...][Done!]
+
+== I-view  token='WAIT'  fields=gram,state,turns,clock,seed,dturns=+1  walks=1
+   I-view step 3 after [u RET WAIT]
+      base: mode=0 req=0 turns=0 clock=5:12:00 prompt=[] tail=[][Scroll][View!]
+      head: mode=0 req=0 turns=1 clock=5:12:02 prompt=[] tail=[][Scroll][View!]
+
+== I-talk-empty  token='RIGHT'  fields=gram,text,dturns=+0  walks=1
+   I-talk-empty step 2 after [t RIGHT]
+      base: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Talk-][east][Funny, no response!]
+      head: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Talk-][east][Nobody's here!]
+
+== I-approach  token='MIC'  fields=gram,text,state,mode,req,prompt,cursor,seed,dturns=+0  walks=1
+   I-approach step 2 after [r MIC]
+      base: mode=0 req=0 turns=1 clock=5:12:01 prompt=[] tail=[Ready...][]
+      head: mode=6 req=3 turns=1 clock=5:12:01 prompt=[Your interest?] tail=[Ready...][][You see a spicy ol' chef.]
+
+differing walks by family prefix: {'C': 11, 'I': 6}
+differing walks 17: M 4, N 1, T 12, unexplained 0
+  of which M walks ending on WAIT (SPP1 still owes the turn): 1
+T/M walks that end on a different turn count or clock: 0
+exit 0
+
+== controls
+two SPP2 runs: byte-identical
+walks 1052 (head 1052), steps 8430 (head 8430)
+identical walks 11, differing walks 1041, walks in one output only 0 []
+Exception ignored while flushing sys.stdout:
+OSError: [Errno 22] Invalid argument

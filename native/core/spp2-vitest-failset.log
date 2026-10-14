@@ -1,0 +1,6 @@
+vitest (game/), full run: the SPP1 baseline fc4a63aa (worktree uvw-spp2-base) vs SPP2 HEAD
+baseline: Test Files  28 failed | 556 passed | 3 skipped (587) | Tests  116 failed | 7927 passed | 211 skipped (8254)
+SPP2    : Test Files  28 failed | 557 passed | 3 skipped (588) | Tests  116 failed | 7932 passed | 211 skipped (8259)
+failing test ids: baseline 116, SPP2 116
+failing only in SPP2: 0
+failing only in the baseline: 0

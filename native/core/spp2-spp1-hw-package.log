@@ -1,0 +1,10 @@
+Launcher image: C:\Dev\spp1-hw-package\build-spp1-staged\launcher\OpenU5-TDeck-Alpha4.0.0-alpha4-RC5-Debug-Launcher.bin
+Firmware version: 4.0.0-alpha4-rc5-debug
+Size: 1072912 bytes
+App partition minimum: 1114112 bytes (64 KiB alignment)
+OpenU5 app budget: image 1072912 B (0x105f10), app partition 1310720 B (0x140000), free 237808 B (18.1 %)
+OpenU5 Launcher allocation: 1114112 B (1088 KiB, the image rounded up to 64 KiB); the next 64 KiB step is 41201 B away
+SHA-256: 1aeecb70dec68141122e4aa88a9ce140cad87a617ff5668ec3eb8fa1d8b123c2
+Existing build ESP-IDF: v6.1
+
+Packaged 2026-10-14 during SPP2 from a staging copy of C:/Dev/ultima-v-native-parity/native/targets/tdeck/build-spp1 (image, project_description.json, partition_table/partition-table.bin) with package_launcher.py and check_app_budget.py taken from fc4a63aa (git show), run with python -B in C:/Dev/spp1-hw-package/tools. Renamed byte-identical copy: C:/Dev/spp1-hw-package/OpenU5-TDeck-SPP1-5ba2fa46b74f-Launcher.bin, SHA-256 1aeecb70dec68141122e4aa88a9ce140cad87a617ff5668ec3eb8fa1d8b123c2. Embedded: FW 4.0.0-alpha4-rc5-debug, Git 5ba2fa46b74f (once, no -dirty); 59c14b907399 absent.

@@ -37,7 +37,7 @@ the audit showing that the T-Deck is unchanged.
 
 | Primitive | 1988 (evidence) | Windows Original |
 |---|---|---|
-| Command prompt | `\n` + the prompt glyph; the verb printed on that row (`Look-`, `Cast...`); an unknown key prints `What?`; RETURN and ESC are control codes → `What?` (MAINOUT 0x0bb8, TOWN 0x1544; kernel default 0x34d8) | bullet row, verb echo, `What?` for RETURN/ESC (no turn — see §5) |
+| Command prompt | `\n` + the prompt glyph; the verb printed on that row (`Look-`, `Cast...`); an unknown key prints `What?`; RETURN and ESC are control codes → `What?` (MAINOUT 0x0bb8, TOWN 0x1544; kernel default 0x34d8) | bullet row, verb echo, `What?` for RETURN/ESC (no turn — see §5). *(SPP2, 2026-10-14: on the overworld MAINOUT goes on from 0x0bb8 to 0x0c12 with its result still 1, so each costs a world turn; a town's TOWN 0x1544 → 0x154b is free. Ctrl+S prints `Sound Off`/`Sound On` and keeps that loop's turn rule. Ledger D-112 / D-108.)* |
 | Roster picker `select_party_member` (ULTIMA.EXE 0x2d7a) | prints no text; "Select:" (DS 0x5554) centred in the panel's top band; the cursor row in reverse video (XOR, 0x2a28), starting on member 1 (0x2d82); digits 1–6 only move it (0x2dd4); arrows step and **clamp** (0x3f14/0x3f54); RETURN or Space choose (0x2e58/0x2e62); ESC = −1; `0` only for Z-stats; everything else re-read | no list panel; the roster row in reverse video; "Select:" in the status caption row (the T-Deck panel has no band row above the roster — §6); the same keys |
 | `resolve_command_char` (0x4988) | combat → the actor; an active player → used silently; ≤1 member G/P → used silently / `None!`; else `Player: ` + picker; the name completes the row; a non-G/P pick → `Disabled!` + blank row + `Player: ` again; ESC → `None!` on the row | the shared seam `openu5/command_char.h` already modelled the branches; Original now prints `Player: Iolo`, `Player: None!`, `Player: Disabled!` + blank row on the console |
 | Text entry `input_string` (0x3b1c) / `input_number` (0x3b9e) | the prompt then the text after it (most prompts end `\n:`); typed letters echoed in capitals (getkey 0x2032); Backspace or ← erase one; **ESC erases the line and keeps reading**; only RETURN ends | live prompt row on the console with the cursor; capitals; ESC erases; only RETURN ends |
@@ -145,7 +145,7 @@ changed in this batch); **?** = evidence insufficient.
 | 1988 | `Talk-` + getdir; `Your interest?\n:` and `You respond-\n:` typed in capitals (cap 15); empty → BYE; **no cancel key** (ESC erases the word); `Nobody's here!` in a town. |
 | Windows Original (now) | `Your interest?` / `:JOB` on the console, capitals, ESC erases, conversations have no cancel key. |
 | Enhanced | the bar `Your interest? >job`; ESC/Back end the conversation. |
-| Status | **DOS**; **Δ** the core answers an empty town cell with `Funny, no response!` (the overworld string). **SPP1:** the binary's text is TALK 0x0491's `Nobody's here!` (DS 0x91d6); still open as ledger D-111. Its turn is now charged (TALK → 0 → 1). A conversation keeps its old cost (none; D-107). |
+| Status | **DOS**; **Δ** the core answers an empty town cell with `Funny, no response!` (the overworld string). **SPP1:** the binary's text is TALK 0x0491's `Nobody's here!` (DS 0x91d6); still open as ledger D-111. Its turn is now charged (TALK → 0 → 1). A conversation keeps its old cost (none; D-107). *(SPP2, 2026-10-14: fixed -- `Nobody's here!`, and a dialog-0 NPC's `No response!` / `The guard offers no response!`; D-107's conversation turn is traced and deferred as D-115.)* |
 
 ### 3.11 Shops and services
 
@@ -268,6 +268,7 @@ build shares with the T-Deck.)
    dungeon Get/Open/Jimmy/Search take no member pick (0x4988) — core.
 5. `Funny, no response!` for an empty town cell (core string). *(SPP1: the
    binary prints `Nobody's here!`, TALK 0x0491 / DS 0x91d6; ledger D-111. The turn is now charged.)*
+   *(SPP2: fixed, native and the TypeScript reference.)*
 6. *(SPP1 F: fixed. A cast the gates refuse opens no target prompt.)* Spell target prompts (`Direction-`, `Aim!`, `To phase:`) open before the
    location/MP/level gates refuse a cast (the gates live inside the core's
    cast; a pre-existing order shared with the T-Deck, plan §8).
