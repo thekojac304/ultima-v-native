@@ -1,0 +1,71 @@
+Test project C:/Dev/ultima-v-native-spp2/native/targets/windows/build-spp2
+      Start  1: uv_desktop_input_test
+ 1/31 Test  #1: uv_desktop_input_test .................   Passed    0.10 sec
+      Start  2: uv_desktop_settings_test
+ 2/31 Test  #2: uv_desktop_settings_test ..............   Passed    0.16 sec
+      Start  3: uv_storage_test
+ 3/31 Test  #3: uv_storage_test .......................   Passed    0.69 sec
+      Start  4: uv_virtual_panel_test
+ 4/31 Test  #4: uv_virtual_panel_test .................   Passed    1.86 sec
+      Start  5: uv_save_layout_test
+ 5/31 Test  #5: uv_save_layout_test ...................   Passed    0.07 sec
+      Start  6: uv_audio_backend_test
+ 6/31 Test  #6: uv_audio_backend_test .................   Passed   13.81 sec
+      Start  7: uv_presentation_test
+ 7/31 Test  #7: uv_presentation_test ..................   Passed    1.47 sec
+      Start  8: uv_audio_backend_offline_continuity
+ 8/31 Test  #8: uv_audio_backend_offline_continuity ...   Passed    0.01 sec
+      Start  9: scenario_boot_title
+ 9/31 Test  #9: scenario_boot_title ...................   Passed    1.43 sec
+      Start 10: scenario_new_game_original
+10/31 Test #10: scenario_new_game_original ............   Passed    4.80 sec
+      Start 11: scenario_settings_modes
+11/31 Test #11: scenario_settings_modes ...............   Passed    1.49 sec
+      Start 12: scenario_typed_cast_original
+12/31 Test #12: scenario_typed_cast_original ..........   Passed    7.07 sec
+      Start 13: scenario_list_cast_enhanced
+13/31 Test #13: scenario_list_cast_enhanced ...........   Passed    4.15 sec
+      Start 14: scenario_save_load_menu
+14/31 Test #14: scenario_save_load_menu ...............   Passed    6.17 sec
+      Start 15: scenario_quicksave_enhanced
+15/31 Test #15: scenario_quicksave_enhanced ...........   Passed    6.04 sec
+      Start 16: scenario_original_keys
+16/31 Test #16: scenario_original_keys ................   Passed    6.56 sec
+      Start 17: scenario_original_interface
+17/31 Test #17: scenario_original_interface ...........   Passed    5.15 sec
+      Start 18: scenario_enhanced_interface
+18/31 Test #18: scenario_enhanced_interface ...........   Passed    4.64 sec
+      Start 19: scenario_presentation
+19/31 Test #19: scenario_presentation .................   Passed    5.39 sec
+      Start 20: scenario_dungeon_walk
+20/31 Test #20: scenario_dungeon_walk .................   Passed    5.83 sec
+      Start 21: scenario_original_arena
+21/31 Test #21: scenario_original_arena ...............   Passed   13.17 sec
+      Start 22: scenario_original_camp
+22/31 Test #22: scenario_original_camp ................   Passed    5.23 sec
+      Start 23: scenario_surface_combat
+23/31 Test #23: scenario_surface_combat ...............   Passed    7.82 sec
+      Start 24: scenario_typed_cast_combat
+24/31 Test #24: scenario_typed_cast_combat ............   Passed    6.67 sec
+      Start 25: scenario_town_talk
+25/31 Test #25: scenario_town_talk ....................   Passed    5.53 sec
+      Start 26: scenario_spp1_original
+26/31 Test #26: scenario_spp1_original ................   Passed    6.13 sec
+      Start 27: scenario_spp1_original_arena
+27/31 Test #27: scenario_spp1_original_arena ..........   Passed   10.05 sec
+      Start 28: scenario_spp1_enhanced
+28/31 Test #28: scenario_spp1_enhanced ................   Passed    6.14 sec
+      Start 29: scenario_spp2_original
+29/31 Test #29: scenario_spp2_original ................   Passed    6.64 sec
+      Start 30: scenario_spp2_enhanced
+30/31 Test #30: scenario_spp2_enhanced ................   Passed    4.98 sec
+      Start 31: scenario_pc_import_export
+31/31 Test #31: scenario_pc_import_export .............   Passed    7.62 sec
+
+100% tests passed, 0 tests failed out of 31
+
+Label Time Summary:
+scenario    = 138.72 sec*proc (23 tests)
+windows     =  18.16 sec*proc (8 tests)
+
+Total Test time (real) = 157.49 sec

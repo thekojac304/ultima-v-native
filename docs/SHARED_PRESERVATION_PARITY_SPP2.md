@@ -407,6 +407,18 @@ ESP-IDF 6.1, the same `sdkconfig` as SPP1 (identical SHA-256), `idf.py --no-ccac
 - **Packs and saves.** Packs unchanged (no new SD pack); saves compatible both ways.
 - **Logs:** `native/targets/tdeck/spp2-fw-{configure,build,size,size-diff,stack-diff,budget}.log`.
 
+### 7.4 Windows test package
+
+- **The package.** `native/targets/windows/dist/UltimaV-Native-Windows-x64-SPP2-test.zip`, inside the
+  SPP2 worktree. It is 2,279,964 B, SHA-256 `c4384afd7a1789d52cf9bb414fab5903b3c3ca441f0bca2d0a8e1b66ff15983f`.
+- **How it was built.** `tools/build-windows.ps1 -Config Release -BuildDir …\build-spp2 -Package
+  -PackageName UltimaV-Native-Windows-x64-SPP2-test`, after `0bfa8e3a`, so the asset-preparation bundle's
+  manifest names that commit. Log: `native/core/spp2-win-package.log`.
+- **Tests.** The packaged build passes 31/31 (`spp2-package-windows-ctest.log`).
+- **Other packages are untouched.** SPP1's `UltimaV-Native-Windows-x64-SPP1-test.zip` (SHA-256
+  `dc5f3c3e…10de`) and the Windows worktree's development ZIP are unchanged.
+- **Not a release.** No person has played it.
+
 ## 8. Remaining risks
 
 - **Hardware.** No hardware run. The frame-time settle runs a game turn from inside `render()`. That is
@@ -440,7 +452,8 @@ ESP-IDF 6.1, the same `sdkconfig` as SPP1 (identical SHA-256), `idf.py --no-ccac
 | `b636a95a` | H (D-107 (2)): researched, deferred; the opt-in harness |
 | `96dec6b6` | T: the dialogue corpus generator follows `talkRefusal` (fixes `dialogue_parity`, left RED by `68743160`) |
 | `5869fa20` | G (D-108, D-112): Ctrl-S at the context prompt; the overworld `What?` turn |
-| (this commit) | This record, the SPP1 hardware handoff, the differential tools and logs, the firmware logs |
+| `0bfa8e3a` | This record, the SPP1 hardware handoff, the differential tools and logs, the firmware logs |
+| (this commit) | The SPP2 Windows test package's record (§7.4) |
 
 ## 11. Follow-up findings on the SPP1 record (dated 2026-10-14)
 

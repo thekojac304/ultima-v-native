@@ -1,0 +1,185 @@
+==> Visual Studio: C:\Program Files\Microsoft Visual Studio\18\Community
+'vswhere.exe' is not recognized as an internal or external command,
+operable program or batch file.
+==> Configure (Release) -> C:\Dev\ultima-v-native-spp2\native\targets\windows\build-spp2
+-- Ultima V Native for Windows 0.5.0-dev (git 0bfa8e3a9d2b)
+-- Could NOT find PkgConfig (missing: PKG_CONFIG_EXECUTABLE) 
+-- Could NOT find LibUSB (missing: LibUSB_LIBRARY LibUSB_INCLUDE_PATH) (found version "LibUSB_VERSION-NOTFOUND")
+-- 
+-- SDL3 was configured with the following options:
+-- 
+-- Platform: Windows-10.0.26300
+-- 64-bit:   TRUE
+-- Compiler: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe
+-- Revision: SDL-release-3.4.16-0-gfa2c02bb6
+-- Vendor:   
+-- 
+-- Subsystems:
+--   Audio:    ON
+--   Video:    ON
+--   GPU:      ON
+--   Render:   ON
+--   Camera:   ON
+--   Joystick: ON
+--   Haptic:   ON
+--   Hidapi:   ON
+--   Power:    ON
+--   Sensor:   ON
+--   Dialog:   ON
+--   Tray:     ON
+-- 
+-- Options:
+--   SDL_ALSA                    (Wanted: OFF): OFF
+--   SDL_ALSA_SHARED             (Wanted: OFF): OFF
+--   SDL_ALTIVEC                 (Wanted: OFF): OFF
+--   SDL_ARMNEON                 (Wanted: OFF): OFF
+--   SDL_ASAN                    (Wanted: OFF): OFF
+--   SDL_ASSEMBLY                (Wanted: ON): ON
+--   SDL_ASSERTIONS              (Wanted: auto): auto
+--   SDL_AVX                     (Wanted: ON): ON
+--   SDL_AVX2                    (Wanted: ON): ON
+--   SDL_AVX512F                 (Wanted: ON): ON
+--   SDL_BACKGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_CCACHE                  (Wanted: OFF): OFF
+--   SDL_CLANG_TIDY              (Wanted: OFF): OFF
+--   SDL_CLOCK_GETTIME           (Wanted: OFF): OFF
+--   SDL_COCOA                   (Wanted: OFF): OFF
+--   SDL_DBUS                    (Wanted: OFF): OFF
+--   SDL_DEPS_SHARED             (Wanted: ON): OFF
+--   SDL_DIRECTX                 (Wanted: ON): ON
+--   SDL_DISKAUDIO               (Wanted: ON): ON
+--   SDL_DLOPEN_NOTES            (Wanted: OFF): OFF
+--   SDL_DUMMYAUDIO              (Wanted: ON): ON
+--   SDL_DUMMYCAMERA             (Wanted: ON): ON
+--   SDL_DUMMYVIDEO              (Wanted: ON): ON
+--   SDL_EXAMPLES                (Wanted: OFF): OFF
+--   SDL_EXAMPLES_LINK_SHARED    (Wanted: ON): OFF
+--   SDL_FOREGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_FRIBIDI                 (Wanted: OFF): OFF
+--   SDL_FRIBIDI_SHARED          (Wanted: OFF): OFF
+--   SDL_GCC_ATOMICS             (Wanted: OFF): OFF
+--   SDL_HIDAPI                  (Wanted: ON): ON
+--   SDL_HIDAPI_JOYSTICK         (Wanted: ON): ON
+--   SDL_HIDAPI_LIBUSB           (Wanted: ON): OFF
+--   SDL_HIDAPI_LIBUSB_SHARED    (Wanted: ON): OFF
+--   SDL_IBUS                    (Wanted: OFF): OFF
+--   SDL_INSTALL                 (Wanted: OFF): OFF
+--   SDL_INSTALL_TESTS           (Wanted: OFF): OFF
+--   SDL_JACK                    (Wanted: OFF): OFF
+--   SDL_JACK_SHARED             (Wanted: OFF): OFF
+--   SDL_KMSDRM                  (Wanted: OFF): OFF
+--   SDL_KMSDRM_SHARED           (Wanted: OFF): OFF
+--   SDL_LASX                    (Wanted: OFF): OFF
+--   SDL_LIBC                    (Wanted: ON): ON
+--   SDL_LIBICONV                (Wanted: OFF): OFF
+--   SDL_LIBTHAI                 (Wanted: OFF): OFF
+--   SDL_LIBTHAI_SHARED          (Wanted: OFF): OFF
+--   SDL_LIBUDEV                 (Wanted: ON): OFF
+--   SDL_LIBURING                (Wanted: OFF): OFF
+--   SDL_LSX                     (Wanted: OFF): OFF
+--   SDL_METAL                   (Wanted: OFF): OFF
+--   SDL_MMX                     (Wanted: ON): OFF
+--   SDL_OFFSCREEN               (Wanted: ON): ON
+--   SDL_OPENGL                  (Wanted: ON): ON
+--   SDL_OPENGLES                (Wanted: ON): ON
+--   SDL_OPENVR                  (Wanted: OFF): OFF
+--   SDL_OSS                     (Wanted: OFF): OFF
+--   SDL_PIPEWIRE                (Wanted: OFF): OFF
+--   SDL_PIPEWIRE_SHARED         (Wanted: OFF): OFF
+--   SDL_PTHREADS                (Wanted: OFF): OFF
+--   SDL_PTHREADS_SEM            (Wanted: OFF): OFF
+--   SDL_PULSEAUDIO              (Wanted: OFF): OFF
+--   SDL_PULSEAUDIO_SHARED       (Wanted: OFF): OFF
+--   SDL_RENDER_D3D              (Wanted: ON): ON
+--   SDL_RENDER_D3D11            (Wanted: ON): ON
+--   SDL_RENDER_D3D12            (Wanted: ON): ON
+--   SDL_RENDER_GPU              (Wanted: ON): ON
+--   SDL_RENDER_METAL            (Wanted: OFF): OFF
+--   SDL_RENDER_VULKAN           (Wanted: ON): ON
+--   SDL_ROCKCHIP                (Wanted: OFF): OFF
+--   SDL_RPATH                   (Wanted: OFF): OFF
+--   SDL_RPI                     (Wanted: OFF): OFF
+--   SDL_SNDIO                   (Wanted: OFF): OFF
+--   SDL_SNDIO_SHARED            (Wanted: OFF): OFF
+--   SDL_SSE                     (Wanted: ON): ON
+--   SDL_SSE2                    (Wanted: ON): ON
+--   SDL_SSE3                    (Wanted: ON): ON
+--   SDL_SSE4_1                  (Wanted: ON): ON
+--   SDL_SSE4_2                  (Wanted: ON): ON
+--   SDL_SYSTEM_ICONV            (Wanted: OFF): OFF
+--   SDL_TESTS                   (Wanted: OFF): OFF
+--   SDL_TESTS_LINK_SHARED       (Wanted: ON): OFF
+--   SDL_UNINSTALL               (Wanted: OFF): OFF
+--   SDL_VIRTUAL_JOYSTICK        (Wanted: ON): ON
+--   SDL_VIVANTE                 (Wanted: OFF): OFF
+--   SDL_VULKAN                  (Wanted: ON): ON
+--   SDL_WASAPI                  (Wanted: ON): ON
+--   SDL_WAYLAND                 (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR        (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR_SHARED (Wanted: OFF): OFF
+--   SDL_WAYLAND_SHARED          (Wanted: OFF): OFF
+--   SDL_X11                     (Wanted: OFF): OFF
+--   SDL_X11_SHARED              (Wanted: OFF): OFF
+--   SDL_X11_XCURSOR             (Wanted: OFF): OFF
+--   SDL_X11_XDBE                (Wanted: OFF): OFF
+--   SDL_X11_XFIXES              (Wanted: OFF): OFF
+--   SDL_X11_XINPUT              (Wanted: OFF): OFF
+--   SDL_X11_XRANDR              (Wanted: OFF): OFF
+--   SDL_X11_XSCRNSAVER          (Wanted: OFF): OFF
+--   SDL_X11_XSHAPE              (Wanted: OFF): OFF
+--   SDL_X11_XSYNC               (Wanted: OFF): OFF
+--   SDL_X11_XTEST               (Wanted: OFF): OFF
+--   SDL_XINPUT                  (Wanted: ON): ON
+-- 
+--  Build Shared Library: ON
+--  Build Static Library: OFF
+-- 
+-- Enabled backends:
+--   Video drivers: dummy offscreen windows
+--   Render drivers: d3d d3d11 d3d12 gpu ogl ogl_es2 vulkan
+--   GPU drivers: d3d12 vulkan
+--   Audio drivers: disk dsound dummy wasapi
+--   Joystick drivers: dinput gameinput hidapi rawinput virtual wgi xinput
+--   Camera drivers: dummy mediafoundation
+-- 
+-- Configuring done (0.3s)
+-- Generating done (0.1s)
+-- Build files have been written to: C:/Dev/ultima-v-native-spp2/native/targets/windows/build-spp2
+==> Build
+[0/2] Re-checking globbed directories...
+[1/29] Building RC object CMakeFiles\UltimaVNative.dir\src\app\resources.rc.res
+[2/29] Building CXX object CMakeFiles\uv_desktop.dir\src\app\desktop_profile.cpp.obj
+[3/29] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\native_movement.cpp.obj
+[4/29] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\alpha_audio.cpp.obj
+[5/29] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\ui_input_adapter.cpp.obj
+[6/29] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\idle_service.cpp.obj
+[7/29] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\keyboard_matrix.cpp.obj
+[8/29] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\input_controller.cpp.obj
+[9/29] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\dungeon_art_cache.cpp.obj
+[10/29] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\alpha_dialogue.cpp.obj
+[11/29] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\asset_pack.cpp.obj
+[12/29] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\native_renderer.cpp.obj
+[13/29] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\alpha_save_generation.cpp.obj
+[14/29] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\tdeck_board.cpp.obj
+[15/29] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\alpha_save.cpp.obj
+[16/29] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\alpha_resources.cpp.obj
+[17/29] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\alpha_runtime.cpp.obj
+[18/29] Building CXX object CMakeFiles\uv_desktop.dir\src\app\application.cpp.obj
+[19/29] Building CXX object CMakeFiles\uv_shared_app.dir\C_\Dev\ultima-v-native-spp2\native\targets\tdeck\main\device_smoke_tests.cpp.obj
+[20/29] Linking CXX static library uv_shared_app.lib
+[21/29] Linking CXX static library uv_desktop.lib
+[22/29] Linking CXX executable tests\uv_virtual_panel_test.exe
+[23/29] Linking CXX executable tests\uv_save_layout_test.exe
+[24/29] Linking CXX executable tests\uv_desktop_input_test.exe
+[25/29] Linking CXX executable tests\uv_desktop_settings_test.exe
+[26/29] Linking CXX executable tests\uv_presentation_test.exe
+[27/29] Linking CXX executable tests\uv_audio_backend_test.exe
+[28/29] Linking CXX executable UltimaVNative.exe
+==> Package UltimaV-Native-Windows-x64-SPP2-test.zip
+Wrote native\tools\asset-prep\dist\prepare-assets.mjs
+  1,086,758 bytes, SHA-256 b8aab4ed6fd2202ffd767f6bb58eab4861d9ff646a387418f2c4b806afda9bf9
+  99 modules bundled; packages: pngjs; commit 0bfa8e3a9d2b
+  identity: openu5-assets.bin 132284 B CRC 933c9b82; openu5-alpha1-resources.bin 2266819 B CRC 5c0d175d
+  data: game/src/core/data/TileData.json, AdditionalEnemyFlags.json (embedded), ShoppeKeeperMap.json (embedded)
+==> Package: C:\Dev\ultima-v-native-spp2\native\targets\windows\dist\UltimaV-Native-Windows-x64-SPP2-test.zip (2.17 MB, SHA-256 c4384afd7a1789d52cf9bb414fab5903b3c3ca441f0bca2d0a8e1b66ff15983f)
+==> Done
