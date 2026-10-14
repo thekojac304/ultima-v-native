@@ -1869,7 +1869,19 @@ void AlphaRuntime::cast_selected_spell(int16_t spell){
         const int16_t x=actor?actor->position.x:5,y=actor?actor->position.y:5;
         // The 1988 interaction model: the arena's aim prints "Aim! " (COMSUBS
         // DS 0x9a84) and reads the crosshair on the console's getkey.
-        if(openu5::platform_dos_interface())ui_->append(openu5::UiTextChannel::CommandEcho,"Aim! ");
+        if(openu5::platform_dos_interface()){
+            // SPP1 D. The four line spells -- In Zu 28, In Nox Hur 40, In Vas Grav Corp 44,
+            // In Flam Hur 45 -- read CAST2 0x0306's one-step "Direction-" (DS 0x9504, CAST
+            // 0x1f8a), not the crosshair; the core's spray is the same fan for the adjacent
+            // aim the answer gives. The charm and clone arms print "Creature: " (DS 0x45bb /
+            // 0x45dc, CAST 0x09a7 / 0x0b30) before COMSUBS 0x0504. The T-Deck keeps its reticle.
+            if(spell==28||spell==40||spell==44||spell==45){
+                ui_->append(openu5::UiTextChannel::CommandEcho,"Direction-");
+                ui_->begin_target(openu5::UiRequestId::Direction,"Direction?",c,-1,-1);
+                dirty_=true;return;
+            }
+            ui_->append(openu5::UiTextChannel::CommandEcho,spell==34||spell==38?"Creature: ":"Aim! ");
+        }
         ui_->begin_target(openu5::UiRequestId::Target,"Spell aim",c,x,y);
         dirty_=true;return;
     }

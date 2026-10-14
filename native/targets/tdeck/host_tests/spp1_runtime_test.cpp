@@ -671,6 +671,82 @@ void test_e() {
 
 int next_member_after(Run &h) { auto *n2 = await_player(h); return n2 ? n2->member : -1; }
 
+// --- Candidate D: spell target prompts (spp1-findings/DF-spell-targeting-heal-cancel.md) -----
+//      D1 the arena's An Xen Corp asks nothing (CAST 0x043e): no reticle, the spell spent, the turn ends
+//      D2 Original: an arena line spell (In Zu) reads "Direction-" (CAST 0x1f8a -> CAST2 0x0306);
+//         Space is the Pass -- spent, and the turn ends exactly once
+//      D3 Original: Charm prints "Creature: " before its crosshair (CAST 0x09a7, DS 0x45bb)
+//      D4 a town An Ylem: Direction-, then "POOF!" turns the object east into 0x44 (CAST 0x0230);
+//         bare floor is "Failed!"
+void test_d() {
+    std::printf("D  spell target prompts\n");
+    {
+        int baseline_next = -1;
+        {
+            Run b(kParty);
+            if (enter_arena(b)) { act(b, ch(' ')); baseline_next = next_member_after(b); }
+        }
+        Run h(kParty);
+        enter_arena(h);
+        caster_party(h, 7, 8);
+        act(h, ch('c'));
+        if (mode(h) == UiMode::SpellSelection) act(h, select(0));
+        const bool reticle = mode(h) == UiMode::TargetSelection;
+        check(!reticle && h.rt->game().spell_quantities[7] == 1 && next_member_after(h) == baseline_next,
+              "D1 the arena's An Xen Corp asks nothing (no reticle), is spent, and ends the turn");
+    }
+    {
+        DosProfile dos;
+        int baseline_next = -1;
+        {
+            Run b(kParty);
+            if (enter_arena(b)) { act(b, ch(' ')); baseline_next = next_member_after(b); }
+        }
+        Run h(kParty);
+        enter_arena(h);
+        caster_party(h, 28, 8);
+        act(h, ch('c'));
+        for (char16_t c : {u'i', u'z'}) act(h, ch(c));
+        act(h, kind(UiActionKind::Confirm));
+        const bool getdir = mode(h) == UiMode::TargetSelection && transcript_has(h, "Direction-");
+        act(h, ch(' '));
+        check(getdir && transcript_has(h, "Direction-Pass") && h.rt->game().spell_quantities[28] == 1 &&
+                  next_member_after(h) == baseline_next,
+              "D2 Original: In Zu reads \"Direction-\"; Space is the Pass -- spent, the turn ends exactly once");
+    }
+    {
+        DosProfile dos;
+        Run h(kParty);
+        enter_arena(h);
+        caster_party(h, 34, 8);
+        act(h, ch('c'));
+        for (char16_t c : {u'a', u'x', u'e'}) act(h, ch(c));
+        act(h, kind(UiActionKind::Confirm));
+        check(mode(h) == UiMode::TargetSelection && transcript_has(h, "Creature: ") && !transcript_has(h, "Aim! "),
+              "D3 Original: Charm prints \"Creature: \" before the crosshair (DS 0x45bb)");
+    }
+    for (int object = 1; object >= 0; --object) {
+        Run h(kParty);
+        enter_town(h, 2);
+        caster_party(h, 5, 3);
+        auto &g = h.rt->game();
+        auto *q = ctx(h).quest_world;
+        const int x = g.position.xy.x + 1, y = g.position.xy.y;
+        if (q && q->volatile_tile) q->volatile_tile(q->context, x, y, object ? 0x5b : 0x44);
+        act(h, ch('c'));
+        if (mode(h) == UiMode::PartySelection) act(h, select(0));
+        if (mode(h) == UiMode::SpellSelection) act(h, select(0));
+        const bool getdir = mode(h) == UiMode::TargetSelection;
+        act(h, dir(Direction::East));
+        const int after = q && q->tile_at ? q->tile_at(q->context, x, y) : -1;
+        if (object)
+            check(getdir && transcript_has(h, "POOF!") && after == 0x44 && g.spell_quantities[5] == 1,
+                  "D4 a town An Ylem: Direction-, \"POOF!\", the object east becomes 0x44 (CAST 0x0230)");
+        else
+            check(getdir && transcript_has(h, "Failed!") && !transcript_has(h, "POOF!"), "D4 on bare floor: \"Failed!\"");
+    }
+}
+
 void test_c() {
     std::printf("C  the arena's J / P / Y through the real runtime\n");
     for (int dos = 0; dos < 2; ++dos) {
@@ -762,6 +838,7 @@ int main(int argc, char **argv) {
     test_a();
     test_c();
     test_e();
+    test_d();
     std::printf("SPP1 runtime: %d/%d checks\n", checks - failures, checks);
     return failures ? 1 : 0;
 }

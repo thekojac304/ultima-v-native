@@ -39,7 +39,7 @@ WorldCommandResult world_magic(CommandContext &c,Command cmd,const ActiveMap &ma
     if(cmd.item<0||cmd.item>48||cmd.caster<0||cmd.caster>=g.party.character_count)return {CommandStatus::InvalidContext};
     auto *q=c.quest_world;
     // These effects require mutable terrain; reject absent owners before spending resources.
-    if((cmd.item==6||cmd.item==25||cmd.item==26)&&cmd.has_direction&&(!q||!q->volatile_tile))return {CommandStatus::InvalidContext};
+    if((cmd.item==5||cmd.item==6||cmd.item==25||cmd.item==26)&&cmd.has_direction&&(!q||!q->volatile_tile))return {CommandStatus::InvalidContext};
     if(cmd.item==17&&cmd.has_direction&&!c.outdoor)return {CommandStatus::InvalidContext};
     if(cmd.item==46&&(!q||(q->moonstone_count&&!q->moonstones)))return {CommandStatus::InvalidContext};
     auto cast=cast_spell(g,t,g.party.characters[cmd.caster],SpellId(cmd.item),{g.position.map.location,false,-1,0},rand);
@@ -63,6 +63,19 @@ WorldCommandResult world_magic(CommandContext &c,Command cmd,const ActiveMap &ma
     }
     if(fx==MagicEffect::Mani||fx==MagicEffect::FullHeal||fx==MagicEffect::Cure||fx==MagicEffect::Awaken||fx==MagicEffect::Resurrect){if(auto *p=target())say(apply_target_spell(*p,fx,g.karma,rand)?"Success!":"Failed!");return {};}
     if(fx==MagicEffect::DeathVision){emit(GameEventKind::MapReveal);return {};}
+    // SPP1 D. An Ylem in a town, CAST 0x0230: the getdir's Space returns -1 (a silent tail);
+    // the adjacent cell's tile (kernel 0x4402) 0x5b, 0x90-0x93, 0x9d, 0xa5-0xa6, 0xa8-0xa9 or
+    // 0xad-0xaf becomes 0x44 with "POOF!" (DS 0x459a, res -1: silent); anything else is res 0,
+    // the tail's "Failed!". (The redraw tone 0x842e is not ported.)
+    if(fx==MagicEffect::Poof){
+        if(!cmd.has_direction)return {};
+        auto d=direction_delta(cmd.direction);int x=g.position.xy.x+d.dx,y=g.position.xy.y+d.dy;if(map.geometry.wraps){x&=255;y&=255;}
+        const int tile=q->tile_at?q->tile_at(q->context,x,y):map.tile_at(x,y);
+        if(tile==0x5b||(tile>=0x90&&tile<=0x93)||tile==0x9d||tile==0xa5||tile==0xa6||tile==0xa8||tile==0xa9||(tile>=0xad&&tile<=0xaf)){
+            q->volatile_tile(q->context,x,y,0x44);say("POOF!");emit(GameEventKind::MapChanged);
+        }else say("Failed!");
+        return {};
+    }
     if(fx==MagicEffect::Peer){char text[32];std::snprintf(text,sizeof(text),"\n%c'%c\", %c'%c\"\n",'A'+(g.position.xy.y>>4),'A'+(g.position.xy.y&15),'A'+(g.position.xy.x>>4),'A'+(g.position.xy.x&15));say(text);return {};}
     if(fx==MagicEffect::Seal||fx==MagicEffect::Disarm){
         if(!cmd.has_direction){say("Cancelled.");return {};}

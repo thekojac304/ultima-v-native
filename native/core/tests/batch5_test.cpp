@@ -149,8 +149,16 @@ static void policy_tests() {
     // map position but which have NO world effect must NOT grow a fabricated
     // prompt.  The reference's doCast has no branch for An Ylem (Poof) or
     // An Grav (Dispel): they consume and do nothing.
-    check(cast_target_prompt(SpellId::AnYlem, false, false) == CastTargetPrompt::None,
-          "A2 guard: An Ylem has no world effect and must not prompt");
+    // SPP1 D (corrected): An Ylem DOES have a world arm -- CAST 0x0230 reads CAST2 0x0306's
+    // "Direction-" and turns a town object into 0x44 with "POOF!"; its location mask is town +
+    // arena, so outdoors and underground the gate refuses it before any prompt
+    // (spp1-findings/DF-spell-targeting-heal-cancel.md section 3.2).
+    check(cast_target_prompt(SpellId::AnYlem, false, false) == CastTargetPrompt::WorldDirection,
+          "A2 (SPP1 D): An Ylem asks Direction- for its town arm (CAST 0x0230)");
+    check(cast_target_prompt(SpellId::AnXenCorp, true, false) == CastTargetPrompt::None &&
+              cast_target_prompt(SpellId::InPor, true, false) == CastTargetPrompt::None &&
+              cast_target_prompt(SpellId::WisQuas, true, false) == CastTargetPrompt::None,
+          "A2 (SPP1 D): An Xen Corp, In Por and Wis Quas ask nothing in the arena (CAST 0x043e / 0x05f3 / 0x074c)");
     check(cast_target_prompt(SpellId::AnGrav, false, false) == CastTargetPrompt::None,
           "A2 guard: An Grav has no world effect and must not prompt");
     check(cast_target_prompt(SpellId::InLor, false, false) == CastTargetPrompt::None,

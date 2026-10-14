@@ -1222,11 +1222,14 @@ bool UiSession::handle_modal(const UiAction &a) {
                 pending_command_.direction = a.direction;
                 pending_command_.has_direction = true;
             } else {
+                // SPP1 D: an arena line spell's "Direction-" (Original) aims at the adjacent cell.
+                const bool line_cast = pending_command_.kind == CommandKind::Cast && return_mode_ == UiMode::Combat;
+                if (line_cast) pending_command_.has_target = true;
                 if (pending_command_.kind == CommandKind::CombatOpen ||
                     pending_command_.kind == CommandKind::CombatGet ||
                     pending_command_.kind == CommandKind::CombatSearch ||
                     pending_command_.kind == CommandKind::CombatJimmy ||
-                    pending_command_.kind == CommandKind::CombatPush) {
+                    pending_command_.kind == CommandKind::CombatPush || line_cast) {
                     const auto d = direction_delta(a.direction);
                     pending_command_.combat_x = int16_t(combat_origin_x_ + d.dx);
                     pending_command_.combat_y = int16_t(combat_origin_y_ + d.dy);

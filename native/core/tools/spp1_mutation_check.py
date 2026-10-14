@@ -95,6 +95,12 @@ MUTANTS = [
     ('E8', 'E', UIS, "        if (dos) { append(UiTextChannel::Message, \"D-What?\"); return true; }\n        { command_echo(\"Look...\");",
      "        { command_echo(\"Look...\");", BOTH, BOTH),
     ('E9', 'E', DNG, "                 : r.rand(1, 255) == 255 ? \"an unfortunate software pirate.\"", "                 : false ? \"an unfortunate software pirate.\"", BOTH, BOTH),
+    ('D1', 'D', MAG, "        if (kind == MagicEffect::Repel || kind == MagicEffect::Blink || kind == MagicEffect::Reveal)\n            return CastTargetPrompt::None;\n",
+     "        if (false && kind == MagicEffect::Repel)\n            return CastTargetPrompt::None;\n", ('spp1_runtime', 'batch5_tests'), ('spp1_runtime', 'batch5_tests')),
+    ('D2', 'D', MAG, "    case MagicEffect::Poof:\n        return CastTargetPrompt::WorldDirection;", "        return CastTargetPrompt::WorldDirection;", SPP1, SPP1),
+    ('D3', 'D', WMG, "if(tile==0x5b||(tile>=0x90&&tile<=0x93)", "if((tile>=0x90&&tile<=0x93)", SPP1, SPP1),
+    ('D4', 'D', RT, "            if(spell==28||spell==40||spell==44||spell==45){", "            if(false){", SPP1, SPP1),
+    ('D5', 'D', RT, 'spell==34||spell==38?"Creature: ":"Aim! "', '"Aim! "', SPP1, SPP1),
 ]
 
 

@@ -1,0 +1,7 @@
+D1 INVALID (does not build)
+D2 KILLED native/core/src/magic.cpp  <- RED D4 a town An Ylem: Direction-, "POOF!", the object east becomes 0x44 (CAST 0x0230) | RED D4 on bare floor: "Failed!"
+D3 KILLED native/core/src/world_magic.cpp  <- RED D4 a town An Ylem: Direction-, "POOF!", the object east becomes 0x44 (CAST 0x0230)
+D4 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED D2 Original: In Zu reads "Direction-"; Space is the Pass -- spent, the turn ends exactly once
+D5 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED D3 Original: Charm prints "Creature: " before the crosshair (DS 0x45bb)
+restored tree: GREEN
+KILLED 4 SURVIVED 0 INVALID 1 STALE 0

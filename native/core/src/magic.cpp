@@ -100,6 +100,13 @@ CastTargetPrompt cast_target_prompt(SpellId id, bool in_combat, bool in_dungeon,
     if (!d)
         return CastTargetPrompt::None;
     if (in_combat) {
+        // SPP1 D. An Xen Corp (Repel, CAST 0x043e), In Por (Blink, 0x05f3: a random cell) and
+        // Wis Quas (Reveal, 0x074c) ask nothing in the arena: their arms call neither COMSUBS
+        // 0x0504 nor CAST2 0x0306. A reticle there offered an aim -- and a cancel -- the binary
+        // never has (spp1-findings/DF-spell-targeting-heal-cancel.md section 3.6).
+        const auto kind = kEffects[unsigned(id)].kind;
+        if (kind == MagicEffect::Repel || kind == MagicEffect::Blink || kind == MagicEffect::Reveal)
+            return CastTargetPrompt::None;
         const char *target = d->target_type ? d->target_type : "";
         return std::strstr(target, "MapPosition") || std::strstr(target, "MapUnit") ||
                        std::strcmp(target, "direction") == 0
@@ -113,6 +120,10 @@ CastTargetPrompt cast_target_prompt(SpellId id, bool in_combat, bool in_dungeon,
     case MagicEffect::Disarm:
     case MagicEffect::Blink:
     case MagicEffect::Unlock:
+    // SPP1 D. An Ylem's arm (CAST 0x0230) asks CAST2 0x0306's "Direction-" and destroys a
+    // town object; its location mask (town, arena) refuses it outdoors and underground
+    // before any prompt (the front end runs cast_gate() first).
+    case MagicEffect::Poof:
         return CastTargetPrompt::WorldDirection;
     case MagicEffect::Gate:
         // Y-33. CAST.OVL 0x0cf6 checks aboard-ship BEFORE ever printing "To

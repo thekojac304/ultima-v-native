@@ -35,6 +35,8 @@ GROUPS = {
     'E': ['native/core/include/openu5/dungeon.h', 'native/core/src/dungeon.cpp', 'native/core/src/dungeon_orchestration.cpp',
           'native/core/include/openu5/movement.h', 'native/core/include/openu5/ui_session.h', 'native/core/src/ui_session.cpp',
           'native/targets/tdeck/main/alpha_runtime.cpp', 'native/targets/tdeck/main/alpha_runtime.h'],
+    'D': ['native/core/src/magic.cpp', 'native/core/src/world_magic.cpp', 'native/core/src/ui_session.cpp',
+          'native/targets/tdeck/main/alpha_runtime.cpp'],
 }
 
 
