@@ -1,0 +1,8 @@
+RED P2 the paid rumour prints its drawn form with the subject and place, then "says Greyson.": (nothing)
+RED P2 the gossip form is drawn per rumour (forms seen over 24 seeds: )
+SPP1 core: 40/42 checks
+exit 1
+RED B1 a paid rumour: 50 gold paid, the gossip then "says Sam." is shown [T-Deck] [|]
+RED B1 a paid rumour: 50 gold paid, the gossip then "says Sam." is shown [Original] [|]
+SPP1 runtime: 88/90 checks
+exit 1

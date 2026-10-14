@@ -75,6 +75,9 @@ struct ShopRun {
         case ShopPhase::ShipDeal:
         case ShopPhase::ShipAgain: return ship_service_display_name(s.item);
         case ShopPhase::Wine: return wine_display_name(s.item);
+        // SPP1 B (P2): the rumour's '&' is its subject (DS 0x4CA8 list, SHOPPES2 0x0612).
+        case ShopPhase::RumorDeal:
+            return size_t(s.item) < std::size(RUMOR_SUBJECTS) ? RUMOR_SUBJECTS[s.item] : "someone";
         case ShopPhase::HealerMember:
         case ShopPhase::HealerDeal:
         case ShopPhase::InnLeaveMember:
@@ -518,8 +521,17 @@ struct ShopRun {
             result(r);
             if (r.ok) {
                 mark(true);
-                if (v.record_present)
-                    rand(0, 3);
+                // SPP1 B (P2). SHOPPES2 0x0612-0x0659: the gossip in the form drawn here --
+                // records 85..88, '&' the subject, '*' the place -- then "says " + keeper + "."
+                // (DS 0x9F82 / 0x9F8A). The draw was always made; the text was never shown by
+                // any front end.
+                if (v.record_present) {
+                    const int form = rand(0, 3);
+                    rec(85 + form);
+                    char says[96]{};
+                    std::snprintf(says, sizeof(says), "says %s.", s.record && s.record->keeper ? s.record->keeper : "Merchant");
+                    message(says);
+                }
             }
             tavern_again(true);
             break;

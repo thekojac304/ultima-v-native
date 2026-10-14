@@ -37,6 +37,7 @@ GROUPS = {
           'native/targets/tdeck/main/alpha_runtime.cpp', 'native/targets/tdeck/main/alpha_runtime.h'],
     'D': ['native/core/src/magic.cpp', 'native/core/src/world_magic.cpp', 'native/core/src/ui_session.cpp',
           'native/targets/tdeck/main/alpha_runtime.cpp'],
+    'B': ['native/core/src/shop_orchestration.cpp'],
 }
 
 

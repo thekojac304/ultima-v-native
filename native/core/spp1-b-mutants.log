@@ -1,0 +1,7 @@
+B1 KILLED native/core/src/shop_orchestration.cpp  <- RED P2 the paid rumour prints its drawn form with the subject and place, then "says Greyson.": says Greyson. | RED P2 the gossip form is drawn per rumour (forms seen over 24 seeds: )
+B2 KILLED native/core/src/shop_orchestration.cpp  <- RED P2 the paid rumour prints its drawn form with the subject and place, then "says Greyson.": Form2: Malik in Moonglow.
+B3 KILLED native/core/src/shop_orchestration.cpp  <- RED P2 the gossip form is drawn per rumour (forms seen over 24 seeds: 0)
+B4 KILLED native/core/src/shop_orchestration.cpp  <- RED P2 the paid rumour prints its drawn form with the subject and place, then "says Greyson.": Form2: someone in Moonglow. | says Greyson.
+B5 KILLED native/core/src/shop_orchestration.cpp  <- RED P2 the paid rumour prints its drawn form with the subject and place, then "says Greyson.": Form2: Malik in Moonglow. | says Greyson
+restored tree: GREEN
+KILLED 5 SURVIVED 0 INVALID 0 STALE 0

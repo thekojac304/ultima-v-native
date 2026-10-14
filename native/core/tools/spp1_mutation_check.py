@@ -30,6 +30,7 @@ CORE = ('spp1_core_tests',)
 BOTH = ('spp1_core_tests', 'spp1_runtime')
 DNG = 'native/core/src/dungeon.cpp'
 ORC = 'native/core/src/dungeon_orchestration.cpp'
+SHO = 'native/core/src/shop_orchestration.cpp'
 MUTANTS = [
     ('G1', 'G', CMD, 'if(cmd.item==0x0b)std::snprintf(text,sizeof(text),"%u",unsigned(c.game.karma));',
      'if(cmd.item==0x0b)std::snprintf(text,sizeof(text),"Karma %u",unsigned(c.game.karma));', SPP1, SPP1),
@@ -101,6 +102,12 @@ MUTANTS = [
     ('D3', 'D', WMG, "if(tile==0x5b||(tile>=0x90&&tile<=0x93)", "if((tile>=0x90&&tile<=0x93)", SPP1, SPP1),
     ('D4', 'D', RT, "            if(spell==28||spell==40||spell==44||spell==45){", "            if(false){", SPP1, SPP1),
     ('D5', 'D', RT, 'spell==34||spell==38?"Creature: ":"Aim! "', '"Aim! "', SPP1, SPP1),
+    ('B1', 'B', SHO, "                    rec(85 + form);\n", "                    (void)form;\n", BOTH, BOTH),
+    ('B2', 'B', SHO, "                    message(says);\n", "", BOTH, BOTH),
+    ('B3', 'B', SHO, "rec(85 + form);", "rec(85 + (form & 0));", CORE, CORE),
+    ('B4', 'B', SHO, '            return size_t(s.item) < std::size(RUMOR_SUBJECTS) ? RUMOR_SUBJECTS[s.item] : "someone";',
+     '            return "someone";', CORE, CORE),
+    ('B5', 'B', SHO, '"says %s."', '"says %s"', CORE, CORE),
 ]
 
 

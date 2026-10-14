@@ -20,6 +20,8 @@
 #include "openu5/outdoor.h"
 #include "openu5/platform_profile.h"
 #include "openu5/quest_state.h"
+#include "openu5/shop_orchestration.h"
+#include "openu5/shops.h"
 #include "openu5/world.h"
 
 using namespace a4_ui2;
@@ -818,6 +820,100 @@ void test_c() {
         }
     }
 }
+// ---- B: the tavern's paid rumour (P2) -------------------------------------------------------------------------------
+//   B1 a barkeeper reached by a real (T)alk sells a rumour: after "Fair 'nuff?" Y the gold is paid and the transcript
+//      shows the gossip (record 85..88: the subject and the place) and then "says <keeper>." (SHOPPES2 0x0636-0x065c,
+//      DS 0x9F82 / 0x9F8A) -- both the T-Deck's and the 1988 model's routes
+//   B2 CONTROL: N at "Fair 'nuff?" pays nothing and prints no gossip
+constexpr uint8_t kBarkeeperDialog = 0x82;   // dialogs 0x81..0x88 are the shop types in ShopType order
+struct Tavern { int location = -1, hour = -1, slot = -1; };
+Tavern find_tavern() {
+    for (int location = 1; location <= 32; ++location) {
+        const auto &npcs = pack->npc_locations[location - 1];
+        for (size_t i = 0; i < npcs.count; ++i) {
+            if (npcs.slots[i].dialog != kBarkeeperDialog) continue;
+            for (int hour = 8; hour < 22; ++hour)
+                if (shop_is_open(npcs.slots[i].times, uint8_t(hour))) return {location, hour, npcs.slots[i].slot};
+        }
+    }
+    return {};
+}
+/** Into the tavern's town, beside the barkeeper, (T)alk toward it and be served a drink (the rumour's T is only
+ *  answered once served: ShopSession::tavern_served); true = the shop session is back at its menu. */
+bool open_tavern(Run &h, const Tavern &t) {
+    auto &g = h.rt->game();
+    auto &c = h.rt->command_context_for_test();
+    g.time.hour = uint8_t(t.hour);
+    g.gold = 5000;
+    h.rt->turn().transport_tile = 0x1c;
+    enter_town(h, t.location);
+    if (g.position.map.location != t.location) return false;
+    const NpcActor *keeper = nullptr;
+    for (size_t i = 0; i < h.rt->actors().count; ++i) {
+        const auto &a = h.rt->actors().actors[i];
+        if (a.location == t.location && a.schedule.slot == t.slot) keeper = &a;
+    }
+    if (!keeper) return false;
+    for (const auto d : {Direction::South, Direction::North, Direction::East, Direction::West}) {
+        const auto dd = direction_delta(d);
+        const int x = keeper->x + dd.dx, y = keeper->y + dd.dy;
+        const int tile = c.terrain->effective(c.world, g.position.map, x, y);
+        if (!is_passable(tile, TransportMode::Foot).value || c.shop_services->occupied(c.shop_services->context, x, y)) continue;
+        g.position.xy = {uint8_t(x), uint8_t(y)};
+        const Direction toward = d == Direction::South ? Direction::North : d == Direction::North ? Direction::South
+                               : d == Direction::East ? Direction::West : Direction::East;
+        act(h, ch('t'));
+        act(h, dir(toward));
+        if (mode(h) != UiMode::Shop) return false;
+        const auto &shop = c.shop_services->session;
+        for (int i = 0; i < 4 && shop.phase != ShopPhase::Tavern; ++i) act(h, ch('y'));
+        if (shop.phase != ShopPhase::Tavern) return false;
+        act(h, ch('d'));
+        if (shop.phase == ShopPhase::TavernDrinkDeal) act(h, ch('y'));
+        for (int i = 0; i < 4 && shop.phase != ShopPhase::Tavern; ++i) act(h, ch('y'));
+        return shop.phase == ShopPhase::Tavern && shop.tavern_served;
+    }
+    return false;
+}
+void test_b() {
+    std::printf("B  the tavern's paid rumour through the real runtime (P2)\n");
+    const Tavern t = find_tavern();
+    check(t.location > 0, "B0 a barkeeper with opening hours exists in the pack (location " + n(t.location) + ")");
+    if (t.location <= 0) return;
+    for (int dos = 0; dos < 2; ++dos) {
+        std::unique_ptr<DosProfile> profile;
+        if (dos) profile = std::make_unique<DosProfile>();
+        const std::string tag = dos ? " [Original]" : " [T-Deck]";
+        for (const bool pay : {true, false}) {
+            Run h(kParty);
+            const bool open = open_tavern(h, t);
+            auto &c = h.rt->command_context_for_test();
+            const auto &shop = c.shop_services->session;
+            if (!open) { check(false, "B1 the tavern opens at its menu" + tag + " (phase " + n(int(shop.phase)) + ")"); continue; }
+            act(h, ch('t'));
+            const bool asked = mode(h) == UiMode::TextEntry;
+            for (char16_t k : {u'b', u'r', u'i', u't'}) act(h, ch(k));
+            act(h, kind(UiActionKind::Confirm));
+            const bool deal = shop.phase == ShopPhase::RumorDeal;
+            const int32_t price = shop.price;
+            const std::string keeper = shop.record && shop.record->keeper ? shop.record->keeper : "Merchant";
+            const int32_t gold = h.rt->game().gold;
+            const size_t mark = h.rt->ui()->transcript_size();
+            act(h, ch(pay ? 'y' : 'n'));
+            std::string after;
+            for (size_t i = mark; i < h.rt->ui()->transcript_size(); ++i)
+                if (const auto *b = h.rt->ui()->transcript_at(i)) after += std::string(b->text) + "|";
+            const auto says = after.find("says " + keeper + ".");
+            if (pay)
+                check(asked && deal && price > 0 && h.rt->game().gold == gold - price && says != std::string::npos && says > 0,
+                      "B1 a paid rumour: " + n(price) + " gold paid, the gossip then \"says " + keeper + ".\" is shown" + tag +
+                          " [" + after + "]");
+            else
+                check(asked && deal && h.rt->game().gold == gold && says == std::string::npos,
+                      "B2 CONTROL: N at \"Fair 'nuff?\" pays nothing and shows no gossip" + tag + " [" + after + "]");
+        }
+    }
+}
 } // namespace
 
 int main(int argc, char **argv) {
@@ -839,6 +935,7 @@ int main(int argc, char **argv) {
     test_c();
     test_e();
     test_d();
+    test_b();
     std::printf("SPP1 runtime: %d/%d checks\n", checks - failures, checks);
     return failures ? 1 : 0;
 }

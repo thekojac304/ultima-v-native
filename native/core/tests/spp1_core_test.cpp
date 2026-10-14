@@ -4,7 +4,9 @@
 // strings, tiles, key counts, RNG draws and the turn are read back exactly.
 #include "openu5/combat.h"
 #include "openu5/dungeon.h"
+#include "openu5/shop_orchestration.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <string>
 #include <utility>
@@ -465,9 +467,80 @@ void test_dungeon_look() {
         check(c.text.empty(), "E-C7 \"No.\" (member -1): no effect");
     }
 }
+
+// --- Candidate B (P2): a paid tavern rumour is shown ---------------------------------------------
+//   SHOPPES2 0x0612-0x0659: after "Fair 'nuff?" Y and the payment, the gossip form drawn
+//   rand(0,3) -- records 85..88, '&' the subject, '*' the place -- then "\nsays " + keeper +
+//   ".\n\n" (DS 0x9F82 / 0x9F8A). Native drew the form and printed nothing at all.
+const char *kForms[4] = {"Form0: & in *.", "Form1: & in *.", "Form2: & in *.", "Form3: & in *."};
+std::vector<std::string> paid_rumour(uint32_t seed, GameState &g) {
+    g = GameState{};
+    TurnState t{};
+    TravelState travel{};
+    CommandState commands{};
+    WorldData world{};
+    CommandContext c{g, t, travel, commands, world};
+    g.position.map.location = 2;
+    g.party.character_count = g.party.party_size = 1;
+    g.party.characters[0].status = 'G';
+    g.party.characters[0].intelligence = 15;
+    g.gold = 500;
+    g.rng.seed(seed);
+    ShopRecord record{};
+    record.keeper = "Greyson";
+    record.name = "The Blue Boar";
+    record.type = ShopType::Barkeeper;
+    ShopSession s{};
+    s.owner = &g;
+    s.record = &record;
+    s.type = ShopType::Barkeeper;
+    s.location = 2;
+    s.phase = ShopPhase::RumorDeal;
+    s.item = 0; // "Malik", gossip place 0 ("Moonglow"), 50 gold
+    s.price = 50;
+    ShopData data{};
+    ShopServices v{s, data};
+    v.record_present = [](void *, int32_t) { return true; };
+    v.record = [](void *, int32_t i) -> const char * { return i >= 85 && i <= 88 ? kForms[i - 85] : nullptr; };
+    c.shop_services = &v;
+    std::vector<std::string> lines;
+    c.events = {&lines, [](void *p, const GameEvent &e) {
+                    auto &out = *static_cast<std::vector<std::string> *>(p);
+                    if (e.kind == GameEventKind::Message && e.text) out.emplace_back(e.text);
+                }};
+    ShopInput yes{};
+    yes.action = ShopAction::Confirm;
+    execute_shop(c, yes);
+    return lines;
+}
+
+void test_rumour() {
+    std::printf("B  a paid tavern rumour is shown (P2)\n");
+    GameState g{};
+    const auto lines = paid_rumour(5, g);
+    bool gossip = false, says = false;
+    std::string all;
+    for (const auto &l : lines) {
+        gossip |= l.find(": Malik in Moonglow.") != std::string::npos && l.rfind("Form", 0) == 0;
+        says |= l.find("says Greyson.") != std::string::npos;
+        all += (all.empty() ? "" : " | ") + l;
+    }
+    check(g.gold == 450 && gossip && says, "P2 the paid rumour prints its drawn form with the subject and place, then "
+                                           "\"says Greyson.\": " + (all.empty() ? std::string("(nothing)") : all));
+    // SHOPPES2 0x0636-0x0648: the form is record 85 + rand(0,3), so it follows the draw.
+    std::string forms;
+    for (uint32_t seed = 1; seed <= 24; ++seed) {
+        GameState h{};
+        for (const auto &l : paid_rumour(seed, h))
+            if (l.rfind("Form", 0) == 0 && l.size() > 4 && forms.find(l[4]) == std::string::npos) forms += l[4];
+    }
+    std::sort(forms.begin(), forms.end());
+    check(forms == "0123", "P2 the gossip form is drawn per rumour (forms seen over 24 seeds: " + forms + ")");
+}
 } // namespace
 
 int main() {
+    test_rumour();
     test_jimmy();
     test_push();
     test_yell();
