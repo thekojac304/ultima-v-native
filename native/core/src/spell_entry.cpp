@@ -55,13 +55,20 @@ int32_t spell_from_initials(const char *initials, size_t count) {
     char typed[kSpellEntryMaxSyllables]{};
     for (size_t i = 0; i < count; ++i) typed[i] = upper(initials[i]);
     sort_letters(typed, count);
+    // CAST2.OVL 0x02b2-0x02cb: after a letter matches, the compare skips every
+    // REPEAT of it in the sorted entry, so a syllable typed twice counts once
+    // ("IN IN LOR" is In Lor). The 48 rows hold no repeated initial, so this
+    // is a match against the entry's distinct letters.
+    size_t distinct = 0;
+    for (size_t i = 0; i < count; ++i)
+        if (!distinct || typed[distinct - 1] != typed[i]) typed[distinct++] = typed[i];
     // CAST2.OVL 0x01e2: the sorted entry against the 48 pre-sorted rows.
     for (int32_t spell = 0; spell < 48; ++spell) {
         const auto *definition = spell_definition(SpellId(spell));
         if (!definition || !definition->name) continue;
         char want[8]{};
         const size_t n = sorted_initials(definition->name, want, sizeof(want));
-        if (n == count && std::memcmp(want, typed, count) == 0) return spell;
+        if (n == distinct && std::memcmp(want, typed, distinct) == 0) return spell;
     }
     return kSpellEntryNoMatch;
 }

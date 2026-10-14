@@ -64,6 +64,18 @@ struct PlatformProfile {
     bool (*quit_save_key)(void *context) = nullptr;
     void *quit_save_context = nullptr;
 
+    // --- The 1988 interaction model ------------------------------------------
+    // Whether the interface follows the DOS game's own interaction model
+    // (native/targets/windows/ORIGINAL_MODE_FIDELITY.md): members are chosen
+    // on the roster by a reverse-video row under a "Select:" caption instead
+    // of a list panel; prompts are typed inline on the console with the 1988
+    // key rules (ESC clears a typed line, a getdir ignores ESC and takes Space
+    // as "Pass", a Y/N question takes only Y or N) instead of the device's
+    // context bar and its key legends; and the prompts, echoes and cancel
+    // strings are the binary's own. Null = the T-Deck's handheld interface.
+    bool (*dos_interface)(void *context) = nullptr;
+    void *dos_interface_context = nullptr;
+
     // --- System Menu --------------------------------------------------------
     // Whether the root lists Difficulty and Cheats. Null = always (the T-Deck).
     bool (*enhanced_rows)(void *context) = nullptr;
@@ -82,6 +94,8 @@ bool platform_enhanced_rows();
 bool platform_typed_spell_names();
 /** Whether Q is (Q)uit & Save now (false on the T-Deck). */
 bool platform_quit_save_key();
+/** Whether the 1988 interaction model is active now (false on the T-Deck). */
+bool platform_dos_interface();
 /**
  * Copies `text` into `out` (always terminated, truncated to fit), replacing
  * {back}, {move}, {menu}, {import}, {export} and {storage} with the

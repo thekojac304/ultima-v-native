@@ -11,7 +11,8 @@ namespace openu5 {
 // rune), the game echoes each syllable's rune word in capitals, Backspace
 // takes the last one back, RETURN or Space ends the entry and ESC ends it
 // empty. The initials are matched in ANY order against the 48 spells (the
-// table at DS:0x1c30 holds them pre-sorted): "IL" and "LI" are both In Lor.
+// table at DS:0x1c30 holds them pre-sorted): "IL" and "LI" are both In Lor,
+// and a repeated initial counts once (0x02b2-0x02cb): "IIL" is In Lor too.
 //
 // The T-Deck chooses the spell from a list instead (a declared device
 // adaptation); this is only used where the platform profile asks for it.

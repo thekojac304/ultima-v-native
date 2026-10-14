@@ -63,6 +63,10 @@ bool platform_quit_save_key() {
     return g_profile.quit_save_key && g_profile.quit_save_key(g_profile.quit_save_context);
 }
 
+bool platform_dos_interface() {
+    return g_profile.dos_interface && g_profile.dos_interface(g_profile.dos_interface_context);
+}
+
 bool platform_enhanced_rows() {
     return !g_profile.enhanced_rows || g_profile.enhanced_rows(g_profile.enhanced_context);
 }

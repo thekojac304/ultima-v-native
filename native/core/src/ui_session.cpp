@@ -60,9 +60,18 @@ bool getdir_prints_word(CommandKind k) {
     case CommandKind::CombatGet: case CommandKind::CombatOpen: case CommandKind::CombatSearch:
         return true;
     default:
-        return false;
+        break;
     }
+    // The 1988 interaction model: Talk reads the same getdir (TALK 0x0422 and
+    // the overworld's kernel 0x33d0 both call 0x35EC), and a spell's or an
+    // item's direction is CAST2 0x0306, which prints "Direction-" and then the
+    // word on that row (DS 0x9504, 0x9510-0x9526).
+    return platform_dos_interface() &&
+           (k == CommandKind::Talk || k == CommandKind::Cast || k == CommandKind::UseItem);
 }
+// The 1988 interaction model's Y/N, getdir and getkey prompts read only their
+// own keys; the kernel's getkey (0x266c -> 0x2032) upper-cases what it reads.
+char16_t upper_ascii(char16_t c) { return c >= u'a' && c <= u'z' ? char16_t(c - (u'a' - u'A')) : c; }
 bool is_selection(UiMode m) {
     return m == UiMode::PartySelection || m == UiMode::InventorySelection ||
            m == UiMode::EquipmentSelection || m == UiMode::SpellSelection;
@@ -146,29 +155,30 @@ void for_each_wrapped_line(const UiSession &session, size_t columns, Emit emit) 
         spaces = 0;
     };
 
-    for (size_t i = 0; i < session.transcript_size(); ++i) {
-        const auto *block = session.transcript_at(i);
-        if (!block) continue;
-        if (console && (block->flags & UiTextCommand) && !(block->flags & UiTextContinuesBefore) &&
-            block->length && !line_length) {
+    // `live` marks the 1988 model's prompt row (UiSession::live_prompt_text()):
+    // a trailing space is kept there, because the cursor blinks after it
+    // ("Player: _", "Save game? _").
+    auto feed = [&](const UiTextBlock &block, bool live) {
+        if (console && (block.flags & UiTextCommand) && !(block.flags & UiTextContinuesBefore) &&
+            block.length && !line_length) {
             // getkey's LF: a blank row, then the echo on the bullet row.
             UiRenderedLine blank{};
-            blank.sequence = block->sequence;
+            blank.sequence = block.sequence;
             emit(blank);
             line = {};
             bullet = true;
         }
-        set_metadata(*block);
-        for (size_t j = 0; j < block->length; ++j) {
-            const char c = block->text[j];
+        set_metadata(block);
+        for (size_t j = 0; j < block.length; ++j) {
+            const char c = block.text[j];
             if (c == '\n') {
-                append_word(*block);
-                emit_line(*block); // Explicit newlines preserve empty lines.
+                append_word(block);
+                emit_line(block); // Explicit newlines preserve empty lines.
                 spaces = 0;
                 continue;
             }
             if (c == ' ' || c == '\t' || c == '\r' || c == '\f' || c == '\v') {
-                append_word(*block);
+                append_word(block);
                 if (line_length) ++spaces;
                 continue;
             }
@@ -176,22 +186,33 @@ void for_each_wrapped_line(const UiSession &session, size_t columns, Emit emit) 
                 // Only a single token can reach this path.  Keep any preceding
                 // prose intact, then hard-break the overlong token (on a
                 // bullet row, one column sooner).
-                if (line_length) emit_line(*block);
-                set_metadata(*block);
+                if (line_length) emit_line(block);
+                set_metadata(block);
                 for (size_t k = 0; k < word_length; ++k) line.text[line_length++] = word[k];
-                emit_line(*block);
+                emit_line(block);
                 word_length = 0;
                 spaces = 0;
             }
             word[word_length++] = c;
         }
-        if (!(block->flags & UiTextContinuesAfter)) {
-            append_word(*block);
-            if (line_length) emit_line(*block);
-            else if (!event_emitted) emit_line(*block);
+        if (!(block.flags & UiTextContinuesAfter)) {
+            append_word(block);
+            if (live && spaces && line_length && line_length < columns) line.text[line_length++] = ' ';
+            if (line_length) emit_line(block);
+            else if (!event_emitted) emit_line(block);
             spaces = 0;
             event_emitted = false;
         }
+    };
+    for (size_t i = 0; i < session.transcript_size(); ++i) {
+        const auto *block = session.transcript_at(i);
+        if (block) feed(*block, false);
+    }
+    if (console) {
+        UiTextBlock live{};
+        live.channel = UiTextChannel::CommandEcho;
+        live.length = uint16_t(session.live_prompt_text(live.text, sizeof(live.text)));
+        if (live.length) feed(live, true);
     }
     if (console && session.console_cursor() == UiConsoleCursor::NewCommand) {
         // The live prompt row a command is awaited on, below its blank row.
@@ -532,6 +553,7 @@ void UiSession::cancel_modal() {
     }
     const auto request = request_;
     if (request == UiRequestId::CampGuard) {
+        if (platform_dos_interface()) append(UiTextChannel::CommandEcho, prompt_); // then the core's "None posted!"
         const auto hours = camp_hours_; camp_hours_ = 0;
         mode_ = return_mode_; request_ = UiRequestId::None; selection_ = {};
         input_[0] = 0; input_length_ = 0; prompt_[0] = 0;
@@ -580,6 +602,18 @@ void UiSession::cancel_modal() {
 void UiSession::finish_modal(bool accepted, bool yes, int32_t number, int32_t index) {
     const auto request = request_;
     const auto old_mode = mode_;
+    if (platform_dos_interface() && accepted &&
+        (old_mode == UiMode::TextEntry || old_mode == UiMode::NumericEntry || old_mode == UiMode::YesNo)) {
+        dos_commit_answer(old_mode, request, yes);
+        // CMDS 0x1467-0x1477: an empty Yell prints "Nothing" (DS 0x4531) and
+        // no word is uttered.
+        if (request == UiRequestId::YellText && !input_length_) {
+            append(UiTextChannel::Message, "Nothing");
+            mode_ = return_mode_; request_ = UiRequestId::None; selection_ = {};
+            input_[0] = 0; input_length_ = 0; prompt_[0] = 0;
+            return;
+        }
+    }
     mode_ = return_mode_;
     request_ = UiRequestId::None;
     selection_ = {};
@@ -590,7 +624,8 @@ void UiSession::finish_modal(bool accepted, bool yes, int32_t number, int32_t in
         accepted && camp_watch_available_) {
         camp_hours_ = int16_t(number);
         input_[0]=0; input_length_=0;
-        begin_yes_no(UiRequestId::CampWatch,"Wilt thou set a watch?");
+        // 1988: "\nWilt thou set a watch? " (DS 0xa348), read on the console.
+        begin_yes_no(UiRequestId::CampWatch,platform_dos_interface()?"\nWilt thou set a watch? ":"Wilt thou set a watch?");
         return;
     }
     if (request == UiRequestId::CampWatch && old_mode == UiMode::YesNo) {
@@ -606,6 +641,9 @@ void UiSession::finish_modal(bool accepted, bool yes, int32_t number, int32_t in
         return;
     }
     if (request == UiRequestId::CampGuard && old_mode == UiMode::PartySelection) {
+        // 1988: the guard's name is not echoed (kernel 0x3eac-0x3eb4 prints
+        // only the newline); the prompt keeps its row.
+        if (platform_dos_interface()) append(UiTextChannel::CommandEcho, prompt_);
         Command c; c.kind=CommandKind::Rest; c.hours=camp_hours_; c.member=int16_t(index);
         c.watch_requested=true; camp_hours_=0;
         command(c); input_[0]=0; input_length_=0; prompt_[0]=0;
@@ -732,7 +770,11 @@ bool UiSession::handle_modal(const UiAction &a) {
         if (a.kind == UiActionKind::Confirm || (a.kind == UiActionKind::Character && a.character == u' ')) {
             finish_modal(true);
         } else if (a.kind == UiActionKind::Cancel || (a.kind == UiActionKind::Character && a.character == 27)) {
-            count = 0; rebuild(); finish_modal(true);
+            // The 1988 console keeps the syllables typed before ESC on the row
+            // (":IN LOR None!"); the answer still counts as nothing typed,
+            // which `number` tells the owner.
+            if (platform_dos_interface()) finish_modal(true, false, kSpellEntryNone);
+            else { count = 0; rebuild(); finish_modal(true); }
         } else if (a.kind == UiActionKind::Back || a.kind == UiActionKind::DeleteCharacter) {
             if (count) --count;
             rebuild();
@@ -745,6 +787,42 @@ bool UiSession::handle_modal(const UiAction &a) {
         return true;
     }
     if (mode_ == UiMode::TextEntry || mode_ == UiMode::NumericEntry) {
+        if (platform_dos_interface()) {
+            if (mode_ == UiMode::NumericEntry && request_ == UiRequestId::RestHours) {
+                // The hours are ONE getkey, not a typed number: camp's (kernel
+                // 0x3db0-0x3dd3) and the bed's (CMDS 0x055a-0x0570) loop until
+                // '0'-'9' or Space. A digit is the answer at once; '0' or Space
+                // abandons -- camp echoes the key first, the bed nothing.
+                if (a.kind == UiActionKind::Character && a.character >= u'1' && a.character <= u'9') {
+                    input_[0] = a.character; input_[1] = 0; input_length_ = 1;
+                    finish_modal(true, false, int32_t(a.character - u'0'));
+                } else if (a.kind == UiActionKind::Character && (a.character == u'0' || a.character == u' ')) {
+                    char line[kUiTranscriptBlockBytes]{};
+                    std::snprintf(line, sizeof(line), "%s%s", prompt_,
+                                  camp_eligible_ && a.character == u'0' ? "0" : "");
+                    append(UiTextChannel::CommandEcho, line);
+                    cancel_modal();
+                }
+                return true;
+            }
+            if (mode_ == UiMode::NumericEntry && request_ == UiRequestId::ShrineDonate) {
+                // CAST2 0x0b63-0x0b79: one getkey that takes only '0'-'9'.
+                if (a.kind == UiActionKind::Character && a.character >= u'0' && a.character <= u'9') {
+                    input_[0] = a.character; input_[1] = 0; input_length_ = 1;
+                    finish_modal(true, false, int32_t(a.character - u'0'));
+                }
+                return true;
+            }
+            // input_string 0x3b1c / input_number 0x3b9e: ESC erases the line
+            // and keeps reading (0x3b4e / 0x3c0e), Backspace (or the left
+            // arrow) takes one character back, and only RETURN ends.
+            if (a.kind == UiActionKind::Cancel) { input_length_ = 0; input_[0] = 0; return true; }
+            if (a.kind == UiActionKind::Back || a.kind == UiActionKind::DeleteCharacter ||
+                (a.kind == UiActionKind::Direction && a.direction == Direction::West)) {
+                if (input_length_) input_[--input_length_] = 0;
+                return true;
+            }
+        }
         if (mode_ == UiMode::NumericEntry && request_ == UiRequestId::MixQuantity) {
             // A3-HF10. Mix's "How much? " is kernel getnum 0x3b9e: ESC (0x3c0e)
             // erases the answer and keeps reading -- on an empty answer it does
@@ -792,11 +870,16 @@ bool UiSession::handle_modal(const UiAction &a) {
             else if (mode_ == UiMode::TextEntry && !escape_clears_) cancel_modal();
             return true;
         }
+        // The 1988 getstring reads through getkey, which upper-cases (0x2032):
+        // what is typed is echoed and kept in capitals. Every reader of these
+        // answers compares without case (talk_keyword_matches, quest contains,
+        // the kernel stristr of the wish, rumor_index).
+        const bool capitals = platform_dos_interface() && mode_ == UiMode::TextEntry;
         auto add = [&](char16_t c) {
             if (input_length_ >= input_limit_) return;
             if (mode_ == UiMode::NumericEntry && (c < u'0' || c > u'9')) return;
             if (c < u' ') return;
-            input_[input_length_++] = c; input_[input_length_] = 0;
+            input_[input_length_++] = capitals ? upper_ascii(c) : c; input_[input_length_] = 0;
         };
         if (a.kind == UiActionKind::Character) add(a.character);
         else if (a.kind == UiActionKind::TextInput && a.text)
@@ -805,6 +888,17 @@ bool UiSession::handle_modal(const UiAction &a) {
     }
     if (mode_ == UiMode::YesNo) {
         bool valid = false, yes = false;
+        if (platform_dos_interface()) {
+            // Every 1988 Y/N getkey loops until Y or N and re-reads the rest,
+            // RETURN and ESC included (camp watch 0x3e3c, the well LOOKOBJ
+            // 0x0052, Save game? CAST2 0x110b, the guard TALK 0x00b9, the
+            // trolls MAINOUT 0x1b80, the healer SHOPPES 0x1510).
+            if (a.kind == UiActionKind::Character) {
+                const auto c = lower_ascii(a.character);
+                if (c == 'y' || c == 'n') finish_modal(true, c == 'y');
+            }
+            return true;
+        }
         if (a.kind == UiActionKind::Confirm) valid = yes = request_ != UiRequestId::QuitSave;
         else if (a.kind == UiActionKind::Character) {
             const auto c = lower_ascii(a.character);
@@ -831,6 +925,43 @@ bool UiSession::handle_modal(const UiAction &a) {
                 finish_modal(true, false, 0, int32_t(selection_cursor_));
             else if (a.kind == UiActionKind::Character && (a.character == u'm' || a.character == u'M'))
                 finish_modal(true, true);
+            return true;
+        }
+        if (platform_dos_interface()) {
+            // The roster picker select_party_member 0x2d7a and the item lists of
+            // item_page_controller (ZSTATS 0x0f2e): the arrows step and CLAMP
+            // (0x3f14 / 0x3f54, no wrap); in the roster a digit 1-6 only moves
+            // the highlight (0x2dd4-0x2df3) -- the Camp guard's included, it is
+            // the same routine (kernel 0x3eac -> 0x2e8e); RETURN or Space
+            // chooses (0x2e58 / 0x2e62, ZSTATS 0x121c / 0x125d); ESC cancels;
+            // Z-stats' '0' (arg 1, 0x2e67) opens the Equipment page; every
+            // other key, Backspace and letters included, is read and dropped.
+            if (a.kind == UiActionKind::Cancel) { cancel_modal(); return true; }
+            if (!count) return true;
+            auto choose = [&] {
+                const auto item = selection_.item ? selection_.item(selection_.context, selection_cursor_)
+                                                  : UiSelectionItem{};
+                if (item.enabled) finish_modal(true, false, 0, int32_t(selection_cursor_));
+            };
+            if (a.kind == UiActionKind::Next || a.kind == UiActionKind::Previous || a.kind == UiActionKind::Direction) {
+                const bool forward = a.kind == UiActionKind::Next ||
+                                     (a.kind == UiActionKind::Direction &&
+                                      (a.direction == Direction::South || a.direction == Direction::East));
+                if (forward && selection_cursor_ + 1 < count) ++selection_cursor_;
+                else if (!forward && selection_cursor_ > 0) --selection_cursor_;
+            } else if (mode_ == UiMode::PartySelection &&
+                       ((a.kind == UiActionKind::HighlightIndex && a.index >= 0) ||
+                        (a.kind == UiActionKind::Character && a.character >= u'1' && a.character <= u'6'))) {
+                const size_t member = a.kind == UiActionKind::HighlightIndex ? size_t(a.index) : size_t(a.character - u'1');
+                if (member < count) selection_cursor_ = member;
+            } else if (a.kind == UiActionKind::Character && a.character == u'0' && request_ == UiRequestId::Status) {
+                finish_modal(true, false, 0, -2);
+            } else if (a.kind == UiActionKind::SelectIndex && a.index >= 0 && size_t(a.index) < count) {
+                selection_cursor_ = size_t(a.index);
+                choose();
+            } else if (a.kind == UiActionKind::Confirm || (a.kind == UiActionKind::Character && a.character == u' ')) {
+                choose();
+            }
             return true;
         }
         if (request_ == UiRequestId::CampGuard && a.kind == UiActionKind::Character) {
@@ -874,6 +1005,66 @@ bool UiSession::handle_modal(const UiAction &a) {
         return true;
     }
     if (mode_ == UiMode::TargetSelection) {
+        if (platform_dos_interface() && !dos_getdir_cancel_) {
+            const bool attack = pending_command_.kind == CommandKind::CombatAttack;
+            const bool reticle = attack || (pending_command_.kind == CommandKind::Cast && request_ == UiRequestId::Target);
+            const bool own_cell = pending_command_.combat_x == combat_origin_x_ &&
+                                  pending_command_.combat_y == combat_origin_y_;
+            auto close = [&] { mode_ = return_mode_; request_ = UiRequestId::None; prompt_[0] = 0; };
+            if (a.kind == UiActionKind::Back) return true; // Backspace is no key here
+            if (a.kind == UiActionKind::Cancel) {
+                if (request_ == UiRequestId::GatePhase) {
+                    // CAST.OVL 0x0d06 reads ONE key: ESC is a key like any
+                    // other, not '1'-'8', so the spell fails (0x0d1d).
+                    auto cmd = pending_command_; close(); pending_command_ = {};
+                    append(UiTextChannel::CommandEcho, "To phase:");
+                    command(cmd);
+                    return true;
+                }
+                if (attack) {
+                    // COMSUBS 0x06ea: ESC leaves the aim and the swing is lost
+                    // ("Nothing!", DS 0x9a8a), ending the turn (COMBAT 0x08e9).
+                    close(); pending_command_ = {};
+                    Command c; c.kind = CommandKind::CombatAttackCancel; command(c);
+                    return true;
+                }
+                if (!reticle) return true; // getdir 0x35EC swallows ESC (0x3600-0x3620)
+            } else if (a.kind == UiActionKind::Character && a.character == u' ' && request_ != UiRequestId::GatePhase) {
+                if (!reticle) { dos_getdir_pass(); return true; }
+                // COMSUBS 0x068a-0x069e: Space aims like RETURN, but on the
+                // actor's own cell it leaves the aim.
+                if (own_cell) {
+                    UiAction cancel; cancel.kind = UiActionKind::Cancel;
+                    if (attack) return handle_modal(cancel);
+                    dos_getdir_cancel_ = true; handle_modal(cancel); dos_getdir_cancel_ = false;
+                    return true;
+                }
+                UiAction fire; fire.kind = UiActionKind::Confirm;
+                return handle_modal(fire);
+            } else if (a.kind == UiActionKind::Character && reticle && (a.character == u'a' || a.character == u'A')) {
+                UiAction fire; fire.kind = UiActionKind::Confirm; // COMSUBS 0x06f7: 'A' aims like RETURN
+                return handle_modal(fire);
+            } else if (a.kind == UiActionKind::Character && pending_command_.kind == CommandKind::DungeonCommand &&
+                       pending_command_.item == int16_t(DungeonAction::Klimb) &&
+                       (a.character == u'u' || a.character == u'U' || a.character == u'd' || a.character == u'D')) {
+                // DUNGEON 0x1e10: "Klimb-U/D-" takes U or D as well as the arrows.
+                UiAction dir; dir.kind = UiActionKind::Direction;
+                dir.direction = a.character == u'u' || a.character == u'U' ? Direction::North : Direction::South;
+                return handle_modal(dir);
+            } else if (a.kind == UiActionKind::Direction && pending_command_.kind == CommandKind::Fire) {
+                // CMDS 0x0982: the frigate's Fire is a getdir -- one arrow fires.
+                auto cmd = pending_command_;
+                const auto d = direction_delta(a.direction);
+                cmd.combat_x = int16_t(5 + d.dx); cmd.combat_y = int16_t(5 + d.dy);
+                cmd.direction = a.direction; cmd.has_direction = true;
+                append_continuation(UiTextChannel::CommandEcho, getdir_word(a.direction));
+                close(); pending_command_ = {};
+                command(cmd);
+                return true;
+            } else if (a.kind == UiActionKind::Confirm && !reticle) {
+                return true; // RETURN is no answer to a getdir
+            }
+        }
         if (a.kind == UiActionKind::Cancel || a.kind == UiActionKind::Back) {
             const auto cancelled_request = request_;
             // Batch 9B.  A dungeon prompt's abort is "Pass" (DS 0x84ec for the
@@ -886,7 +1077,9 @@ bool UiSession::handle_modal(const UiAction &a) {
                 const bool search = cancelled_dungeon.item == int16_t(DungeonAction::Search);
                 mode_ = return_mode_; request_ = UiRequestId::None;
                 prompt_[0]=0; pending_command_={};
-                command_echo("Pass");
+                // The 1988 model: on the prompt's own row ("Klimb-U/D-Pass").
+                if (platform_dos_interface()) append_continuation(UiTextChannel::CommandEcho, "Pass");
+                else command_echo("Pass");
                 if (!search) { cancelled_dungeon.hours = 2; command(cancelled_dungeon); }
                 return true;
             }
@@ -925,6 +1118,13 @@ bool UiSession::handle_modal(const UiAction &a) {
             // reference's silent multi-way abort.
             auto cmd = pending_command_;
             if (a.character >= u'1' && a.character <= u'8') cmd.hours = int16_t(a.character - u'1');
+            if (platform_dos_interface()) {
+                // 0x0d0c-0x0d1a: the key is echoed after "To phase: " (if it prints).
+                char line[kUiTranscriptBlockBytes]{};
+                std::snprintf(line, sizeof(line), "%s%c", prompt_,
+                              a.character >= u' ' && a.character <= 0x7e ? char(upper_ascii(a.character)) : ' ');
+                append(UiTextChannel::CommandEcho, line);
+            }
             mode_ = return_mode_; request_ = UiRequestId::None; prompt_[0]=0; pending_command_={};
             command(cmd);
         } else if (a.kind == UiActionKind::Direction) {
@@ -1050,7 +1250,86 @@ UiConsoleCursor UiSession::console_cursor() const {
         return UiConsoleCursor::NewCommand;
     if (mode_ == UiMode::TargetSelection && request_ == UiRequestId::Direction)
         return UiConsoleCursor::Inline;
+    // The 1988 model reads every prompt on the console: the cursor blinks
+    // after it, as 0x266c's 0x1b38 does at every getkey (the arena's aim
+    // included: COMSUBS 0x063d is the same getkey, after "Attack-Aim! ").
+    if (platform_dos_interface() && (dos_live_prompt_mode() || mode_ == UiMode::TargetSelection))
+        return UiConsoleCursor::Inline;
     return UiConsoleCursor::None;
+}
+
+bool UiSession::dos_live_prompt_mode() const {
+    switch (mode_) {
+    case UiMode::TextEntry:
+    case UiMode::NumericEntry:
+    case UiMode::YesNo:
+    case UiMode::PartySelection:
+    case UiMode::InventorySelection:
+    case UiMode::EquipmentSelection:
+        return true;
+    case UiMode::TargetSelection:
+        return request_ == UiRequestId::GatePhase; // "To phase: " (CAST.OVL 0x0cff)
+    default:
+        return false;
+    }
+}
+
+size_t UiSession::live_prompt_text(char *out, size_t capacity) const {
+    if (!out || !capacity) return 0;
+    out[0] = 0;
+    if (!console_layout_ || !console_ready_ || !platform_dos_interface() || !dos_live_prompt_mode()) return 0;
+    size_t n = 0;
+    for (const char *p = prompt_; *p && n + 1 < capacity; ++p) out[n++] = *p;
+    if (mode_ == UiMode::TextEntry || mode_ == UiMode::NumericEntry)
+        for (size_t i = 0; i < input_length_ && n + 1 < capacity; ++i)
+            out[n++] = input_[i] >= u' ' && input_[i] <= 0x7e ? char(input_[i]) : '?';
+    out[n] = 0;
+    return n;
+}
+
+void UiSession::dos_commit_answer(UiMode mode, UiRequestId request, bool yes) {
+    // What the console keeps once a prompt is answered: the prompt and the
+    // answer on its row, exactly as the 1988 game leaves them (the getstring
+    // echoed the text as it was typed; a Y/N getkey echoes "Yes" / "No").
+    // Requests whose answer the owner or the core prints (the typed spell
+    // name, the dungeon fountain's "Yes.  Gulp!", the shrine's gold) keep
+    // only what is theirs.
+    if (request == UiRequestId::SpellName || request == UiRequestId::MixSpellName) return;
+    char line[kUiTranscriptBlockBytes]{};
+    size_t n = 0;
+    auto put = [&](const char *s) { for (; s && *s && n + 1 < sizeof(line); ++s) line[n++] = *s; };
+    put(prompt_);
+    if (mode == UiMode::TextEntry || mode == UiMode::NumericEntry) {
+        if (request != UiRequestId::ShrineDonate)
+            for (size_t i = 0; i < input_length_ && n + 1 < sizeof(line); ++i)
+                line[n++] = input_[i] >= u' ' && input_[i] <= 0x7e ? char(input_[i]) : '?';
+    } else if (mode == UiMode::YesNo && request != UiRequestId::DungeonDrink && request != UiRequestId::WellDrop) {
+        // MAINOUT 0x1b80-0x1b8e echoes the troll toll's key itself; TALK
+        // 0x00c3 answers the guard with "No!" (DS 0x9070).
+        put(request == UiRequestId::TrollToll ? (yes ? "Y" : "N")
+            : request == UiRequestId::GuardTribute && !yes ? "No!" : yes ? "Yes" : "No");
+    }
+    line[n] = 0;
+    append(UiTextChannel::CommandEcho, line);
+}
+
+void UiSession::dos_getdir_pass() {
+    // getdir (0x35EC) leaves only on an arrow or Space; Space prints "Pass"
+    // (DS 0xa2a0) on the command's row and returns 0. What each caller does
+    // with that 0 is native's own cancel for the request (the same paths a
+    // device Cancel takes); the arena's ends the actor's turn, as COMBAT.OVL's
+    // funnel discards the result and ends the turn after every command.
+    // The dungeon prompts print their own "Pass" in the cancel branch.
+    if (pending_command_.kind != CommandKind::DungeonCommand)
+        append_continuation(UiTextChannel::CommandEcho, "Pass");
+    const bool arena = pending_command_.kind == CommandKind::CombatGet ||
+                       pending_command_.kind == CommandKind::CombatOpen ||
+                       pending_command_.kind == CommandKind::CombatSearch;
+    UiAction cancel; cancel.kind = UiActionKind::Cancel;
+    dos_getdir_cancel_ = true; // let handle_modal's Cancel branch run once
+    handle_modal(cancel);
+    dos_getdir_cancel_ = false;
+    if (arena) { Command yield; yield.kind = CommandKind::CombatYield; command(yield); }
 }
 void UiSession::direction_request(CommandKind kind, const char *echo) {
     command_echo(echo);
@@ -1063,6 +1342,13 @@ bool UiSession::handle_exploration(const UiAction &a) {
         Command c; c.kind = CommandKind::Move; c.direction = a.direction; c.has_direction = true;
         command(c); return true;
     }
+    const bool dos = platform_dos_interface();
+    // The 1988 command loop sends RETURN and ESC, like every control code
+    // without a handler, to "What?" (MAINOUT 0x0bb8, DS 0x2b64; TOWN 0x1544);
+    // Space is the Pass key.
+    if (dos && (a.kind == UiActionKind::Confirm || a.kind == UiActionKind::Cancel)) {
+        append(UiTextChannel::Message, "What?"); return true;
+    }
     if (a.kind == UiActionKind::Confirm) {
         command_echo("Pass"); Command c; c.kind = CommandKind::Pass; command(c); return true;
     }
@@ -1070,6 +1356,25 @@ bool UiSession::handle_exploration(const UiAction &a) {
     const auto k = lower_ascii(a.character);
     // Windows port, desktop Original mode: (Q)uit & Save, CAST2.OVL 0x10FE.
     if (k == 'q' && platform_quit_save_key()) { begin_quit_save(); return true; }
+    // The 1988 model's own echoes and prompts for three commands:
+    //  - Hole up & camp: "camp!\n\n" (DS 0xa306) leaves a blank row before
+    //    "For how many hours? (1-9) " (0xa32c); the bed's prompt is "For how
+    //    many hours? " (CMDS DS 0x4209);
+    //  - Yell: "Yell " (DS 0xa286) and CMDS 0x1458's "what?\n:" (DS 0x4529)
+    //    on the same row, then the word after ':' (getstring 30, 0x1463);
+    //  - New Order: the dispatcher prints "New Order" (DS 0xa1c4) first.
+    if (dos && k == 'h') {
+        command_echo(camp_eligible_ ? "Hole up & camp!" : "Hole up");
+        begin_number(UiRequestId::RestHours, camp_eligible_ ? "\nFor how many hours? (1-9) " : "For how many hours? ", 1, 9, 1);
+        return true;
+    }
+    if (dos && k == 'y' && !(sail_context_frigate_ && sail_context_location_ok_)) {
+        command_echo("Yell what?"); begin_text(UiRequestId::YellText, ":", 30); return true;
+    }
+    if (dos && k == 'n') {
+        command_echo("New Order");
+        UiIntent i; i.kind = UiIntentKind::OpenPartySelection; i.request = UiRequestId::Party; dispatch(i); return true;
+    }
     Command c;
     switch (k) {
     case 'a': direction_request(CommandKind::Attack, "Attack-"); return true;
@@ -1164,10 +1469,24 @@ bool UiSession::handle_dungeon(const UiAction &a) {
         command_echo("Turn around");
         c.item=int16_t(DungeonAction::TurnAround); command(c); return true;
     }
+    const bool dos = platform_dos_interface();
+    // The 1988 model: ESC is the kernel dispatcher's default "What?" (0x34d8).
+    if (dos && a.kind == UiActionKind::Cancel) { append(UiTextChannel::Message, "What?"); return true; }
     if (a.kind != UiActionKind::Character) return false;
     const auto k = lower_ascii(a.character);
     // Windows port, desktop Original mode: (Q)uit & Save has no dungeon gate.
     if (k == 'q' && platform_quit_save_key()) { begin_quit_save(); return true; }
+    // The same three echoes and prompts as above ground (handle_exploration).
+    if (dos && k == 'h') {
+        command_echo(camp_eligible_ ? "Hole up & camp!" : "Hole up");
+        begin_number(UiRequestId::RestHours, camp_eligible_ ? "\nFor how many hours? (1-9) " : "For how many hours? ", 1, 9, 1);
+        return true;
+    }
+    if (dos && k == 'y') { command_echo("Yell what?"); begin_text(UiRequestId::YellText, ":", 30); return true; }
+    if (dos && k == 'n') {
+        command_echo("New Order");
+        UiIntent i; i.kind = UiIntentKind::OpenPartySelection; i.request = UiRequestId::Party; dispatch(i); return true;
+    }
     switch (k) {
     case 'a': c.item=int16_t(DungeonAction::Attack); break;
     case 'g': c.item=int16_t(DungeonAction::Get); break;
@@ -1259,11 +1578,55 @@ bool UiSession::handle_combat(const UiAction &a) {
     if (a.kind == UiActionKind::Direction) {
         c.kind=CommandKind::CombatMove; c.combat_x=combat_direction(a.direction); command(c); return true;
     }
+    const bool dos = platform_dos_interface();
+    // The 1988 arena reads RETURN and Backspace as no command: COMBAT 0x0ab7
+    // prints "What?" (DS 0x6ee6) and reads again. ESC is its Escape
+    // (CMDS 0x17ec), which CombatEscapeQuick already is.
+    if (dos && (a.kind == UiActionKind::Confirm || a.kind == UiActionKind::Back)) {
+        append(UiTextChannel::Combat, "What?"); return true;
+    }
     if (a.kind == UiActionKind::Confirm) { c.kind=CommandKind::CombatPass; command(c); return true; }
     if (a.kind == UiActionKind::Cancel || a.kind == UiActionKind::Back) {
         c.kind=CommandKind::CombatEscapeQuick; command(c); return true;
     }
     if (a.kind != UiActionKind::Character) return false;
+    if (dos) {
+        // COMBAT.OVL's own refusals (jump tables 0x0ace / 0x0af8 -> SJOG
+        // 0x1f26: the name, then " what?" / "-Not here" / "-Funny, no
+        // response!", DS 0x8f12-0x8f24), and 'D' / 'W' (DS 0x6e84 / 0x6ed6):
+        // printed, no turn, the same actor asked again.
+        const char *refusal = nullptr;
+        switch (lower_ascii(a.character)) {
+        case 'b': refusal = "Board what?"; break;
+        case 'e': refusal = "Enter-Not here"; break;
+        case 'f': refusal = "Fire-Not here"; break;
+        case 'h': refusal = "Hole up-Not here"; break;
+        case 'i': refusal = "Ignite torch-Not here"; break;
+        case 'l': refusal = "Look-Not here"; break;
+        case 'm': refusal = "Mix-Not here"; break;
+        case 'n': refusal = "New order-Not here"; break;
+        case 'q': refusal = "Quit-Not here"; break;
+        case 'v': refusal = "View-Not here"; break;
+        case 'x': refusal = "X-it what?"; break;
+        case 't': refusal = "Talk-Funny, no response!"; break;
+        case 'd': refusal = "D-What?"; break;
+        case 'w': refusal = "W-What?"; break;
+        default: break;
+        }
+        if (refusal) { command_echo(refusal); return true; }
+        // 'A': COMBAT prints no name; COMSUBS 0x0d96 prints "Attack-" (DS
+        // 0x9aa0) and the aim's "Aim! " (0x9a84) on that row.
+        if (lower_ascii(a.character) == 'a') {
+            c.kind = CommandKind::CombatAttack; command_echo("Attack-Aim! ");
+            begin_target(UiRequestId::Target, "Aim", c, combat_initial_x_, combat_initial_y_); return true;
+        }
+        // 'Z': COMBAT 0x09ce prints "Z-stats..." (DS 0x6e54) and shows the
+        // acting member's page; the owner ends the turn when it closes.
+        if (lower_ascii(a.character) == 'z') {
+            command_echo("Z-stats...");
+            UiIntent i; i.kind = UiIntentKind::OpenStatusSelection; i.request = UiRequestId::Status; dispatch(i); return true;
+        }
+    }
     switch (lower_ascii(a.character)) {
     case 'a': c.kind=CommandKind::CombatAttack; command_echo("Attack"); begin_target(UiRequestId::Target,"Aim",c,combat_initial_x_,combat_initial_y_); return true;
     // A4-UI4 (section 8.20): the arena's cast echoes once -- combat_cast()'s
@@ -1312,6 +1675,49 @@ bool UiSession::handle_shop(const UiAction &a) {
     const bool list=member||shop_phase_==ShopPhase::Buy||shop_phase_==ShopPhase::Sell||
                     shop_phase_==ShopPhase::Reagent||shop_phase_==ShopPhase::Guild||
                     shop_phase_==ShopPhase::Ship||shop_phase_==ShopPhase::Wine;
+    if (platform_dos_interface()) {
+        const bool deal=shop_phase_==ShopPhase::BuyDeal||shop_phase_==ShopPhase::SellDeal||
+            shop_phase_==ShopPhase::ReagentDeal||shop_phase_==ShopPhase::GuildDeal||
+            shop_phase_==ShopPhase::HorseDeal||shop_phase_==ShopPhase::ShipDeal||
+            shop_phase_==ShopPhase::HealerDeal||shop_phase_==ShopPhase::InnRestDeal||
+            shop_phase_==ShopPhase::InnLeaveDeal||shop_phase_==ShopPhase::RumorDeal||
+            shop_phase_==ShopPhase::TavernRoundDeal||shop_phase_==ShopPhase::TavernDrinkDeal;
+        auto send_action=[&](ShopAction action,int32_t value){
+            ShopInput in; in.action=action; in.value=value;
+            UiIntent i; i.kind=UiIntentKind::Shop; i.request=UiRequestId::Shop; i.shop=in; dispatch(i);
+        };
+        if (deal) {
+            // Every 1988 shop question ("Wouldst thou buy one?", "Deal?",
+            // "Wilt thou pay?", "Fair 'nuff?") loops until Y or N (SHOPPES
+            // 0x0a3a, 0x0f0c, 0x1478; SHOPPES 0x0280): RETURN, ESC and Space
+            // are read again.
+            if (a.kind == UiActionKind::Character) {
+                const char key=lower_ascii(a.character);
+                if (key=='y') send_action(ShopAction::Confirm,shop_cursor_);
+                else if (key=='n') send_action(ShopAction::Decline,shop_cursor_);
+            }
+            return true;
+        }
+        if (member) {
+            // The healer's "Who needs my aid?" and the inn's "Who will stay?"
+            // are the roster picker (SHOPPES 0x1397 / SHOPPES3 0x030d ->
+            // 0x2e8e -> 0x2d7a): a digit 1-6 moves the highlight, RETURN or
+            // Space chooses, letters are no key. The inn's guest register
+            // (SHOPPES3 0x052a) takes the arrows, RETURN and Space.
+            const bool roster=shop_phase_!=ShopPhase::InnPickupMember;
+            if (roster && ((a.kind == UiActionKind::HighlightIndex && a.index >= 0) ||
+                           (a.kind == UiActionKind::Character && a.character >= u'1' && a.character <= u'6'))) {
+                const int32_t row=a.kind == UiActionKind::HighlightIndex ? a.index : int32_t(a.character - u'1');
+                if (size_t(row) < shop_offer_count_) shop_cursor_=row;
+                return true;
+            }
+            if (a.kind == UiActionKind::Confirm || (a.kind == UiActionKind::Character && a.character == u' ')) {
+                send_action(ShopAction::SelectMember,shop_cursor_);
+                return true;
+            }
+            if (a.kind == UiActionKind::Character || a.kind == UiActionKind::Back) return true;
+        }
+    }
     // Back is hierarchical: the shop service decides whether the current
     // sub-flow returns to its menu/list or exits the shop altogether.
     if (a.kind == UiActionKind::Cancel || a.kind == UiActionKind::Back) {
@@ -1361,6 +1767,16 @@ bool UiSession::handle_shop(const UiAction &a) {
 
 bool UiSession::handle_input(const UiAction &a) {
     if (mode_ == UiMode::KeyWait) return handle_modal(a);
+    if (platform_dos_interface() && (a.kind == UiActionKind::PageUp || a.kind == UiActionKind::PageDown) &&
+        (mode_ == UiMode::InventorySelection || mode_ == UiMode::EquipmentSelection)) {
+        // item_page_controller (ZSTATS 0x0f2e): PgUp / PgDn move the list
+        // cursor seven rows, clamped -- the list's keys, not the console's.
+        const auto count = selection_.count ? selection_.count(selection_.context) : 0;
+        if (count) selection_cursor_ = a.kind == UiActionKind::PageUp
+                                           ? (selection_cursor_ > 7 ? selection_cursor_ - 7 : 0)
+                                           : std::min(count - 1, selection_cursor_ + 7);
+        return true;
+    }
     if (a.kind == UiActionKind::PageUp || a.kind == UiActionKind::PageDown) {
         const size_t page=transcript_rows_?transcript_rows_:config_.page_rows;
         if (a.kind == UiActionKind::PageUp) {
@@ -1390,6 +1806,9 @@ bool UiSession::handle_input(const UiAction &a) {
     case UiMode::Combat: return handle_combat(a);
     case UiMode::Shop: return handle_shop(a);
     case UiMode::Dialogue:
+        // A 1988 conversation has no cancel key: it ends on an empty answer
+        // to "Your interest?" (BYE) or the script's own end (TALK 0x0b04).
+        if (platform_dos_interface()) return true;
         if (a.kind==UiActionKind::Cancel||a.kind==UiActionKind::Back) { Command c;c.kind=CommandKind::EndConversation;command(c);return true; }
         return true;
     default: return false;
@@ -1442,7 +1861,12 @@ void UiSession::consume(const GameEvent &e) {
                 // conversation must not re-capture Dialogue itself.
                 if (base_mode_ != UiMode::Dialogue) dialogue_return_mode_ = world_return_mode(base_mode_);
                 set_base_mode(UiMode::Dialogue);
-                begin_text(UiRequestId::Dialogue,o.question?"You respond-":"Your interest?",15,true);
+                // TALK 0x0b04 / 0x0c5c: "Your interest?\n:" (DS 0x9408) and
+                // "You respond-\n:" (0x9440) -- the word is typed after ':'.
+                if (platform_dos_interface())
+                    begin_text(UiRequestId::Dialogue,o.question?"You respond-\n:":"Your interest?\n:",15,true);
+                else
+                    begin_text(UiRequestId::Dialogue,o.question?"You respond-":"Your interest?",15,true);
             }
         } else if (e.dialogue->kind==DialogueEventKind::EffectMessage)
             append_utf16(UiTextChannel::Dialogue,e.dialogue->message.data(),e.dialogue->message.size());
@@ -1492,6 +1916,9 @@ void UiSession::consume(const GameEvent &e) {
                 default: p="Enter: continue  {back}: back"; break;
                 }
                 platform_format(prompt_,sizeof(prompt_),p); // the platform's key names (T-Deck: Mic, Trackball)
+                // The 1988 shops print their questions in the console and
+                // wear no key legend.
+                if (platform_dos_interface()) prompt_[0] = 0;
             }
         }
         if (e.shop->result && e.shop->result->message) append(UiTextChannel::Shop,e.shop->result->message);
@@ -1507,9 +1934,12 @@ void UiSession::consume(const GameEvent &e) {
             // the register with Shop itself.
             if (base_mode_ != UiMode::Shop) shop_return_mode_ = world_return_mode(base_mode_);
             set_base_mode(UiMode::Shop);
-            if(shop_phase_==ShopPhase::RumorText)begin_text(UiRequestId::Shop,"What rumor?",15);
+            // 1988: the tavern's rumor is "You respond:\n" (DS 0x9f24) and its
+            // rations "How many wouldst thou like?" (DS 0x9c4a, input_number 2).
+            const bool dos = platform_dos_interface();
+            if(shop_phase_==ShopPhase::RumorText)begin_text(UiRequestId::Shop,dos?"You respond:\n":"What rumor?",15);
             else if(shop_phase_==ShopPhase::RationsQuantity)
-                begin_number(UiRequestId::Shop,"How many?",0,std::numeric_limits<int32_t>::max(),10);
+                begin_number(UiRequestId::Shop,dos?"How many wouldst thou like? ":"How many?",0,std::numeric_limits<int32_t>::max(),dos?2:10);
         }
         break;
     case GameEventKind::CampKeyWait:
@@ -1521,10 +1951,27 @@ void UiSession::consume(const GameEvent &e) {
         if (e.text && std::strcmp(e.text,"klimb")==0){Command c;c.kind=CommandKind::Klimb;begin_target(UiRequestId::Direction,"Direction?",c,-1,-1);}
         else direction_request(CommandKind::Pass,e.text?e.text:"Direction");
         break;
-    case GameEventKind::TownExitPrompt: begin_yes_no(UiRequestId::TownExit,"Leave this place?",true); break;
-    case GameEventKind::ShrineVisitPrompt: enter_shrine_mode(); begin_yes_no(UiRequestId::ShrineVisit,"Visit?",false); break;
-    case GameEventKind::ShrineRestorePrompt: enter_shrine_mode(); begin_text(UiRequestId::ShrineRestore,"Virtue:",15); break;
-    case GameEventKind::ShrineDonatePrompt: enter_shrine_mode(); begin_number(UiRequestId::ShrineDonate,"How many cycles?",0,99,2); break;
+    // The 1988 model's own prompts (DATA.OVL / MISCMSG.DAT): "\nDost thou wish
+    // to leave? " (DS 0x2690); the shrine asks for the virtue at once after
+    // the kneel (CAST2 0x09c9, MISCMSG 0x743) -- the native "Visit?" question
+    // has no 1988 counterpart -- and the donation is "Offer how many
+    // hundredweights gold? " (MISCMSG 0x81f), one digit.
+    case GameEventKind::TownExitPrompt:
+        begin_yes_no(UiRequestId::TownExit,platform_dos_interface()?"\nDost thou wish to leave? ":"Leave this place?",true); break;
+    case GameEventKind::ShrineVisitPrompt:
+        enter_shrine_mode();
+        if (platform_dos_interface()) {
+            UiIntent i; i.kind=UiIntentKind::ModalResponse; i.request=UiRequestId::ShrineVisit;
+            i.value.accepted=true; i.value.yes=true; dispatch(i);
+            break;
+        }
+        begin_yes_no(UiRequestId::ShrineVisit,"Visit?",false); break;
+    case GameEventKind::ShrineRestorePrompt:
+        enter_shrine_mode();
+        begin_text(UiRequestId::ShrineRestore,platform_dos_interface()?"\nUpon what virtue dost thou meditate?\n\n:":"Virtue:",15); break;
+    case GameEventKind::ShrineDonatePrompt:
+        enter_shrine_mode();
+        begin_number(UiRequestId::ShrineDonate,platform_dos_interface()?"\nOffer how many hundredweights gold? ":"How many cycles?",0,99,2); break;
     case GameEventKind::BlackthornPrompt: {
         // Reference: main.ts:2706 askText(question + "\n\nYour response?\n:",
         // max 0xE) -- the suffix is the ask-text widget's own display
@@ -1538,11 +1985,23 @@ void UiSession::consume(const GameEvent &e) {
         // only the short response cue is the modal prompt.
         enter_shrine_mode();
         if (e.text) append(UiTextChannel::Quest, e.text);
-        begin_text(UiRequestId::Blackthorn, "Your response?", 14);
+        // BLCKTHRN 0x0301: "\n\nYour response?\n:" (DS 0x6f7a), read after ':'.
+        begin_text(UiRequestId::Blackthorn, platform_dos_interface() ? "\nYour response?\n:" : "Your response?", 14);
         break;
     }
-    case GameEventKind::GuardPasswordPrompt: begin_text(UiRequestId::GuardPassword,e.text?e.text:"Password?",14); break;
-    case GameEventKind::GuardTributePrompt: begin_yes_no(UiRequestId::GuardTribute,"Pay tribute?",false); break;
+    case GameEventKind::GuardPasswordPrompt:
+        if (platform_dos_interface()) {
+            // TALK 0x02d2 reads the password on the row after "Your response?"
+            // (DS 0x9128, no ':'), which the event text already ends with.
+            char p[kUiPromptBytes]{};
+            std::snprintf(p, sizeof(p), "%s\n", e.text ? e.text : "Your response?");
+            begin_text(UiRequestId::GuardPassword, p, 14);
+            break;
+        }
+        begin_text(UiRequestId::GuardPassword,e.text?e.text:"Password?",14); break;
+    // TALK 0x00ac: "\n\nDost thou pay?\n\n:" (DS 0x9052), then "Yes" / "No!".
+    case GameEventKind::GuardTributePrompt:
+        begin_yes_no(UiRequestId::GuardTribute,platform_dos_interface()?"\nDost thou pay?\n\n:":"Pay tribute?",false); break;
     case GameEventKind::GuardArrestPrompt:
         // Reference: hud.message('\n"Thou art under arrest!"\n\n"Wilt thou come
         // quietly?"\n\n:'). Native's prompt text was abbreviated to "Go quietly?"
@@ -1550,7 +2009,9 @@ void UiSession::consume(const GameEvent &e) {
         append(UiTextChannel::Quest,"\"Thou art under arrest!\"");
         begin_yes_no(UiRequestId::GuardArrest,"Wilt thou come quietly?",false);
         break;
-    case GameEventKind::TrollTollPrompt: begin_yes_no(UiRequestId::TrollToll,"Pay toll?",false); break;
+    // MAINOUT 0x1b3e: " gp toll!\n\nDost thou pay?" (DS 0x6b4a), the key echoed after '?'.
+    case GameEventKind::TrollTollPrompt:
+        begin_yes_no(UiRequestId::TrollToll,platform_dos_interface()?"Dost thou pay?":"Pay toll?",false); break;
     // R-25 (Batch 19).  "Peer into it?" was a native fabrication: LOOKOBJ's
     // case 0x29 raises no yes/no at all, it calls the kernel 0x4988 picker at
     // 0x09ea.  What is owed here is that picker, and UNLIKE the fountain below
@@ -1573,7 +2034,8 @@ void UiSession::consume(const GameEvent &e) {
         // cancel_means_no is true: the binary's raw getkey at 0x0052 treats
         // anything that is not Y as N, and game.ts dropCoin(false) prints "No".
         append(UiTextChannel::Message,"a well.");
-        begin_yes_no(UiRequestId::WellDrop,"Drop a coin?",true);
+        // 1988: "a well.\n\nDrop a coin?" -- a blank row, and the core prints the "Yes" / "No".
+        begin_yes_no(UiRequestId::WellDrop,platform_dos_interface()?"\nDrop a coin?":"Drop a coin?",true);
         break;
     case GameEventKind::FountainDrinkPrompt: {
         // Reference is pickMember("Who will drink?") with pure flavour text --
@@ -1593,7 +2055,8 @@ void UiSession::consume(const GameEvent &e) {
     // literal is DATA.OVL DS 0x722c = "\nThy wish?", printed by LOOKOBJ
     // 0x007f before the 12-character getstring at 0x0092 (max 0xC at 0x008e).
     // The 12 was already right; only the wording was invented.
-    case GameEventKind::WellWishPrompt: begin_text(UiRequestId::WellWish,"Thy wish?",12); break;
+    case GameEventKind::WellWishPrompt:
+        begin_text(UiRequestId::WellWish,platform_dos_interface()?"\nThy wish?\n":"Thy wish?",12); break;
     case GameEventKind::NpcInitiatesTalk:
     case GameEventKind::NpcInitiatesShop:
         // The core asking the frontend to run another command, not a modal

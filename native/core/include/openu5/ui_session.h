@@ -382,6 +382,13 @@ class UiSession {
     bool console_layout() const { return console_layout_; }
     void set_console_ready(bool ready);
     UiConsoleCursor console_cursor() const;
+    // Windows port, the 1988 interaction model (platform_dos_interface()): the
+    // prompt a modal is waiting on, as the console's last row(s) -- the
+    // prompt, then what has been typed ("Spell name:\n:IN LOR ") -- with the
+    // cursor after it, the way the original prints a prompt and reads the
+    // answer on the console. Writes it and returns its length; 0 when there is
+    // none to show (another platform, the console not ready, no such modal).
+    size_t live_prompt_text(char *out, size_t capacity) const;
 
     void set_base_mode(UiMode);
     void consume(const GameEvent &);
@@ -498,6 +505,9 @@ class UiSession {
     bool dungeon_klimb_choice_ = false, dungeon_fountain_here_ = false;
     bool camp_eligible_ = false, camp_watch_available_ = false;
     int16_t camp_hours_ = 0;
+    // The 1988 model's getdir ignores ESC; dos_getdir_pass() lets the cancel
+    // branch run once for Space.
+    bool dos_getdir_cancel_ = false;
     size_t transcript_columns_ = 0, transcript_rows_ = 0;
 #if defined(OPENU5_ENABLE_DEVELOPER_TOOLS)
     UiDebugMenu *debug_menu_ = nullptr;
@@ -519,6 +529,14 @@ class UiSession {
     void settle_shrine_after_modal();
     void finish_modal(bool accepted, bool yes = false, int32_t number = 0,
                       int32_t index = -1);
+    // The 1988 interaction model: whether the open modal shows its prompt on
+    // the console (live_prompt_text()), and the prompt + answer the console
+    // keeps once it is answered (finish_modal()).
+    bool dos_live_prompt_mode() const;
+    void dos_commit_answer(UiMode mode, UiRequestId request, bool yes);
+    // A getdir answered with Space in the 1988 model: "Pass" on the echo row,
+    // then the request's own cancel path.
+    void dos_getdir_pass();
     bool handle_modal(const UiAction &);
     bool handle_exploration(const UiAction &);
     bool handle_dungeon(const UiAction &);
