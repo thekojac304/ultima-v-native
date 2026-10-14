@@ -1,0 +1,16 @@
+G1 KILLED native/core/src/commands.cpp  <- RED G1 Ctrl-K on the surface: "73" alone on the command row (the karma, bare decimal) | RED G3 in a town: "41" and "1.16" | RED G4 in a dungeon Ctrl-K prints "88"
+G2 KILLED native/core/src/commands.cpp  <- RED G2 Ctrl-V prints "1.16" (DS 0x2b4f) on the command row | RED G3 in a town: "41" and "1.16" | RED G4 Ctrl-V likewise costs one dungeon turn: turns 1->2 clock +1min
+G3 KILLED native/core/src/commands.cpp  <- RED G4 in a dungeon Ctrl-K costs exactly one dungeon turn (DUNGEON 0x06cb returns 1 -> 0x0c76): (none) | RED G4 Ctrl-V likewise costs one dungeon turn: (none)
+G4 KILLED native/core/src/ui_session.cpp  <- RED G1 Ctrl-K on the surface: "73" alone on the command row (the karma, bare decimal) | RED G2 Ctrl-V prints "1.16" (DS 0x2b4f) on the command row | RED G1/G2 neither key is "What?"
+G5 KILLED native/core/src/ui_session.cpp  <- RED G4 in a dungeon Ctrl-K prints "88" | RED G4 in a dungeon Ctrl-K costs exactly one dungeon turn (DUNGEON 0x06cb returns 1 -> 0x0c76): (none) | RED G4 Ctrl-V likewise costs one dungeon turn: (none)
+F1 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED F1 the cancelled Mani's charge is spent (CAST 0x0ec8): qty 2 | RED F1/F2 the Player: pick (Iolo) pays one MP, nobody else: Iolo 20, Avatar 20 | RED F5 the arena's cancelled Mani is spent: qty 2 mp 20 [T-Deck]
+F2 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED F2 a completed Mani is paid by the Player: pick, not the active/first member: Iolo 20, Avatar 19
+F3 SURVIVED native/targets/tdeck/main/alpha_runtime.cpp
+F4 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED F4 (U)se In Mani Corp scroll, "On who:" cancelled: the item is spent (CAST 0x11ec)
+F5 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED F4 (U)se In Mani Corp scroll, "On who:" cancelled: the item is spent (CAST 0x11ec) | RED F4 (U)se a potion, "On who:" cancelled: the item is spent (CAST 0x136a)
+F6 KILLED native/core/src/combat.cpp  <- RED F5 the cancel ends the actor's turn exactly once (next to act 0, after a Pass 1) [T-Deck] | RED F5 the cancel ends the actor's turn exactly once (next to act 0, after a Pass 1) [Original]
+F7 KILLED native/core/src/ui_session.cpp  <- RED F5 the cancel ends the actor's turn exactly once (next to act 2, after a Pass 1) [Original]
+F8 SURVIVED native/core/src/magic.cpp
+F9 SURVIVED native/core/src/magic.cpp
+restored tree: GREEN
+KILLED 11 SURVIVED 3 INVALID 0 STALE 0

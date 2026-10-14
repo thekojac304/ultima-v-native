@@ -551,6 +551,9 @@ class AlphaRuntime {
     openu5::UiAction combat_input_queue_[8]{};
     size_t combat_input_count_ = 0;
     int16_t pending_combat_spell_ = -1;
+    // SPP1 F. The caster of the spell parked at "On who: ": the "Player: " pick
+    // (CAST 0x0dd5's [bp-4], which pays the MP at 0x0ef8) or the arena's actor.
+    int16_t pending_spell_caster_ = -1;
     int16_t pending_ready_member_ = -1;
     int16_t pending_use_item_ = -1;
     int16_t status_member_ = -1;

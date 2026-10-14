@@ -145,11 +145,14 @@ bool mix_quantity_short(const GameState &g, uint8_t mask, int32_t quantity) {
         if ((mask & (1 << i)) && uint32_t(std::max<int32_t>(g.reagent_quantities[i], 0)) < wanted) return true;
     return false;
 }
-CastResult cast_spell(GameState &g, TurnState &t, CharacterState &caster, SpellId id,
-                      CastContext ctx, Rand r) {
+bool spell_targets_member(SpellId id) {
+    const auto *d = spell_definition(id);
+    return d && d->target_type && std::strcmp(d->target_type, "selectedCombatPlayer") == 0;
+}
+CastGate cast_gate(const GameState &g, const CharacterState &caster, SpellId id, CastContext ctx) {
     const auto *d = spell_definition(id);
     if (!d)
-        return {false, false, "No effect!", {}};
+        return CastGate::Unknown;
     // A4-PARITY1 (NEW-1): CAST 0x0e45 reads g_crown [0x57b4] = crown POSSESSION
     // (quest.artifacts[1], .gam 0x20E; its only writer is the Get, SJOG 0x16e6), not the
     // worn crown (time spell 0x1c).
@@ -158,16 +161,33 @@ CastResult cast_spell(GameState &g, TurnState &t, CharacterState &caster, SpellI
                         : !ctx.combat && ctx.location > 0 && ctx.location < 128 &&
                               ((ctx.location == 18 && !g.quest.artifacts[1]) || ctx.location == 29);
     if (absorbed)
-        return {false, false, "Absorbed!", {}};
+        return CastGate::Absorbed;
     int bit = ctx.combat || ctx.location >= 128 ? 1
               : ctx.location == 0               ? 8
               : ctx.location <= 32              ? 4
                                                 : 2;
     if (!(d->time_bits & bit))
-        return {false, false, "Not here!", {}};
+        return CastGate::NotHere;
+    if (g.spell_quantities[unsigned(id)] <= 0)
+        return CastGate::NoneMixed;
+    if (caster.current_mp < d->circle)
+        return CastGate::LowMp;
+    if (caster.level < d->circle)
+        return CastGate::LowLevel;
+    return CastGate::Ok;
+}
+CastResult cast_spell(GameState &g, TurnState &t, CharacterState &caster, SpellId id,
+                      CastContext ctx, Rand r) {
+    const auto *d = spell_definition(id);
+    switch (cast_gate(g, caster, id, ctx)) {
+    case CastGate::Unknown: return {false, false, "No effect!", {}};
+    case CastGate::Absorbed: return {false, false, "Absorbed!", {}};
+    case CastGate::NotHere: return {false, false, "Not here!", {}};
+    case CastGate::NoneMixed: return {false, false, "None mixed!", {}};
+    default: break;
+    }
+    // CAST 0x0ec8 / 0x0ef8: the charge, then the MP, are spent between the gates.
     auto &q = g.spell_quantities[unsigned(id)];
-    if (q <= 0)
-        return {false, false, "None mixed!", {}};
     --q;
     if (caster.current_mp < d->circle)
         return {false, true, "M.P. too low!", {}};

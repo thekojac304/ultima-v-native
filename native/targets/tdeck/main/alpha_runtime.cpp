@@ -1434,13 +1434,25 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){const bool dos=openu5::platfo
         default:break;
         }
         if(line)ui_->append(openu5::UiTextChannel::CommandEcho,line);
-        // CAST 0x136a takes the potion BEFORE "On who: " (0x138e): a cancelled
-        // target still uses it up (native's handheld refund, D-51, is kept on
-        // the T-Deck and in Enhanced).
-        if(i.request==openu5::UiRequestId::UseTarget&&pending_use_item_>=8&&pending_use_item_<16&&!context_.combat){
-            openu5::Command spent;spent.kind=openu5::CommandKind::UseItem;spent.item=pending_use_item_;spent.member=-1;spent.item_named=true;
-            pending_use_item_=-1;command(spent);
-        }
+    }
+    // SPP1 F (D-51 retired). CAST 0x136a takes the potion, and 0x11ec the In Mani
+    // Corp scroll, BEFORE "On who: " (0x138e / CAST2 0x009e): a cancelled target
+    // still uses it up, on every platform. The 1988 model has already printed the
+    // item's name on the "Item: " row.
+    if(i.request==openu5::UiRequestId::UseTarget&&(pending_use_item_==6||(pending_use_item_>=8&&pending_use_item_<16))&&!context_.combat){
+        openu5::Command spent;spent.kind=openu5::CommandKind::UseItem;spent.item=pending_use_item_;spent.member=-1;spent.item_named=dos;
+        pending_use_item_=-1;command(spent);
+    }
+    // SPP1 F (D-101's refund half). "On who: " cancelled: CAST.OVL spent the charge
+    // and the MP (0x0ec8 / 0x0ef8) before the arm asked, and the arm returns -1 --
+    // no Success!/Failed! (tail 0x11a6). The spent Cast goes to the core with no
+    // target; in the arena the core also ends the actor's turn (COMBAT 0x0923).
+    if(i.request==openu5::UiRequestId::Target&&pending_combat_spell_>=0){
+        openu5::Command spent;spent.kind=openu5::CommandKind::Cast;spent.item=pending_combat_spell_;spent.member=-1;spent.hours=-1;
+        auto *actor=openu5::current_combat_actor(combat_context_);
+        spent.caster=pending_spell_caster_>=0?pending_spell_caster_:actor&&actor->member!=255?int16_t(actor->member):int16_t(active_member(game_));
+        spent.typed_name=context_.combat&&openu5::platform_typed_spell_names();
+        pending_combat_spell_=-1;pending_spell_caster_=-1;command(spent);
     }
     if(i.request==openu5::UiRequestId::Party){pending_order_from_=-1;}if(i.request==openu5::UiRequestId::EquipmentMember||i.request==openu5::UiRequestId::Equipment)pending_ready_member_=-1;if(i.request==openu5::UiRequestId::UseTarget||i.request==openu5::UiRequestId::Inventory)pending_use_item_=-1;if(i.request==openu5::UiRequestId::Target)pending_combat_spell_=-1;if(i.request==openu5::UiRequestId::MixReagents||i.request==openu5::UiRequestId::MixQuantity){pending_mix_spell_=-1;pending_mix_mask_=0;}if(i.request==openu5::UiRequestId::ShrineVisit||i.request==openu5::UiRequestId::ShrineRestore){shrine_.visit=shrine_.restore=-1;shrine_virtue_length_=0;}
     // FountainDrink (R-09 E): pure flavour text, no command, no HP/state/turn.
@@ -1579,7 +1591,9 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){const bool dos=openu5::platfo
     // branch 1 of kernel 0x4988 (@0x4995): the caster is the ACTING combatant,
     // never the arrow-marked active member. Same correction cast_selected_spell()
     // carries; this arm rebuilds the command from scratch, so it needs it too.
-    else if(i.request==openu5::UiRequestId::Target){if(pending_combat_spell_>=0){auto *caster=openu5::current_combat_actor(combat_context_);c.kind=openu5::CommandKind::Cast;c.caster=caster&&caster->member!=255?int16_t(caster->member):int16_t(active_member(game_));c.item=pending_combat_spell_;c.member=int16_t(i.value.index);c.typed_name=context_.combat&&openu5::platform_typed_spell_names();pending_combat_spell_=-1;command(c);}}
+    else if(i.request==openu5::UiRequestId::Target){if(pending_combat_spell_>=0){auto *caster=openu5::current_combat_actor(combat_context_);c.kind=openu5::CommandKind::Cast;
+        // SPP1 F: the caster resolved before the spell (the "Player: " pick, or the actor) pays, not the active member.
+        c.caster=pending_spell_caster_>=0?pending_spell_caster_:caster&&caster->member!=255?int16_t(caster->member):int16_t(active_member(game_));c.item=pending_combat_spell_;c.member=int16_t(i.value.index);c.typed_name=context_.combat&&openu5::platform_typed_spell_names();pending_combat_spell_=-1;pending_spell_caster_=-1;command(c);}}
     // A3-HF10 (D-6 / D-70). The spell is only cmd_mix's first question (CMDS
     // 0x1ad8): the reagents are the player's own marks (0x18be, nothing marked
     // to begin with) and the batch is the answer to "How much? " (0x1a70).
@@ -1786,9 +1800,24 @@ void AlphaRuntime::cast_selected_spell(int16_t spell){
     c.hours=-1;
     const auto *def=openu5::spell_definition(openu5::SpellId(spell));
     if(!def){command(c);return;}
+    // SPP1 F. CAST.OVL 0x0dba refuses at its gates -- absorbed / location, None
+    // mixed, MP, level (0x0e1a-0x0f0a) -- BEFORE the spell's arm (0x0f1a), and
+    // every target prompt lives inside an arm. A cast the gates refuse goes to
+    // the core untargeted: it prints the refusal and spends exactly what the
+    // binary spends, and no "On who:", aim, "Direction-" or "To phase:" opens.
+    {
+        openu5::CastContext gate_ctx{};
+        gate_ctx.location=dungeon_.active?int32_t(dungeon_.pos.dungeon):int32_t(game_.position.map.location);
+        gate_ctx.combat=context_.combat;
+        const bool absorbed=context_.combat&&openu5::combat_cast_absorbed(combat_context_);
+        const auto gate=c.caster>=0&&c.caster<game_.party.character_count
+            ?openu5::cast_gate(game_,game_.party.characters[c.caster],openu5::SpellId(spell),gate_ctx):openu5::CastGate::Ok;
+        if(absorbed||gate!=openu5::CastGate::Ok){command(c);return;}
+    }
     const char *target=def->target_type?def->target_type:"";
     if(std::strcmp(target,"selectedCombatPlayer")==0){
         pending_combat_spell_=spell;
+        pending_spell_caster_=c.caster;
         open_selection(openu5::UiMode::PartySelection,openu5::UiRequestId::Target);
         return;
     }
@@ -3544,7 +3573,7 @@ void AlphaRuntime::reset_transient_after_load(){
     map_reveal_end_us_=0;magic_invert_start_us_=magic_invert_end_us_=0;quake_start_us_=0;quake_pulses_=0;
     moongate_transit_=false;moongate_settle_=true; // A4-UI4 (D-48)
     // Picks parked across a modal, the picker rows, queued work.
-    pending_combat_spell_=pending_ready_member_=pending_use_item_=pending_order_from_=-1;
+    pending_combat_spell_=pending_spell_caster_=pending_ready_member_=pending_use_item_=pending_order_from_=-1;
     pending_search_={};pending_search_active_=false;pending_caster_=-1;shrine_virtue_length_=0;
     if(dos_state_)*dos_state_=DosInterfaceState{};
     pending_mix_spell_=-1;pending_mix_mask_=0; // A3-HF10

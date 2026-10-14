@@ -147,6 +147,18 @@ struct CastContext {
 // rather than inside the getkey's own cancel/invalid-key handling.
 enum class CastTargetPrompt : uint8_t { None, CombatReticle, WorldDirection, WorldPhase };
 CastTargetPrompt cast_target_prompt(SpellId, bool in_combat, bool in_dungeon, bool aboard_ship = false);
+// SPP1 F. The gates of the one Cast routine, CAST.OVL 0x0dba, in their order and
+// without touching anything: absorbed / location (0x0e1a-0x0eb5), None mixed
+// (0x0eb8), M.P. too low (0x0ecc), level (0x0f01). Only a cast that passes them all
+// reaches the spell's own arm (0x0f1a) and so its target prompt; a front end asks
+// for a target only when this returns Ok. cast_spell() applies the same gates.
+enum class CastGate : uint8_t { Ok, Unknown, Absorbed, NotHere, NoneMixed, LowMp, LowLevel };
+CastGate cast_gate(const GameState &, const CharacterState &, SpellId, CastContext);
+// The five spells whose arm asks "On who: " on the roster (CAST2 0x009e): An Zu,
+// An Nox, Mani, Vas Mani, In Mani Corp. Their ceremony plays inside the arm, on a
+// target only; a cancelled pick returns -1 before it (CAST 0x0126, 0x01bf, 0x020a,
+// 0x08bd; CAST2 0x05e0).
+bool spell_targets_member(SpellId);
 // The caller supplies the active RNG stream; combat must use CombatState.rng.
 CastResult cast_spell(GameState &, TurnState &, CharacterState &, SpellId, CastContext, Rand);
 bool mix_spell(GameState &, SpellId, int32_t quantity);

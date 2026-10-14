@@ -575,13 +575,13 @@ void UiSession::cancel_modal() {
     // member-selection step (EquipmentMember) is never charged either, matching
     // the reference's free "None!" exit from the player picker.
     // The 1988 interaction model: COMBAT's funnel (0x0544) ends the turn on
-    // every (U)se path, its ESC included, and CAST ends it on a cancelled
-    // "On who: " -- the same single charge, for the Use list and the heal
-    // spell's target picker too.
+    // every (U)se path, its ESC included -- the same single charge, for the
+    // Use list too. (A cancelled heal spell's "On who: " needs none here: since
+    // SPP1 F the owner dispatches the spent Cast, and the core ends the turn.)
     const bool combat_ready_close =
         return_mode_ == UiMode::Combat &&
         (request == UiRequestId::Equipment ||
-         (platform_dos_interface() && (request == UiRequestId::Inventory || request == UiRequestId::Target)));
+         (platform_dos_interface() && request == UiRequestId::Inventory));
     mode_ = return_mode_;
     request_ = UiRequestId::None;
     selection_ = {};

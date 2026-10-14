@@ -1,0 +1,5 @@
+F3 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED F3 MP 0: no "On who:" is asked; M.P. too low! / Failed!, the charge spent, MP kept (0x0ecc) | RED F3 level 1 casting circle 5: no "On who:"; Failed!, the charge and 5 MP spent (0x0f01): qty 1 mp 15
+F8 KILLED native/core/src/magic.cpp  <- RED F3 level 1 casting circle 5: no "On who:"; Failed!, the charge and 5 MP spent (0x0f01): qty 1 mp 15
+F9 KILLED native/core/src/magic.cpp  <- RED F3 MP 0: no "On who:" is asked; M.P. too low! / Failed!, the charge spent, MP kept (0x0ecc)
+restored tree: GREEN
+KILLED 3 SURVIVED 0 INVALID 0 STALE 0

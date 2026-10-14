@@ -1114,10 +1114,23 @@ CombatResult combat_cast(CombatContext &c, SpellId spell, const CombatPoint *aim
         (kind == MagicEffect::Attack || kind == MagicEffect::Field || kind == MagicEffect::Line ||
          kind == MagicEffect::Illusion || kind == MagicEffect::Dispel))
         return CombatResult::Ok;
+    // SPP1 D. A cancelled crosshair (COMSUBS 0x0504 -> 0) carries no aim, and every
+    // spell's arm then does nothing: the charge and MP stay spent and no target is
+    // chosen for it (an aim-less Charm/Polymorph used to fall back on the nearest
+    // enemy). The turn is the caller's: the T-Deck's handheld contract keeps the aim
+    // cancel free, Original yields it. (A cancel that still names a cell is the
+    // advanced-combat corpus's own v 31 case, kept as the reference pins it.)
+    if (cancel_aim && !aim && r.ok && !spell_targets_member(spell))
+        return CombatResult::Ok;
     if (kind == MagicEffect::Mani || kind == MagicEffect::FullHeal || kind == MagicEffect::Cure ||
         kind == MagicEffect::Awaken || kind == MagicEffect::Resurrect) {
-        if (member < 0)
+        // SPP1 F: "On who: " cancelled. The arm returns -1 with the charge and MP spent
+        // (CAST 0x0ec8 / 0x0ef8, before the prompt) and COMBAT 0x0923 has already ended
+        // the actor's turn.
+        if (member < 0) {
+            e.advance();
             return CombatResult::Ok;
+        }
         auto &p = c.game.party.characters[member];
         bool ok = apply_target_spell(p, kind, c.game.karma, e.magic_rng());
         e.message(ok ? "Success!" : "Failed!");
