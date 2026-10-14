@@ -229,14 +229,28 @@ void Presenter::resize_client(int w, int h) {
     stale_ = true;
 }
 
+bool Presenter::set_maximized(bool on) {
+    if (!window_) return false;
+    const bool ok = on ? SDL_MaximizeWindow(window_) : SDL_RestoreWindow(window_);
+    if (ok) SDL_SyncWindow(window_);
+    stale_ = true;
+    return ok;
+}
+
+void Presenter::window_changed() {
+    stale_ = true;
+    if (!normal()) return; // fullscreen or maximised: N stays the size it returns to
+    take_shape();
+    int w = 0, h = 0;
+    if (SDL_GetWindowSizeInPixels(window_, &w, &h) && w > 0 && h > 0) window_scale_ = uint8_t(client_window_scale(w, h));
+}
+
 void Presenter::set_fullscreen(bool on) {
     if (!window_) return;
     SDL_SetWindowFullscreen(window_, on);
-    // The scaling changed while fullscreen: the window takes that mode's shape.
-    if (!on && replan_on_leave_ && !fullscreen()) {
-        replan_on_leave_ = false;
-        set_window_scale(window_scale_);
-    }
+    // Back in a window: the shape of a scaling chosen while fullscreen (a
+    // window that returns maximised takes it when restored).
+    if (!on) take_shape();
     stale_ = true;
 }
 
@@ -246,6 +260,10 @@ bool Presenter::fullscreen() const {
 
 bool Presenter::maximized() const {
     return window_ && (SDL_GetWindowFlags(window_) & SDL_WINDOW_MAXIMIZED) != 0;
+}
+
+bool Presenter::normal() const {
+    return window_ && (SDL_GetWindowFlags(window_) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_MINIMIZED)) == 0;
 }
 
 float Presenter::content_scale() const {
@@ -264,8 +282,7 @@ WorkArea Presenter::work_area() const {
 void Presenter::measure_borders() {
     // Only a normal window shows its windowed frame (fullscreen has none; a
     // maximised one hides its sides): otherwise keep the last measurement.
-    if (!window_ || (SDL_GetWindowFlags(window_) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_MINIMIZED)))
-        return;
+    if (!normal()) return;
     int top = 0, left = 0, bottom = 0, right = 0;
     if (SDL_GetWindowBordersSize(window_, &top, &left, &bottom, &right)) {
         borders_ = WindowBorders{top, left, bottom, right};
@@ -310,13 +327,7 @@ uint8_t Presenter::set_window_scale(uint8_t scale) {
     const WorkArea area = work_area();
     const WindowPlan plan = plan_window(scale, scaling_, area, borders_);
     window_scale_ = uint8_t(plan.scale);
-    if (!fullscreen()) {
-        // The old aspect lock would bend the new size: lift it, size, place, lock.
-        SDL_SetWindowAspectRatio(window_, 0.0f, 0.0f);
-        SDL_SetWindowSize(window_, plan.client_w, plan.client_h);
-        SDL_SetWindowPosition(window_, plan.x, plan.y);
-        lock_aspect(plan);
-    }
+    if (!fullscreen()) apply_plan(plan);
     ESP_LOGI(kTag, "WINDOW %ux asked, %ux %s client %dx%d at %d,%d (work area %dx%d at %d,%d, frame %d/%d/%d/%d)%s",
              unsigned(scale), unsigned(plan.scale), plan.framed ? "framed" : "bare", plan.client_w, plan.client_h, plan.x,
              plan.y, area.w, area.h, area.x, area.y, borders_.top, borders_.left, borders_.bottom, borders_.right,
@@ -325,14 +336,42 @@ uint8_t Presenter::set_window_scale(uint8_t scale) {
     return window_scale_;
 }
 
+void Presenter::apply_plan(const WindowPlan &plan) {
+    // The old aspect lock would bend the new size: lift it, size, place, lock.
+    SDL_SetWindowAspectRatio(window_, 0.0f, 0.0f);
+    SDL_SetWindowSize(window_, plan.client_w, plan.client_h);
+    SDL_SetWindowPosition(window_, plan.x, plan.y);
+    lock_aspect(plan);
+    shaped_for_ = scaling_;
+}
+
+void Presenter::take_shape() {
+    // "Window N x" is a framed client in Framed and a bare one otherwise. A
+    // fullscreen or maximised window keeps the old shape until it is a
+    // normal window again (Windows ignores a size given while maximised).
+    if (shaped_for_ == scaling_ || !normal()) return;
+    measure_borders();
+    const WorkArea area = work_area();
+    const WindowPlan was = plan_window(window_scale_, shaped_for_, area, borders_);
+    WindowPlan plan = plan_window(window_scale_, scaling_, area, borders_);
+    shaped_for_ = scaling_;
+    // The same window in both (Whole pixels <-> Fit, or Framed that did not
+    // fit framed): the player's size, place and aspect lock stay.
+    if (plan.client_w == was.client_w && plan.client_h == was.client_h) return;
+    int x = 0, y = 0, w = 0, h = 0;
+    SDL_GetWindowPosition(window_, &x, &y);
+    SDL_GetWindowSize(window_, &w, &h);
+    plan = keep_centre(plan, x, y, w, h, area, borders_);
+    window_scale_ = uint8_t(plan.scale);
+    apply_plan(plan);
+    ESP_LOGI(kTag, "WINDOW %s at %ux: %s client %dx%d at %d,%d (was %dx%d at %d,%d)", scaling_name(scaling_),
+             unsigned(plan.scale), plan.framed ? "framed" : "bare", plan.client_w, plan.client_h, plan.x, plan.y, w, h, x, y);
+}
+
 void Presenter::set_scaling(Scaling scaling) {
     scaling_ = scaling;
     stale_ = true;
-    if (!window_) return;
-    // "Window N x" is a framed client in Framed and a bare one otherwise.
-    if (fullscreen()) replan_on_leave_ = true;
-    else if (maximized()) lock_aspect(plan_window(window_scale_, scaling_, work_area(), borders_));
-    else set_window_scale(window_scale_);
+    take_shape();
 }
 
 void Presenter::set_vsync(bool on) {

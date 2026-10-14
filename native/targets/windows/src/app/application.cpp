@@ -183,10 +183,13 @@ class Game {
     bool mode_overridden_ = false;
     bool fullscreen_overridden_ = false;
     // settings_.window_scale is the scale the window HAS (what the Display
-    // row shows). Until the player picks one in this run, windows.json keeps
-    // the stored value -- automatic, or a choice made on a larger display --
-    // so a start on a smaller display never shrinks the saved choice.
-    bool window_scale_chosen_ = false;
+    // row shows; it follows a drag or a snap). windows.json gets the scale
+    // the player last chose (Display row, Ctrl+= / Ctrl+-) as the window got
+    // it; until the player picks one in this run (kAutoWindowScale here) it
+    // keeps the stored value -- automatic, or a choice made on a larger
+    // display -- so a start on a smaller display never shrinks the saved
+    // choice, and a drag is never saved.
+    uint8_t chosen_window_scale_ = kAutoWindowScale;
     std::unique_ptr<InstanceLock> lock_;
     Presenter presenter_;
     DesktopInput input_;
@@ -416,10 +419,9 @@ void Game::on_profile_change(void *context, DesktopProfile::Change what) {
     case DesktopProfile::Change::Display:
         self->fullscreen_overridden_ = false;
         self->presenter_.set_fullscreen(self->settings_.fullscreen);
-        if (!self->settings_.fullscreen) {
-            self->window_scale_chosen_ = true;
-            self->settings_.window_scale = self->presenter_.set_window_scale(self->settings_.window_scale);
-        }
+        if (!self->settings_.fullscreen)
+            self->chosen_window_scale_ = self->settings_.window_scale =
+                self->presenter_.set_window_scale(self->settings_.window_scale);
         break;
     case DesktopProfile::Change::Scaling:
         self->presenter_.set_scaling(self->settings_.scaling);
@@ -434,7 +436,7 @@ void Game::on_profile_change(void *context, DesktopProfile::Change what) {
 // it, as the first run's default would; a chosen one stays (Windows keeps
 // the window's size in pixels). Fullscreen and maximised windows are left alone.
 void Game::follow_display_scale() {
-    if (window_scale_chosen_ || stored_settings_.window_scale != kAutoWindowScale) return;
+    if (chosen_window_scale_ != kAutoWindowScale || stored_settings_.window_scale != kAutoWindowScale) return;
     if (presenter_.fullscreen() || presenter_.maximized()) return;
     const uint8_t want = presenter_.default_window_scale();
     if (want == settings_.window_scale) return;
@@ -461,7 +463,7 @@ void Game::save_settings() {
     DesktopSettings out = settings_;
     if (mode_overridden_) out.interface_mode = stored_settings_.interface_mode;
     if (fullscreen_overridden_) out.fullscreen = stored_settings_.fullscreen;
-    if (!window_scale_chosen_) out.window_scale = stored_settings_.window_scale;
+    out.window_scale = chosen_window_scale_ != kAutoWindowScale ? chosen_window_scale_ : stored_settings_.window_scale;
     if (save_desktop_settings(paths_.ultima5_dir() + L"\\windows.json", out)) stored_settings_ = out;
     else ESP_LOGW(kTag, "windows.json could not be written");
 }
@@ -503,8 +505,7 @@ void Game::apply_command(const DesktopCommand &command) {
             settings_.fullscreen = false;
             presenter_.set_fullscreen(false);
         }
-        window_scale_chosen_ = true;
-        settings_.window_scale = presenter_.set_window_scale(uint8_t(wanted));
+        chosen_window_scale_ = settings_.window_scale = presenter_.set_window_scale(uint8_t(wanted));
         save_settings();
         break;
     }
@@ -536,10 +537,16 @@ void Game::handle_event(const SDL_Event &event) {
         if (confirm_quit()) quit_ = true;
         else presenter_.invalidate();
         return;
-    case SDL_EVENT_WINDOW_EXPOSED:
-    case SDL_EVENT_WINDOW_RESIZED:
     case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
     case SDL_EVENT_WINDOW_RESTORED:
+        // A drag, a snap, a restore: the Display row shows the scale the
+        // picture has now (not saved: save_settings), and a scaling chosen
+        // while the window was maximised gives it its shape.
+        presenter_.window_changed();
+        settings_.window_scale = presenter_.window_scale();
+        return;
+    case SDL_EVENT_WINDOW_EXPOSED:
+    case SDL_EVENT_WINDOW_RESIZED:
     case SDL_EVENT_WINDOW_DISPLAY_CHANGED:
     case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
     case SDL_EVENT_WINDOW_LEAVE_FULLSCREEN:
@@ -994,6 +1001,14 @@ bool Game::run_autotest() {
         } else if (step.verb == "window_size") {
             // The resize events arrive on the next passes, as a real drag's do.
             presenter_.resize_client(std::atoi(step.args[0].c_str()), std::atoi(step.args[1].c_str()));
+            for (int i = 0; i < 3 && pass(false); ++i) {
+            }
+        } else if (step.verb == "window_state") {
+            if (!presenter_.set_maximized(step.args[0] == "maximize")) {
+                std::fprintf(stderr, "AUTOTEST line %d: window_state %s failed: %s\n", step.line, step.args[0].c_str(),
+                             SDL_GetError());
+                ++autotest_failures_;
+            }
             for (int i = 0; i < 3 && pass(false); ++i) {
             }
         } else if (step.verb == "dump") {

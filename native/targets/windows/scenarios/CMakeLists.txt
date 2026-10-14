@@ -19,7 +19,7 @@ set(_runner "${CMAKE_CURRENT_SOURCE_DIR}/run_scenario.cmake")
 set(_work "${CMAKE_CURRENT_BINARY_DIR}/work")
 
 function(uv_scenario name)
-  cmake_parse_arguments(S "DEVELOPER" "MODE;IMPORT" "EXPECT_FILES;EXPECT_SIZES" ${ARGN})
+  cmake_parse_arguments(S "DEVELOPER" "MODE;IMPORT;VIDEO" "EXPECT_FILES;EXPECT_SIZES" ${ARGN})
   add_test(NAME scenario_${name}
     COMMAND ${CMAKE_COMMAND}
       -DEXE=$<TARGET_FILE:UltimaVNative>
@@ -28,6 +28,7 @@ function(uv_scenario name)
       -DWORK=${_work}/${name}
       -DMODE=${S_MODE}
       -DIMPORT=${S_IMPORT}
+      -DVIDEO=${S_VIDEO}
       -DDEVELOPER=${S_DEVELOPER}
       "-DEXPECT_FILES=${S_EXPECT_FILES}"
       "-DEXPECT_SIZES=${S_EXPECT_SIZES}"
@@ -50,6 +51,16 @@ uv_scenario(original_keys MODE original)
 uv_scenario(presentation MODE original
   EXPECT_FILES "window-framed-3x.bmp;panel.bmp;window-play-1080.bmp;panel-play.bmp;ultima5/windows.json"
   EXPECT_SIZES "window-framed-3x.bmp=2322486;panel.bmp=230454;window-play-1080.bmp=6220854;panel-play.bmp=230454")
+# The same kind of checks where the offscreen driver cannot look: a real
+# window on SDL's own Windows driver, so the default renderer (Direct3D 11)
+# samples the ring and a pixel-art Fit, and the window can be maximised. It
+# opens a window on the desktop, so it is off by default: configure with
+# -DUV_SCENARIO_DESKTOP=ON on a machine with a display (and leave the window
+# alone while it runs).
+option(UV_SCENARIO_DESKTOP "Also run scenario_presentation_desktop (opens a window on the desktop)" OFF)
+if(UV_SCENARIO_DESKTOP)
+  uv_scenario(presentation_desktop MODE original VIDEO windows)
+endif()
 # The Developer menu's Teleport page reaches the places a short script cannot
 # walk to; its "teleport" / "fight" steps need the menu compiled in.
 if(UV_ENABLE_DEVELOPER_TOOLS)

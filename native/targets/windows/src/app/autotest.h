@@ -40,7 +40,8 @@
 //                             sampler as the presenter set it for the last
 //                             frame drawn),
 //                           window_scale N (the window's scale, as the
-//                             Display row shows it), scaling Framed|Integer|Fit,
+//                             Display row shows it: also after a drag),
+//                           scaling Framed|Integer|Fit,
 //                           fullscreen 0|1,
 //                           windows_json TEXT / no_windows_json TEXT
 //                             (ultima5\windows.json contains / lacks TEXT)
@@ -49,6 +50,9 @@
 //                         from the renderer) as a BMP
 //   window_size W H       set the window's client area to W x H, as a drag,
 //                         a snap or a maximise does
+//   window_state maximize|restore  maximise or restore the window as its
+//                         title bar does (needs a video driver that can:
+//                         not SDL's offscreen one, where it fails the script)
 //   log TEXT              write TEXT to the log
 //   dump                  print the title/menu page or the console's last lines
 //   teleport KIND [LOC | X Y]  through the Developer menu's Teleport page (needs

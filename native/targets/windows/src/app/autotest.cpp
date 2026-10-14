@@ -6,7 +6,7 @@ namespace uv {
 
 std::vector<AutotestStep> parse_autotest(const std::string &text, std::vector<std::string> &errors) {
     static const char *kVerbs[] = {"frames", "wait", "key", "text", "expect", "screenshot", "window_screenshot",
-                                   "window_size", "log", "dump", "teleport", "fight", "quit"};
+                                   "window_size", "window_state", "log", "dump", "teleport", "fight", "quit"};
     std::vector<AutotestStep> steps;
     std::istringstream in(text);
     std::string line;
@@ -49,6 +49,10 @@ std::vector<AutotestStep> parse_autotest(const std::string &text, std::vector<st
         }
         if (step.verb == "window_size" && step.args.size() != 2) {
             errors.push_back("line " + std::to_string(number) + ": 'window_size' needs a width and a height");
+            continue;
+        }
+        if (step.verb == "window_state" && step.args[0] != "maximize" && step.args[0] != "restore") {
+            errors.push_back("line " + std::to_string(number) + ": 'window_state' is maximize or restore");
             continue;
         }
         steps.push_back(step);

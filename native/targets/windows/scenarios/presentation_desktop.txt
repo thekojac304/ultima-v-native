@@ -1,0 +1,78 @@
+# Classic Framed in a real window: SDL's Windows video driver and its default
+# renderer (Direct3D 11), where scenario_presentation (offscreen, software
+# renderer) cannot look -- a GPU sampling the ring's colour textures and a
+# pixel-art Fit, and a window that can be maximised. Opt-in
+# (UV_SCENARIO_DESKTOP): it opens a window on the desktop. It needs a display
+# whose work area holds a 1008x768 client with its title bar (a 1920x1080
+# screen at 100-150 % does) and starts from Window 1x whatever the display's
+# scale. Expected values as in scenario_presentation.
+frames 8
+key - ctrl
+key - ctrl
+key - ctrl
+key - ctrl
+key - ctrl
+key - ctrl
+key - ctrl
+frames 3
+expect window_scale 1
+expect window_layout 336x256 full 320x240@8,8
+key = ctrl
+frames 3
+expect window_layout 672x512 full 640x480@16,16
+key = ctrl
+frames 3
+expect window_scale 3
+# Every ring pixel exact: one texel of a 2x1 atlas, stretched, drew the last
+# 2 px of each band row white here.
+expect window_layout 1008x768 full 960x720@24,24
+expect picture_sampling nearest
+window_screenshot desktop-framed-3x.bmp
+# Settings -> Scaling: Whole pixels, then Fit.
+key Return
+frames 3
+text S
+frames 3
+key Down
+frames 2
+key Down
+frames 2
+key Right
+frames 3
+expect scaling Integer
+expect window_layout 960x720 none 960x720@0,0
+key Right
+frames 3
+expect scaling Fit
+expect window_layout 960x720 fit 960x720@0,0
+expect picture_sampling nearest
+# A fractional Fit (2.8125x) samples as pixel art: even pixels, blended edges,
+# which the frame check accepts as blends of the texels around them.
+window_size 900 675
+expect window_layout 900x675 fit 900x675@0,0
+expect picture_sampling pixelart
+window_screenshot desktop-fit-900.bmp
+window_size 960 720
+expect window_layout 960x720 fit 960x720@0,0
+expect window_scale 3
+key Left
+frames 3
+expect scaling Integer
+expect window_layout 960x720 none 960x720@0,0
+# A scaling chosen while maximised: Windows ignores sizes then, so the window
+# takes Framed's shape when it is restored.
+window_state maximize
+expect fullscreen 0
+key Left
+frames 3
+expect scaling Framed
+window_state restore
+expect window_layout 1008x768 full 960x720@24,24
+expect window_scale 3
+# A size chosen while maximised restores the window first (DEF-3).
+window_state maximize
+key - ctrl
+frames 3
+expect window_scale 2
+expect window_layout 672x512 full 640x480@16,16
+expect windows_json "windowScale":2

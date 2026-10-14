@@ -12,6 +12,13 @@
 // they take the picture's own colour path. The panel's backlight duty (the
 // T-Deck's Brightness) is ignored: the picture is always drawn at full
 // intensity.
+//
+// The window: "Window N x" is the scale of the picture in a normal window
+// (neither fullscreen nor maximised). Set by the player (set_window_scale),
+// it follows a drag or a snap too (window_changed). Each scaling has its
+// window shape -- a framed client in Framed, a bare one otherwise -- and a
+// window takes the new shape when the scaling changes, or as soon as it is a
+// normal window again when it was fullscreen or maximised then.
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -43,6 +50,14 @@ class Presenter {
     /** The window was exposed/resized/restored: present on the next call even if nothing changed. */
     void invalidate() { stale_ = true; }
 
+    /**
+     * The window was resized, restored or maximised (by the player, Windows
+     * or this class): a normal window takes a shape left pending and its N
+     * follows the picture's scale (window_scale()); a fullscreen or
+     * maximised one keeps the N it returns to. Also invalidates.
+     */
+    void window_changed();
+
     /** Borderless fullscreen at the desktop's own mode (never an exclusive mode change). */
     void set_fullscreen(bool on);
     bool fullscreen() const;
@@ -61,7 +76,11 @@ class Presenter {
     uint8_t largest_window_scale();
     /** The N for a player who has not chosen one: from the display's scale (default_window_scale). */
     uint8_t default_window_scale();
-    /** The scaling; a normal window takes the mode's shape (framed or bare client). */
+    /**
+     * The scaling. A normal window whose shape changes with it (framed <->
+     * bare) takes the new shape at its N, keeping its centre; otherwise
+     * (Whole pixels <-> Fit) it keeps its size and place.
+     */
     void set_scaling(Scaling scaling);
     void set_vsync(bool on);
 
@@ -75,6 +94,8 @@ class Presenter {
     bool save_window_screenshot(const std::wstring &path);
     /** Sets the window's client area to w x h, as a drag, a snap or a maximise does. */
     void resize_client(int w, int h);
+    /** Maximises (true) or restores (false) the window, as its title bar does. False where the video driver cannot. */
+    bool set_maximized(bool on);
     /** The picture texture's sampling as SDL holds it: "nearest", "pixelart" or "linear". */
     const char *picture_sampling() const;
 
@@ -91,9 +112,15 @@ class Presenter {
     void draw();
     float content_scale() const;
     WorkArea work_area() const;
+    /** Neither fullscreen, maximised nor minimised: the window has its own size and place. */
+    bool normal() const;
     /** The window's frame, measured while it is a normal window (kept otherwise). */
     void measure_borders();
     void lock_aspect(const WindowPlan &plan);
+    /** Sizes, places and aspect-locks a normal window to `plan`. */
+    void apply_plan(const WindowPlan &plan);
+    /** A normal window shaped for another scaling takes this one's shape (see set_scaling). */
+    void take_shape();
 
     SDL_Window *window_ = nullptr;
     SDL_Renderer *renderer_ = nullptr;
@@ -105,9 +132,9 @@ class Presenter {
     uint64_t frames_ = 0;
     bool stale_ = true;
     Scaling scaling_ = Scaling::Framed;
+    Scaling shaped_for_ = Scaling::Framed; // the scaling whose shape the normal window has
     uint8_t window_scale_ = 3;
     WindowBorders borders_{};
-    bool replan_on_leave_ = false; // the scaling changed while fullscreen
     PresentationLayout layout_{};
     std::string error_;
 };

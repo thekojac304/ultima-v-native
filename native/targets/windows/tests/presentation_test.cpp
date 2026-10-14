@@ -528,9 +528,88 @@ void window_plans() {
                             f.note(at + " (vertical placement: the title bar must stay inside)");
                         if (p.scale != uv::plan_window(request, Scaling::Integer, a, b).scale)
                             f.note(at + " (the effective scale depends on the scaling)");
+                        if (uv::client_window_scale(p.client_w, p.client_h) != p.scale)
+                            f.note(at + " (its client does not show its own N back)");
                     }
     check(f.count == 0, format("W6 %d window plans (work areas, frames, requests 0..9, three scalings) obey the rules", n),
           format("%d failures, first: %s", f.count, f.first.c_str()));
+
+    // The N a client shows (the Display row after a drag or a snap).
+    struct Client {
+        int w, h, want;
+    };
+    const Client clients[] = {{1008, 768, 3}, {960, 720, 3}, {336, 256, 1}, {672, 512, 2}, {2688, 2048, 8},
+                              {700, 533, 2},  {1920, 1080, 4}, {2560, 1440, 6}, {320, 240, 1}, {319, 239, 1},
+                              {0, 0, 1},      {5000, 5000, 8}, {1279, 960, 3}};
+    for (const Client &c : clients)
+        check(uv::client_window_scale(c.w, c.h) == c.want, format("W7 a %dx%d client shows Window %dx", c.w, c.h, c.want),
+              format("got %d", uv::client_window_scale(c.w, c.h)));
+
+    // A window that changes shape keeps its centre, inside the work area.
+    struct Move {
+        const char *what;
+        WorkArea area;
+        WindowBorders borders;
+        int x, y, w, h;
+        int request;
+        Scaling scaling;
+        const char *want;
+    };
+    const Move moves[] = {
+        {"a centred 3x bare window framed: the centred framed plan", hd, b100, 480, 167, 960, 720, 3, Scaling::Framed,
+         "3x framed 1008x768 at 456,143 aspect 336:256"},
+        {"... and bare again: back where it was", hd, b100, 456, 143, 1008, 768, 3, Scaling::Integer,
+         "3x bare 960x720 at 480,167 aspect 320:240"},
+        {"a window moved up-left: its title bar stays inside", hd, b100, 100, 50, 960, 720, 3, Scaling::Framed,
+         "3x framed 1008x768 at 76,31 aspect 336:256"},
+        {"a window against the bottom-right: its frame stays inside", hd, b100, 950, 300, 960, 720, 3, Scaling::Framed,
+         "3x framed 1008x768 at 904,256 aspect 336:256"},
+        {"a dragged window (any size) is centred on its own centre", hd, b100, 300, 100, 1400, 900, 2, Scaling::Framed,
+         "2x framed 672x512 at 664,294 aspect 336:256"},
+        {"a second display left of / above the first", second, b100, 2000, -100, 640, 480, 2, Scaling::Framed,
+         "2x framed 672x512 at 1984,-116 aspect 336:256"},
+        {"a big dragged window on a small display: the plan at its centre, pushed up inside", small, b100, 0, 0, 1280, 960,
+         4, Scaling::Framed, "2x framed 672x512 at 304,208 aspect 336:256"},
+        {"a window larger than the area: against its top-left, title bar inside", tiny, b100, 50, 50, 320, 240, 3,
+         Scaling::Framed, "1x bare 320x240 at 8,31 aspect 320:240"},
+        {"headless (no frame)", offscreen, none, 0, 0, 960, 720, 3, Scaling::Framed, "3x framed 1008x768 at 0,0 aspect 336:256"},
+    };
+    for (const Move &m : moves) {
+        const uv::WindowPlan p = uv::keep_centre(uv::plan_window(m.request, m.scaling, m.area, m.borders), m.x, m.y, m.w, m.h,
+                                                 m.area, m.borders);
+        check(plan_text(p) == m.want, std::string("W8 ") + m.what + ": " + m.want, "got " + plan_text(p));
+    }
+    // Over the W6 grid: the frame inside the area whenever it fits, and the centre kept when it can be.
+    Failure k;
+    n = 0;
+    for (int w = 400; w <= 4000; w += 211)
+        for (int h = 300; h <= 2400; h += 157)
+            for (const WindowBorders &b : frames)
+                for (int x = -300; x <= 2000; x += 233)
+                    for (int y = -300; y <= 1500; y += 197)
+                        for (Scaling s : {Scaling::Framed, Scaling::Integer}) {
+                            ++n;
+                            const WorkArea a{-100, 50, w, h};
+                            const uv::WindowPlan plan = uv::plan_window(3, s, a, b);
+                            const uv::WindowPlan p = uv::keep_centre(plan, x, y, 700, 500, a, b);
+                            const std::string at = format("area %dx%d frame %d/%d/%d/%d window 700x500 at %d,%d: ", w, h,
+                                                          b.top, b.left, b.bottom, b.right, x, y) + plan_text(p);
+                            if (p.client_w != plan.client_w || p.client_h != plan.client_h || p.scale != plan.scale)
+                                k.note(at + " (the plan's size changed)");
+                            const bool fits_w = p.client_w + b.left + b.right <= w, fits_h = p.client_h + b.top + b.bottom <= h;
+                            if (fits_w ? (p.x - b.left < a.x || p.x + p.client_w + b.right > a.x + w) : p.x != a.x + b.left)
+                                k.note(at + " (horizontal: frame outside the area)");
+                            if (fits_h ? (p.y - b.top < a.y || p.y + p.client_h + b.bottom > a.y + h) : p.y != a.y + b.top)
+                                k.note(at + " (vertical: frame outside the area)");
+                            // The old centre, moved only as far as the area needs.
+                            const int cx = x + 350 - p.client_w / 2, cy = y + 250 - p.client_h / 2;
+                            if (fits_w && p.x != std::clamp(cx, a.x + b.left, a.x + w - b.right - p.client_w))
+                                k.note(at + " (horizontal: not the old centre, moved only as needed)");
+                            if (fits_h && p.y != std::clamp(cy, a.y + b.top, a.y + h - b.bottom - p.client_h))
+                                k.note(at + " (vertical: not the old centre, moved only as needed)");
+                        }
+    check(k.count == 0, format("W9 %d shape changes keep the centre and the frame inside the work area", n),
+          format("%d failures, first: %s", k.count, k.first.c_str()));
 }
 
 // --- 6. The Settings page's Display row --------------------------------------------------

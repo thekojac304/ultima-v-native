@@ -2,11 +2,13 @@
 #
 #   cmake -DEXE=... -DSCRIPT=... -DPACKS=<folder with openu5-*.bin> -DWORK=<scratch>
 #         [-DMODE=original|enhanced] [-DIMPORT=<folder with SAVED.GAM/SAVED.OOL>]
+#         [-DVIDEO=<SDL video driver>]
 #         [-DEXPECT_FILES=a;b] [-DEXPECT_SIZES=name=bytes;...] -P run_scenario.cmake
 #
 # A fresh data folder is made for every run (WORK is deleted first), so a
 # scenario never sees another's saves and never touches the player's real
-# data folder. SDL uses its offscreen video and dummy audio drivers.
+# data folder. SDL uses its offscreen video (unless VIDEO names another
+# driver: "windows" opens a real window) and dummy audio drivers.
 foreach(v EXE SCRIPT PACKS WORK)
   if(NOT DEFINED ${v})
     message(FATAL_ERROR "run_scenario.cmake: ${v} is required")
@@ -25,7 +27,11 @@ if(DEFINED IMPORT AND NOT IMPORT STREQUAL "")
   file(COPY "${IMPORT}/SAVED.GAM" "${IMPORT}/SAVED.OOL" DESTINATION "${WORK}/ultima5/import")
 endif()
 
-set(ENV{SDL_VIDEODRIVER} "offscreen")
+if(DEFINED VIDEO AND NOT VIDEO STREQUAL "")
+  set(ENV{SDL_VIDEODRIVER} "${VIDEO}")
+else()
+  set(ENV{SDL_VIDEODRIVER} "offscreen")
+endif()
 set(ENV{SDL_AUDIODRIVER} "dummy")
 set(_args --data-dir "${WORK}" --autotest "${SCRIPT}")
 if(DEFINED MODE AND NOT MODE STREQUAL "")

@@ -127,5 +127,19 @@ int largest_window_scale(const WorkArea &area, const WindowBorders &borders);
  * Windows' scaled units, rounded down), within what fits.
  */
 int default_window_scale(float content_scale, const WorkArea &area, const WindowBorders &borders);
+/**
+ * The "Window N x" a client of w x h shows: the picture's whole-number scale
+ * there, max(1, min(w div 320, h div 240)), at most kMaxWindowScale. A
+ * planned window gives its own N back (framed or bare); a dragged or snapped
+ * one the scale its picture has.
+ */
+int client_window_scale(int client_w, int client_h);
+/**
+ * `plan` for a window that changes shape where it is (a Scaling change):
+ * its client centred where the current one (x, y, w x h) is centred, then
+ * moved just enough to keep the whole frame inside the work area, or
+ * against the area's top-left when it is larger.
+ */
+WindowPlan keep_centre(WindowPlan plan, int x, int y, int w, int h, const WorkArea &area, const WindowBorders &borders);
 
 } // namespace uv

@@ -216,4 +216,21 @@ int default_window_scale(float content_scale, const WorkArea &area, const Window
     return std::min(n, largest_window_scale(area, borders));
 }
 
+int client_window_scale(int client_w, int client_h) {
+    return std::clamp(std::min(client_w / kPictureW, client_h / kPictureH), int(kMinWindowScale), int(kMaxWindowScale));
+}
+
+WindowPlan keep_centre(WindowPlan plan, int x, int y, int w, int h, const WorkArea &area, const WindowBorders &borders) {
+    // One axis: centred on the old centre, then inside [first, last] -- the
+    // client positions whose frame stays inside the area -- when there are any.
+    auto axis = [](int at, int size, int client, int origin, int span, int before, int after) {
+        const int first = origin + before, last = origin + span - after - client;
+        const int centred = at + size / 2 - client / 2;
+        return last < first ? first : std::clamp(centred, first, last);
+    };
+    plan.x = axis(x, w, plan.client_w, area.x, area.w, borders.left, borders.right);
+    plan.y = axis(y, h, plan.client_h, area.y, area.h, borders.top, borders.bottom);
+    return plan;
+}
+
 } // namespace uv
