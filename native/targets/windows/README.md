@@ -99,37 +99,55 @@ ctest --test-dir native/targets/windows/build-release --output-on-failure
   without them; `dungeon_walk`, `surface_combat`, `typed_cast_combat` and
   `town_talk` also need `UV_ENABLE_DEVELOPER_TOOLS=ON`. The script language
   is documented in `src/app/autotest.h`.
+- `scenarios/presentation_desktop.txt` — opt-in (`-DUV_SCENARIO_DESKTOP=ON`,
+  off by default because it opens a real window): the same window checks on
+  SDL's Windows video driver and its default renderer, Direct3D 11 (the
+  ring's colours and a pixel-art Fit as a GPU samples them, a Scaling change
+  while maximised, a size change while maximised). It needs a display that
+  holds a 1008×768 client with its title bar.
 
 ## Presentation
 
 The Board draws the T-Deck's 320×240 screen; the presenter
-(`src/app/presenter.cpp`) never resamples it except by a whole number, and
-places everything itself in whole output pixels
+(`src/app/presenter.cpp`) places everything itself in whole output pixels
 (`src/app/presentation_layout.{h,cpp}`, pure functions, SDL's logical
-presentation is off). Settings → Scaling, stored in `windows.json` as
-`"scaling"`:
+presentation is off). In Framed and Whole pixels it never resamples the
+picture except by a whole number (nearest sampling: each game pixel is an
+exact u×u square); only the opt-in Fit window scales by a fraction.
+Settings → Scaling, stored in `windows.json` as `"scaling"`:
 
 | Row label | `windows.json` | What it does |
 |---|---|---|
 | Scaling: Framed (default) | `"Framed"` | largest whole scale `u = max(1, min(W÷320, H÷240))`, centred (an odd leftover pixel goes right/bottom), with a ring in the game's chrome where it fits: 4u black, 1u white rule (0xFFFF), 2u band (0x0015) with cut corners; side pillars only when the height has no room (7u), nothing when the width has none |
 | Scaling: Whole pixels | `"Integer"` | the same picture, no ring |
-| Scaling: Fit window | `"Fit"` | the largest 4:3 rectangle; sampled with `SDL_SCALEMODE_PIXELART` when the scale is fractional (nearest on renderers without it) |
+| Scaling: Fit window | `"Fit"` | the largest 4:3 rectangle; at a fractional scale sampled with `SDL_SCALEMODE_PIXELART`: on Direct3D 11 (SDL's default renderer here) every game pixel gets the same size, with a one-screen-pixel blend where two meet; renderers without pixel-art sampling (software, Direct3D 9) sample nearest, so pixel sizes differ by one |
 
 A missing or unknown `"scaling"` is Framed; the first build's `"Integer"` and
-`"Fit"` keep their meaning. The ring's colours come from a 2×1 RGB565 texture,
-so the band is the in-game band's exact colour on every renderer.
+`"Fit"` keep their meaning. Each of the ring's two colours is a 1×1 RGB565
+texture stretched whole, so the band is the in-game band's exact colour on
+every renderer (one texel of a wider atlas reached its neighbour at the far
+end of each band row on Direct3D 11).
 
 "Window N×" (Settings → Display, Ctrl+= / Ctrl+-) is the picture at scale N:
 a framed client of 336N×256N in Framed when that window fits the display's
 work area with its real frame, else 320N×240N, else a smaller N. Both
-controls step 1× .. the largest that fits; the Display row and
-`windows.json` show the scale the window really has. With no `"windowScale"`
-in `windows.json` the scale follows the display's scale (3× at 100 %, 4× at
-150 %, 6× at 200 %) and is not written until the player picks one. A
-maximised window is restored before a new size; the window's aspect is
-locked while dragging; fullscreen is borderless at the desktop's mode.
-`--autotest`'s `window_screenshot`, `window_size` and `expect window_layout`
-see the window as presented; F12 always saves the raw 320×240 panel.
+controls step 1× .. the largest that fits. The Display row shows the scale
+the window has: the one the window got, and after a drag or a snap the
+picture's scale then (a maximised or fullscreen window shows the size it
+returns to). `windows.json` keeps the scale the player last chose there (as
+the window got it), never a drag's; with no `"windowScale"` (nothing chosen
+yet) the scale follows the display's scale (3× at 100 %, 4× at 150 %, 6× at
+200 %), and a saved scale too large for this display is shown reduced but
+kept. A Scaling change that changes the window's shape (framed ↔ bare)
+resizes it to the new mode's Window N× around the same centre; Whole pixels
+↔ Fit keeps the window's size and place. Windows ignores sizes while a
+window is maximised, so a maximised window is restored before a new size,
+and a Scaling change made while maximised or fullscreen shapes the window
+when it is restored or leaves fullscreen. The window's aspect is locked
+while dragging; fullscreen is borderless at the desktop's mode.
+`--autotest`'s `window_screenshot`, `window_size`, `window_state`,
+`expect window_layout` and `expect picture_sampling` see the window as
+presented; F12 always saves the raw 320×240 panel.
 
 The shared code keeps its own suite (`native/core`, GCC/MinGW, 202 tests),
 which must stay green for every change made for this target.

@@ -83,15 +83,22 @@ square pixels, inside a thin frame in the game's own blue and white.
 Alt+Enter (or F11) switches to fullscreen and back; Ctrl+= / Ctrl+- change
 the window's size. Once you choose a size it is remembered.
 
-The picture is never stretched or blurred. Settings -> "Scaling" chooses
-how it fills a window or the screen:
+The picture is never stretched out of shape. Settings -> "Scaling" chooses how it fills
+a window or the screen:
   Framed        (the default) whole pixels, centred, in a thin blue frame
                 where there is room; black around it, as on the 1988 screen
   Whole pixels  the same picture with no frame
-  Fit window    fills as much as it can at 4:3; pixels may then differ in
-                size by one screen pixel
+  Fit window    fills as much as it can at 4:3. When that is not a whole
+                multiple of 320x240, the edges between pixels are softened
+                slightly (every pixel stays the same size); on graphics
+                drivers without that, some pixels are one screen pixel
+                wider instead
+Framed and Whole pixels are never blurred: each game pixel is an exact
+square of screen pixels.
 Settings -> "Display" chooses a window size (1x up to the largest that fits
-your screen) or Fullscreen.
+your screen) or Fullscreen. If you resize the window by its edges it shows
+the size the picture has then; the size remembered for the next start is
+the one you last chose there or with Ctrl+= / Ctrl+-.
 
 The title sequence plays; press a key for the menu:
   Journey Onward          continue the journey you saved last

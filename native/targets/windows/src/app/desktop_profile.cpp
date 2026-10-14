@@ -88,7 +88,9 @@ const char *DesktopProfile::scaling_label(void *context, char *out, size_t capac
         return "Every pixel the same size; may letterbox";
     case Scaling::Fit:
         std::snprintf(out, capacity, "Scaling: Fit window");
-        return "Fills the window; pixels may differ in size";
+        // Fractional scales sample as pixel art: even pixels with blended
+        // edges on Direct3D 11; uneven ones where a renderer lacks it.
+        return "Fills the window; pixel edges may soften";
     default:
         std::snprintf(out, capacity, "Scaling: Framed");
         return "Whole pixels, centred in a thin blue frame";

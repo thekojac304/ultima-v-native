@@ -417,8 +417,8 @@ void scaling_row() {
     check(row_label(2, &footer) == "Scaling: Whole pixels" && std::string(footer) == "Every pixel the same size; may letterbox",
           "P4 Whole pixels keeps its footer");
     probe.settings.scaling = Scaling::Fit;
-    check(row_label(2, &footer) == "Scaling: Fit window" && std::string(footer) == "Fills the window; pixels may differ in size",
-          "P5 Fit window keeps its footer");
+    check(row_label(2, &footer) == "Scaling: Fit window" && std::string(footer) == "Fills the window; pixel edges may soften",
+          "P5 Fit window's footer: pixel-art sampling softens edges (it no longer promises uneven pixels)");
     openu5::set_platform_profile(openu5::PlatformProfile{});
 }
 
