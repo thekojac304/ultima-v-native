@@ -20,7 +20,8 @@
 //
 //   uv_audio_backend_test [openu5-audio.bin]      (or env UV_AUDIO_PACK)
 //   uv_audio_backend_test --print                 only print the fingerprints
-//   uv_audio_backend_test --known-bugs            run only the known-bug checks
+//   uv_audio_backend_test --continuity            run only the offline-continuity
+//                                                 regression guard (K1)
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -504,16 +505,16 @@ void print_fingerprints() {
 }
 
 // ---------------------------------------------------------------------------
-// Known bugs (run with --known-bugs; registered disabled, see CMakeLists.txt)
+// Offline continuity (run with --continuity; registered as the regular test
+// uv_audio_backend_offline_continuity, see CMakeLists.txt)
 // ---------------------------------------------------------------------------
-void known_bugs() {
-    // KNOWN-BUG (test helper only): render_offline() promises "exactly what the
-    // SDL callback would hand the device for `frames` samples", but when
-    // `frames` is not a multiple of the 128-frame block, StreamSink::deliver
-    // copies only the part of the last block that fits and DROPS the rest
-    // (sdl_audio_backend.cpp, StreamSink::deliver / render_offline). The SDL
-    // path keeps that remainder in the stream for the next pull, so two
-    // offline calls of 100 + 156 frames differ from one call of 256 frames.
+void continuity() {
+    // A fixed defect, kept as a regression guard: render_offline() promises
+    // "exactly what the SDL callback would hand the device for `frames`
+    // samples". It once dropped the rest of a 128-frame block when `frames`
+    // was not a multiple of 128; the remainder is now carried to the next call
+    // (sdl_audio_backend.cpp, render_offline), as the SDL stream keeps it for
+    // the next pull, so 100 + 156 frames must equal one call of 256 frames.
     uv::SdlAudioBackend whole;
     whole.use_offline_output();
     whole.set_gain(AudioChannel::Sfx, kUnityGainQ15);
@@ -539,19 +540,21 @@ void known_bugs() {
 } // namespace
 
 int main(int argc, char **argv) {
-    bool print = false, bugs = false;
+    bool print = false, continuity_only = false;
     for (int i = 1; i < argc; ++i) {
         if (std::strcmp(argv[i], "--print") == 0) print = true;
-        if (std::strcmp(argv[i], "--known-bugs") == 0) bugs = true;
+        // --known-bugs: the flag's name before the defect was fixed.
+        if (std::strcmp(argv[i], "--continuity") == 0 || std::strcmp(argv[i], "--known-bugs") == 0)
+            continuity_only = true;
     }
     if (print) {
         print_fingerprints();
         return 0;
     }
-    if (bugs) {
-        std::printf("uv_audio_backend_test --known-bugs: checks that document open defects (expected to FAIL until fixed)\n");
-        known_bugs();
-        return uvtest::finish("uv_audio_backend_test --known-bugs");
+    if (continuity_only) {
+        std::printf("uv_audio_backend_test --continuity: the offline-continuity regression guard\n");
+        continuity();
+        return uvtest::finish("uv_audio_backend_test --continuity");
     }
     std::printf("uv_audio_backend_test: uv::SdlAudioBackend (offline, dummy device, failed device) and MSVC synth goldens\n");
     offline();

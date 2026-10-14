@@ -21,6 +21,10 @@ frames 3
 expect mode 9
 text 1
 frames 3
+# The digit highlights the member (both modes); Enter chooses.
+expect mode 9
+key Return
+frames 3
 expect mode 12
 key Escape
 frames 2

@@ -197,8 +197,16 @@ CombatResult combat_cast_effect(CombatContext &, SpellEffect, const CombatPoint 
 CombatResult combat_use_consumable(CombatContext &,int32_t item,EventSink);
 // Atomic semantic cast: target_member=-1 cancels a required party target;
 // cancel_aim loses already-paid resources without advancing the turn, as in TS.
+// The arena's "Absorbed!" gate (Negate Magic, or Doom without the crown), which COMBAT.OVL
+// tests at 0x092f, after "Cast..." and BEFORE CAST.OVL asks for the spell (0x095e).
+bool combat_cast_absorbed(const CombatContext &);
+// echo=false: the front end already printed the arena's "Cast..." (a typed spell name).
 CombatResult combat_cast(CombatContext &, SpellId, const CombatPoint *aim = nullptr,
-                         int32_t target_member = -1, bool cancel_aim = false);
+                         int32_t target_member = -1, bool cancel_aim = false, bool echo = true);
+// A typed spell name that names no spell ("None!" / "No effect!"): CAST.OVL prints it and
+// leaves through its common exit (0x0df4 / 0x0e04 -> 0x11d9), and COMBAT.OVL ignores the
+// result and ends the actor's turn (0x0923, 0x0b85). No magic RNG, no MP.
+CombatResult combat_cast_refused(CombatContext &, const char *message);
 int32_t combat_distance(int32_t dx, int32_t dy);
 CombatPoint combat_cell_to_world(const CombatState &, int32_t combat_x, int32_t combat_y);
 // World handoff does not own maps, enemies or NPC removal. Missing maps reject

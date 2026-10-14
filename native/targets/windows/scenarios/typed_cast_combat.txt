@@ -1,0 +1,38 @@
+# Original mode in an arena: C prints "Cast..." BEFORE "Spell name:" (COMBAT
+# 0x08f0), exactly once, and a refused name still ends the actor's turn, as
+# COMBAT ends it after every Cast (0x0923 -> 0x0b85).
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Mage
+key Return
+text F
+text B
+text B
+text B
+text B
+text B
+text B
+text B
+wait 2500
+expect frontend 0
+fight 32 2
+expect combat 1
+expect mode 2
+wait 1500
+expect remember_combat_actions x
+frames 5
+expect combat_actions_advanced 0
+text c
+frames 2
+expect mode 6
+expect transcript Cast...
+text x
+text q
+key Return
+wait 300
+expect transcript No effect!
+expect transcript_count 1 Cast...
+expect combat_actions_advanced 1

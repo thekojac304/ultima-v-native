@@ -70,8 +70,27 @@ size_t emit(DesktopCommand *out, size_t capacity, size_t n, const DesktopCommand
 }
 } // namespace
 
+bool DesktopInput::detect_layout_altgr() {
+    // SDL builds the Windows keymap's AltGr level (SDL_KMOD_MODE) from the
+    // layout's Ctrl+Alt characters; a key without one falls back to its plain
+    // keycode, so any difference means the layout has AltGr.
+    auto differs = [](SDL_Scancode sc) {
+        const SDL_Keycode altgr = SDL_GetKeyFromScancode(sc, SDL_KMOD_MODE, false);
+        return altgr != SDLK_UNKNOWN && altgr != SDL_GetKeyFromScancode(sc, SDL_KMOD_NONE, false);
+    };
+    for (int sc = SDL_SCANCODE_A; sc <= SDL_SCANCODE_0; ++sc)
+        if (differs(SDL_Scancode(sc))) return true;
+    for (int sc = SDL_SCANCODE_MINUS; sc <= SDL_SCANCODE_SLASH; ++sc)
+        if (differs(SDL_Scancode(sc))) return true;
+    return differs(SDL_SCANCODE_NONUSBACKSLASH);
+}
+
 size_t DesktopInput::translate(const SDL_Event &event, const InputContext &context, DesktopCommand *out,
                                size_t capacity) {
+    if (event.type == SDL_EVENT_KEYMAP_CHANGED) {
+        layout_has_altgr_ = detect_layout_altgr();
+        return 0;
+    }
     if (!out || capacity == 0) return 0;
     switch (event.type) {
     case SDL_EVENT_KEY_DOWN: return key_down(event.key, context, out, capacity);
@@ -88,9 +107,12 @@ size_t DesktopInput::key_down(const SDL_KeyboardEvent &key, const InputContext &
     suppress_text_ = false;
     const SDL_Keymod mod = key.mod;
     const bool shift = (mod & SDL_KMOD_SHIFT) != 0;
-    // AltGr arrives as Ctrl+RAlt on European layouts and types characters: it
-    // is neither the T-Deck's Alt nor a desktop Ctrl chord.
-    const bool altgr = (mod & SDL_KMOD_RALT) != 0 && (mod & SDL_KMOD_CTRL) != 0;
+    // AltGr types characters: it is neither the T-Deck's Alt nor a desktop
+    // Ctrl chord. SDL3 delivers it as Right Alt alone (it drops Windows' fake
+    // left Ctrl), so on a layout with an AltGr level Right Alt is AltGr; the
+    // older Ctrl+Right Alt form is still recognised everywhere.
+    const bool altgr = (mod & SDL_KMOD_RALT) != 0 && (mod & SDL_KMOD_LALT) == 0 &&
+                       (layout_has_altgr_ || (mod & SDL_KMOD_CTRL) != 0);
     const bool alt = !altgr && (mod & SDL_KMOD_ALT) != 0;
     const bool ctrl = !altgr && (mod & SDL_KMOD_CTRL) != 0;
     const bool enhanced = mode_ == InterfaceMode::Enhanced;
@@ -206,15 +228,23 @@ size_t DesktopInput::text(const char *utf8, const InputContext &context, Desktop
         // a multi-byte UTF-8 sequence from a non-English layout or an IME --
         // has no Ultima V key and is dropped, byte by byte.
         if (c < 0x20 || c > 0x7e) continue;
-        // DOS "Player:" prompts take the member's number. The Camp watch and
-        // the Mix reagent picker read their digits as characters themselves.
-        if (context.mode == UiMode::PartySelection && c >= '1' && c <= '9' &&
-            context.request != openu5::UiRequestId::CampGuard && context.request != openu5::UiRequestId::MixReagents) {
-            UiAction a{};
-            a.kind = UiActionKind::SelectIndex;
-            a.index = int32_t(c - '1');
-            n = emit(out, capacity, n, game(a));
-            continue;
+        // DOS "Player:" prompts (kernel 0x2d7a): a digit 1-6 only moves the
+        // highlight to that member (0x2dd4-0x2e19); RETURN or Space chooses
+        // (0x2e58 / 0x2e62). The Camp watch and the Mix reagent picker read
+        // their keys themselves.
+        if (context.mode == UiMode::PartySelection && context.request != openu5::UiRequestId::CampGuard &&
+            context.request != openu5::UiRequestId::MixReagents) {
+            if (c >= '1' && c <= '6') {
+                UiAction a{};
+                a.kind = UiActionKind::HighlightIndex;
+                a.index = int32_t(c - '1');
+                n = emit(out, capacity, n, game(a));
+                continue;
+            }
+            if (c == ' ') {
+                n = emit(out, capacity, n, game(kind(UiActionKind::Confirm)));
+                continue;
+            }
         }
         // Enhanced WASD Movement Mode, exactly UiInputAdapter's rule.
         if (mode_ == InterfaceMode::Enhanced && context.movement_mode && movement_context(context)) {

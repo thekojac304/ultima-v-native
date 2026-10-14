@@ -50,6 +50,10 @@ struct Command {
     EquipSlot slot = EquipSlot::None;
     int16_t combat_x = 0, combat_y = 0; // Move/escape: CombatDirection ordinal in x.
     bool has_target = false, cancel_target = false; // Cast: item=SpellId, member=party target.
+    // Combat Cast from a typed spell name (Windows port, desktop Original mode): the front end
+    // already echoed "Cast..." before "Spell name:" (COMBAT 0x08f0), and item -1 / -2 is the
+    // refused name ("None!" / "No effect!"), which still ends the turn.
+    bool typed_name = false;
     bool watch_requested = false; // Rest: guard picker was attempted, even if cancelled.
     const char16_t *text = nullptr;
     size_t text_length = 0; // Borrowed UTF-16, no UI length limit. BeginConversation: member=NPC slot.

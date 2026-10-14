@@ -678,7 +678,7 @@ static ActionResult execute(CommandContext &c, Command cmd, bool dispatch) {
             return result;
         }
         auto arena = *c.combat_context;
-        if (cmd.kind == CommandKind::Cast && (cmd.item < 0 || cmd.item > 48)) {
+        if (cmd.kind == CommandKind::Cast && (cmd.item > 48 || (cmd.item < 0 && !(cmd.typed_name && cmd.item >= -2)))) {
             result.status = CommandStatus::InvalidContext;
             return result;
         }
@@ -723,9 +723,11 @@ static ActionResult execute(CommandContext &c, Command cmd, bool dispatch) {
             combat_arg=cmd.direction==Direction::East?0:cmd.direction==Direction::West?1:cmd.direction==Direction::South?2:3;
         }
         const auto status =
-            cmd.kind==CommandKind::UseItem?use():cmd.kind == CommandKind::Cast
+            cmd.kind==CommandKind::UseItem?use():cmd.kind == CommandKind::Cast && cmd.item < 0
+                ? combat_cast_refused(arena, cmd.item == -1 ? "None!" : "No effect!")
+            : cmd.kind == CommandKind::Cast
                 ? combat_cast(arena, static_cast<SpellId>(cmd.item),
-                              cmd.has_target ? &aim : nullptr, cmd.member, cmd.cancel_target)
+                              cmd.has_target ? &aim : nullptr, cmd.member, cmd.cancel_target, !cmd.typed_name)
                 : combat_action(arena, action,
                                 (action == CombatAction::Get || action == CombatAction::OpenAt || action == CombatAction::Search) &&
                                 !cmd.has_direction

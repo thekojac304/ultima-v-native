@@ -608,10 +608,68 @@ void test_summons_unchanged() {
     }
 }
 
+// ---------------------------------------------------------------------------
+// W -- typed spell names in the arena (Windows port, desktop Original mode).
+// COMBAT 0x08f0 prints "Cast..." BEFORE CAST.OVL asks for the name, so the
+// front end echoes it and the cast runs with echo=false; a refused name
+// ("None!" / "No effect!") still ends the actor's turn, as COMBAT ends it after
+// every Cast (0x0923 -> 0x0b85), spending no MP and no mixed spell.
+// ---------------------------------------------------------------------------
+void test_typed_cast_in_arena() {
+    for (const char *message : {"None!", "No effect!"}) {
+        Arena a;
+        auto c = a.context();
+        check(a.build(c, {{8, 5, enemy_sprite(1)}}) == CombatResult::Ok, "W: arena builds");
+        a.give_turn();
+        auto &m = a.game.party.characters[0];
+        const int mp_before = m.current_mp;
+        int qty_before = 0;
+        for (const auto q : a.game.spell_quantities)
+            qty_before += q;
+        const uint16_t game_rng_before = a.game.rng.get_seed();
+        const uint32_t actions_before = a.combat.action_count;
+        a.clear_events();
+        check(combat_cast_refused(c, message) == CombatResult::Ok, "W1: a refused typed name is accepted");
+        int qty_after = 0;
+        for (const auto q : a.game.spell_quantities)
+            qty_after += q;
+        check(a.said(message) && !a.said("Cast..."), "W1: it prints the refusal and no second \"Cast...\"");
+        check(a.combat.action_count > actions_before, "W1: the actor's turn ends");
+        check(m.current_mp == mp_before && qty_after == qty_before && a.game.rng.get_seed() == game_rng_before,
+              "W1: no MP, no mixed spell, no magic RNG");
+    }
+    for (const bool echo : {true, false}) {
+        Arena a;
+        auto c = a.context();
+        check(a.build(c, {{8, 5, enemy_sprite(1)}}) == CombatResult::Ok, "W: arena builds");
+        auto *enemy = a.find_enemy();
+        if (!enemy)
+            continue;
+        const CombatPoint aim{enemy->position.x, enemy->position.y};
+        a.give_turn();
+        const uint32_t actions_before = a.combat.action_count;
+        const int qty_before = a.game.spell_quantities[kInFlamGrav];
+        a.clear_events();
+        check(combat_cast(c, SpellId(kInFlamGrav), &aim, 0, false, echo) == CombatResult::Ok, "W2: the cast runs");
+        check(a.said("Cast...") == echo, echo ? "W2: echo=true prints \"Cast...\"" : "W2: echo=false prints no \"Cast...\"");
+        check(a.combat.action_count > actions_before && a.game.spell_quantities[kInFlamGrav] == qty_before - 1,
+              "W2: the echo flag changes nothing else (spell spent, turn ends)");
+    }
+    {
+        // The absorb gate the front end tests before "Spell name:".
+        Arena a;
+        auto c = a.context();
+        check(!combat_cast_absorbed(c), "W3: no Negate Magic, not in Doom: not absorbed");
+        a.turn.time_spell = 'N';
+        check(combat_cast_absorbed(c), "W3: Negate Magic absorbs");
+    }
+}
+
 } // namespace
 
 int main() {
     test_location_gate();
+    test_typed_cast_in_arena();
     test_combat_cast_creates_no_field();
     test_combat_cast_line_blocked();
     test_authored_fields_persist();

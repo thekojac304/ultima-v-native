@@ -44,10 +44,16 @@ uv_scenario(list_cast_enhanced MODE enhanced)
 uv_scenario(save_load_menu MODE original)
 uv_scenario(quicksave_enhanced MODE enhanced)
 uv_scenario(original_keys MODE original)
-# The Developer menu's Teleport page reaches the places a short script cannot walk to.
-uv_scenario(dungeon_walk MODE original DEVELOPER)
-uv_scenario(surface_combat MODE original DEVELOPER)
-uv_scenario(town_talk MODE original DEVELOPER)
+# The Developer menu's Teleport page reaches the places a short script cannot
+# walk to; its "teleport" / "fight" steps need the menu compiled in.
+if(UV_ENABLE_DEVELOPER_TOOLS)
+  uv_scenario(dungeon_walk MODE original DEVELOPER)
+  uv_scenario(surface_combat MODE original DEVELOPER)
+  uv_scenario(typed_cast_combat MODE original DEVELOPER)
+  uv_scenario(town_talk MODE original DEVELOPER)
+else()
+  message(STATUS "Scenarios dungeon_walk, surface_combat, typed_cast_combat, town_talk skipped: UV_ENABLE_DEVELOPER_TOOLS is OFF")
+endif()
 if(EXISTS "${UV_SCENARIO_PC_SAVES}/SAVED.GAM" AND EXISTS "${UV_SCENARIO_PC_SAVES}/SAVED.OOL")
   uv_scenario(pc_import_export MODE original IMPORT "${UV_SCENARIO_PC_SAVES}"
     EXPECT_FILES "ultima5/export/slot1/SAVED.GAM;ultima5/export/slot1/SAVED.OOL;ultima5/export/slot1/EXPORT.TXT;ultima5/pc-import.txt"

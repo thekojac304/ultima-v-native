@@ -1069,8 +1069,25 @@ CombatResult combat_cast_effect(CombatContext &c, SpellEffect fx, const CombatPo
     e.advance();
     return CombatResult::Ok;
 }
+bool combat_cast_absorbed(const CombatContext &c) {
+    // A4-PARITY1 (NEW-1): COMBAT 0x092f reads g_crown [0x57b4], crown POSSESSION.
+    return c.turn.time_spell == 'N' || (c.game.position.map.location == 18 && !c.game.quest.artifacts[1]);
+}
+CombatResult combat_cast_refused(CombatContext &c, const char *message) {
+    if (!c.combat.initialized || !message)
+        return CombatResult::Invalid;
+    if (c.combat.actors.capacity() - c.combat.count < combat_growth_reserve(c.combat) + 4)
+        return CombatResult::NeedsActorStorage;
+    Engine e(c);
+    auto *a = e.current();
+    if (!a || !player(*a))
+        return CombatResult::Ok;
+    e.message(message);
+    e.advance();
+    return CombatResult::Ok;
+}
 CombatResult combat_cast(CombatContext &c, SpellId spell, const CombatPoint *aim, int32_t member,
-                         bool cancel_aim) {
+                         bool cancel_aim, bool echo) {
     if (!c.combat.initialized || !spell_definition(spell) || member >= c.game.party.character_count)
         return CombatResult::Invalid;
     if (c.combat.actors.capacity() - c.combat.count < combat_growth_reserve(c.combat) + 4)
@@ -1079,9 +1096,9 @@ CombatResult combat_cast(CombatContext &c, SpellId spell, const CombatPoint *aim
     auto *a = e.current();
     if (!a || !player(*a))
         return CombatResult::Ok;
-    e.message("Cast...\n", -1, -1, CombatEventKind::Echo);
-    // A4-PARITY1 (NEW-1): COMBAT 0x092f reads g_crown [0x57b4], crown POSSESSION.
-    if (c.turn.time_spell == 'N' || (c.game.position.map.location == 18 && !c.game.quest.artifacts[1])) {
+    if (echo)
+        e.message("Cast...\n", -1, -1, CombatEventKind::Echo);
+    if (combat_cast_absorbed(c)) {
         e.message("Absorbed!\n");
         e.advance();
         return CombatResult::Ok;

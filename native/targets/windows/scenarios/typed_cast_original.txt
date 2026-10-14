@@ -21,6 +21,10 @@ frames 3
 expect mode 9
 text 1
 frames 3
+# Kernel 0x2d7a: the digit only moves the highlight; RETURN chooses.
+expect mode 9
+key Return
+frames 3
 expect mode 6
 text i
 text j
@@ -35,6 +39,7 @@ expect transcript Spell name: IN LOR
 text c
 frames 2
 text 1
+key Space
 frames 2
 text l
 text i
@@ -44,6 +49,7 @@ expect transcript Spell name: LOR IN
 text c
 frames 2
 text 1
+key Return
 frames 2
 text x
 text q
@@ -53,6 +59,7 @@ expect transcript No effect!
 text c
 frames 2
 text 1
+key Return
 frames 2
 key Escape
 wait 300

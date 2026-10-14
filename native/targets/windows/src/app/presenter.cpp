@@ -69,18 +69,15 @@ void Presenter::show() {
 void Presenter::present(bool force) {
     if (!renderer_ || !texture_) return;
     const uint64_t generation = panel::generation();
-    const uint32_t duty = panel::backlight_duty();
-    const bool changed = generation != uploaded_generation_ || duty != applied_duty_;
+    const bool changed = generation != uploaded_generation_;
     if (!changed && !force && !stale_) return;
-    if (generation != uploaded_generation_) {
+    // The T-Deck's Brightness (the panel's backlight duty) is not applied: a
+    // monitor has its own, the desktop Settings page has no Brightness row,
+    // and a card copied from a dimmed T-Deck must not darken the window. The
+    // picture is drawn at full intensity, exactly as F12 saves it.
+    if (changed) {
         SDL_UpdateTexture(texture_, nullptr, panel::pixels(), kW * int(sizeof(uint16_t)));
         uploaded_generation_ = generation;
-    }
-    if (duty != applied_duty_) {
-        // The Board clamps Brightness to 10..100 %; the picture is never black.
-        const Uint8 level = Uint8(std::clamp<uint32_t>(duty * 255u / 1023u, 26u, 255u));
-        SDL_SetTextureColorMod(texture_, level, level, level);
-        applied_duty_ = duty;
     }
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);

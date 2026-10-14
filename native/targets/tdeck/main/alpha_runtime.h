@@ -647,6 +647,7 @@ class AlphaRuntime {
     void trace_direct_troll_save(const char *stage) const;
     static void terrain_write(void *, const openu5::TerrainWrite &);
     void cast_selected_spell(int16_t spell);
+    void cast_typed_spell(int32_t spell);
     void start_magic_ceremony(int index);
     void synchronize_after_debug(openu5::WorldPosition before, bool dungeon_before);
     void drain_pending_npc_initiation();

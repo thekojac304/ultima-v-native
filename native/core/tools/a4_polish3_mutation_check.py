@@ -38,7 +38,9 @@ MUTANTS = [
     ('M9', KB, 'frame[0] = kKeyboardBacklightCommand;', 'frame[0] = 0x02;', 'the frame uses the Alt+B command'),
     ('M10', SM, 'case kKeyboardLightRow:settings_.keyboard_backlight=step_keyboard_backlight(settings_.keyboard_backlight,d);break;',
      '', 'the System Menu row does not edit'),
-    ('M11', FE, 'const uint8_t setting_count=7U;', 'const uint8_t setting_count=6U;', 'the title cursor cannot reach the row'),
+    # Windows port: the row count comes from the platform profile (T-Deck: 7 rows, KeyboardLight last).
+    ('M11', FE, 'const uint8_t setting_count=uint8_t(platform_settings_rows(rows,kMaxSettingsRows));',
+     'const uint8_t setting_count=uint8_t(platform_settings_rows(rows,kMaxSettingsRows)-1U);', 'the title cursor cannot reach the row'),
     ('M12', FE, 'keyboard_light_available_=keyboard;', '(void)keyboard;','Return to Title forgets that no keyboard answered'),
     ('M13', FH, 'return uint8_t((level % kKeyboardBacklightLevels + delta + kKeyboardBacklightLevels) % kKeyboardBacklightLevels);',
      'return uint8_t(level + delta < 0 ? 0 : level + delta > 4 ? 4 : level + delta);', 'the row clamps instead of cycling'),

@@ -4,7 +4,7 @@ Branch `windows/initial-port`, worktree `../ultima-v-native-windows`, based on
 `main` at `96a55ff9` ("Refine T-Deck UI fidelity"). This document records the
 architecture census done before the port, the decisions taken from it, what
 was built, and what remains. It is updated as the work lands; the commit
-hashes of each step are in [§9 Progress log](#9-progress-log).
+hashes of each step are in [§10 Progress log](#10-progress-log).
 
 ---
 
@@ -14,7 +14,9 @@ A playable, independently buildable **Windows x64** build of Ultima V Native,
 using **SDL3**, with:
 
 - ONE gameplay implementation: the shared `native/core` and the T-Deck
-  application layer are compiled unchanged; no gameplay is reimplemented;
+  application layer are compiled from the firmware's own sources, with small
+  behaviour-preserving seams for the desktop (section 5); no gameplay is
+  reimplemented;
 - the T-Deck build and behaviour preserved (the host suite stays green; the
   firmware still compiles);
 - an explicit **Original** mode (preservation, DOS keyboard, 1988 rules) and
@@ -102,7 +104,7 @@ five `__attribute__` sites (`perf_report.cpp` ×2, `input_controller.cpp`,
 |---|---|---|
 | D1 | **MSVC (Visual Studio 2026, x64) is the primary toolchain**; CMake; C++20; static CRT (`/MT`) | requested; the core needed one two-line fix; a static CRT means no VC++ redistributable for players |
 | D2 | **SDL3 3.4.16**, fetched by CMake `FetchContent` from the official release tarball, **pinned by SHA-256**; `UV_USE_SYSTEM_SDL3` / `FETCHCONTENT_SOURCE_DIR_SDL3` for installed or offline copies | reproducible, no package manager for builders or players |
-| D3 | **Reuse `tdeck_board.cpp` unchanged over a production virtual ST7789** (`src/platform/virtual_panel.cpp`): the SPI/GPIO/LEDC calls the Board makes decode CASET/RASET/RAMWR into a persistent 320×240 RGB565 memory, which SDL presents scaled (nearest, integer by default) | pixel-identical to the device, zero firmware change, the same 320×240 logical screen |
+| D3 | **Reuse `tdeck_board.cpp` unchanged over a production virtual ST7789** (`src/platform/virtual_panel.cpp`): the SPI/GPIO/LEDC calls the Board makes decode CASET/RASET/RAMWR into a persistent 320×240 RGB565 memory, which SDL presents scaled (nearest, integer by default) | pixel-identical to the device (the Board itself only gained `platform_format` legends), the same 320×240 logical screen |
 | D4 | **ESP-IDF compatibility layer for Windows** (`native/targets/windows/esp_compat/` + `src/platform/`): real steady clock, rotating log file, malloc heap caps, sleeping `vTaskDelay`, real free-space query, the driver structs in ESP-IDF 6.1 field order | the shared sources compile unchanged; deliberately separate from the host-test shims, which carry virtual clocks and fault injection |
 | D5 | **The `/sd` mount maps to a data directory** through a force-included redirect (`esp_compat/uv_storage_redirect.h`; wide-character Win32 calls, FATFS rename semantics, `_commit` for `fsync`, retries for antivirus locks). Layout = the SD card's: `<data>\ultima5\{packs, saves\, settings.json, import\, export\, logs\}` | the device code needs no path change; a T-Deck card's `ultima5` folder can be copied in and out |
 | D6 | **Data directory**: `--data-dir`, else portable mode (`portable.txt` beside the exe → `<exe>\data`), else `%APPDATA%\Ultima V Native` | per-user, never the install folder; portable on request |
@@ -113,9 +115,13 @@ five `__attribute__` sites (`perf_report.cpp` ×2, `input_controller.cpp`,
 | D11 | **Desktop settings** live in `ultima5\windows.json`; the game's `settings.json` is shared with the T-Deck unchanged | card interchange; `settings_document` drops unknown keys anyway |
 | D12 | The shared application layer stays where it is (`native/targets/tdeck/main`); the Windows CMake lists the portable files and leaves out the device-only ones (`main.cpp`, `tdeck_input.cpp`, `tdeck_audio.cpp`, `sd_diagnostic_logger.cpp`, `system_perf.cpp`) | moving ~15 files would churn ~100 host-test paths and the firmware build for no behavioural gain; a physical move is a possible follow-up |
 | D13 | **Platform profile in core** (`openu5/platform_profile.h`): the key names and storage words the menus and prompts print ("Mic returns" → "Esc returns", "Trackball: choose" → "Arrows: choose", "/ultima5/import" → "ultima5\import", the console banner), the Settings rows (the T-Deck's hardware rows vs the desktop's Interface/Display/Scaling rows), whether the System Menu lists Difficulty/Cheats, and two Original-mode behaviours (D14, D15). Every default is the T-Deck's literal, byte for byte | one shared UI, no copied strings; the pinned T-Deck strings and goldens keep passing (202/202) |
-| D14 | **Desktop Original: Cast/Mix take the 1988 typed spell name** (CAST2.OVL:0x00DE, `re/notes/cast-input.md`): syllable initials A–Z except J/O, up to four, echoed as rune words, matched in any order against the 48 spells (`openu5/spell_entry.h`, initials derived from the core's own spell names); RETURN/Space end, ESC = "None!", no match = "No effect!". Enhanced keeps the list | "No enhanced quick-select menus" in Original; the T-Deck's list is its declared adaptation (A-17) and stays the default |
-| D15 | **Desktop Original: Q is (Q)uit & Save** (CAST2.OVL:0x10FE): "Quit:", "Save game? " (DS 0x9658), N → "No", Y → "Yes" / "Saving..." / save to the journey's slot / "Done." (DS 0x966a, 0x96ac); play continues; no turn | the T-Deck replaces Q with its System Menu (declared adaptation A-5); on a full keyboard the original key is restored |
-| D16 | **Digits pick the member in "Player:" prompts** on the desktop (both modes), as the 1988 roster prompt does; the Camp watch and Mix reagent pickers keep their own digit rules | done in the desktop key adapter (`SelectIndex`), no core change |
+| D14 | **Desktop Original: Cast/Mix take the 1988 typed spell name** (CAST2.OVL:0x00DE, `re/notes/cast-input.md`): syllable initials A–Z except J/O, up to four, echoed as rune words, matched in any order against the 48 spells (`openu5/spell_entry.h`, initials derived from the core's own spell names); RETURN/Space end, ESC = "None!", no match = "No effect!". In an arena COMBAT.OVL prints "Cast..." and tests the absorb gate BEFORE the prompt (0x08f0, 0x092f), and ends the actor's turn after every Cast (0x0923 → 0x0b85), so a refused name spends the turn too (`combat_cast_refused`, no MP, no RNG); a spell with none mixed goes to the core untargeted, because CAST.OVL refuses it (0x0ebb) before the spell's handler asks for a target (0x0f17). Enhanced keeps the list | "No enhanced quick-select menus" in Original; the T-Deck's list is its declared adaptation (A-17) and stays the default |
+| D15 | **Desktop Original: Q is (Q)uit & Save** (CAST2.OVL:0x10FE): "Quit:", "Save game? " (DS 0x9658), N → "No", Y → "Yes" / "Saving..." / save to the journey's slot / "Done." (DS 0x966a, 0x96ac); only Y or N answer -- RETURN, ESC and Backspace are read and dropped (0x110b-0x1117); play continues; no turn | the T-Deck replaces Q with its System Menu (declared adaptation A-5); on a full keyboard the original key is restored |
+| D16 | **In "Player:" prompts a digit 1-6 highlights the member and Enter or Space chooses** on the desktop (both modes), as the 1988 roster prompt does (kernel 0x2d7a: a digit only moves the highlight, 0x2dd4-0x2e19; RETURN 0x2e58 or Space 0x2e62 chooses); the Camp watch and Mix reagent pickers keep their own key rules | the desktop key adapter sends `UiActionKind::HighlightIndex` (appended to the enum). The branch's first version picked at once (`SelectIndex`); the review showed that a DOS player's "2" + RETURN then cast nothing |
+| D17 | **No Brightness on the desktop**: the presenter ignores the Board's backlight duty and draws at full intensity | the desktop Settings page has no Brightness row; a card copied from a dimmed T-Deck must not darken the window; F12 pictures equal the screen |
+| D18 | **AltGr from the keyboard layout**: SDL3 delivers AltGr as Right Alt alone, so on a layout with an AltGr level (asked from SDL's keymap at start-up and on every keymap change) Right Alt types characters and the Alt chords use the left Alt | German/French/Polish players can type `@ { ~` and never trigger Alt+S/Alt+L by accident |
+| D19 | **One instance per data folder, by a lock file** (`<data folder>\instance.lock`, no sharing, deleted on close) | every spelling of the folder (case, 8.3, subst, network, another session) meets the same lock |
+| D20 | **Command-line `--mode`, `--fullscreen`, `--windowed` apply to that run only**; `windows.json` keeps the player's own choices; Ctrl+O opens the data folder itself (game files in its `ultima5` folder, F12 pictures in `screenshots`) | a one-off start option never becomes a setting by accident |
 
 ## 5. Layout
 
@@ -146,45 +152,144 @@ Shared-code changes (all behaviour-preserving for the T-Deck):
   `MixSpellName`, `QuitSave` (appended, no value renumbers).
 - `native/targets/tdeck/main/tdeck_board.cpp` — the Developer screen's two
   key legends through the profile.
+- Review round: `UiActionKind::HighlightIndex` (appended; D16);
+  `Command::typed_name` (default false), `combat_cast(..., echo = true)`,
+  `combat_cast_refused()` and `combat_cast_absorbed()` (the existing absorb
+  predicate, moved into a function) for the arena's typed cast (D14);
+  `ui_session.cpp`: the Q prompt takes only Y/N (D15); `alpha_runtime.cpp`:
+  `cast_typed_spell()`, the arena "Cast..." before the prompt, the Z-stats
+  legends through `{back}`. The T-Deck never sends `HighlightIndex` or sets
+  `typed_name`, and `platform_typed_spell_names()` is false there.
+- Tests and tools: `native/core/tests/batch12_combat_field_test.cpp` W1-W3
+  (the typed arena cast); the A4-POLISH3 M11 and A4-ENH1 K3/D1 mutants
+  re-anchored on the code the port moved.
+- `game/src/core/data/LICENSE-Ultima5Redux.txt` (new): the MIT notice for the
+  tracked Ultima5Redux metadata, which the package now reproduces.
 - `__attribute__` portability guards (`#if defined(__GNUC__)`, the pattern
   `music_synth.cpp` already used) in `perf_report.cpp`, `input_controller.cpp`,
   `alpha_runtime.cpp`.
 
-## 6. Phases
+## 6. What works (and how it was verified)
 
-1. Worktree, baseline, census — done.
-2. SDL3 bootstrap, compat layer, virtual panel, storage, runtime boot — done
-   (the real `initialize()` runs; title, character creation and play verified
-   by scripted runs).
-3. Desktop keyboard (Original/Enhanced), window/fullscreen/scaling — first cut done.
-4. Platform texts and settings rows (no "Mic"/"SD card"/"OpenU5" legends on
-   Windows; desktop rows; Difficulty/Cheats gated by the interface mode).
-5. Saves/settings tests, DOS save bridge on Windows, mode persistence.
-6. Audio verification (device, offline render, synth goldens under MSVC).
-7. Asset preparation path for players.
-8. Tests, full host suite, T-Deck firmware compile.
-9. Packaging (`UltimaV-Native-Windows-x64-dev.zip`) and documentation.
+**Automatically verified** (by the tests below, on this machine):
 
-## 7. Known risks being tracked
+- Build: MSVC 14.51 (Visual Studio 2026), x64, Release, warnings-as-errors on
+  the Windows sources; SDL3 3.4.16 from the pinned source release; static CRT
+  — the executable depends only on `SDL3.dll` and Windows system DLLs.
+- Start-up and shutdown: the real `AlphaRuntime::initialize()` with the
+  identity-locked packs, the title, clean exit (every scenario).
+- Presentation: the firmware's own Board on the virtual ST7789 (title, menus,
+  character creation, play frame, console, Developer screen); the decoder is
+  unit-tested and the real Board draws deterministically.
+- Keyboard: the complete desktop key map in both interface modes (443 checks,
+  including AltGr as SDL3 sends it and the 1988 "Player:" highlight), routed
+  through `AlphaRuntime::handle_action()`.
+- Title/menus, character creation, play, Look/Talk prompts, a town, a dungeon
+  (walk/turn/ignite), a surface fight (arena opens, attack), typed spell names
+  and the list in Enhanced, a typed cast in an arena ("Cast..." first and
+  once, a refused name ends the turn), (Q)uit & Save (RETURN/ESC ignored),
+  System Menu save/load, F5/F9 quick save/load, the Original-mode key rules,
+  the interface-mode switch and its persistence (13 scenarios of the real
+  executable).
+- Saves: real `alpha_save.cpp` through the `/sd` mount (slot files, commit
+  record layout = the T-Deck's 32 bytes), save/load round trips; the PC/DOS
+  bridge imports an original `SAVED.GAM`/`SAVED.OOL` into Slot 1 and exports
+  `export\slot1\SAVED.GAM` (4,192 B) / `SAVED.OOL` (512 B) / `EXPORT.TXT`.
+- Storage: FATFS rename semantics, `fsync` → `_commit`, non-ASCII data paths.
+- Audio: the SDL3 backend renders exactly what the core `SfxPlayer` renders;
+  device open/close with SDL's dummy driver; graceful failure with a missing
+  driver; MSVC synth output bit-exact against the GCC references — every SFX
+  cue, the OPL tables and, with the local music pack, the whole song corpus
+  (G1–G4) — and the Theme plays through the backend.
+- Asset preparation: the bundled `prepare-assets.mjs`, run alone from the
+  unzipped package with plain Node, makes packs byte-identical (SHA-256) to
+  the reference packs and to the firmware's identity constants, in ~2.5 s.
+  It carries no translation table and no equipment names (stubbed, and
+  `--skip-loot-names`); its only data are Ultima5Redux metadata on an explicit
+  allowlist, and `build.mjs` refuses anything else.
+- Packaging: the asset-preparation script is rebuilt for every package and
+  checked against its manifest and HEAD; THIRD-PARTY-LICENSES lists exactly
+  the bundled packages (from the manifest), SDL's licence and version from
+  the SDL source the build used, and the Ultima5Redux MIT notice; the ZIP
+  holds only whitelisted files; unzipped into a clean folder, packs prepared,
+  the packaged exe boots in portable mode, creates a character, plays and
+  saves.
+- T-Deck: host suite 202/202 after every shared change; the firmware still
+  compiles under ESP-IDF 6.1 (`-Werror`), image 1,053,808 B (+4,288 B over the
+  base), 19.6 % of the app partition free. Compile evidence only: no T-Deck
+  hardware run was made for this branch.
 
-- MSVC's libm may round the OPL synth's tables differently from GCC's
-  (presentation only; checked against the host goldens in the Windows tests).
-- The 32-byte save commit record must keep its layout under MSVC (static
-  assertion in the Windows tests).
+**Implemented, needs a person at the keyboard** (no automated proof possible
+or done): the feel of the real window (scaling, fullscreen toggling, resizing,
+High-DPI monitors), real sound through speakers, long play sessions,
+vehicles (boarding a ship/horse/carpet, sailing), shops end to end, the
+ending sequence on Windows, music volume behaviour on real hardware, the
+window-close confirmation dialog, the Explorer integration (Ctrl+O), the
+asset-preparation wrapper's folder picker.
+
+**Not implemented:** mouse and game-controller play; a higher-resolution
+renderer (the picture is the 320×240 T-Deck layout scaled up); a single-file
+asset preparer without Node.js (Node SEA needs `postject` and a 90 MB
+runtime; not pursued); an icon.
+
+## 7. Tests
+
+| Suite | Where | Result |
+|---|---|---|
+| Host suite (shared code, T-Deck semantics) | `native/core`, GCC 16.2, serial | 202/202, after each of the shared changes (`win-phase*-ctest.log`, `win-review-host-ctest.log`; untracked evidence in `native/core/`) |
+| Windows unit/integration | `native/targets/windows/tests` | 7/7: desktop input (443 checks), desktop settings (64), storage + force-included redirect (151), virtual panel + real Board (38), save layout (17), audio backend + synth goldens (110; 119 with the music pack), offline continuity |
+| Windows scenarios (real exe, headless) | `native/targets/windows/scenarios` | 13/13: boot_title, new_game_original, settings_modes, typed_cast_original, list_cast_enhanced, save_load_menu, quicksave_enhanced, original_keys, dungeon_walk, surface_combat, typed_cast_combat, town_talk, pc_import_export |
+| Firmware compile | `native/targets/tdeck`, ESP-IDF 6.1 | builds; 1,053,808 B, app budget check passes |
+| Package | `tools/build-windows.ps1 -Package` + clean-folder check | ZIP 2.28 MB; packs prepared from it byte-identical; packaged exe boots, plays, saves |
+
+Mutation evidence: 24 one-edit mutants of the Windows input, settings, panel
+and storage code were all detected; the review fixes' three core mutants
+(refused cast keeps the turn, echo flag ignored, absorb gate without Negate
+Magic) are killed by W1-W3; the re-anchored A4-POLISH3 M11 and A4-ENH1 K3/D1
+are killed again (`win-review-mutants.log`).
+
+## 8. Known limitations and risks
+
+- Development build: not yet played end to end by a person on Windows.
+- Making the packs needs Node.js (or a prepared T-Deck SD card).
 - Tracked core sources compile short verbatim game strings into every build
-  (`shop_greetings.inc`, `shop_tables.inc`, `gem_category.inc`, and the
-  equipment names) — this is pre-existing and also true of the published
-  T-Deck firmware; flagged for the owner (§8), not changed by the port.
+  (`shop_greetings.inc`, `shop_tables.inc`, `gem_category.inc`, the equipment
+  names); the asset-preparation bundle embeds the tracked repository JSON it
+  needs. Both are pre-existing project content and also true of the published
+  T-Deck firmware; flagged for the owner, not changed by the port.
+- The Windows build shows the T-Deck's screen layout; some long list footers
+  were written for that width.
+- `native/core/tools/a4_ui4_mutation_check.py` mutation F4 anchors on a
+  System Menu footer literal that had already changed before this port
+  (A4-POLISH3); it was stale before and is not repaired here. The anchors the
+  port itself moved (A4-POLISH3 M11, A4-ENH1 K3/D1) are repaired.
+- A spell the location forbids (with some mixed) still asks for its target
+  before "Not here!" -- in the typed path as in the T-Deck's list path (a
+  pre-existing order; CAST.OVL tests the location first). Outside an arena a
+  typed "None!" / "No effect!" spends no turn; only the arena's turn rule was
+  checked against the binary.
+- The rules carry the project's documented, non-blocking differences from the
+  1988 game (the preservation ledgers); the port adds none.
 
-## 8. Open items for the owner
+## 9. Open items for the owner
 
-- Whether the tracked `.inc` files with short game strings are acceptable in
-  a distributed Windows binary (as in the T-Deck binary today).
+- Whether the tracked `.inc` game strings and the bundled JSON are acceptable
+  in a distributed Windows package (as in the T-Deck binary today).
 - A public version number for the first Windows release (this branch builds
   `0.5.0-dev`).
+- Whether to push `windows/initial-port` and publish the ZIP (nothing has
+  been pushed or published).
+- Confirm the copyright line in `game/src/core/data/LICENSE-Ultima5Redux.txt`
+  against Ultima5Redux's own LICENSE (it follows the project's
+  ATTRIBUTION.txt: "(c) 2020 Brad Hannah, MIT").
 
-## 9. Progress log
+## 10. Progress log
 
 | Step | Commit | Evidence |
 |---|---|---|
 | Baseline | `96a55ff9` (base) | 202/202 host tests, serial |
+| SDL3 target, compat layer, virtual panel, `handle_action`, first boot | `70e814f2` | host 202/202; MSVC clean; title → creation → play by script |
+| Platform profile (D13), typed spell names (D14), Q (D15), desktop profile, scenarios, asset prep, packaging, docs; also the offline-audio remainder and BOM fixes | `19f064f3` | host 202/202 after each shared change; scenarios 12/12; firmware compiles; bundle packs byte-identical |
+| Windows test suite (written by a helper agent on a temporary branch, cherry-picked) | `1bf68a7d` | 6 executables, all green; 24/24 mutants detected |
+| Offline-continuity check enabled as a regular test. Its commit message also claims the `render_offline` remainder and the windows.json BOM fix; both are in `19f064f3` (history is not rewritten) | `c03fbe88` | Windows ctest 19/19 |
+| Adversarial review (30 agents: packaging and licences, T-Deck regression, docs accuracy, Windows platform, DOS fidelity; every finding independently re-verified): 25 findings, all confirmed, all fixed -- bundle data trimmed and allowlisted, licences from the manifest, Z-stats legend, mutation anchors, docs, Brightness, AltGr, instance lock, session-only overrides, the 1988 "Player:" highlight, the arena's typed cast, the Q prompt | see git log | Windows ctest 20/20; host 202/202; firmware 1,053,808 B; mutants killed |

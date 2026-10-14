@@ -1,5 +1,6 @@
 # Original mode refuses the Enhanced shortcuts and keeps W/A/S/D as letters;
-# Ctrl+S is the DOS sound toggle; digits pick a member in a "Player:" prompt.
+# Ctrl+S is the DOS sound toggle; in a "Player:" prompt a digit highlights the
+# member and RETURN chooses (kernel 0x2d7a).
 frames 5
 key Return
 frames 3
@@ -40,6 +41,9 @@ frames 2
 expect mode 9
 text 1
 frames 2
+expect mode 9
+key Return
+frames 2
 expect mode 6
 key Escape
 wait 300
@@ -49,8 +53,16 @@ expect system_menu 1
 key F10
 frames 2
 expect system_menu 0
-# (Q)uit & Save, as in 1988: "Quit:", "Save game? ", N saves nothing, Y saves.
+# (Q)uit & Save, as in 1988: "Quit:", "Save game? "; only Y or N answer
+# (CAST2 0x110b: RETURN and ESC are read and dropped), N saves nothing, Y saves.
 text q
+frames 2
+expect mode 8
+key Return
+frames 2
+expect mode 8
+expect no_transcript Saving...
+key Escape
 frames 2
 expect mode 8
 text n

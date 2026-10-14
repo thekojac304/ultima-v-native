@@ -1033,6 +1033,13 @@ void AlphaRuntime::dispatch(const openu5::UiIntent&i){
         // (CAST2.OVL:0x00DE) where the platform asks for it; else the list.
         if(openu5::platform_typed_spell_names()){
             const bool mix=i.request==openu5::UiRequestId::Custom;
+            if(!mix&&context_.combat){
+                // COMBAT 0x08f0 prints "Cast..." and tests the absorb gate
+                // (0x092f) BEFORE CAST.OVL asks for the name (0x095e). Absorbed:
+                // the core's own cast prints both lines and ends the turn.
+                if(openu5::combat_cast_absorbed(combat_context_)){cast_typed_spell(0);dirty_=true;return;}
+                ui_->append(openu5::UiTextChannel::CommandEcho,"Cast...\n",openu5::UiTextCommand);
+            }
             ui_->begin_text(mix?openu5::UiRequestId::MixSpellName:openu5::UiRequestId::SpellName,mix?"For what spell? ":"Spell name: ");
         }else open_selection(openu5::UiMode::SpellSelection,i.request);
     }
@@ -1417,11 +1424,10 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){if(!i.value.accepted){if(i.re
     else if(i.request==openu5::UiRequestId::Spell&&i.value.index>=0&&size_t(i.value.index)<selection_count_){cast_selected_spell(selections_[i.value.index].value);}
     // Windows port, desktop Original mode: the typed spell name. The 1988
     // routine returns the spell, -1 (nothing typed / ESC: "None!") or -2
-    // (no such spell: "No effect!"). Cast continues exactly as a list pick
-    // does (cast_selected_spell: the core then applies "None mixed!" and
-    // the rest); Mix goes on to its reagent marks. CMDS 0x1b13 tests only
-    // -1 and would index with -2 (a latent binary bug); "No effect!" there
-    // is the reference port's choice (re/notes/cast-input.md section 5).
+    // (no such spell: "No effect!"). Mix goes on to its reagent marks; CMDS
+    // 0x1b13 tests only -1 and would index with -2 (a latent binary bug);
+    // "No effect!" there is the reference port's choice (re/notes/cast-input.md
+    // section 5). Cast: see cast_typed_spell().
     else if(i.request==openu5::UiRequestId::SpellName||i.request==openu5::UiRequestId::MixSpellName){
         const bool mix=i.request==openu5::UiRequestId::MixSpellName;
         char initials[openu5::kSpellEntryMaxSyllables]{};
@@ -1430,15 +1436,15 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){if(!i.value.accepted){if(i.re
         char line[64];std::snprintf(line,sizeof(line),"%s%s",mix?"For what spell? ":"Spell name: ",echo);
         ui_->append(openu5::UiTextChannel::CommandEcho,line);
         const int32_t spell=openu5::spell_from_initials(initials,typed);
-        if(spell<0){ui_->append(openu5::UiTextChannel::Message,spell==openu5::kSpellEntryNone?"None!":"No effect!");if(!mix)pending_caster_=-1;}
-        else if(mix){pending_mix_spell_=int16_t(spell);pending_mix_mask_=0;open_mix_reagents(0);}
-        else cast_selected_spell(int16_t(spell));
+        if(!mix)cast_typed_spell(spell);
+        else if(spell<0)ui_->append(openu5::UiTextChannel::Message,spell==openu5::kSpellEntryNone?"None!":"No effect!");
+        else{pending_mix_spell_=int16_t(spell);pending_mix_mask_=0;open_mix_reagents(0);}
     }
     // R-25 (Batch 19). "selectedCombatPlayer" only exists in combat, which is
     // branch 1 of kernel 0x4988 (@0x4995): the caster is the ACTING combatant,
     // never the arrow-marked active member. Same correction cast_selected_spell()
     // carries; this arm rebuilds the command from scratch, so it needs it too.
-    else if(i.request==openu5::UiRequestId::Target){if(pending_combat_spell_>=0){auto *caster=openu5::current_combat_actor(combat_context_);c.kind=openu5::CommandKind::Cast;c.caster=caster&&caster->member!=255?int16_t(caster->member):int16_t(active_member(game_));c.item=pending_combat_spell_;c.member=int16_t(i.value.index);pending_combat_spell_=-1;command(c);}}
+    else if(i.request==openu5::UiRequestId::Target){if(pending_combat_spell_>=0){auto *caster=openu5::current_combat_actor(combat_context_);c.kind=openu5::CommandKind::Cast;c.caster=caster&&caster->member!=255?int16_t(caster->member):int16_t(active_member(game_));c.item=pending_combat_spell_;c.member=int16_t(i.value.index);c.typed_name=context_.combat&&openu5::platform_typed_spell_names();pending_combat_spell_=-1;command(c);}}
     // A3-HF10 (D-6 / D-70). The spell is only cmd_mix's first question (CMDS
     // 0x1ad8): the reagents are the player's own marks (0x18be, nothing marked
     // to begin with) and the batch is the answer to "How much? " (0x1a70).
@@ -1547,8 +1553,36 @@ bool AlphaRuntime::accept_command_char_pick(openu5::UiRequestId request,int16_t 
     dirty_=true;return false;
 }
 
+// Windows port, desktop Original mode: Cast after the typed name.
+//  - Absorbed in combat (called with spell 0 before the prompt): the core's
+//    cast prints "Cast..." and "Absorbed!" and ends the turn.
+//  - -1 / -2 ("None!" / "No effect!"): a message; in combat the core prints it
+//    and ends the actor's turn, as COMBAT.OVL does after every Cast (0x0923).
+//  - None mixed: CAST.OVL refuses at 0x0ebb, BEFORE the spell's handler (0x0f17)
+//    asks for a target, so the Cast goes to the core untargeted and the core
+//    prints "Not here!" / "None mixed!" in its own order.
+//  - Otherwise exactly a list pick.
+void AlphaRuntime::cast_typed_spell(int32_t spell){
+    const bool absorbed=context_.combat&&openu5::combat_cast_absorbed(combat_context_);
+    if(spell>=0&&spell<48&&!absorbed&&game_.spell_quantities[spell]>0){cast_selected_spell(int16_t(spell));return;}
+    if(spell<0&&!context_.combat){
+        ui_->append(openu5::UiTextChannel::Message,spell==openu5::kSpellEntryNone?"None!":"No effect!");
+        pending_caster_=-1;return;
+    }
+    openu5::Command c;c.kind=openu5::CommandKind::Cast;c.item=int16_t(spell);c.hours=-1;
+    if(context_.combat){
+        auto *actor=openu5::current_combat_actor(combat_context_);
+        c.caster=actor&&actor->member!=255?int16_t(actor->member):int16_t(active_member(game_));
+        c.typed_name=!absorbed; // "Cast..." was echoed before the prompt
+    }else c.caster=pending_caster_>=0?pending_caster_:int16_t(active_member(game_));
+    pending_caster_=-1;
+    command(c);
+}
+
 void AlphaRuntime::cast_selected_spell(int16_t spell){
     openu5::Command c;c.kind=openu5::CommandKind::Cast;c.item=spell;
+    // Typed names (Windows, desktop Original mode) echoed the arena's "Cast..." already.
+    c.typed_name=context_.combat&&openu5::platform_typed_spell_names();
     // R-25 (Batch 19). Branch 1 of kernel 0x4988 (@0x4995): in combat
     // g_location is 0xFF, so the routine never asks -- the caster is the
     // ACTING combatant, read as field +3 of g_combat_actor_records[g_cmb_actor]
@@ -2499,7 +2533,7 @@ const DeviceSelectionView *AlphaRuntime::compose_selection_view(){
         std::snprintf(selection_view_.context.status,sizeof(selection_view_.context.status),"Z-stats");
         openu5::platform_format(selection_view_.context.actions,sizeof(selection_view_.context.actions),
                       page.kind==openu5::ZStatsPageKind::List&&page.list_total>openu5::kZStatsListRows
-                          ?"L/R Page|U/D Scroll|Mic":"Move Page|0-6 Jump|Mic");
+                          ?"L/R Page|U/D Scroll|{back}":"Move Page|0-6 Jump|{back}");
         return &selection_view_;
     }
     openu5::UiSelectionView current{};if(!ui_->selection_view(current))return nullptr;

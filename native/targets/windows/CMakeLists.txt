@@ -3,9 +3,11 @@
 # One gameplay implementation: this target compiles the shared core
 # (native/core, the same source list the T-Deck firmware builds) and the
 # T-Deck application layer (native/targets/tdeck/main: AlphaRuntime, the
-# Board presentation, saves, resources) UNCHANGED, over a Windows
-# implementation of the small ESP-IDF surface they use (esp_compat/ and
-# src/platform/). See WINDOWS_PORT_PLAN.md at the repository root.
+# Board presentation, saves, resources) from the SAME sources the firmware
+# builds, over a Windows implementation of the small ESP-IDF surface they use
+# (esp_compat/ and src/platform/). The few desktop needs in those shared
+# sources (platform profile, desktop input entry, typed spell names) are
+# behaviour-preserving for the T-Deck; see WINDOWS_PORT_PLAN.md, section 5.
 #
 #   cmake -S native/targets/windows -B build/windows -G "Visual Studio 18 2026" -A x64
 #   cmake --build build/windows --config Release
@@ -145,7 +147,7 @@ target_link_libraries(uv_platform PUBLIC uv_core)
 target_compile_options(uv_platform PRIVATE ${UV_COMMON_OPTIONS} ${UV_OWN_WARNINGS})
 
 # ---------------------------------------------------------------------------
-# 3. The shared application layer: native/targets/tdeck/main, unchanged
+# 3. The shared application layer: native/targets/tdeck/main (the firmware's sources)
 # ---------------------------------------------------------------------------
 # Every file here is portable application code the T-Deck firmware builds as
 # well; the device-only files (main.cpp, tdeck_input.cpp, tdeck_audio.cpp,

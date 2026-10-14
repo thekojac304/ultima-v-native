@@ -48,20 +48,30 @@ Option A -- make them with Prepare-Game-Data.cmd (recommended)
   2. Double-click Prepare-Game-Data.cmd. When asked, choose the folder that
      holds your Ultima V files (the one with ULTIMA.EXE, BRIT.DAT, TILES.16,
      DATA.OVL, ...). For the GOG release that is the game's install folder.
-  3. It writes the packs into the game's data folder (see below) and tells
-     you whether they match what this build expects.
+  3. It writes the packs into the ultima5 folder inside the data folder (see
+     "Files and folders" below) and tells you whether they match what this
+     build expects.
 
 Option B -- copy them from a T-Deck SD card
   If you already prepared an SD card for Ultima V Native v0.4.0 or later on
   the same version of the pack builder, copy the card's "ultima5" folder into
-  the data folder (saves and settings come along and keep working).
+  the data folder, so that it becomes (or replaces) the ultima5 folder there:
+  %APPDATA%\Ultima V Native\ultima5 (Ctrl+O in the game opens the data
+  folder). Saves and settings come along and keep working; the T-Deck's
+  Brightness setting has no effect on Windows.
 
 Option C -- from a source checkout (developers)
-  npm install, then run the steps in native/tools/asset-prep (or the
-  individual npm run extract / pack:native / pack:alpha1 / pack:audio steps).
+  After "npm install", from the checkout's root folder:
+    node --import tsx native/tools/asset-prep/prepare.ts --game "<Ultima V folder>" --out "%APPDATA%\Ultima V Native\ultima5"
+  It runs the same five steps as prepare-assets.mjs (extract, the combat
+  fixtures, pack:native, pack:alpha1, pack:audio) in a temporary folder. The
+  steps can also be run one by one (npm run extract, then
+  node --import tsx native/core/tools/generate-world-flow-fixtures.ts, then
+  npm run pack:native / pack:alpha1 / pack:audio; see native/core/README.md).
 
 If the packs are missing or were made by a different version of the pack
-builder, the game says so when it starts and offers to open the data folder.
+builder, the game says so when it starts and offers to open the folder the
+packs go in.
 
 
 3. STARTING THE GAME
@@ -76,6 +86,7 @@ The title sequence plays; press a key for the menu:
   Transfer from Ultima IV, Ultima V Introduction, Acknowledgements
   Return to the View      back to the title sequence
   Settings                sound, music, text size, interface, display
+                          (there is no Brightness: use your monitor's)
   PC Save Transfer        import / export saves of the original DOS game
 
 
@@ -86,13 +97,17 @@ remembered.
 
 ORIGINAL (the default) is the preservation mode:
   - the 1988 keyboard: the original letter commands, arrow keys to move,
-    a member's number in "Player:" prompts, Esc to cancel, Space to pass;
+    Esc to cancel, Space to pass; in a "Player:" prompt a member's number
+    highlights that member and Enter or Space chooses, as in 1988;
   - Cast and Mix ask "Spell name:" / "For what spell?" and you TYPE the
     first letter of each syllable, as in 1988 (I L = IN LOR, V F = VAS FLAM;
     the order does not matter; Backspace removes a syllable, Enter accepts,
     Esc cancels);
+  - Q (Quit & Save) asks "Save game?" and takes only Y or N, as in 1988;
   - the 1988 rules: the System Menu has no Difficulty or Cheats;
-  - no shortcut keys that the original did not have.
+  - no gameplay shortcut keys that the original did not have (the desktop
+    system keys -- F10/Alt+M, F7/F8, Alt+Enter/F11, Ctrl+=/-, F12, Ctrl+O --
+    work in both modes; see CONTROLS.txt).
 
 ENHANCED adds the project's optional conveniences:
   - Difficulty presets (Original, Relaxed, Easy, Custom) and Cheats in the
@@ -108,16 +123,18 @@ interface mode: switching to Original never rewrites them.
 
 5. SAVING
 ---------
-  Q (Quit & Save) in the game, or the System Menu (F10) -> Save Game.
+  Q (Quit & Save; Original mode only, answer Y), F5 quick save (Enhanced
+  mode only), or the System Menu (F10) -> Save Game in either mode.
   There are three save slots; each keeps its previous save as a backup, so a
   damaged save falls back to the one before. "Journey Onward" continues the
   slot saved last; System Menu -> Load Game picks a slot.
   Closing the window does NOT save: save first.
 
-PC/DOS saves: put the original game's SAVED.GAM and SAVED.OOL in the data
-folder's ultima5\import folder, then Title -> PC Save Transfer -> Import.
-Export writes ultima5\export\slotN\SAVED.GAM / SAVED.OOL (and EXPORT.TXT),
-which the original DOS game can load. Your own files are only read.
+PC/DOS saves: put the original game's SAVED.GAM and SAVED.OOL in
+%APPDATA%\Ultima V Native\ultima5\import, then Title -> PC Save Transfer ->
+Import. Export writes ultima5\export\slotN\SAVED.GAM / SAVED.OOL (and
+EXPORT.TXT) in the data folder, which the original DOS game can load. Your
+own files are only read.
 
 
 6. MUSIC AND SOUND
@@ -134,21 +151,26 @@ setting explains that there is no music. Nothing is invented or substituted.
 
 7. FILES AND FOLDERS
 --------------------
-The data folder holds the packs, your saves and settings:
-  %APPDATA%\Ultima V Native\ultima5\
+The data folder is  %APPDATA%\Ultima V Native  (Ctrl+O in the game opens it):
+  ultima5\                    the game's files, laid out like the T-Deck's
+                              SD card:
       openu5-*.bin            the packs
       saves\                  the save slots
       settings.json           game settings (the same file the T-Deck uses)
       windows.json            window, scaling and interface mode
       import\  export\        PC/DOS save transfer
       logs\windows.log        the log -- attach it to bug reports
+  screenshots\                F12 pictures
 
-  Ctrl+O in the game opens this folder.
   PORTABLE: create an empty file named portable.txt beside UltimaVNative.exe
-  and the data folder becomes the "data" folder next to the program.
+  and the data folder becomes the "data" folder next to the program (the
+  game's files then go in data\ultima5).
   Or start the game with:  UltimaVNative.exe --data-dir "D:\my folder"
+  (the game's files then go in D:\my folder\ultima5).
+  Only one copy of the game can run on one data folder at a time.
 
-Command-line options: UltimaVNative.exe --help
+Command-line options: UltimaVNative.exe --help  (--mode, --fullscreen and
+--windowed apply to that run only).
 
 
 8. KNOWN LIMITATIONS OF THIS BUILD

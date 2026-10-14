@@ -55,7 +55,7 @@ void show_error(SDL_Window *window, const std::string &title, const std::string 
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title.c_str(), text.c_str(), window);
 }
 
-/** A missing or mismatched pack: explain, and offer to open the data folder. */
+/** A missing or mismatched pack: explain, and offer to open the folder the packs go in. */
 void show_asset_problem(SDL_Window *window, const DataPaths &paths, const std::string &detail) {
     const std::string folder = narrow(paths.ultima5_dir());
     const std::string text =
@@ -71,7 +71,7 @@ void show_asset_problem(SDL_Window *window, const DataPaths &paths, const std::s
     ESP_LOGE(kTag, "ASSETS %s", detail.c_str());
     log::flush();
     const SDL_MessageBoxButtonData buttons[] = {
-        {SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Open data folder"},
+        {SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Open the packs folder"},
         {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "Quit"},
     };
     const SDL_MessageBoxData box{SDL_MESSAGEBOX_ERROR, window, "Ultima V Native: game data needed", text.c_str(),
@@ -92,22 +92,30 @@ std::string pack_identity(const char *what, uint16_t major, uint16_t minor, uint
 
 // ---------------------------------------------------------------------------
 // Single instance per data directory: two windows on one "card" would
-// interleave save generations.
+// interleave save generations. The lock is a file inside the folder, opened
+// with no sharing and deleted when its handle closes (also on a crash), so
+// every spelling of the folder -- case, 8.3 names, subst or mapped drives,
+// another logon session, a network share -- meets the same lock.
 // ---------------------------------------------------------------------------
 class InstanceLock {
   public:
     explicit InstanceLock(const std::wstring &data_dir) {
-        std::wstring name = L"Local\\UltimaVNative-";
-        size_t h = std::hash<std::wstring>{}(data_dir);
-        name += std::to_wstring(h);
-        handle_ = CreateMutexW(nullptr, TRUE, name.c_str());
-        owned_ = handle_ && GetLastError() != ERROR_ALREADY_EXISTS;
+        const std::wstring path = data_dir + L"\\instance.lock";
+        handle_ = CreateFileW(path.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_ALWAYS,
+                              FILE_ATTRIBUTE_HIDDEN | FILE_FLAG_DELETE_ON_CLOSE, nullptr);
+        if (handle_ == INVALID_HANDLE_VALUE) {
+            handle_ = nullptr;
+            const DWORD error = GetLastError();
+            // Only "someone holds it" refuses the start; a folder that cannot
+            // take the file at all has already failed the writability check.
+            owned_ = error != ERROR_SHARING_VIOLATION;
+            if (owned_) ESP_LOGW(kTag, "instance lock unavailable (error %lu); continuing", (unsigned long)error);
+        } else {
+            owned_ = true;
+        }
     }
     ~InstanceLock() {
-        if (handle_) {
-            if (owned_) ReleaseMutex(handle_);
-            CloseHandle(handle_);
-        }
+        if (handle_) CloseHandle(handle_);
     }
     bool owned() const { return owned_; }
 
@@ -166,6 +174,12 @@ class Game {
     AppOptions options_;
     DataPaths paths_{};
     DesktopSettings settings_{};
+    // windows.json as the player left it. --mode / --fullscreen / --windowed
+    // apply to this run only: until the player changes that setting in the
+    // game, save_settings() writes the stored value back, not the override.
+    DesktopSettings stored_settings_{};
+    bool mode_overridden_ = false;
+    bool fullscreen_overridden_ = false;
     std::unique_ptr<InstanceLock> lock_;
     Presenter presenter_;
     DesktopInput input_;
@@ -185,6 +199,7 @@ class Game {
     // Pushed text events point at their characters until they are polled.
     std::deque<std::string> text_buffers_;
     std::string remembered_position_;
+    uint32_t remembered_combat_actions_ = 0;
 };
 
 int Game::run() {
@@ -244,6 +259,9 @@ bool Game::boot() {
     // --- Desktop settings ----------------------------------------------------------
     if (!load_desktop_settings(paths_.ultima5_dir() + L"\\windows.json", settings_))
         ESP_LOGW(kTag, "windows.json is malformed; the desktop defaults are used");
+    stored_settings_ = settings_;
+    mode_overridden_ = options_.interface_override;
+    fullscreen_overridden_ = options_.force_fullscreen || options_.force_windowed;
     if (options_.interface_override) settings_.interface_mode = options_.interface_mode;
     if (options_.force_fullscreen) settings_.fullscreen = true;
     if (options_.force_windowed) settings_.fullscreen = false;
@@ -258,6 +276,8 @@ bool Game::boot() {
         return false;
     }
     update_title();
+    input_.set_layout_has_altgr(DesktopInput::detect_layout_altgr());
+    ESP_LOGI(kTag, "keyboard layout has AltGr: %s", input_.layout_has_altgr() ? "yes" : "no");
 
     // --- The shared presentation on the virtual panel ---------------------------------
     panel::reset(0x0000);
@@ -359,6 +379,7 @@ InputContext Game::input_context() const {
 void Game::sync_mode() {
     if (settings_.interface_mode == applied_mode_) return;
     applied_mode_ = settings_.interface_mode;
+    mode_overridden_ = false; // the player chose it: it is saved
     input_.set_mode(applied_mode_);
     install_profile();
     update_title();
@@ -380,6 +401,7 @@ void Game::on_profile_change(void *context, DesktopProfile::Change what) {
     switch (what) {
     case DesktopProfile::Change::Interface: self->sync_mode(); return; // persists too
     case DesktopProfile::Change::Display:
+        self->fullscreen_overridden_ = false;
         self->presenter_.set_fullscreen(self->settings_.fullscreen);
         if (!self->settings_.fullscreen) self->presenter_.set_window_scale(self->settings_.window_scale);
         break;
@@ -388,10 +410,12 @@ void Game::on_profile_change(void *context, DesktopProfile::Change what) {
     self->save_settings();
 }
 
+// The data folder itself: the game's files are in its ultima5 subfolder (the
+// T-Deck card's layout), F12's pictures in its screenshots subfolder.
 void Game::open_data_folder() {
     storage::ensure_directory(paths_.ultima5_dir());
-    ShellExecuteW(nullptr, L"open", paths_.ultima5_dir().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
-    ESP_LOGI(kTag, "opened the data folder %s", narrow(paths_.ultima5_dir()).c_str());
+    ShellExecuteW(nullptr, L"open", paths_.data_dir.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+    ESP_LOGI(kTag, "opened the data folder %s", narrow(paths_.data_dir).c_str());
 }
 
 void Game::update_title() {
@@ -402,8 +426,11 @@ void Game::update_title() {
 }
 
 void Game::save_settings() {
-    if (!save_desktop_settings(paths_.ultima5_dir() + L"\\windows.json", settings_))
-        ESP_LOGW(kTag, "windows.json could not be written");
+    DesktopSettings out = settings_;
+    if (mode_overridden_) out.interface_mode = stored_settings_.interface_mode;
+    if (fullscreen_overridden_) out.fullscreen = stored_settings_.fullscreen;
+    if (save_desktop_settings(paths_.ultima5_dir() + L"\\windows.json", out)) stored_settings_ = out;
+    else ESP_LOGW(kTag, "windows.json could not be written");
 }
 
 void Game::take_screenshot() {
@@ -427,6 +454,7 @@ void Game::apply_command(const DesktopCommand &command) {
         break;
     }
     case DesktopCommand::Kind::ToggleFullscreen:
+        fullscreen_overridden_ = false;
         settings_.fullscreen = !presenter_.fullscreen();
         presenter_.set_fullscreen(settings_.fullscreen);
         save_settings();
@@ -437,6 +465,7 @@ void Game::apply_command(const DesktopCommand &command) {
         settings_.window_scale =
             uint8_t(std::clamp(int(settings_.window_scale) + delta, int(kMinWindowScale), int(kMaxWindowScale)));
         if (settings_.fullscreen) {
+            fullscreen_overridden_ = false;
             settings_.fullscreen = false;
             presenter_.set_fullscreen(false);
         }
@@ -614,7 +643,7 @@ bool Game::autotest_expect(const AutotestStep &step) {
     } else if (name == "frontend_state") {
         actual = std::to_string(int(runtime_->frontend_state()));
         ok = actual == value;
-    } else if (name == "transcript" || name == "no_transcript") {
+    } else if (name == "transcript" || name == "no_transcript" || name == "transcript_count") {
         // The console's last 24 blocks; no_transcript passes when VALUE is absent.
         const openu5::UiSession *ui = runtime_->ui();
         const size_t count = ui ? ui->transcript_size() : 0;
@@ -624,7 +653,19 @@ bool Game::autotest_expect(const AutotestStep &step) {
             actual += std::string(block->text, block->length);
             actual += " | ";
         }
-        ok = (actual.find(value) != std::string::npos) == (name == "transcript");
+        if (name == "transcript_count") {
+            // VALUE = "N TEXT": TEXT occurs exactly N times.
+            const size_t space = value.find(' ');
+            const std::string needle = space == std::string::npos ? std::string() : value.substr(space + 1);
+            size_t found = 0;
+            for (size_t at = needle.empty() ? std::string::npos : actual.find(needle); at != std::string::npos;
+                 at = actual.find(needle, at + needle.size()))
+                ++found;
+            ok = !needle.empty() && std::to_string(found) == value.substr(0, space);
+            actual = std::to_string(found) + "x in: " + actual;
+        } else {
+            ok = (actual.find(value) != std::string::npos) == (name == "transcript");
+        }
     } else if (name == "footer") {
         // The title/menu page's footer (or the System Menu's) contains VALUE.
         if (runtime_->frontend_open() || runtime_->system_menu_open()) {
@@ -653,6 +694,17 @@ bool Game::autotest_expect(const AutotestStep &step) {
     } else if (name == "combat") {
         actual = runtime_->command_context().combat ? "1" : "0";
         ok = actual == value;
+    } else if (name == "remember_combat_actions" || name == "combat_actions_advanced") {
+        // The arena's action counter: Engine::advance() bumps it when a turn ends.
+        const uint32_t now = runtime_->combat_state().action_count;
+        if (name == "remember_combat_actions") {
+            remembered_combat_actions_ = now;
+            actual = std::to_string(now);
+            ok = true;
+        } else {
+            actual = now != remembered_combat_actions_ ? "1" : "0";
+            ok = actual == value;
+        }
     } else if (name == "dungeon") {
         actual = runtime_->dungeon_state().active ? "1" : "0";
         ok = actual == value;
@@ -920,13 +972,14 @@ AppOptions parse_options(int argc, wchar_t **argv) {
 std::string usage_text() {
     return "Ultima V Native for Windows\n\n"
            "  --data-dir <folder>   use <folder> as the data folder (packs, saves, settings)\n"
-           "  --mode original|enhanced   start in this interface mode (saved)\n"
-           "  --fullscreen / --windowed  start fullscreen or in a window\n"
+           "  --mode original|enhanced   start in this interface mode (this run only)\n"
+           "  --fullscreen / --windowed  start fullscreen or in a window (this run only)\n"
            "  --no-audio            no sound output\n"
            "  --developer           allow the Developer menu (Alt+D) in Original mode\n"
            "  --console             also write the log to a console window\n"
            "  --log-level 0..5      log detail (0 none, 3 info, 5 everything)\n"
-           "  --autotest <script>   run a test script (see README-Windows.txt)\n";
+           "  --autotest <script>   developers: run a test script (the format is in\n"
+           "                        native/targets/windows/src/app/autotest.h in the source)\n";
 }
 
 int run_application(const AppOptions &options) {

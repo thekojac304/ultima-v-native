@@ -14,6 +14,8 @@
 //                           frontend_state <FrontendState number>,
 //                           transcript TEXT / no_transcript TEXT (the console's
 //                             last blocks contain / do not contain TEXT),
+//                           transcript_count "N TEXT" (TEXT occurs exactly N
+//                             times in those blocks),
 //                           footer TEXT (the title or System Menu page's footer
 //                             or subtitle contains TEXT),
 //                           interface Original|Enhanced,
@@ -21,6 +23,9 @@
 //                           remember_position (any value: store the position),
 //                           remembered_position 1|0 (back where stored / not),
 //                           combat 0|1, dungeon 0|1, location <id>,
+//                           remember_combat_actions (any value: store the
+//                             arena's action counter), combat_actions_advanced
+//                             1|0 (an arena turn ended since / none did),
 //                           panel_changed 0|1 (since the previous expect),
 //                           audio_frames_min N
 //   screenshot PATH       write the panel as a BMP

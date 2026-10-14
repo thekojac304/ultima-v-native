@@ -24,7 +24,8 @@ MOVING AND CHOOSING
   Esc                  cancel / back
   Backspace            back; erase while typing
   PgUp / PgDn          scroll the message console (also Shift+Up / Shift+Down)
-  1-6 in "Player:"     choose that party member
+  1-6 in "Player:"     highlight that party member; Enter or Space chooses
+                       (as in 1988)
   Dungeons: Up = forward, Down = back, Left/Right = turn
 
 CASTING AND MIXING
@@ -37,14 +38,18 @@ CASTING AND MIXING
 SYSTEM
   F10 (or Alt+M)       System Menu: resume, save, load, settings, title
   Q                    Original mode: "Save game?" -- Y saves the journey in
-                       its own slot (as in 1988, the game continues)
+                       its own slot, N does not; only Y or N answer (as in
+                       1988, the game continues)
   F7 / Ctrl+M          music off / on for this session
   F8 / Ctrl+S          sound off / on for this session (Ctrl+S as in 1988)
   Alt+Enter or F11     fullscreen / window
   Ctrl+= / Ctrl+-      larger / smaller window
   F12                  screenshot (data folder\screenshots)
-  Ctrl+O               open the data folder (saves, PC import/export, logs)
+  Ctrl+O               open the data folder (the game's files are in its
+                       ultima5 folder: saves, PC import/export, logs)
   Alt+F4               close the game (it does NOT save: save first)
+  On keyboards with AltGr (German, French, ...), AltGr types its characters;
+  use the LEFT Alt key for the Alt chords.
 
 ENHANCED MODE ONLY  (Settings -> Interface: Enhanced)
   F5 (or Alt+S)        quick save in the journey's slot

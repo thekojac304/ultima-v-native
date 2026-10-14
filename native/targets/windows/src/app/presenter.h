@@ -6,8 +6,8 @@
 // streaming texture of that size, uploads the panel when it changed and
 // draws it scaled with nearest-neighbour sampling, keeping the 4:3 aspect:
 // whole-number scales (Scaling::Integer, letterboxed) or the largest fit
-// (Scaling::Fit). The panel's backlight duty dims the picture as the T-Deck's
-// Brightness setting dims its backlight.
+// (Scaling::Fit). The panel's backlight duty (the T-Deck's Brightness) is
+// ignored: the picture is always drawn at full intensity.
 #include <cstdint>
 #include <string>
 
@@ -56,7 +56,6 @@ class Presenter {
     SDL_Renderer *renderer_ = nullptr;
     SDL_Texture *texture_ = nullptr;
     uint64_t uploaded_generation_ = ~0ull;
-    uint32_t applied_duty_ = ~0u;
     uint64_t frames_ = 0;
     bool stale_ = true;
     Scaling scaling_ = Scaling::Integer;

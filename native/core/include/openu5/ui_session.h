@@ -50,7 +50,11 @@ enum class UiActionKind : uint8_t {
     SelectIndex,
     TextInput,
     DeleteCharacter,
-    SystemMenu
+    SystemMenu,
+    // Moves a selection's cursor to `index` without choosing it: a digit in a
+    // 1988 "Player:" prompt (kernel 0x2d7a) only moves the highlight; RETURN or
+    // Space chooses. Sent by the Windows desktop keyboard; the T-Deck has none.
+    HighlightIndex
 };
 
 // The text pointer is borrowed for handle_input() only.  Character and TextInput

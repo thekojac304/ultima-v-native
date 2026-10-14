@@ -483,10 +483,11 @@ void UiSession::begin_number(UiRequestId r, const char *p, int32_t minimum,
 
 // Windows port, desktop Original mode: (Q)uit & Save -- the dispatcher's echo
 // "Quit:" (DS 0x338C) and "Save game? " (DS 0x9658). The 1988 getkey loops
-// until Y or N; here ESC answers No, which saves nothing either.
+// until Y or N (CAST2 0x110b-0x1117): RETURN, ESC and Backspace are read and
+// dropped, so the YesNo arm below takes only the two letters for this prompt.
 void UiSession::begin_quit_save() {
     command_echo("Quit:");
-    begin_yes_no(UiRequestId::QuitSave, "Save game? ", true);
+    begin_yes_no(UiRequestId::QuitSave, "Save game? ", false);
 }
 
 void UiSession::begin_yes_no(UiRequestId r, const char *p, bool cancel_means_no) {
@@ -804,7 +805,7 @@ bool UiSession::handle_modal(const UiAction &a) {
     }
     if (mode_ == UiMode::YesNo) {
         bool valid = false, yes = false;
-        if (a.kind == UiActionKind::Confirm) valid = yes = true;
+        if (a.kind == UiActionKind::Confirm) valid = yes = request_ != UiRequestId::QuitSave;
         else if (a.kind == UiActionKind::Character) {
             const auto c = lower_ascii(a.character);
             valid = c == 'y' || c == 'n'; yes = c == 'y';
@@ -857,6 +858,8 @@ bool UiSession::handle_modal(const UiAction &a) {
             else selection_cursor_ = (selection_cursor_ + count - 1) % count;
         } else if (count && a.kind == UiActionKind::Previous)
             selection_cursor_ = (selection_cursor_ + count - 1) % count;
+        else if (count && a.kind == UiActionKind::HighlightIndex && a.index >= 0 && size_t(a.index) < count)
+            selection_cursor_ = size_t(a.index);
         else if (count && a.kind == UiActionKind::SelectIndex && a.index >= 0 &&
                  size_t(a.index) < count) {
             selection_cursor_ = size_t(a.index);

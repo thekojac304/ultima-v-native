@@ -39,7 +39,11 @@ constexpr SDL_Keymod kCtrl = SDL_KMOD_LCTRL;
 constexpr SDL_Keymod kAlt = SDL_KMOD_LALT;
 constexpr SDL_Keymod kRAlt = SDL_KMOD_RALT;
 constexpr SDL_Keymod kNum = SDL_KMOD_NUM;
-constexpr SDL_Keymod kAltGr = SDL_KMOD_LCTRL | SDL_KMOD_RALT; // what Windows reports for AltGr
+// What SDL3 on Windows reports for AltGr: Right Alt alone (it drops the fake
+// left Ctrl that Windows sends with it). The older Ctrl+Right Alt form is kept
+// as kAltGrLegacy, for when SDL's heuristic misses the fake Ctrl.
+constexpr SDL_Keymod kAltGr = SDL_KMOD_RALT;
+constexpr SDL_Keymod kAltGrLegacy = SDL_KMOD_LCTRL | SDL_KMOD_RALT;
 
 SDL_Event key(SDL_Scancode sc, SDL_Keymod mod = kNone, bool repeat = false) {
     SDL_Event e;
@@ -95,6 +99,7 @@ const char *kind_name(UiActionKind k) {
     case UiActionKind::TextInput: return "TextInput";
     case UiActionKind::DeleteCharacter: return "DeleteCharacter";
     case UiActionKind::SystemMenu: return "SystemMenu";
+    case UiActionKind::HighlightIndex: return "HighlightIndex";
     }
     return "?";
 }
@@ -149,7 +154,9 @@ bool is_game(const Out &o, UiActionKind k) {
 }
 bool is_dir(const Out &o, Direction d) { return is_game(o, UiActionKind::Direction) && o.c[0].action.direction == d; }
 bool is_char(const Out &o, char ch) { return is_game(o, UiActionKind::Character) && o.c[0].action.character == char16_t(ch); }
-bool is_select(const Out &o, int index) { return is_game(o, UiActionKind::SelectIndex) && o.c[0].action.index == index; }
+bool is_highlight(const Out &o, int index) {
+    return is_game(o, UiActionKind::HighlightIndex) && o.c[0].action.index == index;
+}
 bool is_shortcut(const Out &o, DeviceShortcut s) {
     // A device shortcut carries no key: its action must NOT be UiAction's
     // default kind (Confirm), or a screen would read it as Enter.
@@ -410,12 +417,33 @@ void text_input() {
 
 void party_selection() {
     for (InterfaceMode m : kModes) {
-        for (char d = '1'; d <= '9'; ++d) {
+        // Kernel 0x2d7a: a digit 1-6 only moves the highlight; RETURN or Space chooses.
+        for (char d = '1'; d <= '6'; ++d) {
             DesktopInput in = input_in(m);
             const char s[2] = {d, 0};
             const Out o = run(in, text(s), ctx(UiMode::PartySelection, UiRequestId::Party));
-            check(is_select(o, d - '1'), format("P1 %s: '%c' in a Player: prompt -> SelectIndex(%d)", mode_tag(m), d, d - '1'),
+            check(is_highlight(o, d - '1'),
+                  format("P1 %s: '%c' in a Player: prompt -> HighlightIndex(%d), not a choice", mode_tag(m), d, d - '1'),
                   describe(o));
+        }
+        for (char d = '7'; d <= '9'; ++d) {
+            DesktopInput in = input_in(m);
+            const char s[2] = {d, 0};
+            const Out o = run(in, text(s), ctx(UiMode::PartySelection, UiRequestId::CastMember));
+            check(is_char(o, d), format("P1 %s: '%c' (no seventh member) stays a Character, which the picker drops", mode_tag(m), d),
+                  describe(o));
+        }
+        {
+            DesktopInput in = input_in(m);
+            const Out space = run(in, text(" "), ctx(UiMode::PartySelection, UiRequestId::CastMember));
+            const Out camp = run(in, text(" "), ctx(UiMode::PartySelection, UiRequestId::CampGuard));
+            const Out mix = run(in, text(" "), ctx(UiMode::PartySelection, UiRequestId::MixReagents));
+            const Out outside = run(in, text(" "), ctx(UiMode::Exploration));
+            check(is_game(space, UiActionKind::Confirm), format("P6 %s: Space in a Player: prompt chooses (Confirm)", mode_tag(m)),
+                  describe(space));
+            check(is_char(camp, ' ') && is_char(mix, ' ') && is_char(outside, ' '),
+                  format("P6 %s: Space stays a Character for the Camp watch, the Mix picker and outside prompts", mode_tag(m)),
+                  describe(camp) + " / " + describe(mix) + " / " + describe(outside));
         }
         {
             DesktopInput in = input_in(m);
@@ -443,7 +471,8 @@ void party_selection() {
             const Out b = run(in, text("3"), ctx(UiMode::PartySelection, UiRequestId::SearchMember));
             const Out c = run(in, text("3"), ctx(UiMode::Exploration));
             const Out e = run(in, text("3"), ctx(UiMode::NumericEntry));
-            check(is_select(a, 2) && is_select(b, 2), format("P4 %s: other Player: requests take the member number", mode_tag(m)),
+            check(is_highlight(a, 2) && is_highlight(b, 2),
+                  format("P4 %s: other Player: requests highlight the member number", mode_tag(m)),
                   describe(a) + " / " + describe(b));
             check(is_char(c, '3') && is_char(e, '3'), format("P5 %s: outside PartySelection a digit is a Character", mode_tag(m)),
                   describe(c) + " / " + describe(e));
@@ -662,7 +691,9 @@ void chords_and_altgr() {
             check(none(lost) && is_char(t, 'm'), format("A3 %s: a focus change resets the text suppression", mode_tag(m)),
                   describe(lost) + " / " + describe(t));
         }
-        // AltGr (Ctrl+RAlt on Windows) types characters: it is neither Alt nor Ctrl.
+        // AltGr types characters: it is neither Alt nor Ctrl. SDL3 sends it as
+        // Right Alt alone on a layout with an AltGr level; the older Ctrl+Right
+        // Alt form is recognised on any layout.
         struct AltGr {
             const char *name;
             SDL_Scancode sc;
@@ -679,21 +710,46 @@ void chords_and_altgr() {
             {"AltGr+=", SDL_SCANCODE_EQUALS, "~", '~'},
             {"AltGr+L", SDL_SCANCODE_L, "\xc5\x82", 0},
         };
-        for (const AltGr &a : altgr) {
+        struct Form {
+            const char *name;
+            SDL_Keymod mod;
+            bool layout_has_altgr;
+        };
+        const Form forms[] = {{"RAlt, AltGr layout", kAltGr, true}, {"Ctrl+RAlt, any layout", kAltGrLegacy, false}};
+        for (const Form &f : forms) {
+            for (const AltGr &a : altgr) {
+                DesktopInput in = input_in(m);
+                in.set_layout_has_altgr(f.layout_has_altgr);
+                const Out down = run(in, key(a.sc, f.mod), ctx(UiMode::Dialogue, UiRequestId::None, false, false, true));
+                const Out t = run(in, text(a.typed), ctx(UiMode::Dialogue, UiRequestId::None, false, false, true));
+                const bool typed_ok = a.want ? is_char(t, a.want) : none(t);
+                check(none(down) && typed_ok,
+                      format("G1 %s (%s): %s is typing, not an Alt/Ctrl chord (no command on key-down; text %s)", mode_tag(m),
+                             f.name, a.name, a.want ? "passes" : "non-ASCII, dropped"),
+                      describe(down) + " / " + describe(t));
+            }
             DesktopInput in = input_in(m);
-            const Out down = run(in, key(a.sc, kAltGr), ctx(UiMode::Dialogue, UiRequestId::None, false, false, true));
-            const Out t = run(in, text(a.typed), ctx(UiMode::Dialogue, UiRequestId::None, false, false, true));
-            const bool typed_ok = a.want ? is_char(t, a.want) : none(t);
-            check(none(down) && typed_ok,
-                  format("G1 %s: %s is typing, not an Alt/Ctrl chord (no command on key-down; text %s)", mode_tag(m), a.name,
-                         a.want ? "passes" : "non-ASCII, dropped"),
-                  describe(down) + " / " + describe(t));
+            in.set_layout_has_altgr(f.layout_has_altgr);
+            const Out enter = run(in, key(SDL_SCANCODE_RETURN, f.mod));
+            check(is_game(enter, UiActionKind::Confirm),
+                  format("G2 %s (%s): AltGr+Enter is Enter (Confirm), not Alt+Enter fullscreen", mode_tag(m), f.name),
+                  describe(enter));
+        }
+        {
+            // On an AltGr layout the LEFT Alt is still the T-Deck's Alt, and
+            // AltGr+S / AltGr+L never quick-save or quick-load.
+            DesktopInput in = input_in(m);
+            in.set_layout_has_altgr(true);
+            const Out lalt = run(in, key(SDL_SCANCODE_M, kAlt));
+            const Out altgr_s = run(in, key(SDL_SCANCODE_S, kAltGr));
+            const Out altgr_l = run(in, key(SDL_SCANCODE_L, kAltGr));
+            check(is_game(lalt, UiActionKind::SystemMenu) && none(altgr_s) && none(altgr_l),
+                  format("G3 %s: AltGr layout: Left Alt+M is the menu; AltGr+S / AltGr+L do nothing", mode_tag(m)),
+                  describe(lalt) + " / " + describe(altgr_s) + " / " + describe(altgr_l));
         }
         {
             DesktopInput in = input_in(m);
-            const Out enter = run(in, key(SDL_SCANCODE_RETURN, kAltGr));
-            check(is_game(enter, UiActionKind::Confirm), format("G2 %s: AltGr+Enter is Enter (Confirm), not Alt+Enter fullscreen", mode_tag(m)),
-                  describe(enter));
+            check(!in.layout_has_altgr(), format("G4 %s: a new DesktopInput assumes no AltGr level (Right Alt = Alt)", mode_tag(m)));
         }
     }
 }

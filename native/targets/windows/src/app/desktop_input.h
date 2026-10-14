@@ -13,8 +13,9 @@
 //   both modes  arrows = directions (Shift+Up/Down page the console), Enter =
 //               Confirm, Esc = Cancel, Backspace = Back (DeleteCharacter while
 //               typing), PgUp/PgDn = page, letters/digits/Space/punctuation =
-//               the original command keys, digits 1-6 pick the member in a
-//               "Player:" prompt, F10 / Alt+M = System Menu, F7 / F8 and
+//               the original command keys, digits 1-6 move the highlight in a
+//               "Player:" prompt and Enter / Space choose (kernel 0x2d7a),
+//               F10 / Alt+M = System Menu, F7 / F8 and
 //               Ctrl+M / Ctrl+S = music / sound off and on (the DOS game's
 //               Ctrl-S sound toggle), Alt+Enter / F11 = fullscreen, Ctrl+O =
 //               open the data folder, F12 = screenshot.
@@ -65,6 +66,18 @@ class DesktopInput {
     InterfaceMode mode() const { return mode_; }
 
     /**
+     * Whether the active keyboard layout has an AltGr level (German, French,
+     * Polish Programmers...). SDL3 on Windows drops the fake left Ctrl that
+     * comes with AltGr, so AltGr arrives as Right Alt alone; on such a layout
+     * Right Alt types characters and is never the T-Deck's Alt. The
+     * application sets this at start-up; SDL_EVENT_KEYMAP_CHANGED refreshes it.
+     */
+    void set_layout_has_altgr(bool on) { layout_has_altgr_ = on; }
+    bool layout_has_altgr() const { return layout_has_altgr_; }
+    /** Asks SDL's keymap (video must be initialised): any key with its own AltGr character. */
+    static bool detect_layout_altgr();
+
+    /**
      * Translates one SDL event (key down or text input; everything else is
      * ignored) into at most kMaxCommands commands; returns how many.
      */
@@ -78,6 +91,7 @@ class DesktopInput {
     size_t text(const char *utf8, const InputContext &context, DesktopCommand *out, size_t capacity);
 
     InterfaceMode mode_ = InterfaceMode::Original;
+    bool layout_has_altgr_ = false;
     // A key handled on key-down (an Alt or Ctrl chord) must not also arrive as text.
     bool suppress_text_ = false;
     // OS auto-repeat: allowed for movement, paging and Backspace only (the

@@ -3,8 +3,12 @@
 A Windows x64 desktop build of Ultima V Native using **SDL3**. It runs the
 same gameplay core and the same application layer as the T-Deck firmware:
 `native/core` and `native/targets/tdeck/main` (AlphaRuntime, the Board
-presentation, saves, resources, audio policy) are compiled **unchanged** over
-a Windows implementation of the small ESP-IDF surface they use. Design,
+presentation, saves, resources, audio policy) are the **same sources** the
+firmware builds -- one implementation, with small behaviour-preserving
+changes for the desktop (a platform profile for key names and Settings rows,
+a desktop input entry point, the typed spell names and (Q)uit & Save of the
+1988 keyboard; listed in the plan, section 5) -- compiled over a Windows
+implementation of the small ESP-IDF surface they use. Design,
 decisions and evidence: [`WINDOWS_PORT_PLAN.md`](../../../WINDOWS_PORT_PLAN.md).
 Player instructions: [`packaging/README-Windows.txt`](packaging/README-Windows.txt).
 
@@ -57,7 +61,7 @@ powershell -ExecutionPolicy Bypass -File native\targets\windows\tools\build-wind
 |---|---|---|
 | `UV_BUILD_TESTS` | `ON` | the Windows tests and scenarios |
 | `UV_USE_SYSTEM_SDL3` | `OFF` | `find_package(SDL3)` instead of fetching the pinned release |
-| `UV_ENABLE_DEVELOPER_TOOLS` | `ON` | the Developer menu (Alt+D), as the T-Deck builds have it |
+| `UV_ENABLE_DEVELOPER_TOOLS` | `ON` | the Developer menu (Alt+D), as the T-Deck builds have it; the four scenarios that teleport or start a fight through it are skipped when `OFF` |
 | `UV_VERSION_SUFFIX` | `dev` | appended to the version (`0.5.0-dev`) |
 | `UV_SCENARIO_PACKS` | `native/assets` | folder with `openu5-*.bin` for the scenarios |
 | `UV_SCENARIO_PC_SAVES` | `original/u5/ultima5` | folder with `SAVED.GAM`/`SAVED.OOL` for the PC-save scenario |
@@ -87,9 +91,12 @@ ctest --test-dir native/targets/windows/build-release --output-on-failure
 - `scenarios/` — the real executable, headless (SDL offscreen video, dummy
   audio), driven by `--autotest` scripts through synthetic SDL key events:
   title, character creation, play, both interface modes, typed and list
-  casting, System Menu save/load, quick save/load, the Original-mode key
-  rules and the PC/DOS save bridge. They need the player's packs
-  (`UV_SCENARIO_PACKS`) and are skipped without them.
+  casting (also in an arena), System Menu save/load, quick save/load, the
+  Original-mode key rules and the PC/DOS save bridge. They need the player's
+  packs (`UV_SCENARIO_PACKS`) and are skipped without them; `dungeon_walk`,
+  `surface_combat`, `typed_cast_combat` and `town_talk` also need
+  `UV_ENABLE_DEVELOPER_TOOLS=ON`. The script language is documented in
+  `src/app/autotest.h`.
 
 The shared code keeps its own suite (`native/core`, GCC/MinGW, 202 tests),
 which must stay green for every change made for this target.
@@ -98,7 +105,7 @@ which must stay green for every change made for this target.
 
 ```
 CMakeLists.txt        the target: uv_core (shared core), uv_platform, uv_shared_app
-                      (native/targets/tdeck/main, unchanged), uv_desktop, the exe
+                      (native/targets/tdeck/main, the firmware's own sources), uv_desktop, the exe
 cmake/                loot_names.inc from the tracked JSON
 esp_compat/           ESP-IDF API surface for Windows (headers); uv_storage_redirect.h
                       is force-included into the shared device sources
