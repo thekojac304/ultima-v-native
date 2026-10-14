@@ -1006,8 +1006,13 @@ void AlphaRuntime::dispatch(const openu5::UiIntent&i){
     else if(i.kind==openu5::UiIntentKind::OpenInventorySelection)open_selection(openu5::UiMode::InventorySelection,i.request);
     else if(i.kind==openu5::UiIntentKind::OpenEquipmentSelection){
         auto *actor=context_.combat?openu5::current_combat_actor(combat_context_):nullptr;
-        if(actor&&actor->member!=255){pending_ready_member_=actor->member;open_selection(openu5::UiMode::EquipmentSelection,openu5::UiRequestId::Equipment);}
-        else if(game_.party.party_size>1)open_selection(openu5::UiMode::PartySelection,openu5::UiRequestId::EquipmentMember);
+        if(actor&&actor->member!=255){pending_ready_member_=actor->member;open_selection(openu5::UiMode::EquipmentSelection,openu5::UiRequestId::Equipment);
+            // 1988: an empty-handed actor's R ends at "Thou art empty-handed!"
+            // and the arena still ends that turn (COMBAT 0x0544 funnel).
+            if(openu5::platform_dos_interface()&&ui_->mode()!=openu5::UiMode::EquipmentSelection){openu5::Command yield;yield.kind=openu5::CommandKind::CombatYield;command(yield);}}
+        // 1988: ZSTATS 0x0000 asks "Player: " outside the arena even for a
+        // party of one -- no active-player or single-member shortcut.
+        else if(game_.party.party_size>1||openu5::platform_dos_interface())open_selection(openu5::UiMode::PartySelection,openu5::UiRequestId::EquipmentMember);
         else {pending_ready_member_=int16_t(active_member(game_));open_selection(openu5::UiMode::EquipmentSelection,openu5::UiRequestId::Equipment);}
     }
     // R-25 (Batch 19). CAST.OVL:0x0dd5 resolves WHO casts before the
@@ -1040,8 +1045,17 @@ void AlphaRuntime::dispatch(const openu5::UiIntent&i){
                 if(openu5::combat_cast_absorbed(combat_context_)){cast_typed_spell(0);dirty_=true;return;}
                 ui_->append(openu5::UiTextChannel::CommandEcho,"Cast...\n",openu5::UiTextCommand);
             }
-            ui_->begin_text(mix?openu5::UiRequestId::MixSpellName:openu5::UiRequestId::SpellName,mix?"For what spell? ":"Spell name: ");
+            begin_spell_name(mix);
         }else open_selection(openu5::UiMode::SpellSelection,i.request);
+    }
+    else if(i.kind==openu5::UiIntentKind::OpenStatusSelection&&context_.combat){
+        // The 1988 interaction model's arena (Z): no "Player: ", the acting
+        // member's page at once (ZSTATS 0x000c-0x002c), "\nStatus: " (DS
+        // 0x97a2), and the turn ends when the page closes.
+        auto *actor=openu5::current_combat_actor(combat_context_);
+        ui_->append(openu5::UiTextChannel::CommandEcho,"\nStatus: ");
+        open_zstats(actor&&actor->member!=255?actor->member:active_member(game_));
+        zstats_combat_turn_=true;
     }
     else if(i.kind==openu5::UiIntentKind::OpenStatusSelection){status_member_=int16_t(active_member(game_));open_selection(openu5::UiMode::PartySelection,i.request);}
     dirty_=true;
@@ -1121,7 +1135,13 @@ void AlphaRuntime::command(openu5::Command cmd){
         ESP_LOGI(kTag,"VIEW_SELECTION type=gem");
         ESP_LOGI(kTag,"VIEW_RESOURCE type=gems before=%d after=%d action=view",view_gems_before,game_.gems);
     }
-    if(ready_member>=0){const int now=equipped_in_slot(game_.party.characters[ready_member],ready_slot);const int old_pack=ready_current>=0&&ready_current<48?game_.equipment_quantities[ready_current]:0;const int new_pack=game_.equipment_quantities[ready_item];ESP_LOGI(kTag,"READY_AFTER member=%d slot=%s current=%d old_returned=%d inventory_new=%d",ready_member,equip_slot_name(ready_slot),now,old_pack,new_pack);if(result.status==openu5::CommandStatus::Success){char feedback[80]{};const char *name=openu5::equipment_display_name(ready_item);if(now==ready_item)std::snprintf(feedback,sizeof(feedback),"Equipped %s.",name?name:"item");else std::snprintf(feedback,sizeof(feedback),"Unready %s.",name?name:"item");ui_->append(openu5::UiTextChannel::System,feedback);}else if(result.item.message&&*result.item.message)ui_->append(openu5::UiTextChannel::System,result.item.message);}
+    if(ready_member>=0){const int now=equipped_in_slot(game_.party.characters[ready_member],ready_slot);const int old_pack=ready_current>=0&&ready_current<48?game_.equipment_quantities[ready_current]:0;const int new_pack=game_.equipment_quantities[ready_item];ESP_LOGI(kTag,"READY_AFTER member=%d slot=%s current=%d old_returned=%d inventory_new=%d",ready_member,equip_slot_name(ready_slot),now,old_pack,new_pack);
+        // The 1988 interaction model: try_equip_or_unequip (ZSTATS 0x0c5c)
+        // prints nothing when it readies or unreadies -- the list redraws --
+        // and frames a refusal as "\n\n<message>\n\nItem: " (print_msg_line
+        // 0x0bee) under the "Item: " row it answered.
+        if(openu5::platform_dos_interface()){if(result.status!=openu5::CommandStatus::Success&&result.item.message&&*result.item.message){char framed[160]{};std::snprintf(framed,sizeof(framed),"Item: \n\n%s\n\n",result.item.message);ui_->append(openu5::UiTextChannel::CommandEcho,framed);}}
+        else if(result.status==openu5::CommandStatus::Success){char feedback[80]{};const char *name=openu5::equipment_display_name(ready_item);if(now==ready_item)std::snprintf(feedback,sizeof(feedback),"Equipped %s.",name?name:"item");else std::snprintf(feedback,sizeof(feedback),"Unready %s.",name?name:"item");ui_->append(openu5::UiTextChannel::System,feedback);}else if(result.item.message&&*result.item.message)ui_->append(openu5::UiTextChannel::System,result.item.message);}
     ESP_LOGI(kTag,"combat command=%d status=%s turns=%lld events=%lu time=%lu us",int(cmd.kind),status_name(result.status),(long long)result.turns,(unsigned long)result.event_count,(unsigned long)us);
     if(!combat_before&&combat_.initialized){
         for(int i=0;i<combat_.count;++i){const auto&a=combat_.actors[i];if(!a.enemy)continue;
@@ -1393,7 +1413,28 @@ void AlphaRuntime::service_combat(){
     }
 }
 
-void AlphaRuntime::modal(const openu5::UiIntent&i){if(!i.value.accepted){if(i.request==openu5::UiRequestId::Party)pending_order_from_=-1;if(i.request==openu5::UiRequestId::EquipmentMember||i.request==openu5::UiRequestId::Equipment)pending_ready_member_=-1;if(i.request==openu5::UiRequestId::UseTarget||i.request==openu5::UiRequestId::Inventory)pending_use_item_=-1;if(i.request==openu5::UiRequestId::Target)pending_combat_spell_=-1;if(i.request==openu5::UiRequestId::MixReagents||i.request==openu5::UiRequestId::MixQuantity){pending_mix_spell_=-1;pending_mix_mask_=0;}if(i.request==openu5::UiRequestId::ShrineVisit||i.request==openu5::UiRequestId::ShrineRestore){shrine_.visit=shrine_.restore=-1;shrine_virtue_length_=0;}
+void AlphaRuntime::modal(const openu5::UiIntent&i){const bool dos=openu5::platform_dos_interface();if(!i.value.accepted){
+    // The 1988 interaction model: each picker's ESC leaves its own word on the
+    // prompt's row -- "None!" after "Player: " (kernel 0x4a65, ZSTATS 0x0061)
+    // and "On who: " (CAST2 0x00b5), "nobody!" after New Order's "Swap " /
+    // "with " (CMDS DS 0x4320 / 0x4340), "Done" after Ready's "Item: " (ZSTATS
+    // DS 0x9970), "None!" after Use's (DS 0x9976).
+    if(dos){
+        const char *line=nullptr;
+        switch(i.request){
+        case openu5::UiRequestId::Party:line=pending_order_from_<0?"\nSwap nobody!":"with nobody!";break;
+        case openu5::UiRequestId::Status:case openu5::UiRequestId::EquipmentMember:
+        case openu5::UiRequestId::CrystalBall:case openu5::UiRequestId::SearchMember:
+        case openu5::UiRequestId::CastMember:line="Player: None!";break;
+        case openu5::UiRequestId::Target:case openu5::UiRequestId::UseTarget:line="On who: None!";break;
+        case openu5::UiRequestId::Equipment:line="Item: Done";break;
+        case openu5::UiRequestId::Inventory:line="Item: None!";break;
+        case openu5::UiRequestId::FountainDrink:line="Who will drink?";break;
+        default:break;
+        }
+        if(line)ui_->append(openu5::UiTextChannel::CommandEcho,line);
+    }
+    if(i.request==openu5::UiRequestId::Party)pending_order_from_=-1;if(i.request==openu5::UiRequestId::EquipmentMember||i.request==openu5::UiRequestId::Equipment)pending_ready_member_=-1;if(i.request==openu5::UiRequestId::UseTarget||i.request==openu5::UiRequestId::Inventory)pending_use_item_=-1;if(i.request==openu5::UiRequestId::Target)pending_combat_spell_=-1;if(i.request==openu5::UiRequestId::MixReagents||i.request==openu5::UiRequestId::MixQuantity){pending_mix_spell_=-1;pending_mix_mask_=0;}if(i.request==openu5::UiRequestId::ShrineVisit||i.request==openu5::UiRequestId::ShrineRestore){shrine_.visit=shrine_.restore=-1;shrine_virtue_length_=0;}
     // FountainDrink (R-09 E): pure flavour text, no command, no HP/state/turn.
     if(i.request==openu5::UiRequestId::FountainDrink)ui_->append(openu5::UiTextChannel::Message,openu5::fountain_drink_result(0,true));
     // R-25 (Batch 19). Cancelling the kernel 0x4988 picker is not "nothing":
@@ -1404,16 +1445,63 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){if(!i.value.accepted){if(i.re
     if(i.request==openu5::UiRequestId::CrystalBall||i.request==openu5::UiRequestId::SearchMember||i.request==openu5::UiRequestId::CastMember){
         if(i.request==openu5::UiRequestId::SearchMember)pending_search_active_=false;
         if(i.request==openu5::UiRequestId::CastMember||i.request==openu5::UiRequestId::SpellName)pending_caster_=-1;
-        ui_->append(openu5::UiTextChannel::Message,openu5::command_char_none());
+        if(!dos)ui_->append(openu5::UiTextChannel::Message,openu5::command_char_none());
     }
     return;}openu5::Command c;
-    if(i.request==openu5::UiRequestId::Party){if(pending_order_from_<0){pending_order_from_=int16_t(i.value.index);open_selection(openu5::UiMode::PartySelection,openu5::UiRequestId::Party);}else{c.kind=openu5::CommandKind::NewOrder;c.member=pending_order_from_;c.item=int16_t(i.value.index);pending_order_from_=-1;command(c);}}
+    // The 1988 interaction model: the chosen member's name completes the
+    // picker's prompt row ("Player: Iolo", kernel 0x4a30-0x4a3a / ZSTATS
+    // 0x004a; "On who: Shamino", CAST2 0x00c1); New Order's "Swap " / "with "
+    // rows are completed in the Party arm below. The 0x4988 callers echo only
+    // an eligible pick (accept_command_char_pick()).
+    if(dos&&i.value.index>=0&&size_t(i.value.index)<selection_count_&&
+       (i.request==openu5::UiRequestId::Status||i.request==openu5::UiRequestId::EquipmentMember||
+        i.request==openu5::UiRequestId::Target||i.request==openu5::UiRequestId::UseTarget)){
+        const int16_t member=selections_[i.value.index].value;char line[48]{};
+        std::snprintf(line,sizeof(line),"%s%.9s",i.request==openu5::UiRequestId::Target||i.request==openu5::UiRequestId::UseTarget?"On who: ":"Player: ",
+                      member>=0&&member<game_.party.character_count?game_.party.characters[member].name:"");
+        ui_->append(openu5::UiTextChannel::CommandEcho,line);
+    }
+    if(i.request==openu5::UiRequestId::Party&&dos){
+        // CMDS 0x0ddc: "Swap <name>"; the Avatar picked first is "\n\n<name>
+        // must lead!" (0x0e0c) and nothing more is asked; else "\nwith <name>"
+        // and "!" (0x4359), or the same "must lead!" for the Avatar second.
+        const int16_t member=int16_t(i.value.index);
+        const char *name=member>=0&&member<game_.party.character_count?game_.party.characters[member].name:"";
+        char line[48]{};
+        if(pending_order_from_<0){
+            std::snprintf(line,sizeof(line),"\nSwap %.9s%s",name,member==0?"\n\n":"");
+            ui_->append(openu5::UiTextChannel::CommandEcho,line);
+            if(member==0){c.kind=openu5::CommandKind::NewOrder;c.member=0;c.item=0;command(c);}
+            else{pending_order_from_=member;open_selection(openu5::UiMode::PartySelection,openu5::UiRequestId::Party);}
+        }else{
+            std::snprintf(line,sizeof(line),"with %.9s%s",name,member==0?"\n\n":"!");
+            ui_->append(openu5::UiTextChannel::CommandEcho,line);
+            c.kind=openu5::CommandKind::NewOrder;c.member=pending_order_from_;c.item=member;pending_order_from_=-1;command(c);
+        }
+    }
+    else if(i.request==openu5::UiRequestId::Party){if(pending_order_from_<0){pending_order_from_=int16_t(i.value.index);open_selection(openu5::UiMode::PartySelection,openu5::UiRequestId::Party);}else{c.kind=openu5::CommandKind::NewOrder;c.member=pending_order_from_;c.item=int16_t(i.value.index);pending_order_from_=-1;command(c);}}
+    // The 1988 model's Z-stats '0' (select_party_member arg 1 returns -2,
+    // ZSTATS 0x0a4a): "Player: " ends its row with nothing and the viewer opens
+    // on the Equipment page.
+    else if(i.request==openu5::UiRequestId::Status&&dos&&i.value.index==-2){
+        ui_->append(openu5::UiTextChannel::CommandEcho,"Player:");ui_->append(openu5::UiTextChannel::CommandEcho,"\nStatus: ");
+        open_zstats(active_member(game_));zstats_page_=openu5::kZStatsPageProvisions;
+    }
     // R-22. select_player (ZSTATS.OVL:0x0000) runs FIRST, and the member it
     // returns opens the page axis at member*2. Before Batch 14 this arm
     // reopened the very same picker, which is why (Z) had no pages at all.
-    else if(i.request==openu5::UiRequestId::Status&&i.value.index>=0&&size_t(i.value.index)<selection_count_)open_zstats(selections_[i.value.index].value);
+    else if(i.request==openu5::UiRequestId::Status&&i.value.index>=0&&size_t(i.value.index)<selection_count_){
+        // 1988: "\nStatus: " (DS 0x97a2) waits on the console while the pages show.
+        if(dos)ui_->append(openu5::UiTextChannel::CommandEcho,"\nStatus: ");
+        open_zstats(selections_[i.value.index].value);
+    }
     else if(i.request==openu5::UiRequestId::EquipmentMember&&i.value.index>=0&&size_t(i.value.index)<selection_count_){pending_ready_member_=selections_[i.value.index].value;open_selection(openu5::UiMode::EquipmentSelection,openu5::UiRequestId::Equipment);}
-    else if(i.request==openu5::UiRequestId::Inventory&&i.value.index>=0&&size_t(i.value.index)<selection_count_){pending_use_item_=selections_[i.value.index].value;c.kind=openu5::CommandKind::UseItem;c.item=pending_use_item_;if(!context_.combat&&(c.item==6||(c.item>=8&&c.item<16))){open_selection(openu5::UiMode::PartySelection,openu5::UiRequestId::UseTarget);}else if(!context_.combat&&(c.item==1||c.item==17)){pending_use_item_=-1;ui_->begin_target(openu5::UiRequestId::UseTarget,"Direction?",c);dirty_=true;}else{pending_use_item_=-1;command(c);}}
+    else if(i.request==openu5::UiRequestId::Inventory&&i.value.index>=0&&size_t(i.value.index)<selection_count_){pending_use_item_=selections_[i.value.index].value;c.kind=openu5::CommandKind::UseItem;c.item=pending_use_item_;
+        // 1988: the list closes at once and the item's handler takes the
+        // console after "Item: " (CAST 0x17f8-0x180d); a scroll's or the skull
+        // key's direction is CAST2 0x0306's "Direction-".
+        if(dos)ui_->append(openu5::UiTextChannel::CommandEcho,"Item:");
+        if(!context_.combat&&(c.item==6||(c.item>=8&&c.item<16))){open_selection(openu5::UiMode::PartySelection,openu5::UiRequestId::UseTarget);}else if(!context_.combat&&(c.item==1||c.item==17)){pending_use_item_=-1;if(dos)ui_->append(openu5::UiTextChannel::CommandEcho,"Direction-");ui_->begin_target(openu5::UiRequestId::UseTarget,"Direction?",c);dirty_=true;}else{pending_use_item_=-1;command(c);}}
     else if(i.request==openu5::UiRequestId::UseTarget&&pending_use_item_>=0){c.kind=openu5::CommandKind::UseItem;c.item=pending_use_item_;c.member=int16_t(i.value.index);pending_use_item_=-1;command(c);}
     else if(i.request==openu5::UiRequestId::Equipment&&i.value.index>=0&&size_t(i.value.index)<selection_count_){
         // Keep the member selection alive.  command() reports the authoritative
@@ -1433,12 +1521,37 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){if(!i.value.accepted){if(i.re
         char initials[openu5::kSpellEntryMaxSyllables]{};
         const size_t typed=openu5::spell_entry_initials(i.value.text,i.value.text_length,initials,sizeof(initials));
         char echo[openu5::kSpellEntryEchoBytes]{};openu5::spell_entry_echo(initials,typed,echo,sizeof(echo));
-        char line[64];std::snprintf(line,sizeof(line),"%s%s",mix?"For what spell? ":"Spell name: ",echo);
-        ui_->append(openu5::UiTextChannel::CommandEcho,line);
-        const int32_t spell=openu5::spell_from_initials(initials,typed);
-        if(!mix)cast_typed_spell(spell);
-        else if(spell<0)ui_->append(openu5::UiTextChannel::Message,spell==openu5::kSpellEntryNone?"None!":"No effect!");
-        else{pending_mix_spell_=int16_t(spell);pending_mix_mask_=0;open_mix_reagents(0);}
+        if(dos){
+            // The 1988 console: the label, then the ':' row with the syllables
+            // (CAST2 0x00DE echoes them as they are typed; ESC leaves them,
+            // 0x01d8). ESC or nothing typed is -1 with no newline, so Cast's
+            // "None!" ends that same row (":IN LOR None!", DS 0x4611); a name
+            // that is no spell is -2 after a newline: "No effect!" (DS 0x4618)
+            // on a row of its own. Mix tests only -1 (CMDS 0x1b13): "\nNone!"
+            // (DS 0x8fbe), and an unknown name goes on to the reagents -- any
+            // mix then is the wrong mix (0x1bc2), which spell 48 (Nox, outside
+            // the table) is to the core's Mix.
+            const bool escaped=i.value.number==openu5::kSpellEntryNone;
+            const int32_t spell=escaped?openu5::kSpellEntryNone:openu5::spell_from_initials(initials,typed);
+            char line[64];std::snprintf(line,sizeof(line),"%s\n:%s",mix?"For what spell?":"Spell name:",echo);
+            ui_->append(openu5::UiTextChannel::CommandEcho,line);
+            if(!mix){
+                if(spell==openu5::kSpellEntryNone&&!context_.combat)ui_->append_continuation(openu5::UiTextChannel::CommandEcho,"None!");
+                else if(spell==openu5::kSpellEntryNoMatch&&!context_.combat)ui_->append(openu5::UiTextChannel::Message,"No effect!");
+                cast_typed_spell(spell);
+            }else if(spell==openu5::kSpellEntryNone)ui_->append(openu5::UiTextChannel::Message,"None!");
+            else{pending_mix_spell_=int16_t(spell<0?48:spell);pending_mix_mask_=0;
+                // CMDS 0x1b1e-0x1b5a: the picker's legend in the console, after a blank row.
+                ui_->append(openu5::UiTextChannel::Message,"\nArrows to move,\nRETURN selects.\nType M to mix:");
+                open_mix_reagents(0);}
+        }else{
+            char line[64];std::snprintf(line,sizeof(line),"%s%s",mix?"For what spell? ":"Spell name: ",echo);
+            ui_->append(openu5::UiTextChannel::CommandEcho,line);
+            const int32_t spell=openu5::spell_from_initials(initials,typed);
+            if(!mix)cast_typed_spell(spell);
+            else if(spell<0)ui_->append(openu5::UiTextChannel::Message,spell==openu5::kSpellEntryNone?"None!":"No effect!");
+            else{pending_mix_spell_=int16_t(spell);pending_mix_mask_=0;open_mix_reagents(0);}
+        }
     }
     // R-25 (Batch 19). "selectedCombatPlayer" only exists in combat, which is
     // branch 1 of kernel 0x4988 (@0x4995): the caster is the ACTING combatant,
@@ -1454,7 +1567,8 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){if(!i.value.accepted){if(i.re
         // 'M' asks the quantity even with nothing marked (0x1a70 runs before
         // the empty-mask test of 0x1b78); RETURN / Space toggles a row and the
         // picker comes back with the cursor where it was.
-        if(i.value.yes)ui_->begin_number(openu5::UiRequestId::MixQuantity,"How much? ",-9,99,2);
+        // 1988: 'M' prints "\n\n" (DS 0x8f6e) and then "How much? " (0x8f72).
+        if(i.value.yes)ui_->begin_number(openu5::UiRequestId::MixQuantity,dos?"\nHow much? ":"How much? ",-9,99,2);
         else if(i.value.index>=0&&size_t(i.value.index)<selection_count_){pending_mix_mask_^=uint8_t(1u<<selections_[i.value.index].value);open_mix_reagents(size_t(i.value.index));}
     }
     else if(i.request==openu5::UiRequestId::MixQuantity&&pending_mix_spell_>=0){
@@ -1462,7 +1576,7 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){if(!i.value.accepted){if(i.re
         // reagents!" and the same question again, before anything is spent.
         if(openu5::mix_quantity_short(game_,pending_mix_mask_,i.value.number)){
             ui_->append(openu5::UiTextChannel::Message,"Insufficient reagents!");
-            ui_->begin_number(openu5::UiRequestId::MixQuantity,"How much? ",-9,99,2);
+            ui_->begin_number(openu5::UiRequestId::MixQuantity,dos?"\nHow much? ":"How much? ",-9,99,2);
         }else{
             c.kind=openu5::CommandKind::Mix;c.item=pending_mix_spell_;c.hours=int16_t(i.value.number);c.reagent_mask=pending_mix_mask_;
             pending_mix_spell_=-1;pending_mix_mask_=0;
@@ -1478,9 +1592,11 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){if(!i.value.accepted){if(i.re
     // "Yes" / "Saving..." (0x966a), writes the save and "Done." (0x96ac), and
     // play goes on. The save is the journey's own slot, exactly as Alt+S.
     else if(i.request==openu5::UiRequestId::QuitSave){
-        if(!i.value.yes)ui_->append(openu5::UiTextChannel::Message,"No");
+        // The 1988 interaction model keeps "Save game? Yes" / "Save game? No"
+        // on the prompt's row (UiSession); the plain words are the T-Deck's.
+        if(!i.value.yes){if(!dos)ui_->append(openu5::UiTextChannel::Message,"No");}
         else if(ui_->ending_active()){ui_->append(openu5::UiTextChannel::System,"Save unavailable: the quest is complete");}
-        else{ui_->append(openu5::UiTextChannel::Message,"Yes");ui_->append(openu5::UiTextChannel::Message,"Saving...");uint32_t ms=0;
+        else{if(!dos)ui_->append(openu5::UiTextChannel::Message,"Yes");ui_->append(openu5::UiTextChannel::Message,"Saving...");uint32_t ms=0;
             const bool ok=save_.save(context_,outdoor_,terrain_,actors_,retained_,resources_.initial_gam,resources_.initial_gam_size,resources_.initial_ool,resources_.initial_ool_size,ms,false,save_.last_slot());
             if(ok)trace_direct_troll_save("SAVE_WORLD_OVERRIDE");
             ui_->append(openu5::UiTextChannel::Message,ok?"Done.":"Save failed; prior kept");}
@@ -1509,7 +1625,7 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){if(!i.value.accepted){if(i.re
         const int16_t member=selections_[i.value.index].value;
         if(accept_command_char_pick(openu5::UiRequestId::CastMember,member)){
             pending_caster_=member;
-            if(openu5::platform_typed_spell_names())ui_->begin_text(openu5::UiRequestId::SpellName,"Spell name: ");
+            if(openu5::platform_typed_spell_names())begin_spell_name(false);
             else open_selection(openu5::UiMode::SpellSelection,openu5::UiRequestId::Spell);
         }
     }
@@ -1520,7 +1636,26 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){if(!i.value.accepted){if(i.re
     // happens to be truthy in look.cpp's `cmd.member ? "Yes\n" : "No\n"`.
     else if(i.request==openu5::UiRequestId::WellDrop){c.kind=openu5::CommandKind::DropCoin;c.member=i.value.yes?1:0;command(c);}
     else if(i.request==openu5::UiRequestId::WellWish){c.kind=openu5::CommandKind::MakeWish;c.text=i.value.text;c.text_length=i.value.text_length;command(c);}
-    else if(i.request==openu5::UiRequestId::ShrineVisit){shrine_virtue_length_=0;ui_->begin_text(openu5::UiRequestId::ShrineRestore,"Virtue?",15);}
+    // The 1988 shrine (CAST2 0x09c9 / 0x0a1b; the Yell restore, CMDS 0x121e /
+    // 0x125e): "Upon what virtue dost thou meditate?\n\n:" (MISCMSG 0x743), then
+    // "\nMantra:" (DS 0x958e) THREE times, each its own answer.
+    else if(i.request==openu5::UiRequestId::ShrineVisit){shrine_virtue_length_=0;dos_mantra_count_=0;ui_->begin_text(openu5::UiRequestId::ShrineRestore,dos?"\nUpon what virtue dost thou meditate?\n\n:":"Virtue?",dos?12:15);}
+    else if(i.request==openu5::UiRequestId::ShrineRestore&&dos&&shrine_virtue_length_){
+        const auto slot=std::min<size_t>(dos_mantra_count_,2);
+        dos_mantra_length_[slot]=std::min<size_t>(i.value.text_length,15);
+        std::memcpy(dos_mantras_[slot],i.value.text,dos_mantra_length_[slot]*sizeof(char16_t));dos_mantras_[slot][dos_mantra_length_[slot]]=0;
+        if(++dos_mantra_count_<3)ui_->begin_text(openu5::UiRequestId::ShrineRestore,"\nMantra:",shrine_.visit>=0?12:15);
+        else{openu5::TalkText mantras[3]={{dos_mantras_[0],dos_mantra_length_[0]},{dos_mantras_[1],dos_mantra_length_[1]},{dos_mantras_[2],dos_mantra_length_[2]}};
+            openu5::ShrineInput input;input.action=shrine_.visit>=0?openu5::ShrineAction::SubmitVisit:openu5::ShrineAction::SubmitRestore;input.virtue={shrine_virtue_,shrine_virtue_length_};input.mantras={mantras,3};
+            c.kind=openu5::CommandKind::ShrineAction;c.shrine=&input;shrine_virtue_length_=0;dos_mantra_count_=0;command(c);}
+    }
+    else if(i.request==openu5::UiRequestId::ShrineRestore&&dos){
+        shrine_virtue_length_=std::min<size_t>(i.value.text_length,63);std::memcpy(shrine_virtue_,i.value.text,shrine_virtue_length_*sizeof(char16_t));shrine_virtue_[shrine_virtue_length_]=0;
+        dos_mantra_count_=0;
+        // An empty answer leaves the shrine (CAST2 0x09ce); the core's own empty test says so.
+        if(!shrine_virtue_length_){openu5::TalkText none[3]={};openu5::ShrineInput input;input.action=shrine_.visit>=0?openu5::ShrineAction::SubmitVisit:openu5::ShrineAction::SubmitRestore;input.virtue={shrine_virtue_,0};input.mantras={none,3};c.kind=openu5::CommandKind::ShrineAction;c.shrine=&input;command(c);}
+        else ui_->begin_text(openu5::UiRequestId::ShrineRestore,"\nMantra:",shrine_.visit>=0?12:15);
+    }
     else if(i.request==openu5::UiRequestId::ShrineRestore){if(!shrine_virtue_length_){shrine_virtue_length_=std::min<size_t>(i.value.text_length,63);std::memcpy(shrine_virtue_,i.value.text,shrine_virtue_length_*sizeof(char16_t));shrine_virtue_[shrine_virtue_length_]=0;ui_->begin_text(openu5::UiRequestId::ShrineRestore,"Mantra?",15);}else{openu5::TalkText mantras[3]={{i.value.text,i.value.text_length},{i.value.text,i.value.text_length},{i.value.text,i.value.text_length}};openu5::ShrineInput input;input.action=shrine_.visit>=0?openu5::ShrineAction::SubmitVisit:openu5::ShrineAction::SubmitRestore;input.virtue={shrine_virtue_,shrine_virtue_length_};input.mantras={mantras,3};c.kind=openu5::CommandKind::ShrineAction;c.shrine=&input;shrine_virtue_length_=0;command(c);}}
     else if(i.request==openu5::UiRequestId::ShrineDonate){openu5::ShrineInput input;input.action=openu5::ShrineAction::Donate;input.value=i.value.number;c.kind=openu5::CommandKind::ShrineAction;c.shrine=&input;command(c);}
     // FountainDrink (R-09 E): resolve the picked party member's status against
@@ -1530,6 +1665,7 @@ void AlphaRuntime::modal(const openu5::UiIntent&i){if(!i.value.accepted){if(i.re
     else if(i.request==openu5::UiRequestId::FountainDrink&&i.value.index>=0&&size_t(i.value.index)<selection_count_){
         const int16_t member=selections_[i.value.index].value;
         const char status=member>=0&&member<game_.party.character_count?game_.party.characters[member].status:'G';
+        if(dos)ui_->append(openu5::UiTextChannel::CommandEcho,"Who will drink?"); // DS 0x72b4; no name is echoed
         ui_->append(openu5::UiTextChannel::Message,openu5::fountain_drink_result(status,false));
     }
 }
@@ -1547,10 +1683,28 @@ openu5::CommandCharOutcome AlphaRuntime::resolve_command_char_or_prompt(openu5::
 }
 
 bool AlphaRuntime::accept_command_char_pick(openu5::UiRequestId request,int16_t member){
-    if(openu5::command_char_accepts(game_.party,member))return true;
-    ui_->append(openu5::UiTextChannel::Message,openu5::command_char_disabled()); // @0x4a4e
+    const bool dos=openu5::platform_dos_interface();
+    if(openu5::command_char_accepts(game_.party,member)){
+        // The 1988 interaction model: the name completes "Player: " (@0x4a30-0x4a3a).
+        if(dos){char line[32]{};std::snprintf(line,sizeof(line),"%s%.9s",openu5::command_char_prompt(),game_.party.characters[member].name);
+            ui_->append(openu5::UiTextChannel::CommandEcho,line);}
+        return true;
+    }
+    // @0x4a4e: "Disabled!\n\n" ends the "Player: " row with no name, and a
+    // blank row comes before the prompt again.
+    if(dos)ui_->append(openu5::UiTextChannel::CommandEcho,"Player: Disabled!\n\n");
+    else ui_->append(openu5::UiTextChannel::Message,openu5::command_char_disabled()); // @0x4a4e
     open_selection(openu5::UiMode::PartySelection,request);                      // @0x4a57: di still 0.
     dirty_=true;return false;
+}
+
+// Windows port, desktop Original mode: the typed spell name's prompt. The 1988
+// interaction model prints "Spell name:\n:" (DS 0x4603) / "For what spell?\n:"
+// (DS 0x8fac) and reads the syllables after the ':'.
+void AlphaRuntime::begin_spell_name(bool mix){
+    const bool dos=openu5::platform_dos_interface();
+    ui_->begin_text(mix?openu5::UiRequestId::MixSpellName:openu5::UiRequestId::SpellName,
+                    mix?(dos?"For what spell?\n:":"For what spell? "):(dos?"Spell name:\n:":"Spell name: "));
 }
 
 // Windows port, desktop Original mode: Cast after the typed name.
@@ -1566,7 +1720,8 @@ void AlphaRuntime::cast_typed_spell(int32_t spell){
     const bool absorbed=context_.combat&&openu5::combat_cast_absorbed(combat_context_);
     if(spell>=0&&spell<48&&!absorbed&&game_.spell_quantities[spell]>0){cast_selected_spell(int16_t(spell));return;}
     if(spell<0&&!context_.combat){
-        ui_->append(openu5::UiTextChannel::Message,spell==openu5::kSpellEntryNone?"None!":"No effect!");
+        // (The 1988 interaction model printed it on the prompt's rows already.)
+        if(!openu5::platform_dos_interface())ui_->append(openu5::UiTextChannel::Message,spell==openu5::kSpellEntryNone?"None!":"No effect!");
         pending_caster_=-1;return;
     }
     openu5::Command c;c.kind=openu5::CommandKind::Cast;c.item=int16_t(spell);c.hours=-1;
@@ -1624,6 +1779,9 @@ void AlphaRuntime::cast_selected_spell(int16_t spell){
                                        game_.transport==openu5::TransportMode::Ship)){
     case openu5::CastTargetPrompt::CombatReticle:{
         const int16_t x=actor?actor->position.x:5,y=actor?actor->position.y:5;
+        // The 1988 interaction model: the arena's aim prints "Aim! " (COMSUBS
+        // DS 0x9a84) and reads the crosshair on the console's getkey.
+        if(openu5::platform_dos_interface())ui_->append(openu5::UiTextChannel::CommandEcho,"Aim! ");
         ui_->begin_target(openu5::UiRequestId::Target,"Spell aim",c,x,y);
         dirty_=true;return;
     }
@@ -1632,13 +1790,17 @@ void AlphaRuntime::cast_selected_spell(int16_t spell){
         // world command (Talk/Open/Push/Klimb) -- UiRequestId::Direction with
         // no reticle cell, so one direction press dispatches the Cast with
         // has_direction set and Cancel dispatches it without one.
+        // The 1988 interaction model: CAST2 0x0306 prints "Direction-" (DS
+        // 0x9504) and the word on that row.
+        if(openu5::platform_dos_interface())ui_->append(openu5::UiTextChannel::CommandEcho,"Direction-");
         ui_->begin_target(openu5::UiRequestId::Direction,"Direction?",c,-1,-1);
         dirty_=true;return;
     case openu5::CastTargetPrompt::WorldPhase:
         // Y-33. Vas Rel Por's bare "To phase:" getkey. c.hours is already
         // the -1 "no phase chosen" sentinel set above; a valid '1'-'8'
         // overwrites it, and any abort path (bad key, Cancel) leaves it be.
-        ui_->begin_target(openu5::UiRequestId::GatePhase,"To phase:",c,-1,-1);
+        // (DS 0x45e7 is "To phase: ", read on the console in the 1988 model.)
+        ui_->begin_target(openu5::UiRequestId::GatePhase,openu5::platform_dos_interface()?"To phase: ":"To phase:",c,-1,-1);
         dirty_=true;return;
     case openu5::CastTargetPrompt::None:
         break;
@@ -1689,14 +1851,18 @@ void AlphaRuntime::refresh_session_context(){
     // that panel, so the two can never drift apart.
     size_t transcript_columns=openu5::kHudTranscriptColumns,transcript_rows=kShopLogRows;
     openu5::UiSelectionView selection_probe{};
+    // The 1988 interaction model mirrors compose_selection_view() and
+    // compose_context_bar(): a roster picker leaves the world console up, and
+    // no prompt bar ever takes rows from it.
+    const bool dos=openu5::platform_dos_interface();
     if(ui_->mode()==openu5::UiMode::Shop){
         // Defaults above already match the shop log strip.
-    }else if(ui_->selection_view(selection_probe)){
+    }else if(ui_->selection_view(selection_probe)&&!(dos&&selection_probe.mode==openu5::UiMode::PartySelection)){
         transcript_rows=kSelectorLogRows;
     }else{
         const auto mode=ui_->mode();
-        const bool context_active=mode==openu5::UiMode::TargetSelection||mode==openu5::UiMode::TextEntry||
-                                   mode==openu5::UiMode::NumericEntry||mode==openu5::UiMode::YesNo;
+        const bool context_active=!dos&&(mode==openu5::UiMode::TargetSelection||mode==openu5::UiMode::TextEntry||
+                                         mode==openu5::UiMode::NumericEntry||mode==openu5::UiMode::YesNo);
         world_transcript_geometry(settings_.ui_size,context_active,transcript_columns,transcript_rows);
     }
     ui_->set_transcript_view_metrics(transcript_columns,transcript_rows);
@@ -1721,11 +1887,39 @@ void AlphaRuntime::open_selection(openu5::UiMode mode,openu5::UiRequestId reques
         for(size_t ui=0;ui<usable_rows.count;++ui)add(usable_rows.rows[ui].id,usable_rows.rows[ui].name,usable_rows.rows[ui].quantity);}
     else if(mode==openu5::UiMode::EquipmentSelection){const int member=pending_ready_member_>=0?pending_ready_member_:active_member(game_);const auto ready=openu5::ready_items(game_,member);for(int n=0;n<ready.count;++n){const int i=ready.ids[n];add(i,openu5::equipment_display_name(i),game_.equipment_quantities[i],openu5::is_item_equipped(game_.party.characters[member],i));}}
     else if(mode==openu5::UiMode::SpellSelection){for(int i=0;i<48;++i)if(request==openu5::UiRequestId::Custom||game_.spell_quantities[i]>0)add(i,openu5::spell_display_name(i),game_.spell_quantities[i]);}
+    const bool dos=openu5::platform_dos_interface();
+    // The 1988 interaction model has no empty list: (U)se with nothing usable
+    // is "No usable items!" (CAST DS 0x489f) and (R)eady with nothing owned
+    // "Thou art empty-\nhanded!" (ZSTATS DS 0x997e), and the command ends.
+    if(dos&&!selection_count_&&((mode==openu5::UiMode::InventorySelection&&request==openu5::UiRequestId::Inventory)||
+                                mode==openu5::UiMode::EquipmentSelection)){
+        ui_->append(openu5::UiTextChannel::Message,mode==openu5::UiMode::EquipmentSelection?"Thou art empty-\nhanded!":"No usable items!");
+        selection_request_=openu5::UiRequestId::None;pending_ready_member_=-1;dirty_=true;return;
+    }
     if(!selection_count_){auto&s=selections_[selection_count_++];std::snprintf(s.label,sizeof(s.label),"(None available)");s.enabled=false;}
     // R-25 (Batch 19): the 0x4988 callers carry DS 0xa3c4 "Player: " from the
     // shared seam, so device and host name the prompt from one definition.
     const char *prompt=mode==openu5::UiMode::PartySelection?(request==openu5::UiRequestId::CampGuard?"Who will stand guard?":request==openu5::UiRequestId::EquipmentMember?"Ready whom?":request==openu5::UiRequestId::UseTarget?"Use on whom?":request==openu5::UiRequestId::FountainDrink?"Who will drink?":request==openu5::UiRequestId::CrystalBall||request==openu5::UiRequestId::SearchMember||request==openu5::UiRequestId::CastMember?openu5::command_char_prompt():"Party"):mode==openu5::UiMode::InventorySelection?"Use item":mode==openu5::UiMode::EquipmentSelection?"Ready":"Spell";
-    const size_t initial=mode==openu5::UiMode::PartySelection?size_t(request==openu5::UiRequestId::Status&&status_member_>=0?status_member_:active_member(game_)):0;
+    size_t initial=mode==openu5::UiMode::PartySelection?size_t(request==openu5::UiRequestId::Status&&status_member_>=0?status_member_:active_member(game_)):0;
+    if(dos){
+        // The 1988 prompts, read on the console (UiSession::live_prompt_text):
+        // "Player: " (kernel DS 0xa3c4, ZSTATS DS 0x96b4), "On who: " (CAST2 DS
+        // 0x94f4), New Order's "\n\nSwap " / "\nwith " (CMDS DS 0x4318 /
+        // 0x4339), the Camp's "Who will stand guard? " (DS 0xa36e) after "Yes\n\n",
+        // the fountain's "Who will drink?" (DS 0x72b4) and the lists' "Item: "
+        // (ZSTATS DS 0x9998, CAST DS 0x48b1). select_party_member starts on the
+        // first member every time ([bp-2]=0 at 0x2d82).
+        if(mode==openu5::UiMode::PartySelection){
+            initial=0;
+            switch(request){
+            case openu5::UiRequestId::Target:case openu5::UiRequestId::UseTarget:prompt="On who: ";break;
+            case openu5::UiRequestId::Party:prompt=pending_order_from_<0?"\nSwap ":"with ";break;
+            case openu5::UiRequestId::CampGuard:prompt="\nWho will stand guard? ";break;
+            case openu5::UiRequestId::FountainDrink:prompt="Who will drink? ";break;
+            default:prompt=openu5::command_char_prompt();break;
+            }
+        }else if(mode==openu5::UiMode::EquipmentSelection||(mode==openu5::UiMode::InventorySelection&&request==openu5::UiRequestId::Inventory))prompt="Item: ";
+    }
     ui_->begin_selection(mode,request,prompt,{this,selection_count,selection_item},initial);
 }
 
@@ -1739,7 +1933,10 @@ void AlphaRuntime::open_mix_reagents(size_t row){
         auto&s=selections_[selection_count_++];s.value=int16_t(r);s.enabled=true;
         std::snprintf(s.label,sizeof(s.label),"%02d %c %s",int(q),(pending_mix_mask_&(1u<<r))?'*':' ',openu5::reagent_display_name(r));
     }
-    ui_->begin_selection(openu5::UiMode::InventorySelection,openu5::UiRequestId::MixReagents,"Reagents:",{this,selection_count,selection_item},row);
+    // (The 1988 interaction model's console waits after the legend's "Type M
+    // to mix:" instead; "Reagents:" is the panel's title.)
+    ui_->begin_selection(openu5::UiMode::InventorySelection,openu5::UiRequestId::MixReagents,
+                         openu5::platform_dos_interface()?"":"Reagents:",{this,selection_count,selection_item},row);
 }
 
 // R-10 deferred drain. Runs once the outer input has fully unwound (called
@@ -2432,6 +2629,10 @@ bool AlphaRuntime::handle_zstats_input(const openu5::UiAction &action){
         zstats_open_=false;zstats_page_=0;zstats_scroll_=0;
         ESP_LOGI(kTag,"ZSTATS_CLOSE reason=%s ui=%s gameplay_command=none",
                  action.kind==openu5::UiActionKind::Character?"space":"escape",mode_name(ui_->mode()));
+        // The 1988 interaction model: "Done" (DS 0x97ce) completes the
+        // "Status: " row; in the arena the close ends the acting member's turn.
+        if(openu5::platform_dos_interface())ui_->append_continuation(openu5::UiTextChannel::CommandEcho,"Done");
+        if(zstats_combat_turn_){zstats_combat_turn_=false;openu5::Command yield;yield.kind=openu5::CommandKind::CombatYield;command(yield);}
         dirty_=true;dirty_reason_="zstats-close";return true;
     }
 
@@ -2534,9 +2735,18 @@ const DeviceSelectionView *AlphaRuntime::compose_selection_view(){
         openu5::platform_format(selection_view_.context.actions,sizeof(selection_view_.context.actions),
                       page.kind==openu5::ZStatsPageKind::List&&page.list_total>openu5::kZStatsListRows
                           ?"L/R Page|U/D Scroll|{back}":"Move Page|0-6 Jump|{back}");
+        // The 1988 interaction model: the page under its banner and the console
+        // ("Status: ") still below it -- no member counter, no key legend.
+        if(openu5::platform_dos_interface()){
+            selection_view_.detail[0]=selection_view_.detail2[0]=0;
+            selection_view_.detail_panel=false;selection_view_.context={};
+        }
         return &selection_view_;
     }
     openu5::UiSelectionView current{};if(!ui_->selection_view(current))return nullptr;
+    // The 1988 interaction model chooses members on the roster itself
+    // (select_party_member 0x2d7a): no list panel, the world view stays.
+    if(openu5::platform_dos_interface()&&current.mode==openu5::UiMode::PartySelection)return nullptr;
     selection_view_={};selection_view_.active=true;selection_view_.mode=uint8_t(current.mode);selection_view_.total=current.count;
     const char *title=selection_request_==openu5::UiRequestId::MixReagents?"Reagents:":current.mode==openu5::UiMode::SpellSelection?(selection_request_==openu5::UiRequestId::Custom?"Mix Spell":"Cast Spell"):
         current.mode==openu5::UiMode::EquipmentSelection?"Ready Equipment":current.mode==openu5::UiMode::InventorySelection?"Use Item":
@@ -2582,6 +2792,20 @@ const DeviceSelectionView *AlphaRuntime::compose_selection_view(){
     std::snprintf(selection_view_.context.status,sizeof(selection_view_.context.status),"%zu/%zu",cursor+1,current.count);
     openu5::platform_format(selection_view_.context.actions,sizeof(selection_view_.context.actions),
                   selection_request_==openu5::UiRequestId::MixReagents?"Enter Mark|M Mix|{back}":"Move|Confirm|{back} Back");
+    if(openu5::platform_dos_interface()){
+        // The 1988 lists (Ready's item page and Use's, ZSTATS 0x0f2e; Mix's
+        // reagents, CMDS 0x18be) under their own banners -- the member's name
+        // (0x12e8), "Items:" (CAST DS 0x48b8), "Reagents:" (DS 0x8f64) -- with
+        // the console's prompt below and no slot detail or key legend.
+        if(current.mode==openu5::UiMode::EquipmentSelection){
+            const int member=pending_ready_member_>=0?pending_ready_member_:active_member(game_);
+            std::snprintf(selection_view_.title,sizeof(selection_view_.title),"%.9s",
+                          member>=0&&member<game_.party.character_count?game_.party.characters[member].name:"");
+        }else if(current.mode==openu5::UiMode::InventorySelection&&selection_request_==openu5::UiRequestId::Inventory)
+            std::snprintf(selection_view_.title,sizeof(selection_view_.title),"Items:");
+        selection_view_.detail[0]=selection_view_.detail2[0]=0;
+        selection_view_.detail_panel=false;selection_view_.context={};
+    }
     return &selection_view_;
 }
 
@@ -2595,7 +2819,19 @@ DevicePartyHighlight AlphaRuntime::compose_party_highlight() const{
     // blocks in either, so the two never overlap there; here the hit wins.
     if(hit_cue_.flash_row()>=0)out.damage_flash=hit_cue_.flash_row();
     if(context_.combat&&combat_.current>=0&&combat_.current<combat_.count){const auto &actor=combat_.actors[combat_.current];if(actor.member!=255)out.actor=int8_t(actor.member);}
-    openu5::UiSelectionView view{};if(ui_&&ui_->selection_view(view)&&view.mode==openu5::UiMode::PartySelection&&view.cursor<selection_count_)out.selected=int8_t(selections_[view.cursor].value);
+    openu5::UiSelectionView view{};
+    if(openu5::platform_dos_interface()){
+        // The 1988 interaction model: rows in reverse video instead of tints --
+        // the picker's cursor row under the "Select:" banner (select_party_member
+        // 0x2db2 / 0x2dc1), the arena's acting member at its turn (COMBAT
+        // 0x06df); the active member keeps only its arrow.
+        if(ui_&&ui_->selection_view(view)&&view.mode==openu5::UiMode::PartySelection&&view.cursor<selection_count_){
+            out.cursor=int8_t(selections_[view.cursor].value);out.select_banner=true;
+        }
+        out.invert_actor=out.actor;out.actor=-1;
+        return out;
+    }
+    if(ui_&&ui_->selection_view(view)&&view.mode==openu5::UiMode::PartySelection&&view.cursor<selection_count_)out.selected=int8_t(selections_[view.cursor].value);
     else if(out.actor>=0)out.selected=out.actor;
     else if(game_.party.active_character<game_.party.character_count)out.selected=int8_t(game_.party.active_character);
     return out;
@@ -2603,6 +2839,9 @@ DevicePartyHighlight AlphaRuntime::compose_party_highlight() const{
 
 const DeviceContextActionBar *AlphaRuntime::compose_context_bar(){
     context_bar_={};if(!ui_)return nullptr;
+    // The 1988 interaction model reads every prompt on the console; there is
+    // no prompt bar and no key legend (refresh_session_context() mirrors this).
+    if(openu5::platform_dos_interface())return nullptr;
     const auto mode=ui_->mode();
     if(mode!=openu5::UiMode::TargetSelection&&mode!=openu5::UiMode::TextEntry&&
        mode!=openu5::UiMode::NumericEntry&&mode!=openu5::UiMode::YesNo&&
@@ -3260,12 +3499,12 @@ void AlphaRuntime::reset_transient_after_load(){
     const bool questions=commands_.awaiting_exit||commands_.awaiting_troll||blackthorn_.shrine>=0||blackthorn_.password||blackthorn_.tribute||blackthorn_.arrest;
     // Device views and presentation timers.
     gem_view_active_=gem_view_charges_turn_=false;zodiac_view_active_=false;
-    zstats_open_=false;zstats_page_=0;zstats_scroll_=0;
+    zstats_open_=false;zstats_page_=0;zstats_scroll_=0;zstats_combat_turn_=false;
     map_reveal_end_us_=0;magic_invert_start_us_=magic_invert_end_us_=0;quake_start_us_=0;quake_pulses_=0;
     moongate_transit_=false;moongate_settle_=true; // A4-UI4 (D-48)
     // Picks parked across a modal, the picker rows, queued work.
     pending_combat_spell_=pending_ready_member_=pending_use_item_=pending_order_from_=-1;
-    pending_search_={};pending_search_active_=false;pending_caster_=-1;shrine_virtue_length_=0;
+    pending_search_={};pending_search_active_=false;pending_caster_=-1;shrine_virtue_length_=0;dos_mantra_count_=0;
     pending_mix_spell_=-1;pending_mix_mask_=0; // A3-HF10
     selection_count_=0;selection_request_=openu5::UiRequestId::None;
     pending_npc_initiation_=PendingNpcInitiation::None;pending_npc_slot_=-1;pending_npc_location_=0;

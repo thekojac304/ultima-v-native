@@ -111,6 +111,14 @@ struct DevicePartyHighlight {
     // is an XOR over the framebuffer -- see openu5::roster_invert_row, which
     // owns the precedence rule this field is the top of.
     int8_t damage_flash=-1;
+    // Windows port, the 1988 interaction model (platform_dos_interface()):
+    // the roster picker's cursor row and the arena actor's row in reverse
+    // video, the same 0x2a28 primitive below damage_flash (select_party_member
+    // 0x2dc1, COMBAT 0x06df); and the picker's "Select:" banner (0x2db2) in the
+    // status caption row. The defaults draw exactly what the T-Deck draws.
+    int8_t cursor=-1;
+    int8_t invert_actor=-1;
+    bool select_banner=false;
 };
 
 inline bool selection_row_needs_redraw(const DeviceSelectionView &current,

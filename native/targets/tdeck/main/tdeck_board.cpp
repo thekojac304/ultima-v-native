@@ -843,7 +843,12 @@ esp_err_t Board::draw_party_rows(const openu5::GameState &game,DevicePartyHighli
     // draw_roster_row 0x27ab): the name padded to 9, the -> (IBM.CH 0x1a) on the
     // ACTIVE member unless asleep or dead, HP right-aligned in 4, the status
     // letter -- in IBM.CH. The picker / combat-actor tints are today's.
-    for(size_t row=0;row<6;++row){char line[24]{};uint16_t color=kWhite;bool invert=false;if(row<members.count){const auto index=members.indices[row];const auto&a=game.party.characters[index];const bool selected=index==party_highlight.selected,actor=index==party_highlight.actor;const char status=a.status?char(a.status):'G';const bool arrow=index==game.party.active_character&&status!='D'&&status!='S';std::snprintf(line,sizeof(line),"%-9.9s%c%4u%c",a.name,arrow?'\x1a':' ',unsigned(std::min<uint16_t>(a.current_hp,9999)),status);color=selected?kGreen:actor?kCyan:kWhite;invert=index==party_highlight.damage_flash;}ESP_RETURN_ON_ERROR(draw_panel_row(row,4+int(row)*8,line,color,invert,force,ChromeFont::Ibm),kTag,"draw party row");}
+    // The reverse-video row is one row, damage flash first, then the picker
+    // cursor, then the arena actor (openu5::roster_invert_row's order; the
+    // last two are only ever set by the Windows 1988 interaction model).
+    const int8_t inverted=party_highlight.damage_flash>=0?party_highlight.damage_flash:
+                          party_highlight.cursor>=0?party_highlight.cursor:party_highlight.invert_actor;
+    for(size_t row=0;row<6;++row){char line[24]{};uint16_t color=kWhite;bool invert=false;if(row<members.count){const auto index=members.indices[row];const auto&a=game.party.characters[index];const bool selected=index==party_highlight.selected,actor=index==party_highlight.actor;const char status=a.status?char(a.status):'G';const bool arrow=index==game.party.active_character&&status!='D'&&status!='S';std::snprintf(line,sizeof(line),"%-9.9s%c%4u%c",a.name,arrow?'\x1a':' ',unsigned(std::min<uint16_t>(a.current_hp,9999)),status);color=selected?kGreen:actor?kCyan:kWhite;invert=index==inverted;if(invert&&index!=party_highlight.damage_flash)color=kWhite;}ESP_RETURN_ON_ERROR(draw_panel_row(row,4+int(row)*8,line,color,invert,force,ChromeFont::Ibm),kTag,"draw party row");}
     return ESP_OK;
 }
 
@@ -1124,7 +1129,7 @@ esp_err_t Board::show_alpha(const uint16_t *pixels,const openu5::UiSession &ui,
         std::fill(std::begin(transcript_lines),std::end(transcript_lines),openu5::UiRenderedLine{});
         const auto count=ui.visible_lines(transcript_lines,kShopLogRows,openu5::kHudTranscriptColumns);
         for(size_t i=0;i<kShopLogRows;++i){const auto*l=strip_line(i,kShopLogRows,count);const char*text=l?console_row_text(*l,row_text):"";const uint32_t seq=l?l->sequence:0;const uint16_t color=l&&l->channel==openu5::UiTextChannel::Shop?kCyan:kWhite;auto&cached=transcript_cache_[i];if(first||cached.sequence!=seq||cached.color!=color||std::strcmp(cached.text,text)!=0){ESP_RETURN_ON_ERROR(draw_text_box(184,152+int(i)*8,134,8,text,color),kTag,"shop transcript row");account(134*8);cached.sequence=seq;cached.color=color;std::snprintf(cached.text,sizeof(cached.text),"%s",text);}}
-        ESP_RETURN_ON_ERROR(draw_context_bar(shop->context,182,137,first),kTag,"shop context action bar");account(137*25);
+        if(shop->context.active){ESP_RETURN_ON_ERROR(draw_context_bar(shop->context,182,137,first),kTag,"shop context action bar");account(137*25);}
         shop_cache_=*shop;shop_cache_valid_=true;alpha_ui_cache_valid_=true;
         return ESP_OK;
     }
@@ -1147,7 +1152,7 @@ esp_err_t Board::show_alpha(const uint16_t *pixels,const openu5::UiSession &ui,
         std::fill(std::begin(transcript_lines),std::end(transcript_lines),openu5::UiRenderedLine{});const auto count=ui.visible_lines(transcript_lines,kSelectorLogRows,openu5::kHudTranscriptColumns);
         const bool show_transcript=selection_uses_transcript(*selection);
         for(size_t i=0;i<kSelectorLogRows;++i){const auto*l=show_transcript?strip_line(i,kSelectorLogRows,count):nullptr;const char*text=l?console_row_text(*l,row_text):"";const uint32_t seq=l?l->sequence:0;const uint16_t color=l&&l->channel==openu5::UiTextChannel::Combat?kRed:kWhite;auto&cached=transcript_cache_[i];if(first||cached.sequence!=seq||cached.color!=color||std::strcmp(cached.text,text)!=0){ESP_RETURN_ON_ERROR(draw_text_box(184,172+int(i)*8,134,8,text,color),kTag,"selector transcript");account(134*8);cached.sequence=seq;cached.color=color;std::snprintf(cached.text,sizeof(cached.text),"%s",text);}}
-        ESP_RETURN_ON_ERROR(draw_context_bar(selection->context,182,137,first),kTag,"selector context action bar");account(137*25);
+        if(selection->context.active){ESP_RETURN_ON_ERROR(draw_context_bar(selection->context,182,137,first),kTag,"selector context action bar");account(137*25);}
         selection_cache_=*selection;selection_cache_valid_=true;alpha_ui_cache_valid_=true;return ESP_OK;
     }
     if(!preserve_party_panel) {
@@ -1157,6 +1162,10 @@ esp_err_t Board::show_alpha(const uint16_t *pixels,const openu5::UiSession &ui,
     // name, not game.position's -- that field holds the surface RETURN context
     // for the whole descent and is stale by design (see hud_location_caption()).
     const char*name=hud_location_caption(game.position.map.location,game.position.map.floor,bands_active,bands_active?dungeon_bands->dungeon_id:uint8_t(0));
+    // The 1988 roster picker titles the panel "Select:" (DS 0x5554, kernel
+    // 0x4e50, centred) while it asks; the caption row is that title's place
+    // here, the panel having no band row above the roster.
+    if(party_highlight.select_banner)name="       Select:";
     if(!preserve_party_panel){
         status_move_=movement_mode;
         ESP_RETURN_ON_ERROR(draw_status_rows(game,name,movement_mode,!alpha_ui_cache_valid_),kTag,"draw world status");

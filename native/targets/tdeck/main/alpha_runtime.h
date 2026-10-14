@@ -284,6 +284,13 @@ class AlphaRuntime {
     // and the device panel cannot disagree about a row.
     bool zstats_active() const { return zstats_open_; }
     openu5::ZStatsPage zstats_view() const;
+    // Windows port test seam: the three composed views render() hands the
+    // Board -- the right-panel overlay, the context bar and the roster
+    // highlight -- as the next frame would see them (a default value when
+    // there is none). Read-only; the T-Deck never calls them.
+    DeviceSelectionView selection_view_for_test() { const auto *v = compose_selection_view(); return v ? *v : DeviceSelectionView{}; }
+    DeviceContextActionBar context_bar_for_test() { const auto *b = compose_context_bar(); return b ? *b : DeviceContextActionBar{}; }
+    DevicePartyHighlight party_highlight_for_test() const { return compose_party_highlight(); }
     // A3-HF4 host-test seam: the device-owned interaction and presentation
     // state a load must not carry into the loaded game. Read-only.
     struct TransientProbe {
@@ -475,6 +482,11 @@ class AlphaRuntime {
     uint8_t pending_npc_location_ = 0;
     char16_t shrine_virtue_[64]{};
     size_t shrine_virtue_length_ = 0;
+    // The 1988 interaction model asks "Mantra:" three times (CAST2 0x0a1b,
+    // CMDS 0x125e); the answers so far, until the third.
+    char16_t dos_mantras_[3][16]{};
+    size_t dos_mantra_length_[3]{};
+    uint8_t dos_mantra_count_ = 0;
     openu5::AssetPackReader *tiles_ = nullptr;
     openu5::AssetPackReport tile_report_{};
     AlphaResourceReport alpha_report_{};
@@ -550,6 +562,10 @@ class AlphaRuntime {
     bool zstats_open_ = false;
     int zstats_page_ = 0;
     size_t zstats_scroll_ = 0;
+    // The 1988 interaction model: (Z) in the arena shows the acting member's
+    // page and, when it closes, ends that member's turn (COMBAT 0x09d8 ->
+    // 0x07ba, [bp-4]=1).
+    bool zstats_combat_turn_ = false;
     int32_t combat_world_tile_before_ = openu5::kOffMap;
     bool combat_world_tile_saved_ = false;
     struct DirectTrollTrace {
@@ -648,6 +664,8 @@ class AlphaRuntime {
     static void terrain_write(void *, const openu5::TerrainWrite &);
     void cast_selected_spell(int16_t spell);
     void cast_typed_spell(int32_t spell);
+    // The typed spell name's prompt (Cast's or Mix's), in the platform's format.
+    void begin_spell_name(bool mix);
     void start_magic_ceremony(int index);
     void synchronize_after_debug(openu5::WorldPosition before, bool dungeon_before);
     void drain_pending_npc_initiation();
