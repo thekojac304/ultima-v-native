@@ -6,15 +6,20 @@
 
 #include <SDL3/SDL.h>
 
+#include "esp_log.h"
 #include "platform/virtual_panel.h"
 
 namespace uv {
 namespace {
+constexpr char kTag[] = "Presenter";
 constexpr int kW = panel::kWidth, kH = panel::kHeight;
+static_assert(kW == kPictureW && kH == kPictureH, "the layout places the virtual panel");
 
-SDL_RendererLogicalPresentation presentation_mode(Scaling scaling) {
-    return scaling == Scaling::Fit ? SDL_LOGICAL_PRESENTATION_LETTERBOX : SDL_LOGICAL_PRESENTATION_INTEGER_SCALE;
-}
+// The ring's colours as RGB565 texels, drawn through the same path as the
+// picture, so the band is exactly the in-game band's blue on any renderer.
+constexpr uint16_t kRingTexels[2] = {kRingBandRgb565, kRingRuleRgb565};
+
+SDL_FRect frect(const PixelRect &r) { return SDL_FRect{float(r.x), float(r.y), float(r.w), float(r.h)}; }
 
 /** A 24-bit BMP (bottom-up rows, BGR, rows padded to 4 bytes) of w x h 0xRRGGBB pixels. */
 bool write_bmp(const std::wstring &path, int w, int h, const uint32_t *rgb) {
@@ -71,14 +76,20 @@ bool Presenter::create(const char *title, const DesktopSettings &settings) {
         return false;
     }
     texture_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_STREAMING, kW, kH);
-    if (!texture_) {
+    ring_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_STATIC, 2, 1);
+    if (!texture_ || !ring_ || !SDL_UpdateTexture(ring_, nullptr, kRingTexels, int(sizeof(kRingTexels)))) {
         error_ = std::string("SDL_CreateTexture: ") + SDL_GetError();
         destroy();
         return false;
     }
     SDL_SetTextureScaleMode(texture_, SDL_SCALEMODE_NEAREST);
+    texture_scale_mode_ = int(SDL_SCALEMODE_NEAREST);
+    SDL_SetTextureScaleMode(ring_, SDL_SCALEMODE_NEAREST);
+    // Every rectangle is placed in whole output pixels here (layout_presentation),
+    // never by SDL's logical presentation and its float centring.
+    SDL_SetRenderLogicalPresentation(renderer_, 0, 0, SDL_LOGICAL_PRESENTATION_DISABLED);
+    ESP_LOGI(kTag, "renderer %s", SDL_GetRendererName(renderer_));
     scaling_ = settings.scaling;
-    SDL_SetRenderLogicalPresentation(renderer_, kW, kH, presentation_mode(scaling_));
     set_vsync(settings.vsync);
     set_window_scale(settings.window_scale);
     if (settings.fullscreen) SDL_SetWindowFullscreen(window_, true);
@@ -87,9 +98,11 @@ bool Presenter::create(const char *title, const DesktopSettings &settings) {
 }
 
 void Presenter::destroy() {
+    if (ring_) SDL_DestroyTexture(ring_);
     if (texture_) SDL_DestroyTexture(texture_);
     if (renderer_) SDL_DestroyRenderer(renderer_);
     if (window_) SDL_DestroyWindow(window_);
+    ring_ = nullptr;
     texture_ = nullptr;
     renderer_ = nullptr;
     window_ = nullptr;
@@ -113,9 +126,27 @@ void Presenter::upload() {
 }
 
 void Presenter::draw() {
+    int w = 0, h = 0;
+    SDL_GetCurrentRenderOutputSize(renderer_, &w, &h);
+    layout_ = layout_presentation(w, h, scaling_);
+    // Whole-number scales sample nearest; a fractional Fit samples as pixel
+    // art (even columns and rows), where the renderer has it -- SDL falls
+    // back to nearest on renderers without it, and so does this.
+    const SDL_ScaleMode mode = layout_.scale > 0 ? SDL_SCALEMODE_NEAREST : SDL_SCALEMODE_PIXELART;
+    if (int(mode) != texture_scale_mode_) {
+        if (!SDL_SetTextureScaleMode(texture_, mode)) SDL_SetTextureScaleMode(texture_, SDL_SCALEMODE_NEAREST);
+        texture_scale_mode_ = int(mode);
+    }
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);
-    SDL_RenderTexture(renderer_, texture_, nullptr, nullptr);
+    for (int i = 0; i < layout_.piece_count; ++i) {
+        const RingPiece &piece = layout_.pieces[i];
+        const SDL_FRect texel{piece.colour == RingColour::Band ? 0.0f : 1.0f, 0.0f, 1.0f, 1.0f};
+        const SDL_FRect dst = frect(piece.rect);
+        SDL_RenderTexture(renderer_, ring_, &texel, &dst);
+    }
+    const SDL_FRect picture = frect(layout_.picture);
+    SDL_RenderTexture(renderer_, texture_, nullptr, &picture);
 }
 
 void Presenter::present(bool force) {
@@ -133,10 +164,7 @@ bool Presenter::read_window(std::vector<uint32_t> &pixels, int &width, int &heig
     if (!renderer_ || !texture_) return false;
     upload();
     draw();
-    // The logical presentation limits a read to the picture: read the whole output.
-    SDL_SetRenderLogicalPresentation(renderer_, 0, 0, SDL_LOGICAL_PRESENTATION_DISABLED);
     SDL_Surface *shot = SDL_RenderReadPixels(renderer_, nullptr);
-    SDL_SetRenderLogicalPresentation(renderer_, kW, kH, presentation_mode(scaling_));
     SDL_Surface *rgb = shot ? SDL_ConvertSurface(shot, SDL_PIXELFORMAT_XRGB8888) : nullptr;
     if (shot) SDL_DestroySurface(shot);
     const bool ok = rgb != nullptr;
@@ -196,7 +224,6 @@ void Presenter::set_window_scale(uint8_t scale) {
 
 void Presenter::set_scaling(Scaling scaling) {
     scaling_ = scaling;
-    if (renderer_) SDL_SetRenderLogicalPresentation(renderer_, kW, kH, presentation_mode(scaling_));
     stale_ = true;
 }
 

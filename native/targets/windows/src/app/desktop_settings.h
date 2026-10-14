@@ -29,14 +29,17 @@ struct DesktopSettings {
     InterfaceMode interface_mode = InterfaceMode::Original;
     uint8_t window_scale = 3;  // 320x240 x N for the windowed size (1..8)
     bool fullscreen = false;
-    Scaling scaling = Scaling::Integer;
+    Scaling scaling = Scaling::Framed;
     bool vsync = true;
 };
 
 constexpr uint8_t kMinWindowScale = 1, kMaxWindowScale = 8;
 
 const char *interface_mode_name(InterfaceMode);
+/** "Framed", "Integer" or "Fit": the names windows.json holds. */
 const char *scaling_name(Scaling);
+/** The inverse; an unknown name is the default, Framed. */
+Scaling scaling_from_name(const std::string &name);
 
 /** Reads `path`; a missing or malformed file (or key) keeps the defaults. False only on a malformed file. */
 bool load_desktop_settings(const std::wstring &path, DesktopSettings &out);

@@ -12,6 +12,9 @@ using openu5::SettingsRowId;
 // Window sizes the Display row steps through, then fullscreen.
 constexpr uint8_t kDisplayScales[] = {2, 3, 4, 5, 6};
 constexpr int kDisplayStates = int(sizeof(kDisplayScales)) + 1; // + fullscreen
+// The Scaling row's cycle (right / Enter steps forward, left back).
+constexpr Scaling kScalingOrder[] = {Scaling::Framed, Scaling::Integer, Scaling::Fit};
+constexpr int kScalingStates = int(sizeof(kScalingOrder) / sizeof(kScalingOrder[0]));
 
 char g_banner[64];
 } // namespace
@@ -81,15 +84,26 @@ bool DesktopProfile::display_adjust(void *context, int delta) {
 
 const char *DesktopProfile::scaling_label(void *context, char *out, size_t capacity) {
     const auto *self = static_cast<const DesktopProfile *>(context);
-    const bool fit = self->hooks_.settings->scaling == Scaling::Fit;
-    std::snprintf(out, capacity, "Scaling: %s", fit ? "Fit window" : "Whole pixels");
-    return fit ? "Fills the window; pixels may differ in size" : "Every pixel the same size; may letterbox";
+    switch (self->hooks_.settings->scaling) {
+    case Scaling::Integer:
+        std::snprintf(out, capacity, "Scaling: Whole pixels");
+        return "Every pixel the same size; may letterbox";
+    case Scaling::Fit:
+        std::snprintf(out, capacity, "Scaling: Fit window");
+        return "Fills the window; pixels may differ in size";
+    default:
+        std::snprintf(out, capacity, "Scaling: Framed");
+        return "Whole pixels, centred in a thin blue frame";
+    }
 }
 
-bool DesktopProfile::scaling_adjust(void *context, int) {
+bool DesktopProfile::scaling_adjust(void *context, int delta) {
     auto *self = static_cast<DesktopProfile *>(context);
     auto &scaling = self->hooks_.settings->scaling;
-    scaling = scaling == Scaling::Fit ? Scaling::Integer : Scaling::Fit;
+    int at = 0;
+    for (int i = 0; i < kScalingStates; ++i)
+        if (kScalingOrder[i] == scaling) at = i;
+    scaling = kScalingOrder[(at + (delta < 0 ? kScalingStates - 1 : 1)) % kScalingStates];
     if (self->hooks_.changed) self->hooks_.changed(self->hooks_.context, Change::Scaling);
     return true;
 }

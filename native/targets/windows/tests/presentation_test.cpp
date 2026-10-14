@@ -5,9 +5,10 @@
 // size on a dense grid (and every size up to 1100x850) against the rules --
 // whole-number scale, centring with the odd pixel on the right/bottom, the
 // ring's three forms and their thresholds, nothing outside the output,
-// nothing over the picture, no overlaps, mirror symmetry -- and finally the
-// frame checker the --autotest window_layout step uses, against frames drawn
-// here from the layout (and against deliberately wrong ones).
+// nothing over the picture, no overlaps, mirror symmetry -- then the frame
+// checker the --autotest window_layout step uses, against frames drawn here
+// from the layout (and against deliberately wrong ones), and the Settings
+// page's Scaling row.
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
@@ -15,7 +16,9 @@
 #include <string>
 #include <vector>
 
+#include "app/desktop_profile.h"
 #include "app/presentation_layout.h"
+#include "openu5/platform_profile.h"
 #include "test_check.h"
 
 using uv::layout_presentation;
@@ -280,6 +283,66 @@ void frame_checker() {
     check(!uv::check_presented_frame(l, panel.data(), good.data(), 1366, 768).empty(), "C8 a frame of another size is refused");
 }
 
+// --- 4. The Settings page's Scaling row -------------------------------------------------
+struct ProfileProbe {
+    uv::DesktopSettings settings;
+    int changes = 0;
+    uv::DesktopProfile::Change last = uv::DesktopProfile::Change::Interface;
+    static void changed(void *context, uv::DesktopProfile::Change what) {
+        auto *self = static_cast<ProfileProbe *>(context);
+        ++self->changes;
+        self->last = what;
+    }
+};
+
+std::string row_label(size_t row, const char **footer = nullptr) {
+    const openu5::PlatformRow &r = openu5::platform_profile().platform_rows[row];
+    char text[64] = {};
+    const char *f = r.label ? r.label(r.context, text, sizeof(text)) : nullptr;
+    if (footer) *footer = f;
+    return text;
+}
+
+bool adjust(size_t row, int delta) {
+    const openu5::PlatformRow &r = openu5::platform_profile().platform_rows[row];
+    return r.adjust && r.adjust(r.context, delta);
+}
+
+void scaling_row() {
+    ProfileProbe probe;
+    uv::DesktopProfile profile;
+    uv::DesktopProfile::Hooks hooks;
+    hooks.settings = &probe.settings;
+    hooks.context = &probe;
+    hooks.changed = &ProfileProbe::changed;
+    profile.install(hooks);
+    const char *footer = nullptr;
+    check(row_label(2, &footer) == "Scaling: Framed" && footer && std::string(footer) == "Whole pixels, centred in a thin blue frame",
+          "P1 the default Scaling row reads \"Scaling: Framed\" with its footer", row_label(2));
+    // Right / Enter: Framed -> Whole pixels -> Fit window -> Framed.
+    const char *want_right[] = {"Scaling: Whole pixels", "Scaling: Fit window", "Scaling: Framed"};
+    const Scaling want_value[] = {Scaling::Integer, Scaling::Fit, Scaling::Framed};
+    for (int i = 0; i < 3; ++i) {
+        const bool changed = adjust(2, +1);
+        check(changed && row_label(2) == want_right[i] && probe.settings.scaling == want_value[i] &&
+                  probe.last == uv::DesktopProfile::Change::Scaling && probe.changes == i + 1,
+              format("P2 right #%d: %s", i + 1, want_right[i]), row_label(2));
+    }
+    // Left goes back: Framed -> Fit window -> Whole pixels -> Framed.
+    const char *want_left[] = {"Scaling: Fit window", "Scaling: Whole pixels", "Scaling: Framed"};
+    for (int i = 0; i < 3; ++i) {
+        adjust(2, -1);
+        check(row_label(2) == want_left[i], format("P3 left #%d: %s", i + 1, want_left[i]), row_label(2));
+    }
+    probe.settings.scaling = Scaling::Integer;
+    check(row_label(2, &footer) == "Scaling: Whole pixels" && std::string(footer) == "Every pixel the same size; may letterbox",
+          "P4 Whole pixels keeps its footer");
+    probe.settings.scaling = Scaling::Fit;
+    check(row_label(2, &footer) == "Scaling: Fit window" && std::string(footer) == "Fills the window; pixels may differ in size",
+          "P5 Fit window keeps its footer");
+    openu5::set_platform_profile(openu5::PlatformProfile{});
+}
+
 } // namespace
 
 int main() {
@@ -287,5 +350,6 @@ int main() {
     exact_sizes();
     every_size();
     frame_checker();
+    scaling_row();
     return uvtest::finish("uv_presentation_test");
 }

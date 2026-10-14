@@ -4,15 +4,20 @@
 // The virtual panel (src/platform/virtual_panel.h) holds the game's 320x240
 // RGB565 screen. The presenter owns the SDL window, renderer and one
 // streaming texture of that size, uploads the panel when it changed and
-// draws it scaled with nearest-neighbour sampling, keeping the 4:3 aspect:
-// whole-number scales (Scaling::Integer, letterboxed) or the largest fit
-// (Scaling::Fit). The panel's backlight duty (the T-Deck's Brightness) is
-// ignored: the picture is always drawn at full intensity.
+// draws it where app/presentation_layout.h puts it, in whole output pixels
+// (SDL's logical presentation is off): whole-number scales with nearest
+// sampling and the Classic Framed ring (Scaling::Framed, the default) or
+// without it (Scaling::Integer), or the largest 4:3 fit sampled as pixel art
+// (Scaling::Fit). The ring's colours come from a 2x1 RGB565 texture, so they
+// take the picture's own colour path. The panel's backlight duty (the
+// T-Deck's Brightness) is ignored: the picture is always drawn at full
+// intensity.
 #include <cstdint>
 #include <string>
 #include <vector>
 
 #include "app/desktop_settings.h"
+#include "app/presentation_layout.h"
 
 struct SDL_Window;
 struct SDL_Renderer;
@@ -59,6 +64,8 @@ class Presenter {
     SDL_Window *window() const { return window_; }
     const std::string &error() const { return error_; }
     uint64_t frames_presented() const { return frames_; }
+    /** The layout of the last frame drawn. */
+    const PresentationLayout &layout() const { return layout_; }
 
   private:
     /** Uploads the panel when it changed since the last upload. */
@@ -69,10 +76,13 @@ class Presenter {
     SDL_Window *window_ = nullptr;
     SDL_Renderer *renderer_ = nullptr;
     SDL_Texture *texture_ = nullptr;
+    SDL_Texture *ring_ = nullptr; // 2x1 RGB565: the band's blue, the rule's white
+    int texture_scale_mode_ = 0;  // the picture texture's SDL_ScaleMode
     uint64_t uploaded_generation_ = ~0ull;
     uint64_t frames_ = 0;
     bool stale_ = true;
-    Scaling scaling_ = Scaling::Integer;
+    Scaling scaling_ = Scaling::Framed;
+    PresentationLayout layout_{};
     std::string error_;
 };
 

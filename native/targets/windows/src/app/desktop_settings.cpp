@@ -27,7 +27,22 @@ const char *interface_mode_name(InterfaceMode mode) {
     return mode == InterfaceMode::Enhanced ? "Enhanced" : "Original";
 }
 
-const char *scaling_name(Scaling scaling) { return scaling == Scaling::Fit ? "Fit" : "Integer"; }
+const char *scaling_name(Scaling scaling) {
+    switch (scaling) {
+    case Scaling::Integer: return "Integer";
+    case Scaling::Fit: return "Fit";
+    default: return "Framed";
+    }
+}
+
+// The names windows.json has held: "Integer" and "Fit" since the first
+// build, "Framed" since Classic Framed. Anything else (a later build's
+// value, a typo) is the default.
+Scaling scaling_from_name(const std::string &name) {
+    if (name == "Integer") return Scaling::Integer;
+    if (name == "Fit") return Scaling::Fit;
+    return Scaling::Framed;
+}
 
 std::string encode_desktop_settings(const DesktopSettings &s) {
     Json doc = Json::object();
@@ -54,7 +69,7 @@ bool decode_desktop_settings(const std::string &text, DesktopSettings &out) {
         s.window_scale = uint8_t(std::clamp<int64_t>(doc["windowScale"].integer(3), kMinWindowScale, kMaxWindowScale));
     if (doc.has("fullscreen") && doc["fullscreen"].kind == Json::Bool) s.fullscreen = doc["fullscreen"].truth();
     if (doc.has("scaling") && doc["scaling"].kind == Json::String)
-        s.scaling = u16_to_ascii(doc["scaling"].string) == "Fit" ? Scaling::Fit : Scaling::Integer;
+        s.scaling = scaling_from_name(u16_to_ascii(doc["scaling"].string));
     if (doc.has("vsync") && doc["vsync"].kind == Json::Bool) s.vsync = doc["vsync"].truth();
     out = s;
     return true;
