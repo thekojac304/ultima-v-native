@@ -9,9 +9,6 @@ namespace uv {
 namespace {
 using openu5::SettingsRowId;
 
-// Window sizes the Display row steps through, then fullscreen.
-constexpr uint8_t kDisplayScales[] = {2, 3, 4, 5, 6};
-constexpr int kDisplayStates = int(sizeof(kDisplayScales)) + 1; // + fullscreen
 // The Scaling row's cycle (right / Enter steps forward, left back).
 constexpr Scaling kScalingOrder[] = {Scaling::Framed, Scaling::Integer, Scaling::Fit};
 constexpr int kScalingStates = int(sizeof(kScalingOrder) / sizeof(kScalingOrder[0]));
@@ -66,18 +63,19 @@ const char *DesktopProfile::display_label(void *context, char *out, size_t capac
     return "Left/right: window size or fullscreen (Alt+Enter)";
 }
 
+// Window 1x .. the largest that fits, then Fullscreen: the same range as
+// Ctrl+= / Ctrl+-, so neither shows a size the window cannot have.
 bool DesktopProfile::display_adjust(void *context, int delta) {
     auto *self = static_cast<DesktopProfile *>(context);
     auto &s = *self->hooks_.settings;
-    int state = kDisplayStates - 1; // fullscreen
-    if (!s.fullscreen) {
-        state = 0;
-        for (int i = 0; i < int(sizeof(kDisplayScales)); ++i)
-            if (kDisplayScales[i] <= s.window_scale) state = i;
-    }
-    state = (state + (delta < 0 ? kDisplayStates - 1 : 1)) % kDisplayStates;
-    s.fullscreen = state == kDisplayStates - 1;
-    if (!s.fullscreen) s.window_scale = kDisplayScales[state];
+    const int largest = std::clamp<int>(
+        self->hooks_.largest_window_scale ? self->hooks_.largest_window_scale(self->hooks_.context) : kMaxWindowScale,
+        kMinWindowScale, kMaxWindowScale);
+    // States 0 .. largest-1 are Window 1x .. largest x; state `largest` is Fullscreen.
+    int state = s.fullscreen ? largest : std::clamp<int>(s.window_scale, kMinWindowScale, largest) - 1;
+    state = (state + (delta < 0 ? largest : 1)) % (largest + 1);
+    s.fullscreen = state == largest;
+    if (!s.fullscreen) s.window_scale = uint8_t(state + 1);
     if (self->hooks_.changed) self->hooks_.changed(self->hooks_.context, Change::Display);
     return true;
 }

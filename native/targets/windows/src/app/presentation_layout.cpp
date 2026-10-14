@@ -1,6 +1,7 @@
 #include "app/presentation_layout.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
 
 namespace uv {
@@ -40,6 +41,17 @@ void pillars(PresentationLayout &l, int x0, int u, int output_h) {
 
 uint16_t to_rgb565(uint32_t rgb) {
     return uint16_t(((rgb >> 19) & 0x1F) << 11 | ((rgb >> 10) & 0x3F) << 5 | ((rgb >> 3) & 0x1F));
+}
+
+bool window_fits(int client_w, int client_h, const WorkArea &a, const WindowBorders &b) {
+    return client_w + b.left + b.right <= a.w && client_h + b.top + b.bottom <= a.h;
+}
+
+// One axis of the client's position: the frame centred in the span, or
+// against its start when the frame is larger.
+int place(int origin, int span, int client, int before, int after) {
+    const int outer = client + before + after;
+    return origin + before + (outer <= span ? (span - outer) / 2 : 0);
 }
 
 } // namespace
@@ -144,6 +156,37 @@ std::string check_presented_frame(const PresentationLayout &l, const uint16_t *p
         }
     }
     return std::string();
+}
+
+WindowPlan plan_window(int requested_scale, Scaling scaling, const WorkArea &area, const WindowBorders &borders) {
+    WindowPlan p;
+    // Framed N, bare N, framed N-1, ...; at 1 the bare window even when it does not fit.
+    for (p.scale = std::clamp(requested_scale, int(kMinWindowScale), int(kMaxWindowScale));; --p.scale) {
+        p.framed = scaling == Scaling::Framed &&
+                   window_fits((kPictureW + 2 * kFramedMargin) * p.scale, (kPictureH + 2 * kFramedMargin) * p.scale, area, borders);
+        if (p.framed || p.scale == 1 || window_fits(kPictureW * p.scale, kPictureH * p.scale, area, borders)) break;
+    }
+    const int margin = p.framed ? kFramedMargin : 0;
+    p.aspect_w = kPictureW + 2 * margin;
+    p.aspect_h = kPictureH + 2 * margin;
+    p.client_w = p.aspect_w * p.scale;
+    p.client_h = p.aspect_h * p.scale;
+    p.x = place(area.x, area.w, p.client_w, borders.left, borders.right);
+    p.y = place(area.y, area.h, p.client_h, borders.top, borders.bottom);
+    return p;
+}
+
+int largest_window_scale(const WorkArea &area, const WindowBorders &borders) {
+    int n = kMaxWindowScale;
+    while (n > 1 && !window_fits(kPictureW * n, kPictureH * n, area, borders)) --n;
+    return n;
+}
+
+int default_window_scale(float content_scale, const WorkArea &area, const WindowBorders &borders) {
+    // A display scale SDL could not read (0, NaN) or a nonsense one counts as 100 %.
+    if (!(content_scale >= 0.5f && content_scale <= 8.0f)) content_scale = 1.0f;
+    const int n = std::clamp(int(std::floor(3.0 * double(content_scale) + 1e-6)), int(kMinWindowScale), int(kMaxWindowScale));
+    return std::min(n, largest_window_scale(area, borders));
 }
 
 } // namespace uv

@@ -156,7 +156,9 @@ class Game {
     InputContext input_context() const;
     void sync_mode();
     static void on_profile_change(void *context, DesktopProfile::Change what);
+    static uint8_t largest_window_scale(void *context);
     void install_profile();
+    void follow_display_scale();
     void open_data_folder();
     void update_title();
     void save_settings();
@@ -180,6 +182,11 @@ class Game {
     DesktopSettings stored_settings_{};
     bool mode_overridden_ = false;
     bool fullscreen_overridden_ = false;
+    // settings_.window_scale is the scale the window HAS (what the Display
+    // row shows). Until the player picks one in this run, windows.json keeps
+    // the stored value -- automatic, or a choice made on a larger display --
+    // so a start on a smaller display never shrinks the saved choice.
+    bool window_scale_chosen_ = false;
     std::unique_ptr<InstanceLock> lock_;
     Presenter presenter_;
     DesktopInput input_;
@@ -275,6 +282,7 @@ bool Game::boot() {
         exit_code_ = 5;
         return false;
     }
+    settings_.window_scale = presenter_.window_scale();
     update_title();
     input_.set_layout_has_altgr(DesktopInput::detect_layout_altgr());
     ESP_LOGI(kTag, "keyboard layout has AltGr: %s", input_.layout_has_altgr() ? "yes" : "no");
@@ -360,8 +368,10 @@ bool Game::boot() {
     SDL_StartTextInput(presenter_.window());
     heartbeat_us_ = esp_timer_get_time() + 5000000;
     ready_ = true;
-    ESP_LOGI(kTag, "ready: interface=%s window=%ux%s fullscreen=%d", interface_mode_name(settings_.interface_mode),
-             unsigned(settings_.window_scale), scaling_name(settings_.scaling), settings_.fullscreen);
+    ESP_LOGI(kTag, "ready: interface=%s window=%ux (%s) scaling=%s fullscreen=%d",
+             interface_mode_name(settings_.interface_mode), unsigned(settings_.window_scale),
+             stored_settings_.window_scale == kAutoWindowScale ? "automatic" : "saved", scaling_name(settings_.scaling),
+             settings_.fullscreen);
     log::flush();
     return true;
 }
@@ -392,8 +402,11 @@ void Game::install_profile() {
     hooks.settings = &settings_;
     hooks.context = this;
     hooks.changed = &Game::on_profile_change;
+    hooks.largest_window_scale = &Game::largest_window_scale;
     profile_.install(hooks);
 }
+
+uint8_t Game::largest_window_scale(void *context) { return static_cast<Game *>(context)->presenter_.largest_window_scale(); }
 
 // A desktop Settings row (Interface, Display, Scaling) changed settings_.
 void Game::on_profile_change(void *context, DesktopProfile::Change what) {
@@ -403,11 +416,30 @@ void Game::on_profile_change(void *context, DesktopProfile::Change what) {
     case DesktopProfile::Change::Display:
         self->fullscreen_overridden_ = false;
         self->presenter_.set_fullscreen(self->settings_.fullscreen);
-        if (!self->settings_.fullscreen) self->presenter_.set_window_scale(self->settings_.window_scale);
+        if (!self->settings_.fullscreen) {
+            self->window_scale_chosen_ = true;
+            self->settings_.window_scale = self->presenter_.set_window_scale(self->settings_.window_scale);
+        }
         break;
-    case DesktopProfile::Change::Scaling: self->presenter_.set_scaling(self->settings_.scaling); break;
+    case DesktopProfile::Change::Scaling:
+        self->presenter_.set_scaling(self->settings_.scaling);
+        self->settings_.window_scale = self->presenter_.window_scale();
+        break;
     }
     self->save_settings();
+}
+
+// The window's display scale changed (it was dragged to another monitor, or
+// Windows' scale setting changed). A scale the player never chose follows
+// it, as the first run's default would; a chosen one stays (Windows keeps
+// the window's size in pixels). Fullscreen and maximised windows are left alone.
+void Game::follow_display_scale() {
+    if (window_scale_chosen_ || stored_settings_.window_scale != kAutoWindowScale) return;
+    if (presenter_.fullscreen() || presenter_.maximized()) return;
+    const uint8_t want = presenter_.default_window_scale();
+    if (want == settings_.window_scale) return;
+    settings_.window_scale = presenter_.set_window_scale(want);
+    ESP_LOGI(kTag, "WINDOW_SCALE follows the display scale: %ux", unsigned(settings_.window_scale));
 }
 
 // The data folder itself: the game's files are in its ultima5 subfolder (the
@@ -429,6 +461,7 @@ void Game::save_settings() {
     DesktopSettings out = settings_;
     if (mode_overridden_) out.interface_mode = stored_settings_.interface_mode;
     if (fullscreen_overridden_) out.fullscreen = stored_settings_.fullscreen;
+    if (!window_scale_chosen_) out.window_scale = stored_settings_.window_scale;
     if (save_desktop_settings(paths_.ultima5_dir() + L"\\windows.json", out)) stored_settings_ = out;
     else ESP_LOGW(kTag, "windows.json could not be written");
 }
@@ -461,15 +494,17 @@ void Game::apply_command(const DesktopCommand &command) {
         break;
     case DesktopCommand::Kind::WindowScaleUp:
     case DesktopCommand::Kind::WindowScaleDown: {
+        // 1x .. the largest that fits, as the Display row steps.
         const int delta = command.kind == DesktopCommand::Kind::WindowScaleUp ? 1 : -1;
-        settings_.window_scale =
-            uint8_t(std::clamp(int(settings_.window_scale) + delta, int(kMinWindowScale), int(kMaxWindowScale)));
+        const int wanted = std::clamp(int(settings_.window_scale) + delta, int(kMinWindowScale),
+                                      int(presenter_.largest_window_scale()));
         if (settings_.fullscreen) {
             fullscreen_overridden_ = false;
             settings_.fullscreen = false;
             presenter_.set_fullscreen(false);
         }
-        presenter_.set_window_scale(settings_.window_scale);
+        window_scale_chosen_ = true;
+        settings_.window_scale = presenter_.set_window_scale(uint8_t(wanted));
         save_settings();
         break;
     }
@@ -510,6 +545,10 @@ void Game::handle_event(const SDL_Event &event) {
     case SDL_EVENT_WINDOW_LEAVE_FULLSCREEN:
     case SDL_EVENT_RENDER_TARGETS_RESET:
     case SDL_EVENT_RENDER_DEVICE_RESET: presenter_.invalidate(); return;
+    case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
+        presenter_.invalidate();
+        follow_display_scale();
+        return;
     default: break;
     }
     DesktopCommand commands[DesktopInput::kMaxCommands];

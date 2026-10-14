@@ -25,9 +25,14 @@ enum class InterfaceMode : uint8_t { Original = 0, Enhanced = 1 };
 // whole pixels in a thin ring of the game's chrome.
 enum class Scaling : uint8_t { Integer = 0, Fit = 1, Framed = 2 };
 
+// The window scale the player has not chosen: the game derives it from the
+// display's scale (app/presentation_layout.h, default_window_scale) and
+// windows.json leaves "windowScale" out.
+constexpr uint8_t kAutoWindowScale = 0;
+
 struct DesktopSettings {
     InterfaceMode interface_mode = InterfaceMode::Original;
-    uint8_t window_scale = 3;  // 320x240 x N for the windowed size (1..8)
+    uint8_t window_scale = kAutoWindowScale;  // the picture's scale N in a window (1..8), or automatic
     bool fullscreen = false;
     Scaling scaling = Scaling::Framed;
     bool vsync = true;

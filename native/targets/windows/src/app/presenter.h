@@ -43,10 +43,25 @@ class Presenter {
     /** The window was exposed/resized/restored: present on the next call even if nothing changed. */
     void invalidate() { stale_ = true; }
 
+    /** Borderless fullscreen at the desktop's own mode (never an exclusive mode change). */
     void set_fullscreen(bool on);
     bool fullscreen() const;
-    /** Windowed size = 320x240 x scale (clamped to what fits the display). */
-    void set_window_scale(uint8_t scale);
+    bool maximized() const;
+    /**
+     * "Window N x" (plan_window): the picture at N in a framed client when it
+     * fits the work area with the window's real frame, else bare, else a
+     * smaller N; restored first if maximised, centred on its display with its
+     * title bar inside the work area, its aspect locked for dragging. Returns
+     * the N it got (the caller shows and saves that, never the request).
+     */
+    uint8_t set_window_scale(uint8_t scale);
+    /** The N the window has now. */
+    uint8_t window_scale() const { return window_scale_; }
+    /** The largest N that fits the window's display now. */
+    uint8_t largest_window_scale();
+    /** The N for a player who has not chosen one: from the display's scale (default_window_scale). */
+    uint8_t default_window_scale();
+    /** The scaling; a normal window takes the mode's shape (framed or bare client). */
     void set_scaling(Scaling scaling);
     void set_vsync(bool on);
 
@@ -72,6 +87,11 @@ class Presenter {
     void upload();
     /** Clears and draws the frame into the back buffer (no present). */
     void draw();
+    float content_scale() const;
+    WorkArea work_area() const;
+    /** The window's frame, measured while it is a normal window (kept otherwise). */
+    void measure_borders();
+    void lock_aspect(const WindowPlan &plan);
 
     SDL_Window *window_ = nullptr;
     SDL_Renderer *renderer_ = nullptr;
@@ -82,6 +102,9 @@ class Presenter {
     uint64_t frames_ = 0;
     bool stale_ = true;
     Scaling scaling_ = Scaling::Framed;
+    uint8_t window_scale_ = 3;
+    WindowBorders borders_{};
+    bool replan_on_leave_ = false; // the scaling changed while fullscreen
     PresentationLayout layout_{};
     std::string error_;
 };

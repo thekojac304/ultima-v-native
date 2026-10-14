@@ -48,7 +48,9 @@ std::string encode_desktop_settings(const DesktopSettings &s) {
     Json doc = Json::object();
     doc["version"] = Json(1);
     doc["interfaceMode"] = Json(interface_mode_name(s.interface_mode));
-    doc["windowScale"] = Json(int(s.window_scale));
+    // An automatic scale is not written: the next start derives it again.
+    // (The first build always wrote one; a file from it keeps that value.)
+    if (s.window_scale != kAutoWindowScale) doc["windowScale"] = Json(int(s.window_scale));
     doc["fullscreen"] = Json(s.fullscreen);
     doc["scaling"] = Json(scaling_name(s.scaling));
     doc["vsync"] = Json(s.vsync);

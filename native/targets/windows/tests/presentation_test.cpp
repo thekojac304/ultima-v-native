@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -343,6 +344,170 @@ void scaling_row() {
     openu5::set_platform_profile(openu5::PlatformProfile{});
 }
 
+// --- 5. The window: "Window N x" ------------------------------------------------------
+std::string plan_text(const uv::WindowPlan &p) {
+    return format("%dx %s %dx%d at %d,%d aspect %d:%d", p.scale, p.framed ? "framed" : "bare", p.client_w, p.client_h, p.x,
+                  p.y, p.aspect_w, p.aspect_h);
+}
+
+void window_plans() {
+    using uv::WindowBorders;
+    using uv::WorkArea;
+    // Work areas with a 48/72/96 px taskbar; frames as Windows 11 gives them at
+    // 100 / 150 / 200 % (caption + sizing frame on top, sizing frame elsewhere).
+    const WorkArea hd{0, 0, 1920, 1032}, hd150{0, 0, 1920, 1008}, small{0, 0, 1366, 728}, qhd{0, 0, 2560, 1392},
+        uhd200{0, 0, 3840, 2064}, second{1920, -200, 1280, 984}, tiny{0, 0, 300, 200}, offscreen{0, 0, 1024, 768};
+    const WindowBorders b100{31, 8, 8, 8}, b150{46, 11, 11, 11}, b200{62, 16, 16, 16}, none{};
+    struct Row {
+        const char *what;
+        WorkArea area;
+        WindowBorders borders;
+        int request;
+        Scaling scaling;
+        const char *want;
+    };
+    const Row rows[] = {
+        {"1080p 100%: Window 3x is framed", hd, b100, 3, Scaling::Framed, "3x framed 1008x768 at 456,143 aspect 336:256"},
+        {"1080p 100%: Window 4x does not fit framed: bare", hd, b100, 4, Scaling::Framed, "4x bare 1280x960 at 320,47 aspect 320:240"},
+        {"1080p 100%: Window 8x gets 4x (the effective scale)", hd, b100, 8, Scaling::Framed, "4x bare 1280x960 at 320,47 aspect 320:240"},
+        {"1080p 100%: Whole pixels 3x is bare", hd, b100, 3, Scaling::Integer, "3x bare 960x720 at 480,167 aspect 320:240"},
+        {"1080p 100%: Fit 3x is bare", hd, b100, 3, Scaling::Fit, "3x bare 960x720 at 480,167 aspect 320:240"},
+        {"1080p 150%: 4x does not fit with a 46 px caption: 3x framed", hd150, b150, 4, Scaling::Framed,
+         "3x framed 1008x768 at 456,137 aspect 336:256"},
+        {"1366x768 100%: Window 3x gets 2x framed (it once showed 'Window 3x')", small, b100, 3, Scaling::Framed,
+         "2x framed 672x512 at 347,119 aspect 336:256"},
+        {"1440p 100%: Window 6x gets 5x framed", qhd, b100, 6, Scaling::Framed, "5x framed 1680x1280 at 440,67 aspect 336:256"},
+        {"4K 200%: Window 6x framed", uhd200, b200, 6, Scaling::Framed, "6x framed 2016x1536 at 912,287 aspect 336:256"},
+        {"a second display left of / above the first", second, b100, 3, Scaling::Framed, "3x framed 1008x768 at 2056,-81 aspect 336:256"},
+        {"nothing fits: 1x bare against the top-left, title bar inside", tiny, b100, 3, Scaling::Framed,
+         "1x bare 320x240 at 8,31 aspect 320:240"},
+        {"headless (offscreen 1024x768, no frame): 3x framed fills it", offscreen, none, 3, Scaling::Framed,
+         "3x framed 1008x768 at 8,0 aspect 336:256"},
+        {"headless: 4x gets 3x", offscreen, none, 4, Scaling::Framed, "3x framed 1008x768 at 8,0 aspect 336:256"},
+        {"a request of 0 is 1x", hd, b100, 0, Scaling::Framed, "1x framed 336x256 at 792,399 aspect 336:256"},
+    };
+    for (const Row &r : rows) {
+        const std::string got = plan_text(uv::plan_window(r.request, r.scaling, r.area, r.borders));
+        check(got == r.want, std::string("W1 ") + r.what + ": " + r.want, "got " + got);
+    }
+    check(uv::largest_window_scale(hd, b100) == 4 && uv::largest_window_scale(hd150, b150) == 3 &&
+              uv::largest_window_scale(small, b100) == 2 && uv::largest_window_scale(qhd, b100) == 5 &&
+              uv::largest_window_scale(uhd200, b200) == 8 && uv::largest_window_scale(tiny, b100) == 1 &&
+              uv::largest_window_scale(offscreen, none) == 3,
+          "W2 largest window scale: 1080p 4, 1080p@150% 3, 1366x768 2, 1440p 5, 4K@200% 8, tiny 1, headless 3");
+    // The first-run default: floor(3 x content scale), within what fits.
+    const WorkArea huge{0, 0, 1 << 15, 1 << 15};
+    struct Dpi {
+        float scale;
+        int want;
+    };
+    const Dpi dpis[] = {{1.0f, 3}, {1.25f, 3}, {1.5f, 4}, {1.75f, 5}, {2.0f, 6}, {2.25f, 6}, {2.5f, 7}, {3.0f, 8}, {4.0f, 8}};
+    for (const Dpi &d : dpis)
+        check(uv::default_window_scale(d.scale, huge, none) == d.want,
+              format("W3 default window scale at %.0f %% display scale: %dx", double(d.scale) * 100, d.want),
+              format("got %d", uv::default_window_scale(d.scale, huge, none)));
+    const float nan = std::numeric_limits<float>::quiet_NaN();
+    check(uv::default_window_scale(0.0f, huge, none) == 3 && uv::default_window_scale(nan, huge, none) == 3 &&
+              uv::default_window_scale(-2.0f, huge, none) == 3,
+          "W4 an unreadable display scale (0, NaN, negative) counts as 100 %: 3x");
+    check(uv::default_window_scale(1.5f, hd150, b150) == 3 && uv::default_window_scale(2.0f, hd, b100) == 4 &&
+              uv::default_window_scale(1.0f, small, b100) == 2,
+          "W5 the default never exceeds what fits (1080p@150%: 3x, 1080p at 200%: 4x, 1366x768: 2x)");
+
+    // Every combination against the rules.
+    Failure f;
+    int n = 0;
+    const WindowBorders frames[] = {none, b100, b150, b200, {1, 2, 3, 4}};
+    for (int w = 300; w <= 4000; w += 37)
+        for (int h = 200; h <= 2400; h += 29)
+            for (const WindowBorders &b : frames)
+                for (int request = 0; request <= 9; ++request)
+                    for (Scaling s : {Scaling::Framed, Scaling::Integer, Scaling::Fit}) {
+                        ++n;
+                        const WorkArea a{w / 3 - 500, -h / 5, w, h};
+                        const uv::WindowPlan p = uv::plan_window(request, s, a, b);
+                        const std::string at = format("area %dx%d at %d,%d frame %d/%d/%d/%d, %dx %s: ", w, h, a.x, a.y, b.top,
+                                                      b.left, b.bottom, b.right, request, uv::scaling_name(s)) + plan_text(p);
+                        const int clamped = std::clamp(request, 1, 8);
+                        auto fits = [&](int cw, int ch) { return cw + b.left + b.right <= w && ch + b.top + b.bottom <= h; };
+                        if (p.scale < 1 || p.scale > clamped) f.note(at + " (scale out of range)");
+                        for (int k = p.scale + 1; k <= clamped; ++k)
+                            if (fits(320 * k, 240 * k)) f.note(at + format(" (%dx would fit)", k));
+                        if (p.framed && s != Scaling::Framed) f.note(at + " (framed outside Framed)");
+                        if (s == Scaling::Framed && !p.framed && fits(336 * p.scale, 256 * p.scale)) f.note(at + " (framed would fit)");
+                        const int margin = p.framed ? 8 : 0;
+                        if (p.client_w != (320 + 2 * margin) * p.scale || p.client_h != (240 + 2 * margin) * p.scale ||
+                            p.aspect_w != 320 + 2 * margin || p.aspect_h != 240 + 2 * margin)
+                            f.note(at + " (client is not the aspect times the scale)");
+                        // Per axis: the frame centred when it fits that axis, else against the area's start.
+                        if (!fits(p.client_w, p.client_h) && p.scale != 1) f.note(at + " (an oversized window above 1x)");
+                        const bool fits_w = p.client_w + b.left + b.right <= w, fits_h = p.client_h + b.top + b.bottom <= h;
+                        const int l = p.x - b.left - a.x, r = a.x + w - (p.x + p.client_w + b.right);
+                        const int t = p.y - b.top - a.y, bo = a.y + h - (p.y + p.client_h + b.bottom);
+                        if (fits_w ? (l < 0 || r - l < 0 || r - l > 1) : p.x != a.x + b.left)
+                            f.note(at + " (horizontal placement)");
+                        if (fits_h ? (t < 0 || bo - t < 0 || bo - t > 1) : p.y != a.y + b.top)
+                            f.note(at + " (vertical placement: the title bar must stay inside)");
+                        if (p.scale != uv::plan_window(request, Scaling::Integer, a, b).scale)
+                            f.note(at + " (the effective scale depends on the scaling)");
+                    }
+    check(f.count == 0, format("W6 %d window plans (work areas, frames, requests 0..9, three scalings) obey the rules", n),
+          format("%d failures, first: %s", f.count, f.first.c_str()));
+}
+
+// --- 6. The Settings page's Display row --------------------------------------------------
+uint8_t g_largest = 4;
+uint8_t largest_hook(void *) { return g_largest; }
+
+void display_row() {
+    ProfileProbe probe;
+    probe.settings.window_scale = 3;
+    uv::DesktopProfile profile;
+    uv::DesktopProfile::Hooks hooks;
+    hooks.settings = &probe.settings;
+    hooks.context = &probe;
+    hooks.changed = &ProfileProbe::changed;
+    hooks.largest_window_scale = &largest_hook;
+    profile.install(hooks);
+    const char *footer = nullptr;
+    check(row_label(1, &footer) == "Display: Window 3x" && footer &&
+              std::string(footer) == "Left/right: window size or fullscreen (Alt+Enter)",
+          "D1 the Display row shows the window's scale", row_label(1));
+    // The largest that fits is 4: right steps 4x, Fullscreen, 1x, 2x (no jump from 1x to 3x).
+    const char *right[] = {"Display: Window 4x", "Display: Fullscreen", "Display: Window 1x", "Display: Window 2x", "Display: Window 3x"};
+    for (int i = 0; i < 5; ++i) {
+        adjust(1, +1);
+        check(row_label(1) == right[i] && probe.last == uv::DesktopProfile::Change::Display && probe.changes == i + 1,
+              format("D2 right #%d (largest 4): %s", i + 1, right[i]), row_label(1));
+    }
+    const char *left[] = {"Display: Window 2x", "Display: Window 1x", "Display: Fullscreen", "Display: Window 4x"};
+    for (int i = 0; i < 4; ++i) {
+        adjust(1, -1);
+        check(row_label(1) == left[i], format("D3 left #%d: %s", i + 1, left[i]), row_label(1));
+    }
+    check(probe.settings.window_scale == 4 && !probe.settings.fullscreen, "D4 the row writes the scale and leaves fullscreen");
+    // A display that holds less: the same row stops there.
+    g_largest = 2;
+    probe.settings.window_scale = 2;
+    adjust(1, +1);
+    check(probe.settings.fullscreen, "D5 at the largest that fits (2x), right goes to Fullscreen", row_label(1));
+    adjust(1, -1);
+    check(!probe.settings.fullscreen && probe.settings.window_scale == 2, "D6 left from Fullscreen goes to the largest (2x)",
+          row_label(1));
+    probe.settings.window_scale = 5; // a scale saved on a larger display
+    adjust(1, -1);
+    check(probe.settings.window_scale == 1, "D7 a scale above the largest steps as the largest (5x on a 2x display: left -> 1x)",
+          row_label(1));
+    // Without the hook the row spans 1..8.
+    hooks.largest_window_scale = nullptr;
+    profile.install(hooks);
+    probe.settings.fullscreen = false;
+    probe.settings.window_scale = 8;
+    adjust(1, +1);
+    check(probe.settings.fullscreen, "D8 without a display hook the row spans 1x..8x, then Fullscreen");
+    openu5::set_platform_profile(openu5::PlatformProfile{});
+}
+
 } // namespace
 
 int main() {
@@ -351,5 +516,7 @@ int main() {
     every_size();
     frame_checker();
     scaling_row();
+    window_plans();
+    display_row();
     return uvtest::finish("uv_presentation_test");
 }

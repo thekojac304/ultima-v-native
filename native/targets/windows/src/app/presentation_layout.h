@@ -85,4 +85,41 @@ std::string describe_layout(const PresentationLayout &layout);
 std::string check_presented_frame(const PresentationLayout &layout, const uint16_t *panel, const uint32_t *frame,
                                   int w, int h);
 
+// --- The window: "Window N x" -----------------------------------------------------
+// The picture at scale N in a client that is framed -- (320+16)N x (240+16)N,
+// the ring plus one black pixel so its cut corners read -- when that window
+// fits the display's work area with its frame, else bare (320N x 240N), else
+// a smaller N. On Windows SDL's window coordinates are physical pixels (the
+// process is PerMonitorV2-aware), so N is exact at every display scale.
+constexpr int kFramedMargin = kRingReach + 1;
+
+/** A display's usable bounds (the taskbar excluded), in desktop pixels. */
+struct WorkArea {
+    int x = 0, y = 0, w = 0, h = 0;
+};
+/** The window's frame around its client area, the title bar included. */
+struct WindowBorders {
+    int top = 0, left = 0, bottom = 0, right = 0;
+};
+
+struct WindowPlan {
+    int scale = 1;     // the picture's scale: the effective "Window N x"
+    bool framed = false;
+    int client_w = 0, client_h = 0;
+    int x = 0, y = 0;  // the client's top-left: the whole frame centred in the work area when it fits,
+                       // else against the area's top-left corner, so the title bar stays reachable
+    int aspect_w = kPictureW, aspect_h = kPictureH; // the client's aspect, locked while the player drags
+};
+
+/** Window N x for `scaling` (only Framed frames it); N is clamped to 1..kMaxWindowScale first. */
+WindowPlan plan_window(int requested_scale, Scaling scaling, const WorkArea &area, const WindowBorders &borders);
+/** The largest N whose bare window fits the area (at least 1, at most kMaxWindowScale). */
+int largest_window_scale(const WorkArea &area, const WindowBorders &borders);
+/**
+ * The scale a window gets when the player has not chosen one: 3 at a 100 %
+ * display scale, floor(3 x content scale) above it (the same size in
+ * Windows' scaled units, rounded down), within what fits.
+ */
+int default_window_scale(float content_scale, const WorkArea &area, const WindowBorders &borders);
+
 } // namespace uv
