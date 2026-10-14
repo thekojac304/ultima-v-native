@@ -1,0 +1,27 @@
+RED J1 no key: "No Keys!" (SJOG 0x0d66, before the getdir), no draw, the turn ends: (nothing)
+RED J2 a locked door, DEX 30: rand(0,29) once, "Unlocked!", 0xB9 -> 0xB8, the key kept: (nothing)
+RED J3 a windowed locked door, DEX 0: one draw, "Key broke!", one key lost, the door stays: (nothing)
+RED J4 a magic lock always breaks the key, with no draw (0x0e1c)
+RED J5 manacles, DEX 30: "Unlocked" with no '!', tile 0x44, no karma (0x0ee4): (nothing)
+RED J6 an untrapped chest: the key breaks with no draw (0x0bcb), the chest untouched
+RED J7 a trapped chest, DEX 30 (threshold 0): rand(1,30), "Success!", the trap disarmed, still shut: (nothing)
+RED J8 DEX 50 wraps the byte threshold to 0xF6 (0x0bd2-0x0bee): the key breaks whatever the roll: (nothing)
+RED J9 bare floor: "No lock!", the key kept, the turn ends
+RED J10 Space at the getdir: nothing at all, the turn ends
+RED J11 off the grid: "No lock!" (native reads no memory beyond it; recorded)
+RED P1 a 0xB4 pushed east over its fill 0x45: "Pushed!", it turns to face east (0xB5), the actor steps in: (nothing)
+RED P2 nothing free beyond, the actor on the fill 0x44: "Pulled!" and the two swap: (nothing)
+RED P3 a pulled 0xB4 faces back (class + (idx ^ 2) = 0xB7)
+RED P4 a combatant on the target: "Won't budge!"
+RED P5 bare floor is not pushable: "Won't budge!"
+RED P6 the fill (0x44) neither beyond nor here: "Won't budge" -- the other string, no '!'
+RED P7 a 0xB4's fill is 0x45, so bare 0x44 floor neither slides nor pulls it
+RED P8 a corpse on the cell beyond blocks the push (kernel 0x368E): a pull instead
+RED P9 a dungeon room's live plate on the target fires, silently, and nothing moves (COMBAT 0x111a)
+RED P10 outside a room the plate is not checked ([0x58a1] = 0): an ordinary push
+RED P11 Space at the getdir: nothing, the turn ends
+RED P12 pushed north a 0x90 faces north (idx 0)
+RED Y1 any word: "No effect!" (DS 0x453a; no sails at g_location 0xFF), the turn ends
+RED Y2 an empty answer: the core adds nothing ("Nothing" is the ':' row's), the turn ends
+SPP1 core: 0/25 checks
+exit 1

@@ -180,7 +180,12 @@ enum class CombatAction : uint8_t {
     // member field.  Appended at the END on purpose: the combat parity fixtures
     // encode actions as CommandKind/CombatAction ORDINALS, so no existing value
     // may shift.
-    SetActive
+    SetActive,
+    // SPP1 C (appended). COMBAT.OVL's (J)immy 0x097a (-> SJOG 0x0d4a), (P)ush 0x0994
+    // (-> CMDS 0x161a) and (Y)ell 0x09c0 (-> CMDS 0x1418). Jimmy/Push: x = the direction
+    // ordinal (0 E, 1 W, 2 S, 3 N; -1 = the getdir's Space). Yell: x = 1 for a word, 0 for
+    // an empty answer. All three end the actor's turn on every path.
+    Jimmy, Push, Yell
 };
 CombatResult combat_action(CombatContext &, CombatAction, int32_t x = 0, int32_t y = 0);
 // Batch 9D.  Closes an arena that can never schedule another actor but was

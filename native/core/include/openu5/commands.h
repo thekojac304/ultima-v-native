@@ -48,7 +48,10 @@ enum class CommandKind : uint8_t {
     // charged nothing: the context loop's turn, once (MAINOUT 0x0c39 advance_clock(2)
     // + the turn block, TOWN 0x15d0 advance_clock(1) + its tail, DUNGEON 0x0f84 the
     // turn block 0x0c76). The front end sends it when such a command ends.
-    DispatcherTurn
+    DispatcherTurn,
+    // The arena's J / P / Y (COMBAT 0x097a / 0x0994 / 0x09c0) -> CombatAction::Jimmy / Push /
+    // Yell. direction / has_direction as for CombatGet; CombatYell carries the typed word.
+    CombatJimmy, CombatPush, CombatYell
 };
 struct Command {
     CommandKind kind = CommandKind::Pass;

@@ -1872,6 +1872,7 @@ void AlphaRuntime::refresh_session_context(){
     // Sails: the frigate transport range 0x20-0x27 and the Underworld cut-off,
     // the same pair CommandKind::YellSails re-checks in commands.cpp.
     ui_->set_sail_context((turn_.transport_tile&0xf8)==0x20,game_.position.map.location<0x80);
+    ui_->set_keys_owned(game_.keys>0); // SPP1 C: the arena Jimmy's "No Keys!" comes before its getdir
     const auto &p=game_.position;
     const int tile=context_.dungeon?0:terrain_.effective(resources_.world,p.map,p.xy.x,p.xy.y);
     const auto rest=openu5::camp_context(game_,turn_,tile,context_.dungeon);

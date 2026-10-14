@@ -1377,7 +1377,7 @@ CombatResult initialize_combat(CombatContext &c, const CombatMap &map, CombatDir
     return CombatResult::Ok;
 }
 CombatResult combat_action(CombatContext &c, CombatAction action, int32_t x, int32_t y) {
-    if (!c.combat.initialized || int(action) > int(CombatAction::SetActive))
+    if (!c.combat.initialized || int(action) > int(CombatAction::Yell))
         return CombatResult::Invalid;
     if (action == CombatAction::Move && (x < 0 || x > 7))
         return CombatResult::Invalid;
@@ -1649,6 +1649,114 @@ CombatResult combat_action(CombatContext &c, CombatAction action, int32_t x, int
         } else e.message("\nThou dost find\nnothing of note.",a->id);
         e.advance();break;
     }
+    // SPP1 C (spp1-findings/C-arena-jpy.md). (J)immy: COMBAT 0x097a -> the funnel 0x0544
+    // (party only, then the result is discarded and the turn ends, 0x05b0) -> thunk 0x7e12 ->
+    // SJOG 0x0d4a, the overworld's routine. With g_location 0xFF its dungeon-corridor branch
+    // (0x0d52) never runs. Keys are tested BEFORE the getdir (0x0d66): "No Keys!" and no
+    // direction asked. Space at the getdir: nothing more. The target is the adjacent cell
+    // (kernel 0x4402, the arena buffer); DEX is the roster's (0x4988 -> combatant +3). A key
+    // is lost only when it breaks; no karma (the stocks branch 0x0ee4 frees nobody here).
+    case CombatAction::Jimmy: {
+        auto &s = c.combat;
+        auto &g = c.game;
+        if (g.keys <= 0) { e.message("No Keys!", a->id); e.advance(); break; }
+        if (x < 0 || x > 3) { e.advance(); break; }
+        static constexpr int xs[] = {1, -1, 0, 0}, ys[] = {0, 0, 1, -1};
+        const int tx = a->position.x + xs[x], ty = a->position.y + ys[x];
+        const int key = inside(tx, ty) ? ty * 11 + tx : -1, t = e.tile(tx, ty);
+        const int dex = a->member < g.party.character_count ? g.party.characters[a->member].dexterity : 0;
+        auto broke = [&] { e.message("Key broke!", a->id); g.keys = std::max<int32_t>(0, g.keys - 1); };
+        if (t == 0xb9 || t == 0xbb) { // locked door: rand(0,29) at 0x0dd4, DEX > roll (0x0deb ja)
+            if (dex > e.rand(0, 29)) { s.map.tiles[key] = int16_t(t - 1); e.message("Unlocked!", a->id); }
+            else broke();
+        } else if (t == 0x97 || t == 0x98) { // a magic lock always breaks the key, no draw (0x0e1c)
+            broke();
+        } else if (t == 0x84 || t == 0x85) { // stocks / manacles: tile 0x44, "Unlocked" with no '!'
+            if (dex > e.rand(0, 29)) { s.map.tiles[key] = 0x44; e.message("Unlocked", a->id); }
+            else broke();
+        } else if (key >= 0 && unopened_chest(s, key)) { // the chest's lock byte (SJOG 0x0baa)
+            const int lock = (s.chest_contents[key] & 127) | (s.loot[key] == 129 ? 128 : 0);
+            if (lock < 0x80) broke(); // untrapped: the key breaks, no draw (0x0bcb)
+            else {                    // byte-truncated threshold (0x0bd2-0x0bee), rand(1,30)
+                const int threshold = (uint16_t((lock & 127) - dex + 30) >> 1) & 255;
+                if (e.rand(1, 30) <= threshold) broke();
+                else { s.loot[key] = 1; e.message("Success!", a->id); } // trap disarmed, still shut
+            }
+        } else {
+            bool nested = false; // a chest lying in a pile: its byte is a quantity <= 0x7f
+            for (int i = 0; i < s.pile_count; ++i)
+                nested |= s.piles[i].position.x == tx && s.piles[i].position.y == ty && s.piles[i].id == 1;
+            if (nested) broke();
+            else e.message("No lock!", a->id);
+        }
+        e.advance();
+        break;
+    }
+    // (P)ush: COMBAT 0x0994 -> thunk 0x7d0a -> CMDS 0x161a, no party gate, no RNG. Space at the
+    // getdir: nothing. In a dungeon room a live trigger plate on the target fires and the
+    // command ends there, silently (COMBAT 0x111a via 0x1699). Otherwise the target must hold
+    // no pool object (kernel 0x368E: a combatant, a chest, a corpse or blood, a pile, a field)
+    // and be pushable (CMDS 0x14ba); then a push when the cell beyond is free and holds the
+    // fill, else a pull when the actor's cell does, else "Won't budge" (DS 0x4567, no '!').
+    // The 0x90/0xB4 classes turn to face the push (0x1504; the pull faces back). The actor
+    // steps into the target by plain assignment (0x178a-0x17e3): no plate fires on the way.
+    case CombatAction::Push: {
+        auto &s = c.combat;
+        if (x < 0 || x > 3) { e.advance(); break; }
+        static constexpr int xs[] = {1, -1, 0, 0}, ys[] = {0, 0, 1, -1}, facing[] = {1, 3, 2, 0};
+        const int dx = xs[x], dy = ys[x], tx = a->position.x + dx, ty = a->position.y + dy;
+        if (s.room && inside(tx, ty)) {
+            bool plate = false;
+            for (int i = 0; i < s.map.trigger_count; ++i)
+                plate |= s.map.triggers[i].at.x == tx && s.map.triggers[i].at.y == ty;
+            if (plate) { e.triggers(tx, ty); e.advance(); break; }
+        }
+        auto occupied = [&](int px, int py) {
+            if (!inside(px, py)) return false;
+            if (e.occupant(px, py) || s.loot[py * 11 + px] > 0) return true;
+            for (int i = 0; i < s.pile_count; ++i)
+                if (s.piles[i].position.x == px && s.piles[i].position.y == py) return true;
+            for (int i = 0; i < s.field_count; ++i)
+                if (s.fields[i].position.x == px && s.fields[i].position.y == py) return true;
+            return false;
+        };
+        const int t = e.tile(tx, ty);
+        const bool pushable = t == 0x5b || (t >= 0x90 && t <= 0x93) || t == 0xa5 || t == 0xa6 || t == 0xa8 ||
+                              t == 0xa9 || (t >= 0xad && t <= 0xaf) || (t >= 0xb4 && t <= 0xb7);
+        if (t < 0 || occupied(tx, ty) || !pushable) { e.message("Won't budge!", a->id); e.advance(); break; }
+        const int fill = (t & 0xfc) == 0xb4 ? 0x45 : 0x44, cls = t & 0xfc;
+        const bool turns = cls == 0x90 || cls == 0xb4;
+        const int bx = tx + dx, by = ty + dy, beyond = e.tile(bx, by), here = e.tile(a->position.x, a->position.y);
+        if (beyond >= 0 && !occupied(bx, by) && beyond == fill) {
+            s.map.tiles[by * 11 + bx] = int16_t(turns ? cls + facing[x] : t);
+            s.map.tiles[ty * 11 + tx] = int16_t(beyond);
+            e.message("Pushed!", a->id);
+        } else if (here == fill) {
+            s.map.tiles[a->position.y * 11 + a->position.x] = int16_t(turns ? cls + (facing[x] ^ 2) : t);
+            s.map.tiles[ty * 11 + tx] = int16_t(here);
+            e.message("Pulled!", a->id);
+        } else {
+            e.message("Won't budge", a->id);
+            e.advance();
+            break;
+        }
+        a->position = {int16_t(tx), int16_t(ty)};
+        CombatEvent moved;
+        moved.kind = CombatEventKind::Moved;
+        moved.actor = a->id;
+        moved.x = tx;
+        moved.y = ty;
+        e.emit(moved);
+        e.advance();
+        break;
+    }
+    // (Y)ell: COMBAT 0x09c0 -> thunk 0x7d6a -> CMDS 0x1418. The sails branch needs g_location
+    // < 0x80 (0x142c), never true in an arena; every word is "No effect!" (DS 0x453a). An empty
+    // answer prints "Nothing" (DS 0x4531) on the ':' row, the front end's. No RNG; the turn ends.
+    case CombatAction::Yell:
+        if (x) e.message("No effect!", a->id);
+        e.advance();
+        break;
     case CombatAction::Move:
         e.move(*a, x);
         break;

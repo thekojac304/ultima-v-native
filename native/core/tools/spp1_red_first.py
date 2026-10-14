@@ -29,6 +29,9 @@ GROUPS = {
           'native/targets/tdeck/main/alpha_runtime.h'],
     'A': ['native/core/include/openu5/commands.h', 'native/core/src/commands.cpp',
           'native/targets/tdeck/main/alpha_runtime.cpp', 'native/targets/tdeck/main/alpha_runtime.h'],
+    'C': ['native/core/include/openu5/combat.h', 'native/core/src/combat.cpp', 'native/core/include/openu5/commands.h',
+          'native/core/src/commands.cpp', 'native/core/include/openu5/ui_session.h', 'native/core/src/ui_session.cpp',
+          'native/targets/tdeck/main/alpha_runtime.cpp'],
 }
 
 

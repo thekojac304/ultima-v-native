@@ -312,6 +312,10 @@ class UiSession {
         sail_context_frigate_ = frigate_aboard;
         sail_context_location_ok_ = location_allows_sails;
     }
+    // SPP1 C: whether the party owns a key. The arena's (J)immy (SJOG 0x0d66) answers
+    // "No Keys!" BEFORE its getdir, so the prompt must not open without one; the core
+    // re-checks the count itself.
+    void set_keys_owned(bool owned) { keys_owned_ = owned; }
     bool sail_context_frigate() const { return sail_context_frigate_; }
     bool sail_context_location_ok() const { return sail_context_location_ok_; }
     // Harpsichord (R-20): mirrors Game.harpsichordSeated() -- small map (location
@@ -509,6 +513,7 @@ class UiSession {
     bool target_render_marker_ = false;
     // World-context mirrors (see the public setters above).
     bool sail_context_frigate_ = false, sail_context_location_ok_ = false;
+    bool keys_owned_ = true;
     bool harpsichord_active_ = false;
     bool dungeon_klimb_choice_ = false, dungeon_fountain_here_ = false;
     bool camp_eligible_ = false, camp_watch_available_ = false;

@@ -58,6 +58,7 @@ bool getdir_prints_word(CommandKind k) {
     case CommandKind::Look: case CommandKind::Open: case CommandKind::Get: case CommandKind::Search:
     case CommandKind::Jimmy: case CommandKind::Push: case CommandKind::Klimb: case CommandKind::Attack:
     case CommandKind::CombatGet: case CommandKind::CombatOpen: case CommandKind::CombatSearch:
+    case CommandKind::CombatJimmy: case CommandKind::CombatPush: // SPP1 C: "Jimmy-North" (getdir 0x35EC)
         return true;
     default:
         break;
@@ -613,8 +614,11 @@ void UiSession::finish_modal(bool accepted, bool yes, int32_t number, int32_t in
         // the ':' row and no word is uttered.
         if (request == UiRequestId::YellText && !input_length_) {
             append_continuation(UiTextChannel::CommandEcho, "Nothing");
+            const bool arena = return_mode_ == UiMode::Combat;
             mode_ = return_mode_; request_ = UiRequestId::None; selection_ = {};
             input_[0] = 0; input_length_ = 0; prompt_[0] = 0;
+            // SPP1 C: in the arena the empty Yell still ends the actor's turn (COMBAT 0x09ca).
+            if (arena) { Command c; c.kind = CommandKind::CombatYell; command(c); }
             return;
         }
     }
@@ -681,7 +685,9 @@ void UiSession::finish_modal(bool accepted, bool yes, int32_t number, int32_t in
         i.command.hours = int16_t(number);
     } else if (request == UiRequestId::YellText && old_mode == UiMode::TextEntry) {
         i.kind = UiIntentKind::Command;
-        i.command.kind = CommandKind::Yell;
+        // SPP1 C: the arena's Yell is COMBAT 0x09c0's (every word "No effect!", the turn ends).
+        i.command.kind = mode_ == UiMode::Combat ? CommandKind::CombatYell : CommandKind::Yell;
+        if (mode_ == UiMode::Combat && !input_length_) append(UiTextChannel::Combat, "Nothing");
         i.command.text = input_; i.command.text_length = input_length_;
     } else if (request == UiRequestId::Shop &&
                (old_mode == UiMode::TextEntry || old_mode == UiMode::NumericEntry)) {
@@ -1211,7 +1217,9 @@ bool UiSession::handle_modal(const UiAction &a) {
             } else {
                 if (pending_command_.kind == CommandKind::CombatOpen ||
                     pending_command_.kind == CommandKind::CombatGet ||
-                    pending_command_.kind == CommandKind::CombatSearch) {
+                    pending_command_.kind == CommandKind::CombatSearch ||
+                    pending_command_.kind == CommandKind::CombatJimmy ||
+                    pending_command_.kind == CommandKind::CombatPush) {
                     const auto d = direction_delta(a.direction);
                     pending_command_.combat_x = int16_t(combat_origin_x_ + d.dx);
                     pending_command_.combat_y = int16_t(combat_origin_y_ + d.dy);
@@ -1387,7 +1395,9 @@ void UiSession::dos_getdir_pass() {
         append_continuation(UiTextChannel::CommandEcho, "Pass");
     const bool arena = pending_command_.kind == CommandKind::CombatGet ||
                        pending_command_.kind == CommandKind::CombatOpen ||
-                       pending_command_.kind == CommandKind::CombatSearch;
+                       pending_command_.kind == CommandKind::CombatSearch ||
+                       pending_command_.kind == CommandKind::CombatJimmy ||
+                       pending_command_.kind == CommandKind::CombatPush;
     UiAction cancel; cancel.kind = UiActionKind::Cancel;
     dos_getdir_cancel_ = true; // let handle_modal's Cancel branch run once
     handle_modal(cancel);
@@ -1707,6 +1717,19 @@ bool UiSession::handle_combat(const UiAction &a) {
               begin_target(UiRequestId::Direction,"Direction?",c,-1,-1); return true;
     case 'r': { command_echo("Ready...");command_echo("");UiIntent i; i.kind=UiIntentKind::OpenEquipmentSelection; i.request=UiRequestId::Equipment; dispatch(i); return true; }
     case 'u': { command_echo("Use item");command_echo("");UiIntent i; i.kind=UiIntentKind::OpenInventorySelection; i.request=UiRequestId::Inventory; dispatch(i); return true; }
+    // SPP1 C. COMBAT.OVL's own J / P / Y (0x097a / 0x0994 / 0x09c0) with the arena's copies of
+    // their names (DS 0x6e1a "Jimmy-", 0x6e28 "Push-", 0x6e4e "Yell "). Jimmy without a key
+    // answers "No Keys!" before the getdir (SJOG 0x0d66). Each ends the actor's turn; the
+    // getdir's Space is Pass (Original: dos_getdir_pass yields the turn).
+    case 'j': c.kind=CommandKind::CombatJimmy; command_echo("Jimmy-");
+              if (!keys_owned_) break;
+              begin_target(UiRequestId::Direction,"Direction?",c,-1,-1); return true;
+    case 'p': c.kind=CommandKind::CombatPush; command_echo("Push-");
+              begin_target(UiRequestId::Direction,"Direction?",c,-1,-1); return true;
+    case 'y': // CMDS 0x1458 "what?\n:" and getstring(30); the T-Deck keeps its Yell bar
+              if (dos) { command_echo("Yell what?"); begin_text(UiRequestId::YellText, ":", 30); }
+              else { command_echo("Yell"); begin_text(UiRequestId::YellText,"Yell what?",15); }
+              return true;
     case ' ': c.kind=CommandKind::CombatPass; break;
     // Digits are SET ACTIVE PLAYER in the arena too (Batch 21A.3).  COMBAT:0x063E
     // dispatches '0' at 0x0aa2->0x09ec and '1'-'6' at 0x0aaa-0x0ab4->0x09fe; only

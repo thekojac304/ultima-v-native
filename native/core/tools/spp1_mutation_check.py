@@ -26,6 +26,7 @@ WMG = 'native/core/src/world_magic.cpp'
 
 # (id, group, file, old, new, targets, tests)
 SPP1 = ('spp1_runtime',)
+CORE = ('spp1_core_tests',)
 MUTANTS = [
     ('G1', 'G', CMD, 'if(cmd.item==0x0b)std::snprintf(text,sizeof(text),"%u",unsigned(c.game.karma));',
      'if(cmd.item==0x0b)std::snprintf(text,sizeof(text),"Karma %u",unsigned(c.game.karma));', SPP1, SPP1),
@@ -59,6 +60,25 @@ MUTANTS = [
     ('A6', 'A', RT, 'const char *set=dungeon?"rznumcs":', 'const char *set=dungeon?"cs":', SPP1, SPP1),
     ('A7', 'A', RT, '           pending_combat_spell_<0&&pending_ready_member_<0&&pending_use_item_<0&&pending_order_from_<0&&',
      '           pending_combat_spell_<0&&pending_use_item_<0&&pending_order_from_<0&&', SPP1, SPP1),
+    ('C1', 'C', CMB, "        if (g.keys <= 0) { e.message(\"No Keys!\", a->id); e.advance(); break; }\n        if (x < 0 || x > 3) { e.advance(); break; }\n        static constexpr int xs[] = {1, -1, 0, 0}, ys[] = {0, 0, 1, -1};\n        const int tx = a->position.x + xs[x], ty = a->position.y + ys[x];\n        const int key",
+     "        if (x < 0 || x > 3) { e.advance(); break; }\n        static constexpr int xs[] = {1, -1, 0, 0}, ys[] = {0, 0, 1, -1};\n        const int tx = a->position.x + xs[x], ty = a->position.y + ys[x];\n        const int key", CORE, CORE),
+    ('C2', 'C', CMB, "        } else if (t == 0x97 || t == 0x98) { // a magic lock always breaks the key, no draw (0x0e1c)\n            broke();",
+     "        } else if (t == 0x97 || t == 0x98) { // a magic lock always breaks the key, no draw (0x0e1c)\n            (void)e.rand(0, 29); broke();", CORE, CORE),
+    ('C3', 'C', CMB, 'e.message("Unlocked", a->id); }', 'e.message("Unlocked!", a->id); }', CORE, CORE),
+    ('C4', 'C', CMB, "            if (lock < 0x80) broke(); // untrapped: the key breaks, no draw (0x0bcb)",
+     "            if (lock < 0x80) { (void)e.rand(1, 30); broke(); }", CORE, CORE),
+    ('C5', 'C', CMB, "            if (e.occupant(px, py) || s.loot[py * 11 + px] > 0) return true;",
+     "            if (e.occupant(px, py)) return true;", CORE, CORE),
+    ('C6', 'C', CMB, '            e.message("Won\'t budge", a->id);\n            e.advance();', '            e.message("Won\'t budge!", a->id);\n            e.advance();', CORE, CORE),
+    ('C7', 'C', CMB, "int16_t(turns ? cls + (facing[x] ^ 2) : t);", "int16_t(turns ? cls + facing[x] : t);", CORE, CORE),
+    ('C8', 'C', CMB, "const int fill = (t & 0xfc) == 0xb4 ? 0x45 : 0x44, cls = t & 0xfc;", "const int fill = 0x44, cls = t & 0xfc;", CORE, CORE),
+    ('C9', 'C', CMB, "            if (plate) { e.triggers(tx, ty); e.advance(); break; }", "            (void)plate;", CORE, CORE),
+    ('C10', 'C', CMB, '        if (x) e.message("No effect!", a->id);\n        e.advance();\n        break;', '        e.message("No effect!", a->id);\n        e.advance();\n        break;', CORE, CORE),
+    ('C11', 'C', CMB, '        if (x) e.message("No effect!", a->id);\n        e.advance();\n        break;', '        if (x) e.message("No effect!", a->id);\n        break;', CORE, CORE),
+    ('C12', 'C', UIS, "              if (!keys_owned_) break;\n", "", SPP1, SPP1),
+    ('C13', 'C', UIS, "                       pending_command_.kind == CommandKind::CombatSearch ||\n                       pending_command_.kind == CommandKind::CombatJimmy ||\n                       pending_command_.kind == CommandKind::CombatPush;",
+     "                       pending_command_.kind == CommandKind::CombatSearch;", SPP1, SPP1),
+    ('C14', 'C', UIS, "            if (arena) { Command c; c.kind = CommandKind::CombatYell; command(c); }\n", "            (void)arena;\n", SPP1, SPP1),
 ]
 
 

@@ -545,6 +545,88 @@ void test_a() {
         check(c2.turns == 0, "A10 Original: RETURN / ESC at the prompt (\"What?\") stay free" + show(c2));
     }
 }
+// --- Candidate C: the arena's J / P / Y through the real runtime ----------------------------
+//      C1 J / P / Y no longer answer "What?" in the arena (both modes)
+//      C2 Jimmy opens the getdir with its arena name "Jimmy-"; without a key "No Keys!" comes
+//         first and no direction is asked (SJOG 0x0d66), and the turn ends
+//      C3 Original: Space at Jimmy- prints "Jimmy-Pass" and the turn ends (getdir 0x35EC)
+//      C4 Push-East onto bare floor: "Won't budge!" and the turn ends
+//      C5 Yell: Original "Yell what?" / ":" -- a word is "No effect!"; an empty answer
+//         "Nothing"; both end the turn. The T-Deck's Yell bar the same
+//      C6 the T-Deck's Cancel at Jimmy- stays free (the arena's handheld contract)
+int next_member_after(Run &h) { auto *n2 = await_player(h); return n2 ? n2->member : -1; }
+
+void test_c() {
+    std::printf("C  the arena's J / P / Y through the real runtime\n");
+    for (int dos = 0; dos < 2; ++dos) {
+        std::unique_ptr<DosProfile> profile;
+        if (dos) profile = std::make_unique<DosProfile>();
+        const std::string tag = dos ? " [Original]" : " [T-Deck]";
+        int baseline_next = -1;
+        {
+            Run b(kParty);
+            if (!enter_arena(b)) { check(false, "C control: the troll arena opens" + tag); continue; }
+            act(b, ch(' '));
+            baseline_next = next_member_after(b);
+        }
+        {
+            Run h(kParty);
+            enter_arena(h);
+            h.rt->game().keys = 3;
+            auto *first = player_turn(h);
+            const int who = first ? first->member : -1;
+            const size_t before = h.rt->ui()->transcript_size();
+            act(h, ch('j'));
+            const bool prompt = mode(h) == UiMode::TargetSelection;
+            check(prompt && transcript_has(h, "Jimmy-"), "C2 J opens the arena getdir after \"Jimmy-\"" + tag);
+            bool what = false;
+            for (size_t i = before; i < h.rt->ui()->transcript_size(); ++i)
+                if (const auto *bl = h.rt->ui()->transcript_at(i)) what |= std::string(bl->text).find("What?") != std::string::npos;
+            check(!what, "C1 J is no longer \"What?\"" + tag);
+            if (dos) {
+                act(h, ch(' '));
+                check(transcript_has(h, "Jimmy-Pass") && next_member_after(h) == baseline_next && h.rt->game().keys == 3,
+                      "C3 Space at Jimmy- prints \"Jimmy-Pass\", keeps the keys and ends the turn" + tag);
+            } else {
+                act(h, kind(UiActionKind::Cancel));
+                auto *still = player_turn(h);
+                check(who >= 0 && still && still->member == who && h.rt->game().keys == 3,
+                      "C6 the T-Deck's Cancel at Jimmy- stays free: the same actor still has the turn" + tag);
+            }
+        }
+        {
+            Run h(kParty);
+            enter_arena(h);
+            h.rt->game().keys = 0;
+            act(h, ch('j'));
+            check(mode(h) != UiMode::TargetSelection && transcript_has(h, "No Keys!") && next_member_after(h) == baseline_next,
+                  "C2 J without a key: \"No Keys!\" with no getdir, and the turn ends" + tag);
+        }
+        {
+            Run h(kParty);
+            enter_arena(h);
+            auto *actor = player_turn(h);
+            auto &s = cs(h);
+            if (actor) s.map.tiles[actor->position.y * 11 + std::min(10, actor->position.x + 1)] = 0x44;
+            act(h, ch('p'));
+            const bool prompt = mode(h) == UiMode::TargetSelection;
+            act(h, dir(Direction::East));
+            check(prompt && transcript_has(h, "Push-") && transcript_has(h, "Won't budge!") && next_member_after(h) == baseline_next,
+                  "C4 Push-East onto bare floor: \"Won't budge!\" and the turn ends" + tag);
+        }
+        for (int word = 0; word < 2; ++word) {
+            Run h(kParty);
+            enter_arena(h);
+            act(h, ch('y'));
+            const bool asked = mode(h) == UiMode::TextEntry;
+            if (word) for (char16_t c : {u'o', u'r', u't'}) act(h, ch(c));
+            act(h, kind(UiActionKind::Confirm));
+            const bool said = word ? transcript_has(h, "No effect!") : transcript_has(h, "Nothing");
+            check(asked && transcript_has(h, dos ? "Yell what?" : "Yell") && said && next_member_after(h) == baseline_next,
+                  std::string("C5 Yell ") + (word ? "ORT: \"No effect!\"" : "with an empty answer: \"Nothing\"") + ", and the turn ends" + tag);
+        }
+    }
+}
 } // namespace
 
 int main(int argc, char **argv) {
@@ -563,6 +645,7 @@ int main(int argc, char **argv) {
     test_g();
     test_f();
     test_a();
+    test_c();
     std::printf("SPP1 runtime: %d/%d checks\n", checks - failures, checks);
     return failures ? 1 : 0;
 }

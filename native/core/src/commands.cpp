@@ -690,7 +690,8 @@ static ActionResult execute(CommandContext &c, Command cmd, bool dispatch) {
     // so a selection made before a fight could never be cleared or changed.
     if ((cmd.kind >= CommandKind::CombatMove && cmd.kind < CommandKind::Cast) || (cmd.kind==CommandKind::Cast && c.combat) || (c.combat&&cmd.kind==CommandKind::UseItem&&cmd.item>=0&&cmd.item<=37) ||
         (c.combat && cmd.kind == CommandKind::SetActivePlayer) ||
-        (cmd.kind >= CommandKind::CombatKlimb && cmd.kind <= CommandKind::CombatSearch)) {
+        (cmd.kind >= CommandKind::CombatKlimb && cmd.kind <= CommandKind::CombatSearch) ||
+        (cmd.kind >= CommandKind::CombatJimmy && cmd.kind <= CommandKind::CombatYell)) { // SPP1 C
         ActionResult result;
         if (!c.combat || !c.combat_context || &c.combat_context->game != &c.game ||
             &c.combat_context->turn != &c.turn) {
@@ -723,6 +724,9 @@ static ActionResult execute(CommandContext &c, Command cmd, bool dispatch) {
                 ? CombatAction::OpenAt
             : cmd.kind == CommandKind::CombatSearch ? CombatAction::Search
             : cmd.kind == CommandKind::SetActivePlayer ? CombatAction::SetActive
+            : cmd.kind == CommandKind::CombatJimmy ? CombatAction::Jimmy
+            : cmd.kind == CommandKind::CombatPush ? CombatAction::Push
+            : cmd.kind == CommandKind::CombatYell ? CombatAction::Yell
                 : static_cast<CombatAction>(int(cmd.kind) - int(CommandKind::CombatMove));
         CombatPoint aim{cmd.combat_x, cmd.combat_y};
         EventSink use_events{&delivery,[](void *p,const GameEvent &e){auto &d=*static_cast<Delivery*>(p);++d.result.event_count;if(d.context.events.emit)d.context.events.emit(d.context.events.context,e);}};
@@ -739,7 +743,8 @@ static ActionResult execute(CommandContext &c, Command cmd, bool dispatch) {
         int32_t combat_arg=cmd.combat_x;
         // The digit travels in `member`, exactly as the overworld arm reads it.
         if(action==CombatAction::SetActive)combat_arg=cmd.member;
-        if((action==CombatAction::Get||action==CombatAction::Search)&&cmd.has_direction){
+        if(action==CombatAction::Yell)combat_arg=cmd.text_length?1:0;
+        if((action==CombatAction::Get||action==CombatAction::Search||action==CombatAction::Jimmy||action==CombatAction::Push)&&cmd.has_direction){
             combat_arg=cmd.direction==Direction::East?0:cmd.direction==Direction::West?1:cmd.direction==Direction::South?2:3;
         }
         const auto status =
@@ -749,7 +754,8 @@ static ActionResult execute(CommandContext &c, Command cmd, bool dispatch) {
                 ? combat_cast(arena, static_cast<SpellId>(cmd.item),
                               cmd.has_target ? &aim : nullptr, cmd.member, cmd.cancel_target, !cmd.typed_name)
                 : combat_action(arena, action,
-                                (action == CombatAction::Get || action == CombatAction::OpenAt || action == CombatAction::Search) &&
+                                (action == CombatAction::Get || action == CombatAction::OpenAt || action == CombatAction::Search ||
+                                 action == CombatAction::Jimmy || action == CombatAction::Push) &&
                                 !cmd.has_direction
                                     ? -1
                                     : combat_arg,
