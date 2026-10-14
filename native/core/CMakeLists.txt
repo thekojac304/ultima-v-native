@@ -42,6 +42,12 @@ if(BUILD_TESTING)
   add_executable(ui_session_tests tests/ui_session_test.cpp)
   target_link_libraries(ui_session_tests PRIVATE openu5_core)
   add_test(NAME ui_session COMMAND ui_session_tests)
+  # Windows port, the 1988 interaction model (PlatformProfile::dos_interface): the
+  # shared UiSession rules -- live console prompts, the DOS key rules, roster
+  # pickers -- in both the DOS and the default (T-Deck) settings of the profile.
+  add_executable(win_dos_interface_tests tests/win_dos_interface_test.cpp)
+  target_link_libraries(win_dos_interface_tests PRIVATE openu5_core)
+  add_test(NAME win_dos_interface COMMAND win_dos_interface_tests)
   add_executable(display_names_tests tests/display_names_test.cpp)
   target_link_libraries(display_names_tests PRIVATE openu5_core)
   add_test(NAME display_names COMMAND display_names_tests)
@@ -2586,6 +2592,13 @@ if(BUILD_TESTING)
   # (DUNGEON 0x07c8-0x07d1), through the REAL AlphaRuntime and raw keys.
   openu5_a4_ui2_runtime(a4_parity2_d86_dungeon_digit_runtime)
   add_test(NAME a4_parity2_d86_dungeon_digit_runtime COMMAND a4_parity2_d86_dungeon_digit_runtime
+    "${CMAKE_CURRENT_SOURCE_DIR}/../assets/openu5-alpha1-resources.bin")
+  # Windows port, the 1988 interaction model: with a DOS profile installed the REAL
+  # AlphaRuntime on the REAL Board chooses the caster on the roster (reverse-video row,
+  # "Select:" caption, no selector panel, no context bar) and reads "Spell name:" on the
+  # console; the default profile in the same binary keeps the T-Deck's panel and bar.
+  openu5_a4_ui2_runtime(win_dos_runtime)
+  add_test(NAME win_dos_runtime COMMAND win_dos_runtime
     "${CMAKE_CURRENT_SOURCE_DIR}/../assets/openu5-alpha1-resources.bin")
   # Alpha 3 A3-05 -- the audio finalization controls through the REAL
   # AlphaRuntime: Alt+Shift+M / Alt+Shift+S mutes by raw keys, the Settings
