@@ -166,7 +166,10 @@ if ($Package) {
     Push-Location $RepoRoot
     try {
         $commit = (git -c core.autocrlf=false rev-parse HEAD).Trim()
-        $dirty = (git -c core.autocrlf=false status --porcelain --untracked-files=no)
+        # The checkout's own line-ending rules: with core.autocrlf=false a CRLF
+        # checkout whose timestamp changed (a merge, a rebuilt or touched file)
+        # reads as modified although it equals HEAD.
+        $dirty = (git status --porcelain --untracked-files=no)
         $branch = (git rev-parse --abbrev-ref HEAD).Trim()
     } finally { Pop-Location }
     $version = (Get-Item $exe).VersionInfo.ProductVersion
