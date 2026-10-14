@@ -1,0 +1,63 @@
+# Original mode in the arena (ORIGINAL_MODE_FIDELITY.md): COMBAT.OVL's 'A'
+# prints "Attack-Aim! " and ESC loses the swing ("Nothing!") and the turn;
+# 'Z' shows the actor's page at once and ends the turn when it closes; a
+# getdir's Space is "Pass" and ends the turn, ESC is no answer; Q and RETURN
+# are refused with no turn.
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Mage
+key Return
+text F
+text B
+text B
+text B
+text B
+text B
+text B
+text B
+wait 2500
+expect frontend 0
+fight 32 2
+expect combat 1
+wait 1500
+expect remember_combat_actions x
+text q
+frames 2
+expect console Quit-Not here
+key Return
+frames 2
+expect combat_actions_advanced 0
+text a
+frames 2
+expect mode 13
+expect context_bar 0
+expect console Attack-Aim!
+key Escape
+wait 600
+expect console Nothing!
+expect combat_actions_advanced 1
+wait 2500
+expect remember_combat_actions x
+text z
+frames 3
+expect overlay_panel 1
+expect combat_actions_advanced 0
+key Space
+wait 600
+expect console Status: Done
+expect combat_actions_advanced 1
+wait 2500
+expect remember_combat_actions x
+text g
+frames 2
+expect mode 13
+key Escape
+frames 2
+expect mode 13
+key Space
+wait 600
+expect console Get-Pass
+expect combat_actions_advanced 1

@@ -1,0 +1,60 @@
+# Original mode's Hole up & camp (kernel 0x3c9a; ORIGINAL_MODE_FIDELITY.md):
+# the hours are one getkey ('0' abandons and is echoed, RETURN and ESC are no
+# key), a digit is the answer at once; the watch question is Y/N only; the
+# guard is chosen on the roster under "Select:" and ESC posts none. (At the
+# default text size the long prompts wrap on the 22-column console.)
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Mage
+key Return
+text F
+text B
+text B
+text B
+text B
+text B
+text B
+text B
+wait 2500
+expect frontend 0
+teleport grass
+wait 300
+expect location 0
+text h
+frames 2
+expect mode 7
+expect context_bar 0
+expect console Hole up & camp!
+expect console For how many hours? | (1-9)
+key Return
+frames 2
+key Escape
+frames 2
+expect mode 7
+text 0
+frames 2
+expect mode 0
+expect console For how many hours? | (1-9) 0
+text h
+frames 2
+text 2
+frames 2
+expect mode 8
+expect console For how many hours? | (1-9) 2
+expect console Wilt thou set a watch?
+key Return
+frames 2
+expect mode 8
+text y
+frames 2
+expect mode 9
+expect select_banner 1
+expect overlay_panel 0
+expect console Wilt thou set a watch? | Yes
+expect console Who will stand guard?
+key Escape
+wait 500
+expect console None posted!

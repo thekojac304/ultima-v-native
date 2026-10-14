@@ -50,6 +50,8 @@ uv_scenario(enhanced_interface MODE enhanced)
 # walk to; its "teleport" / "fight" steps need the menu compiled in.
 if(UV_ENABLE_DEVELOPER_TOOLS)
   uv_scenario(dungeon_walk MODE original DEVELOPER)
+  uv_scenario(original_arena MODE original DEVELOPER)
+  uv_scenario(original_camp MODE original DEVELOPER)
   uv_scenario(surface_combat MODE original DEVELOPER)
   uv_scenario(typed_cast_combat MODE original DEVELOPER)
   uv_scenario(town_talk MODE original DEVELOPER)

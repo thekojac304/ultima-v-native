@@ -169,6 +169,7 @@ class Game {
     void autotest_type(const std::string &text);
     bool autotest_teleport(const AutotestStep &step);
     bool autotest_fight(const AutotestStep &step);
+    bool autotest_open_grass(int &gx, int &gy);
     void push_key(const std::string &name, const std::vector<std::string> &mods);
     void push_text(const std::string &text);
 
@@ -844,6 +845,15 @@ bool Game::autotest_teleport(const AutotestStep &step) {
     return false; // the Developer menu is not compiled in
 #else
     const std::string &kind_name = step.args[0];
+    if (kind_name == "grass") {
+        // The open grass the fight step uses (a 5x3 patch of tile 5), alone.
+        int gx = -1, gy = -1;
+        if (!autotest_open_grass(gx, gy)) return false;
+        AutotestStep go;
+        go.verb = "teleport";
+        go.args = {"britannia", std::to_string(gx), std::to_string(gy)};
+        return autotest_teleport(go);
+    }
     openu5::DebugDestinationKind kind = openu5::DebugDestinationKind::Britannia;
     if (kind_name == "dungeon") kind = openu5::DebugDestinationKind::Dungeon;
     else if (kind_name == "town") kind = openu5::DebugDestinationKind::SmallMap;
@@ -894,13 +904,11 @@ bool Game::autotest_teleport(const AutotestStep &step) {
 // A surface fight, as the T-Deck screenshot harness stages one: open grass
 // (a 5x3 patch of tile 5) found on the live map, the party teleported there,
 // N enemies of definition DEF placed beside it, then Pass until the arena opens.
-bool Game::autotest_fight(const AutotestStep &step) {
-    const int def = std::atoi(step.args[0].c_str());
-    const int count = step.args.size() > 1 ? std::clamp(std::atoi(step.args[1].c_str()), 1, 5) : 3;
-    auto &context = runtime_->command_context_for_test();
+bool Game::autotest_open_grass(int &gx, int &gy) {
+    const auto &context = runtime_->command_context_for_test();
     const auto map = openu5::get_active_map(context.world, openu5::MapId{openu5::LocationId(0), 0});
     if (map.error != openu5::Error::None) return false;
-    int gx = -1, gy = -1;
+    gx = gy = -1;
     for (int y = 60; y < 200 && gx < 0; ++y)
         for (int x = 60; x < 200 && gx < 0; ++x) {
             bool ok = true;
@@ -911,7 +919,15 @@ bool Game::autotest_fight(const AutotestStep &step) {
                 gy = y;
             }
         }
-    if (gx < 0) return false;
+    return gx >= 0;
+}
+
+bool Game::autotest_fight(const AutotestStep &step) {
+    const int def = std::atoi(step.args[0].c_str());
+    const int count = step.args.size() > 1 ? std::clamp(std::atoi(step.args[1].c_str()), 1, 5) : 3;
+    auto &context = runtime_->command_context_for_test();
+    int gx = -1, gy = -1;
+    if (!autotest_open_grass(gx, gy)) return false;
     AutotestStep go;
     go.verb = "teleport";
     go.args = {"britannia", std::to_string(gx), std::to_string(gy)};

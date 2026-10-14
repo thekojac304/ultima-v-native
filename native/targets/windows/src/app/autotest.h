@@ -45,7 +45,8 @@
 //   dump                  print the title/menu page or the console's last lines
 //   teleport KIND [LOC | X Y]  through the Developer menu's Teleport page (needs
 //                         Enhanced or --developer): britannia X Y, town LOC,
-//                         dungeon LOC (33 Deceit ... 40), underworld
+//                         dungeon LOC (33 Deceit ... 40), underworld, grass
+//                         (the open grass the fight step uses)
 //   fight DEF [N]         a surface fight: open grass, N enemies of definition
 //                         DEF beside the party, Pass until the arena opens
 //   quit                  stop (the script's end stops too)
