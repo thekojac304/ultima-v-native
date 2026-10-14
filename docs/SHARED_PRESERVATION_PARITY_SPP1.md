@@ -5,9 +5,13 @@
 merged, published or flashed.**
 
 SPP1 corrects preservation defects that the Windows Original-mode fidelity audit found
-(`native/targets/windows/ORIGINAL_MODE_FIDELITY.md` §5, §7). They are corrected where they live, in
-the shared core (`native/core`) and the shared application layer (`native/targets/tdeck/main`). The
-T-Deck and both Windows modes therefore get the same gameplay. Nothing is Windows-only.
+(`native/targets/windows/ORIGINAL_MODE_FIDELITY.md` §5, §7). One, B's paid rumour (P2), was found by
+SPP1's own shop research. They are corrected where they live, in the shared core (`native/core`) and
+the shared application layer (`native/targets/tdeck/main`). The T-Deck and both Windows modes
+therefore get the same gameplay. No gameplay rule is Windows-only. Only two things are Windows-only:
+- the desktop key map, Ctrl+K / Ctrl+V in `desktop_input.cpp`;
+- Original's 1988 presentation (`D-What?`, `Direction-`, `Creature: `, `Jimmy-Pass`), behind
+  `platform_dos_interface()`, which only Windows Original installs.
 
 Status words used below:
 
@@ -81,7 +85,8 @@ T-Deck differential (§7.2).
 - **Tests.**
   - `spp1_runtime` G1-G5: 7/13 RED before the fix.
   - `uv_desktop_input_test` K1-K3: 4 RED before the fix.
-  - Scenarios `spp1_original` and `spp1_enhanced` (Ctrl+V; Ctrl+K is not `What?`).
+  - Scenarios `spp1_original` (Ctrl+V, and Ctrl+K printing this creation's karma, `75`) and
+    `spp1_enhanced` (Ctrl+V).
   - Mutants G1-G5 killed.
 
 ### 3.2 F — the target pick and the gates of Cast and Use
@@ -184,8 +189,10 @@ T-Deck differential (§7.2).
   - Anything else is `No lock!`.
 - **P** (0x0994 → CMDS 0x161a, no RNG):
   - A live room plate on the target fires silently.
-  - Otherwise the target is pushed, else pulled, else `Won't budge` (no `!`). Pushing needs a target
-    with no pool object that is in the pushable set.
+  - A target that is occupied (an actor, a corpse or blood, loot, a field) or not in the pushable set
+    is `Won't budge!`. Bare floor is not pushable.
+  - Otherwise the target is pushed over the fill, else pulled, else `Won't budge`. That is a different
+    string, DS 0x4567, with no `!`.
   - 0x90 / 0xB4 turn to face.
 - **Y** (0x09c0 → CMDS 0x1418): a word is `No effect!`; an empty answer is `Nothing`.
 - **Layer.**
@@ -264,7 +271,9 @@ T-Deck differential (§7.2).
 - **Tests.**
   - `spp1_core` P2: the text, and the form following the draw over 24 seeds.
   - `spp1_runtime` B1 / B2: a real Talk to Sam of Moonglow's Honest Meal in both profiles, served first
-    (the rumour's T is only answered once served), with N as the control. 2 + 2 RED.
+    (the rumour's T is only answered once served), with N as the control. B1 was RED in both
+    profiles; B2, the control, passed before and after.
+  - The core P2 checks were RED as well: 2 RED.
   - Mutants B1-B5 killed.
 
 ## 4. Deferred and unresolved
@@ -346,7 +355,7 @@ The pinned-row map, D-90 – D-103:
 | `spp1_runtime` (real AlphaRuntime and Board, both profiles) | **94/94** |
 | `spp1_core` | **42/42** |
 | Windows ctest | **29/29** with the three new SPP1 scenarios (§7.4); 26/26 before them. |
-| RED-first (`native/core/tools/spp1_red_first.py`, the baseline's production files under today's tests) | G 7 + 4, F 10, A 20 + 2, C 25 + 13, E 12 + 9, D 5, B 2 + 2 |
+| RED-first (`native/core/tools/spp1_red_first.py`: each item's production files at the commit before it, under that item's tests. G against `e089f2c5`, F against `0b1fd6c0`, A against `c0e95816`, C against `5b9e877b`, E against `f8ad45cb`, D against `d049500c`, B against `dc6c38bd`, A11 against `c4f53082`) | G 7 + 4, F 10, A 20 + 2, C 25 + 13, E 12 + 9, D 5, B 2 + 2 |
 | Mutation (`native/core/tools/spp1_mutation_check.py`) | 55 mutants: G1-G5, F1-F9, A1-A8 (A7 equivalent), C1-C14, E1-E9, D1-D5, B1-B5. All killed except A7. |
 | Save / load | The pinned save suites stayed green (A4-SAVE1/2/3, batch26/27/28, a3_04g / a3_hf4). SPP1 adds no save field and no `GameState` byte. |
 | Parity corpora (`gameplay_parity`, `advanced_combat`, `shop_parity`, `shop_flow`, `dungeon_parity`, `command_parity`, `quest_parity`, …) | Unchanged and green. The rule: an SPP1 change that would move a corpus row was deferred, not forced. |
@@ -406,7 +415,7 @@ only tests, scenarios and docs.
 |---|---|---|---|
 | Image (`openu5_tdeck.bin`) | `0x104020` (1,064,992 B) | `0x105ef0` (1,072,880 B) | **+7,888 B** |
 | App partition free (1.25 MiB) | 245,728 B (18.7 %) | 237,840 B (18.1 %) | −7,888 B |
-| Launcher allocation (64 KiB steps) | 1,088 KiB (next step 49,121 B away) | 1,088 KiB (next step 41,233 B away) | unchanged |
+| Launcher allocation (64 KiB steps) | 1,088 KiB (the build reports the next step 49,121 B away, i.e. 49,120 B of headroom) | 1,088 KiB (41,233 B away, i.e. 41,232 B of headroom) | unchanged |
 | Sections (`esp_idf_size --diff`) | | flash `.text` +7,204, `.rodata` +672; DIRAM `.bss` +16 (54,064 B), all in `main.cpp.obj`, which holds the static `AlphaRuntime`: its new members (the turn latch, the pending caster); `.data`, IRAM and PSRAM unchanged | +7,876 (map) |
 | Stack (`-fstack-usage`, 3,020 → 3,030 functions) | largest frame 5,920 B | largest frame 5,920 B | 6 frames changed, 10 new |
 
@@ -452,7 +461,8 @@ with the Developer rows: a party with keys, torches and MP; a dungeon fountain c
 2. **Arena (C).**
    - J with no key: `No Keys!`, and the turn passes.
    - J at a locked door: `Unlocked!` or `Key broke!`.
-   - P against bare floor: `Won't budge`.
+   - P against bare floor: `Won't budge!` (bare floor is not pushable).
+   - P on a pushable object that can neither slide nor be pulled: `Won't budge`, with no `!`.
    - Y, then ORT: `No effect!`.
    - Mic at `Jimmy-`: free.
 3. **Dungeon (E).**
@@ -487,4 +497,8 @@ with the Developer rows: a party with keys, torches and MP; a dungeon fountain c
 | `7728250d` | A: the conversation latch; the T-Deck differential |
 | (this commit) | Docs, ledgers, the SPP1 scenarios, the firmware figures |
 
-All RED-first, mutation, ctest and differential logs are under `native/core/spp1-*.log`.
+All RED-first, mutation, ctest and differential logs are under `native/core/spp1-*.log`. Mutant A8's
+run is `spp1-a8-mutation.log`.
+
+Erratum: `b7593ced`'s message says the CRLF baseline attempt "failed 10 drift tests". Its log
+(`spp1-baseline-ctest-crlf-attempt.log`) records 20 failures, and §1 is right.

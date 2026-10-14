@@ -178,7 +178,7 @@ changed in this batch); **?** = evidence insufficient.
 | | |
 |---|---|
 | 1988 | arrows move; Space `Pass`; `A` → `Attack-Aim! ` crosshair (RETURN/`A`/Space aim, ESC loses the swing: `Nothing!`, turn spent); ESC = Escape (`-Not yet!` / `-Not here!` / leave after victory — CMDS 0x17ec); RETURN/Backspace `What?`; B/E/F/H/I/L/M/N/Q/V/X/T/D/W print COMBAT.OVL's refusals; J/O/P/S/G/Y/Z/K/R/U/C are commands; digits set the active player. |
-| Windows Original (now) | all of those except J/P/Y (still `What?`, §7); every arena command ends the actor's turn as COMBAT.OVL does, cancels included (a cancelled spell aim, ESC at the Use list or at a heal spell's `On who:`, an empty Use or Ready); RETURN or `A` with the crosshair on the actor's own cell is ignored (melee and spells). ESC = Escape was already the core's DOS behaviour. |
+| Windows Original (now) | *(SPP1 C: J/P/Y now work too; see Status.)* all of those except J/P/Y (still `What?`, §7); every arena command ends the actor's turn as COMBAT.OVL does, cancels included (a cancelled spell aim, ESC at the Use list or at a heal spell's `On who:`, an empty Use or Ready); RETURN or `A` with the crosshair on the actor's own cell is ignored (melee and spells). ESC = Escape was already the core's DOS behaviour. |
 | Enhanced | RETURN = Pass, Backspace = flee, aim ESC free, `Attack` echo, `What?` for the refused letters. |
 | Tests | `scenario_original_arena`, `scenario_typed_cast_combat`, `scenario_surface_combat`. |
 | Status | **DOS** except **Δ** J/P/Y in the arena (core commands missing). **SPP1 C (2026-10-14):** J/P/Y are COMBAT.OVL's, in the shared core, on every platform. Original: `Jimmy-` / `Push-` with Space = Pass, and `Yell what?`. The scenario is `spp1_original_arena`. |

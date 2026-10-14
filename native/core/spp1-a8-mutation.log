@@ -1,0 +1,3 @@
+A8 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED A11 a town conversation, ended with an empty answer, keeps its pre-SPP1 cost (none) [T-Deck] (turns +1, clock +1 min) | RED A11 a town conversation, ended with an empty answer, keeps its pre-SPP1 cost (none) [Original] (turns +1, clock +1 min)
+restored tree: GREEN
+KILLED 1 SURVIVED 0 INVALID 0 STALE 0
