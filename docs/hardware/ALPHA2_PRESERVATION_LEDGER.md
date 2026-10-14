@@ -89,7 +89,9 @@ The rows:
 
 A T-Deck differential against `e089f2c5` (1,044 walks, 8,376 raw inputs) attributes every changed
 walk to an SPP1 item, with 0 unexplained. Its first run caught a town conversation charging a turn,
-which was fixed in the same batch.
+which was fixed in the same batch. An independent code review then found two more defects in the same
+turn latch, also fixed with RED-first tests (`5ba2fa46`). A Mix whose prompt returned on the pacer's
+clock lost its turn; keys swallowed by a map reveal each cost a turn.
 
 ---
 

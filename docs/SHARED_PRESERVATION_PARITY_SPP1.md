@@ -52,7 +52,7 @@ claim below is about this binary set. Offsets are re-checked in the commits that
 |---|---|---|---|---|---|
 | **G** | Ctrl-K / Ctrl-V answered `What?` | MAINOUT table 0x0bbe, TOWN 0x1552, DUNGEON 0x06c4 → karma (kernel 0x1a3e) / `1.16` (DS 0x2b4f) | core + UiSession + Windows key map | CONFIRMED; IMPLEMENTED + AUTO-VERIFIED | `0b1fd6c0` |
 | **F** | A cancelled heal target refunded the charge and the MP; gates ran after the target prompt; the `Player:` caster did not pay; a cancelled potion / In Mani Corp target refunded the item (D-51) | CAST 0x0dba gate order 0x0e1a → 0x0f01, arm 0x0f1a; CAST2 0x009e; CAST 0x136a / 0x11ec | core (magic, combat) + runtime | CONFIRMED; IMPLEMENTED + AUTO-VERIFIED; ceremony residual DEFERRED (D-101) | `c0e95816` |
-| **A** | R, Z, N, U, C, M and the getdir commands (and their cancels, refusals and Pass) cost no turn | K:0x3178 returns 1 on every path; MAINOUT 0x0c39, TOWN 0x15d0, DUNGEON 0x0f84 | core (`DispatcherTurn`) + runtime latch | CONFIRMED; IMPLEMENTED + AUTO-VERIFIED; conversations and H/B/E/Y DEFERRED (D-107) | `5b9e877b`, `7728250d` |
+| **A** | R, Z, N, U, C, M and the getdir commands (and their cancels, refusals and Pass) cost no turn | K:0x3178 returns 1 on every path; MAINOUT 0x0c39, TOWN 0x15d0, DUNGEON 0x0f84 | core (`DispatcherTurn`) + runtime latch | CONFIRMED; IMPLEMENTED + AUTO-VERIFIED; conversations and H/B/E/Y DEFERRED (D-107) | `5b9e877b`, `7728250d`, `5ba2fa46` |
 | **C** | The arena's J, P and Y answered `What?` | COMBAT 0x097a / 0x0994 / 0x09c0 → SJOG 0x0d4a, CMDS 0x161a, CMDS 0x1418 | core (combat) + UiSession | CONFIRMED; IMPLEMENTED + AUTO-VERIFIED; residuals DEFERRED (D-110) | `f8ad45cb` |
 | **E** | No dungeon Look (`What?`); the T-Deck `D` drank for the active member and invented `No fountain here.` | DNGLOOK 0x0000 (via K:0x3310); `D` is K:0x324e `D-What?` | core (dungeon) + UiSession + runtime | CONFIRMED; IMPLEMENTED + AUTO-VERIFIED; E-3 amended; TS reference DEFERRED (D-109) | `d049500c` |
 | **D** | Arena reticle for 3 no-prompt spells; no town An Ylem; Original lacked `Direction-` / `Creature:` | CAST 0x043e / 0x05f3 / 0x074c; CAST 0x0230; CAST 0x1f8a, DS 0x45bb / 0x45dc | core (magic, world magic) + runtime | CONFIRMED; IMPLEMENTED + AUTO-VERIFIED; corpus-pinned spells DEFERRED (D-106) | `dc6c38bd` |
@@ -164,12 +164,23 @@ T-Deck differential (§7.2).
   - **Still charged.** Talk at an empty town cell is TALK 0x048a → 0x0491 `Nobody's here!` → 0 → the
     dispatcher's 1 → one town turn. Native still prints the overworld's `Funny, no response!` there
     (D-111). The test pins the turn, not the text.
+- **The timer fix (`5ba2fa46`, found by the code review).**
+  - **Problem.** The latch was settled only after an input. The device holds `Mixing...` for 10 ticks
+    (A4-UI4 D-71, the dialogue pacer), so a completed Mix returned to the prompt on the clock, with no
+    input to settle on. The next move or Pass then absorbed the Mix's turn as if it were the command's
+    own: a completed Mix cost nothing.
+  - **Fix.** `route_input` settles a leftover latch *before* the new input runs, as the 1988 loop ran
+    the turn before reading the next key. On the screen the turn now lands at the next input, not at
+    the end of the hold.
+  - **Map reveal.** `at_command_prompt()` also excludes the map reveal, whose keys are swallowed. Each
+    letter pressed during Death Vision's 1.1 s reveal used to cost a world turn.
 - **Before → after.** Each of these commands now costs one turn of its context (2 minutes on the
   surface, 1 in a town or dungeon). That holds on every path, including a cancel. Nothing is charged
   twice.
 - **Tests.**
-  - `spp1_runtime` A1-A11: 20 RED against `c0e95816`. A11 was 2 RED against `c4f53082`.
-  - Mutants A1-A6 and A8 killed. A7 is equivalent.
+  - `spp1_runtime` A1-A13: 20 RED against `c0e95816`; A11 2 RED against `c4f53082`; A12 / A13 2 RED
+    against `37d20f27`. A12 runs paced, as the device does.
+  - Mutants A1-A6 and A8-A10 killed. A7 is equivalent.
   - Updated pins, each contradicted by the binary:
     - batch14 Z11-4 / Z10-4 / Z14-2;
     - alpha_runtime_integration E-2;
@@ -321,8 +332,15 @@ The pinned-row map, D-90 – D-103:
    - The clock moves (2 min on the surface, 1 in a town or dungeon), and NPCs and monsters get their
      move. In a town that can bring a guard's `Pay tribute?` one turn earlier.
    - A conversation still costs nothing. Talk at an empty town cell costs a town turn.
+   - A completed Mix's turn shows at the next key, after the `Mixing...` hold. Keys pressed during a
+     map reveal are swallowed and cost nothing.
 2. **Cast and Use (F).**
-   - A cancelled heal target spends the spell's charge and MP.
+   - A cancelled heal target spends the spell's charge and MP. In the arena it also ends the actor's
+     turn (COMBAT 0x0923).
+   - In the arena, Mic at the reticle (a cancelled crosshair) now makes any spell do nothing. The
+     charge and MP are spent, and there is no nearest-enemy fallback: an aim-less Charm or Polymorph
+     used to hit the nearest enemy. Under the handheld contract the T-Deck keeps that cancel free (the
+     actor keeps its turn); Original yields it.
    - A cancelled potion / In Mani Corp scroll target spends the item; `Potion` / `Scroll` is echoed.
    - `M.P. too low!` / level `Failed!` come before the target prompt.
    - The `Player:` caster pays.
@@ -352,11 +370,11 @@ The pinned-row map, D-90 – D-103:
 | Gate | Result |
 |---|---|
 | Host suite (serial) | **206/206** after B, after the A11 fix and on the final tree (`spp1-b-ctest.log`, `spp1-a11-ctest.log`, `spp1-final-ctest.log`). Baseline 204; new targets `spp1_runtime` and `spp1_core`. |
-| `spp1_runtime` (real AlphaRuntime and Board, both profiles) | **94/94** |
+| `spp1_runtime` (real AlphaRuntime and Board, both profiles) | **96/96** |
 | `spp1_core` | **42/42** |
 | Windows ctest | **29/29** with the three new SPP1 scenarios (§7.4); 26/26 before them. |
-| RED-first (`native/core/tools/spp1_red_first.py`: each item's production files at the commit before it, under that item's tests. G against `e089f2c5`, F against `0b1fd6c0`, A against `c0e95816`, C against `5b9e877b`, E against `f8ad45cb`, D against `d049500c`, B against `dc6c38bd`, A11 against `c4f53082`) | G 7 + 4, F 10, A 20 + 2, C 25 + 13, E 12 + 9, D 5, B 2 + 2 |
-| Mutation (`native/core/tools/spp1_mutation_check.py`) | 55 mutants: G1-G5, F1-F9, A1-A8 (A7 equivalent), C1-C14, E1-E9, D1-D5, B1-B5. All killed except A7. |
+| RED-first (`native/core/tools/spp1_red_first.py`: each item's production files at the commit before it, under that item's tests. G against `e089f2c5`, F against `0b1fd6c0`, A against `c0e95816`, C against `5b9e877b`, E against `f8ad45cb`, D against `d049500c`, B against `dc6c38bd`, A11 against `c4f53082`, A12 / A13 against `37d20f27`) | G 7 + 4, F 10, A 20 + 2 + 2, C 25 + 13, E 12 + 9, D 5, B 2 + 2 |
+| Mutation (`native/core/tools/spp1_mutation_check.py`) | 57 mutants: G1-G5, F1-F9, A1-A10 (A7 equivalent), C1-C14, E1-E9, D1-D5, B1-B5. All killed except A7. |
 | Save / load | The pinned save suites stayed green (A4-SAVE1/2/3, batch26/27/28, a3_04g / a3_hf4). SPP1 adds no save field and no `GameState` byte. |
 | Parity corpora (`gameplay_parity`, `advanced_combat`, `shop_parity`, `shop_flow`, `dungeon_parity`, `command_parity`, `quest_parity`, …) | Unchanged and green. The rule: an SPP1 change that would move a corpus row was deferred, not forced. |
 
@@ -402,24 +420,30 @@ was run against the baseline worktree `C:\Dev\uvw-spp1-base` (`e089f2c5`).
 
 - **Controls.** The positive control, the same build under the DOS profile, differs in 1,033 walks. Two
   runs of the SPP1 build are byte-identical.
-- **Limit.** Each walk is classified by its first difference only. The per-item tests cover each change
-  on its own. D's spells were not reached by the walks; `spp1_runtime` D covers them.
+- **After the review fixes (`5ba2fa46`).** The unpaced rerun is byte-identical to the run above. A new
+  `--paced` mode runs the device's own scene and dialogue pacers, as on hardware. Against a paced
+  baseline it gives the same picture: 494 identical, 550 differing, 0 unexplained.
+- **Limits.**
+  - Each walk is classified by its first difference only. The per-item tests cover each change on its
+    own.
+  - The walks did not reach D's spells, a completed Mix or a map reveal; `spp1_runtime` D, A12 and A13
+    cover them.
 
 ### 7.3 Firmware
 
 ESP-IDF 6.1, the same `sdkconfig` (identical SHA-256 in all trees), `ninja -j 4`, `-Werror`. Not
-flashed. The SPP1 image was configured at `7728250d` (`FW 7728250d…`); every later commit changes
-only tests, scenarios and docs.
+flashed. The SPP1 image was configured at `5ba2fa46` (it embeds `FW 5ba2fa46b74f`); every later
+commit changes only docs and logs.
 
 | | Baseline `e089f2c5` | SPP1 | Δ |
 |---|---|---|---|
-| Image (`openu5_tdeck.bin`) | `0x104020` (1,064,992 B) | `0x105ef0` (1,072,880 B) | **+7,888 B** |
-| App partition free (1.25 MiB) | 245,728 B (18.7 %) | 237,840 B (18.1 %) | −7,888 B |
-| Launcher allocation (64 KiB steps) | 1,088 KiB (the build reports the next step 49,121 B away, i.e. 49,120 B of headroom) | 1,088 KiB (41,233 B away, i.e. 41,232 B of headroom) | unchanged |
-| Sections (`esp_idf_size --diff`) | | flash `.text` +7,204, `.rodata` +672; DIRAM `.bss` +16 (54,064 B), all in `main.cpp.obj`, which holds the static `AlphaRuntime`: its new members (the turn latch, the pending caster); `.data`, IRAM and PSRAM unchanged | +7,876 (map) |
+| Image (`openu5_tdeck.bin`) | `0x104020` (1,064,992 B) | `0x105f10` (1,072,912 B) | **+7,920 B** |
+| App partition free (1.25 MiB) | 245,728 B (18.7 %) | 237,808 B (18.1 %) | −7,920 B |
+| Launcher allocation (64 KiB steps) | 1,088 KiB (the build reports the next step 49,121 B away, i.e. 49,120 B of headroom) | 1,088 KiB (41,201 B away, i.e. 41,200 B of headroom) | unchanged |
+| Sections (`esp_idf_size --diff`) | | flash `.text` +7,244, `.rodata` +672; DIRAM `.bss` +16 (54,064 B), all in `main.cpp.obj`, which holds the static `AlphaRuntime`: its new members (the turn latch, the pending caster); `.data`, IRAM and PSRAM unchanged | +7,916 (map) |
 | Stack (`-fstack-usage`, 3,020 → 3,030 functions) | largest frame 5,920 B | largest frame 5,920 B | 6 frames changed, 10 new |
 
-`check_app_budget.py` warns below 128 KiB free and fails below 64 KiB. It passes with 237,840 B free, and the build is clean under `-Wall -Wextra -Wconversion -Werror`.
+`check_app_budget.py` warns below 128 KiB free and fails below 64 KiB. It passes with 237,808 B free, and the build is clean under `-Wall -Wextra -Wconversion -Werror`.
 
 The stack changes:
 
@@ -457,7 +481,8 @@ with the Developer rows: a party with keys, torches and MP; a dungeon fountain c
 
 1. **Turn cost (A).** Overworld: R + Mic, Z + Mic, N + Mic, U + Mic, C + Mic, M + Mic and L + Mic each
    advance the clock by 2 minutes. In a town, by 1. A Talk with an NPC ended by an empty answer leaves
-   the clock alone.
+   the clock alone. Mix a spell (`Mixing...`, `Done!`), then press Enter (Pass): the clock moves by
+   4 minutes. Cast a Death Vision and press letters during the reveal: the clock does not move.
 2. **Arena (C).**
    - J with no key: `No Keys!`, and the turn passes.
    - J at a locked door: `Unlocked!` or `Key broke!`.
@@ -495,7 +520,11 @@ with the Developer rows: a party with keys, torches and MP; a dungeon fountain c
 | `dc6c38bd` | D |
 | `c4f53082` | B (P2) |
 | `7728250d` | A: the conversation latch; the T-Deck differential |
-| (this commit) | Docs, ledgers, the SPP1 scenarios, the firmware figures |
+| `b984fee0` | Docs, ledgers, the SPP1 scenarios, the firmware figures |
+| `af582375` | The first test package's log (built from `b984fee0`, before the review fixes) |
+| `37d20f27` | Docs corrections from the documentation review |
+| `5ba2fa46` | A: a timer-ended command's turn; no turns during the map reveal (the code review) |
+| (this commit) | Docs and firmware figures for `5ba2fa46`; the package is rebuilt from it |
 
 All RED-first, mutation, ctest and differential logs are under `native/core/spp1-*.log`. Mutant A8's
 run is `spp1-a8-mutation.log`.

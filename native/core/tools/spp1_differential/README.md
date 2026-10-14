@@ -44,6 +44,7 @@ After each input it prints:
    ```sh
    tdeck_diff_probe <openu5-alpha1-resources.bin> <openu5-audio.bin> > base.txt   # and head.txt
    tdeck_diff_probe <pack> <audio> ABCDEFGH --dos > dos.txt                       # positive control, SPP1 build
+   tdeck_diff_probe <pack> <audio> --paced > base-paced.txt                       # the device's pacers, both trees
    ```
 
 4. Analyse the outputs:
