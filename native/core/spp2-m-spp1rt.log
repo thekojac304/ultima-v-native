@@ -1,0 +1,2308 @@
+[I][AlphaResources] Alpha resource pack v2.0 valid: 2266819 bytes, 45 entries, payload CRC=5c0d175d, expected SHA-256=85b38994eea6, firmware_match=1
+[I][AlphaResources] Loaded owners: 64 small floors, 8 dungeons, 1024 NPC records; PSRAM=1412335
+G  Ctrl-K / Ctrl-V: the context loops' control keys
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] combat command=62 status=success turns=0 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=62 sequence=1
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+GREEN G1 Ctrl-K on the surface: "73" alone on the command row (the karma, bare decimal)
+GREEN G1 Ctrl-K on the surface costs no turn (MAINOUT 0x0af8): (none)
+[I][AlphaRuntime] combat command=62 status=success turns=0 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=62 sequence=2
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+GREEN G2 Ctrl-V prints "1.16" (DS 0x2b4f) on the command row
+GREEN G2 Ctrl-V costs no turn: (none)
+GREEN G1/G2 neither key is "What?"
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=2 depth=0 entrance=1 x=81 y=106 facing=2
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=1 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=2 crc=e8466959
+GREEN G3 control: (E)nter at the gate puts the party in town 2
+[I][AlphaRuntime] combat command=62 status=success turns=0 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=62 sequence=2
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=2 crc=e8466959
+[I][AlphaRuntime] combat command=62 status=success turns=0 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=62 sequence=3
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=2 crc=e8466959
+GREEN G3 in a town: "41" and "1.16"
+GREEN G3 in a town neither key costs a turn (TOWN 0x154b): (none)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=33 depth=0 entrance=1 x=240 y=73 facing=2
+[I][AlphaRuntime] DUNGEON_LOAD_BEGIN dungeon=33 depth=0
+[I][AlphaRuntime] DUNGEON_LOAD_RESULT result=success reason=normal-init
+[I][AlphaRuntime] DUNGEON_SESSION_STATE active=1 dungeon=33 depth=0 x=1 y=1 facing=2
+[I][AlphaRuntime] DUNGEON_CONTEXT dungeon=1
+[I][AlphaRuntime] DUNGEON_RENDERER active=1
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] DUNGEON_RUN_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=explore to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] DUNGEON_PRESENTATION_ENTER full_redraw=1 viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=11b75b17
+GREEN G4 control: (E)nter at Deceit's mouth opens the dungeon session
+[I][AlphaRuntime] combat command=62 status=success turns=1 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=dungeon gameplay_command=62 sequence=2
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=62 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=11b75b17
+GREEN G4 in a dungeon Ctrl-K prints "88"
+GREEN G4 in a dungeon Ctrl-K costs exactly one dungeon turn (DUNGEON 0x06cb returns 1 -> 0x0c76): turns 0->1 clock +1min
+[I][AlphaRuntime] combat command=62 status=success turns=1 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=dungeon gameplay_command=62 sequence=3
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=62 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=11b75b17
+GREEN G4 Ctrl-V likewise costs one dungeon turn: turns 1->2 clock +1min
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A1,H0 printable=6b base=6b symbol=00 ui=explore emitted=none action_char=0 shortcut=none
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A1,H0 printable=76 base=76 symbol=00 ui=explore emitted=none action_char=0 shortcut=none
+GREEN G5 control: the T-Deck's Alt+K / Alt+V do not reach the control keys: (none)
+F  cancelled healing spells: CAST.OVL spends before "On who:"
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=spell
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=spell combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=spell to=party
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=spell gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] MAGIC_FEEDBACK index=1 lead_us=558009 invert_us=1085018 audio=semantic async=1
+[I][AlphaRuntime] combat command=22 status=success turns=0 events=2 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=party gameplay_command=22 sequence=1
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN F1 control: "On who:" opens, and the cancel returns to the world
+GREEN F1 the cancelled Mani's charge is spent (CAST 0x0ec8): qty 1
+GREEN F1/F2 the Player: pick (Iolo) pays one MP, nobody else: Iolo 19, Avatar 20
+GREEN F1 the cancel prints neither Success! nor Failed! (the arm returns -1)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=spell
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=spell combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=spell to=party
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=spell gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] MAGIC_FEEDBACK index=1 lead_us=558009 invert_us=1085018 audio=semantic async=1
+[I][AlphaRuntime] combat command=22 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=22 sequence=1
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN F2 a completed Mani is paid by the Player: pick, not the active/first member: Iolo 19, Avatar 20
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=spell
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=spell combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] combat command=22 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=spell to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=spell gameplay_command=22 sequence=1
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN F3 MP 0: no "On who:" is asked; M.P. too low! / Failed!, the charge spent, MP kept (0x0ecc)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=spell
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=spell combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] combat command=22 status=success turns=0 events=2 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=spell to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=spell gameplay_command=22 sequence=1
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN F3 level 1 casting circle 5: no "On who:"; Failed!, the charge and 5 MP spent (0x0f01): qty 1 mp 15
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=inventory
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=inventory combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=inventory to=party
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=inventory gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] combat command=13 status=success turns=0 events=2 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=party gameplay_command=13 sequence=1
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN F4 (U)se In Mani Corp scroll, "On who:" cancelled: the item is spent (CAST 0x11ec)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=inventory
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=inventory combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=inventory to=party
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=inventory gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] combat command=13 status=success turns=0 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=party gameplay_command=13 sequence=1
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN F4 (U)se a potion, "On who:" cancelled: the item is spent (CAST 0x136a)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] combat command=16 status=success turns=0 events=2 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=16 sequence=2
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=combat to=spell
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=spell combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=spell to=party
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=spell gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] MAGIC_FEEDBACK index=1 lead_us=558009 invert_us=1085018 audio=semantic async=1
+[I][AlphaRuntime] combat command=22 status=success turns=0 events=4 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=party gameplay_command=22 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+GREEN F5 control: "On who:" opens for the actor's Mani [T-Deck]
+GREEN F5 the arena's cancelled Mani is spent: qty 1 mp 19 [T-Deck]
+GREEN F5 the cancel ends the actor's turn exactly once (next to act 1, after a Pass 1) [T-Deck]
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] combat command=16 status=success turns=0 events=2 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=16 sequence=2
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=combat to=text
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=text combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=text to=party
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=text gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] MAGIC_FEEDBACK index=1 lead_us=558009 invert_us=1085018 audio=semantic async=1
+[I][AlphaRuntime] combat command=22 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=party gameplay_command=22 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+GREEN F5 control: "On who:" opens for the actor's Mani [Original]
+GREEN F5 the arena's cancelled Mani is spent: qty 1 mp 19 [Original]
+GREEN F5 the cancel ends the actor's turn exactly once (next to act 1, after a Pass 1) [Original]
+GREEN F6 Original: "On who: None!" and no Failed!
+A  the dispatcher's turn: R / Z / N / U / C / M and the getdir, every path
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=party gameplay_command=none
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN A1 R cancelled at Player: costs one world turn (turns +1, clock +2 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=equipment
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=equipment combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] READY_BEFORE member=0 slot=Head current=1 inventory_old=0 inventory_new=1
+[I][AlphaRuntime] READY_APPLY member=0 slot=Head selected=0
+[I][AlphaRuntime] READY_AFTER member=0 slot=Head current=1 old_returned=0 inventory_new=1
+[I][AlphaRuntime] combat command=8 status=rejected turns=0 events=0 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=equipment gameplay_command=8 sequence=2
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] READY_BEFORE member=0 slot=Head current=1 inventory_old=0 inventory_new=0
+[I][AlphaRuntime] READY_APPLY member=0 slot=Head selected=1
+[I][AlphaRuntime] READY_AFTER member=0 slot=Head current=255 old_returned=1 inventory_new=1
+[I][AlphaRuntime] combat command=8 status=success turns=0 events=0 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=equipment gameplay_command=8 sequence=3
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=equipment to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=equipment gameplay_command=none
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN A1 R with two items readied, then closed, costs ONE world turn (turns +1, clock +2 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=party gameplay_command=none
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN A2 Z cancelled at Player: costs one world turn (turns +1, clock +2 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] ZSTATS_OPEN member=1 page=2 party=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] render 0 us reason=zstats-page animated=0 crc=e8466959
+[I][AlphaRuntime] ZSTATS_CLOSE reason=escape ui=explore gameplay_command=none
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN A2 Z browsed and closed costs one world turn (turns +1, clock +2 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=party gameplay_command=none
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN A3 N cancelled at Swap costs one world turn (turns +1, clock +2 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] combat command=59 status=success turns=0 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=59 sequence=8
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN A3 a completed swap (Iolo <-> Shamino) costs one world turn (turns +1, clock +2 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=inventory
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=inventory combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=inventory to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=inventory gameplay_command=none
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN A4 U cancelled at the list costs one world turn (turns +1, clock +2 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=inventory
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=inventory combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=inventory to=party
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=inventory gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] MAGIC_FEEDBACK index=0 lead_us=465008 invert_us=775013 audio=semantic async=1
+[I][AlphaRuntime] combat command=13 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=13 sequence=11
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN A4 U a potion drunk costs one world turn (turns +1, clock +2 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=party gameplay_command=none
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] render 0 us reason=magic-invert animated=0 crc=4d853365
+GREEN A5 C cancelled at Player: costs one world turn, nothing spent (turns +1, clock +2 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=4d853365
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=spell
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=spell combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=4d853365
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=spell to=party
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=spell gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=4d853365
+[I][AlphaRuntime] MAGIC_FEEDBACK index=1 lead_us=558009 invert_us=1085018 audio=semantic async=1
+[I][AlphaRuntime] combat command=22 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=22 sequence=14
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN A5 C a completed Mani costs one world turn (turns +1, clock +2 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=spell
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=spell combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=spell to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=spell gameplay_command=none
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN A5 M cancelled at the spell costs one world turn (turns +1, clock +2 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=4d853365
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=target gameplay_command=none
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=4d853365
+GREEN A6 Look cancelled at the direction (the binary's Pass) costs one world turn (turns +1, clock +2 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=4d853365
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=target gameplay_command=none
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=4d853365
+GREEN A6 Get cancelled at the direction costs one world turn (turns +1, clock +2 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=4d853365
+[I][AlphaRuntime] combat command=50 status=success turns=0 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=50 sequence=19
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=4d853365
+[I][AlphaRuntime] render 0 us reason=magic-restore animated=0 crc=e8466959
+GREEN A6 a completed Look costs one world turn (K:0x3310 -> 0x333c returns 1) (turns +1, clock +2 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=party
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] combat command=42 status=success turns=1 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=42 sequence=21
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN A6 Search, which charges its own turn in the core, still costs exactly one (turns +1, clock +2 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=target gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN A10 overworld Attack cancelled stays free (MAINOUT 0x06ec returns 0) (turns +0, clock +0 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+GREEN A10 D ("D-What?") stays free (K:0x324e) (turns +0, clock +0 min)
+[I][AlphaRuntime] combat command=62 status=success turns=0 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=62 sequence=22
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+GREEN A10 Ctrl-K stays free on the surface (turns +0, clock +0 min)
+[I][AlphaRuntime] combat command=60 status=success turns=0 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=60 sequence=23
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+GREEN A10 a valid digit stays free (turns +0, clock +0 min)
+[I][AlphaRuntime] combat command=10 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=10 sequence=24
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+GREEN A10 Ignite (charged by the core) costs one turn, not two (turns +1, clock +2 min)
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=explore gameplay_command=1 sequence=25
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+GREEN A10 Pass costs one turn, not two (turns +1, clock +2 min)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=2 depth=0 entrance=1 x=81 y=106 facing=2
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=1 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=2 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=2 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=party gameplay_command=none
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=2 crc=e8466959
+GREEN A7 town: R cancelled costs one turn of one minute (TOWN 0x15d0) (turns +1, clock +1 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=2 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=target gameplay_command=none
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=2 crc=e8466959
+GREEN A7 town: Look-Pass costs one turn of one minute (turns +1, clock +1 min)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=33 depth=0 entrance=1 x=240 y=73 facing=2
+[I][AlphaRuntime] DUNGEON_LOAD_BEGIN dungeon=33 depth=0
+[I][AlphaRuntime] DUNGEON_LOAD_RESULT result=success reason=normal-init
+[I][AlphaRuntime] DUNGEON_SESSION_STATE active=1 dungeon=33 depth=0 x=1 y=1 facing=2
+[I][AlphaRuntime] DUNGEON_CONTEXT dungeon=1
+[I][AlphaRuntime] DUNGEON_RENDERER active=1
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] DUNGEON_RUN_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=explore to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] DUNGEON_PRESENTATION_ENTER full_redraw=1 viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=11b75b17
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=dungeon to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=dungeon gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=party to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=party gameplay_command=none
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=63 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+GREEN A8 dungeon: R cancelled costs one dungeon turn (turns +1, clock +1 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=dungeon to=inventory
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=dungeon gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=inventory combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=63 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=inventory to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=inventory gameplay_command=none
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=63 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+GREEN A8 dungeon: U cancelled costs one dungeon turn (turns +1, clock +1 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=dungeon to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=dungeon gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=63 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=party to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=party gameplay_command=none
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=63 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+GREEN A8 dungeon: Z cancelled costs one dungeon turn (turns +1, clock +1 min)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=target gameplay_command=none
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+GREEN A9 Original: Space at Look- prints "Look-Pass" and costs one world turn (turns +1, clock +2 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=explore gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=explore gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+GREEN A10 Original: RETURN / ESC at the prompt ("What?") stay free (turns +0, clock +0 min)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=6d base=6d symbol=00 ui=explore emitted=character action_char=109 shortcut=none
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=spell
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=spell combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=0d base=0d symbol=00 ui=spell emitted=confirm action_char=0 shortcut=none
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=spell to=inventory
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=spell gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=inventory combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=0d base=0d symbol=00 ui=inventory emitted=confirm action_char=0 shortcut=none
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=inventory gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=6d base=6d symbol=00 ui=inventory emitted=character action_char=109 shortcut=none
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=inventory to=number
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=inventory gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=number combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=31 base=31 symbol=00 ui=number emitted=character action_char=49 shortcut=none
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=number gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=0d base=0d symbol=00 ui=number emitted=confirm action_char=0 shortcut=none
+[I][AlphaRuntime] DIALOGUE_PAUSE begin=effect pause_ms=1540
+[I][AlphaRuntime] combat command=56 status=success turns=0 events=2 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] UI_MODE from=number to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=number gameplay_command=56 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=dialogue-pause animated=0 crc=e8466959
+[I][AlphaRuntime] DIALOGUE_PAUSE end released=2
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=0d base=0d symbol=00 ui=explore emitted=confirm action_char=0 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=80,80 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=explore gameplay_command=1 sequence=3
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=e8466959
+GREEN A12 paced: a Mix whose prompt returns on the pacer's clock, then a Pass, costs two world turns (turns +2, clock +4 min)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] MAP_REVEAL frames=40 duration_ms=2200
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=7a base=7a symbol=00 ui=explore emitted=character action_char=122 shortcut=none
+[I][AlphaRuntime] MAP_REVEAL_INPUT action=character effect=swallowed gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=e8466959
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=6c base=6c symbol=00 ui=explore emitted=character action_char=108 shortcut=none
+[I][AlphaRuntime] MAP_REVEAL_INPUT action=character effect=swallowed gameplay_command=none
+GREEN A13 Z and L pressed during the map reveal are swallowed and cost nothing (turns +0, clock +0 min)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=1 depth=0 entrance=1 x=232 y=135 facing=2
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=1 prior_dungeon=0 location=1 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=3 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=13,16 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=1 crc=52eeb36f
+[I][AlphaDialogue] loaded master=1 dialog=1 PSRAM=19928
+[I][AlphaRuntime] combat command=31 status=awaiting response turns=0 events=2 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=13,16 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=text
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=31 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=text combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=1 crc=52eeb36f
+[I][AlphaRuntime] combat command=33 status=success turns=0 events=4 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=13,16 dungeon=0
+[I][AlphaRuntime] UI_MODE from=text to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=text gameplay_command=33 sequence=3
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=1 crc=52eeb36f
+GREEN A11 a town conversation, ended with an empty answer, keeps its pre-SPP1 cost (none) [T-Deck] (turns +0, clock +0 min)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=2 depth=0 entrance=1 x=81 y=106 facing=2
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=1 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=2 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=12,2 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=5 crc=38b289c7
+[I][AlphaRuntime] combat command=31 status=rejected turns=0 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=12,2 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=31 sequence=2
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=5 crc=38b289c7
+GREEN A11b CONTROL: Talk at an empty town cell opens nothing and costs one town turn [T-Deck] (turns +1, clock +1 min)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=1 depth=0 entrance=1 x=232 y=135 facing=2
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=1 prior_dungeon=0 location=1 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=3 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=13,16 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=1 crc=52eeb36f
+[I][AlphaDialogue] loaded master=1 dialog=1 PSRAM=19928
+[I][AlphaRuntime] combat command=31 status=awaiting response turns=0 events=2 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=13,16 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=text
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=31 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=text combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=1 crc=52eeb36f
+[I][AlphaRuntime] combat command=33 status=success turns=0 events=4 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=13,16 dungeon=0
+[I][AlphaRuntime] UI_MODE from=text to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=text gameplay_command=33 sequence=3
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=1 crc=52eeb36f
+GREEN A11 a town conversation, ended with an empty answer, keeps its pre-SPP1 cost (none) [Original] (turns +0, clock +0 min)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=2 depth=0 entrance=1 x=81 y=106 facing=2
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=1 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=2 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=12,2 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=5 crc=38b289c7
+[I][AlphaRuntime] combat command=31 status=rejected turns=0 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=12,2 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=31 sequence=2
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=5 crc=38b289c7
+GREEN A11b CONTROL: Talk at an empty town cell opens nothing and costs one town turn [Original] (turns +1, clock +1 min)
+C  the arena's J / P / Y through the real runtime
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] combat command=16 status=success turns=0 events=2 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=16 sequence=2
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=combat to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+GREEN C2 J opens the arena getdir after "Jimmy-" [T-Deck]
+GREEN C1 J is no longer "What?" [T-Deck]
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=target gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+GREEN C6 the T-Deck's Cancel at Jimmy- stays free: the same actor still has the turn [T-Deck]
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] combat command=64 status=success turns=0 events=2 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=64 sequence=2
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+GREEN C2 J without a key: "No Keys!" with no getdir, and the turn ends [T-Deck]
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=combat to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+[I][AlphaRuntime] combat command=65 status=success turns=0 events=2 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=65 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+GREEN C4 Push-East onto bare floor: "Won't budge!" and the turn ends [T-Deck]
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=combat to=text
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=text combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+[I][AlphaRuntime] combat command=66 status=success turns=0 events=1 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=text to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=text gameplay_command=66 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+GREEN C5 Yell with an empty answer: "Nothing", and the turn ends [T-Deck]
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=combat to=text
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=text combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] combat command=66 status=success turns=0 events=2 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=text to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=text gameplay_command=66 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+GREEN C5 Yell ORT: "No effect!", and the turn ends [T-Deck]
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] combat command=16 status=success turns=0 events=2 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=16 sequence=2
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=combat to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+GREEN C2 J opens the arena getdir after "Jimmy-" [Original]
+GREEN C1 J is no longer "What?" [Original]
+[I][AlphaRuntime] combat command=20 status=success turns=0 events=1 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=target gameplay_command=20 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+GREEN C3 Space at Jimmy- prints "Jimmy-Pass", keeps the keys and ends the turn [Original]
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] combat command=64 status=success turns=0 events=2 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=64 sequence=2
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+GREEN C2 J without a key: "No Keys!" with no getdir, and the turn ends [Original]
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=combat to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+[I][AlphaRuntime] combat command=65 status=success turns=0 events=2 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=65 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+GREEN C4 Push-East onto bare floor: "Won't budge!" and the turn ends [Original]
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=combat to=text
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=text combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+[I][AlphaRuntime] combat command=66 status=success turns=0 events=1 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=text to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=text gameplay_command=66 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+GREEN C5 Yell with an empty answer: "Nothing", and the turn ends [Original]
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=combat to=text
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=text combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] combat command=66 status=success turns=0 events=2 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=text to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=text gameplay_command=66 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+GREEN C5 Yell ORT: "No effect!", and the turn ends [Original]
+E  the dungeon (L)ook through the real runtime
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=33 depth=0 entrance=1 x=240 y=73 facing=2
+[I][AlphaRuntime] DUNGEON_LOAD_BEGIN dungeon=33 depth=0
+[I][AlphaRuntime] DUNGEON_LOAD_RESULT result=success reason=normal-init
+[I][AlphaRuntime] DUNGEON_SESSION_STATE active=1 dungeon=33 depth=0 x=1 y=1 facing=2
+[I][AlphaRuntime] DUNGEON_CONTEXT dungeon=1
+[I][AlphaRuntime] DUNGEON_RENDERER active=1
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] DUNGEON_RUN_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=explore to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] DUNGEON_PRESENTATION_ENTER full_redraw=1 viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=11b75b17
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=dungeon to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=dungeon gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=party to=target
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] combat command=24 status=success turns=1 events=2 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=target to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=24 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=24 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+GREEN E1 L: Look..., Player:, Dir-, You see: -- one dungeon turn (turns +1, clock +1 min)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=33 depth=0 entrance=1 x=240 y=73 facing=2
+[I][AlphaRuntime] DUNGEON_LOAD_BEGIN dungeon=33 depth=0
+[I][AlphaRuntime] DUNGEON_LOAD_RESULT result=success reason=normal-init
+[I][AlphaRuntime] DUNGEON_SESSION_STATE active=1 dungeon=33 depth=0 x=1 y=1 facing=2
+[I][AlphaRuntime] DUNGEON_CONTEXT dungeon=1
+[I][AlphaRuntime] DUNGEON_RENDERER active=1
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] DUNGEON_RUN_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=explore to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] DUNGEON_PRESENTATION_ENTER full_redraw=1 viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=11b75b17
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=dungeon to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=dungeon gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=party to=target
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] combat command=24 status=success turns=1 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=target to=yes/no
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=24 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=yes/no combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=24 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] combat command=24 status=success turns=0 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=yes/no to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=yes/no gameplay_command=24 sequence=3
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=24 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+GREEN E2 a poison fountain Here, Y: only the picked member (Shamino) is poisoned, one turn in all (turns +1, clock +1 min)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=33 depth=0 entrance=1 x=240 y=73 facing=2
+[I][AlphaRuntime] DUNGEON_LOAD_BEGIN dungeon=33 depth=0
+[I][AlphaRuntime] DUNGEON_LOAD_RESULT result=success reason=normal-init
+[I][AlphaRuntime] DUNGEON_SESSION_STATE active=1 dungeon=33 depth=0 x=1 y=1 facing=2
+[I][AlphaRuntime] DUNGEON_CONTEXT dungeon=1
+[I][AlphaRuntime] DUNGEON_RENDERER active=1
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] DUNGEON_RUN_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=explore to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] DUNGEON_PRESENTATION_ENTER full_redraw=1 viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=11b75b17
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=dungeon to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=dungeon gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=party to=target
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] combat command=24 status=success turns=1 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=target to=yes/no
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=24 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=yes/no combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=24 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] combat command=24 status=success turns=0 events=0 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=yes/no to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=yes/no gameplay_command=24 sequence=3
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=24 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+GREEN E3 the same fountain, N: "No.", no effect, still one turn (turns +1, clock +1 min)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=33 depth=0 entrance=1 x=240 y=73 facing=2
+[I][AlphaRuntime] DUNGEON_LOAD_BEGIN dungeon=33 depth=0
+[I][AlphaRuntime] DUNGEON_LOAD_RESULT result=success reason=normal-init
+[I][AlphaRuntime] DUNGEON_SESSION_STATE active=1 dungeon=33 depth=0 x=1 y=1 facing=2
+[I][AlphaRuntime] DUNGEON_CONTEXT dungeon=1
+[I][AlphaRuntime] DUNGEON_RENDERER active=1
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] DUNGEON_RUN_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=explore to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] DUNGEON_PRESENTATION_ENTER full_redraw=1 viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=11b75b17
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=dungeon to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=dungeon gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] combat command=24 status=success turns=1 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=party to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=24 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=24 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+GREEN E4 darkness: no Dir-, "You see: darkness.", one turn (turns +1, clock +1 min)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=33 depth=0 entrance=1 x=240 y=73 facing=2
+[I][AlphaRuntime] DUNGEON_LOAD_BEGIN dungeon=33 depth=0
+[I][AlphaRuntime] DUNGEON_LOAD_RESULT result=success reason=normal-init
+[I][AlphaRuntime] DUNGEON_SESSION_STATE active=1 dungeon=33 depth=0 x=1 y=1 facing=2
+[I][AlphaRuntime] DUNGEON_CONTEXT dungeon=1
+[I][AlphaRuntime] DUNGEON_RENDERER active=1
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] DUNGEON_RUN_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=explore to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] DUNGEON_PRESENTATION_ENTER full_redraw=1 viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=11b75b17
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=dungeon to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=dungeon gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] combat command=24 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=party to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=party gameplay_command=24 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=24 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+GREEN E5 Cancel at Player: "None!" and the Look's turn (turns +1, clock +1 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=dungeon to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=dungeon gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=24 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=party to=target
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=24 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] combat command=24 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=target to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=cancel ui=target gameplay_command=24 sequence=3
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=24 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+GREEN E5 Cancel at Dir-: the Pass, one turn (turns +1, clock +1 min)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=33 depth=0 entrance=1 x=240 y=73 facing=2
+[I][AlphaRuntime] DUNGEON_LOAD_BEGIN dungeon=33 depth=0
+[I][AlphaRuntime] DUNGEON_LOAD_RESULT result=success reason=normal-init
+[I][AlphaRuntime] DUNGEON_SESSION_STATE active=1 dungeon=33 depth=0 x=1 y=1 facing=2
+[I][AlphaRuntime] DUNGEON_CONTEXT dungeon=1
+[I][AlphaRuntime] DUNGEON_RENDERER active=1
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] DUNGEON_RUN_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=explore to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] DUNGEON_PRESENTATION_ENTER full_redraw=1 viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=11b75b17
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=dungeon to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=dungeon gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] combat command=24 status=success turns=1 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=party to=yes/no
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=24 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=yes/no combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=24 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=11b75b17
+[I][AlphaRuntime] combat command=24 status=success turns=0 events=1 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=yes/no to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=yes/no gameplay_command=24 sequence=3
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=24 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+GREEN E6 the T-Deck's D is the Look aimed Here: the picked member (Iolo) healed, one turn (turns +1, clock +1 min)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=33 depth=0 entrance=1 x=240 y=73 facing=2
+[I][AlphaRuntime] DUNGEON_LOAD_BEGIN dungeon=33 depth=0
+[I][AlphaRuntime] DUNGEON_LOAD_RESULT result=success reason=normal-init
+[I][AlphaRuntime] DUNGEON_SESSION_STATE active=1 dungeon=33 depth=0 x=1 y=1 facing=2
+[I][AlphaRuntime] DUNGEON_CONTEXT dungeon=1
+[I][AlphaRuntime] DUNGEON_RENDERER active=1
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] DUNGEON_RUN_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=explore to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] DUNGEON_PRESENTATION_ENTER full_redraw=1 viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=11b75b17
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=dungeon gameplay_command=none
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=11b75b17
+GREEN E7 Original: D is "D-What?" and no command (K:0x324e) (turns +0, clock +0 min)
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=dungeon to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=dungeon gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=party to=target
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=party gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=2 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=0 crc=11b75b17
+[I][AlphaRuntime] combat command=24 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=1 location=0 floor=0 xy=240,73 dungeon=1
+[I][AlphaRuntime] UI_MODE from=target to=dungeon
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=target gameplay_command=24 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=dungeon combat=0 dungeon=1 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_BEGIN viewport=176x176 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_FRAME dungeon=33 depth=0 x=1 y=1 facing=2 command=24 source=dungeon3d
+[I][AlphaRuntime] DUNGEON_DRAW_END viewport=176x176 primitives=0 us=0
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=0 crc=11b75b17
+GREEN E7 Original: Space at Dir- prints "Dir-Pass" and the Look costs its turn (turns +1, clock +1 min)
+D  spell target prompts
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] combat command=16 status=success turns=0 events=2 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=16 sequence=2
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=combat to=spell
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=spell combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+[I][AlphaRuntime] MAGIC_FEEDBACK index=2 lead_us=651011 invert_us=1395024 audio=semantic async=1
+[I][AlphaRuntime] combat command=22 status=success turns=0 events=4 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=spell to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=spell gameplay_command=22 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+GREEN D1 the arena's An Xen Corp asks nothing (no reticle), is spent, and ends the turn
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] combat command=16 status=success turns=0 events=2 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=16 sequence=2
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=combat to=text
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=text combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=text to=target
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=text gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] combat command=22 status=success turns=0 events=0 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] combat command=20 status=success turns=0 events=1 time=0 us
+[I][AlphaRuntime] COMBAT_COUNTS reason=player-command alive_hostile=1 escaped=0 dead=0 active=4 scheduled=1
+[I][AlphaRuntime] COMBAT_END_CHECK reason=player-command result=continue
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=target gameplay_command=20 sequence=3
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+GREEN D2 Original: In Zu reads "Direction-"; Space is the Pass -- spent, the turn ends exactly once
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=0 crc=3c1adf75
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=20 base=20 symbol=00 ui=explore emitted=character action_char=32 shortcut=none
+[I][AlphaRuntime] combat command=1 status=success turns=1 events=4 time=0 us
+[I][AlphaRuntime] ENEMY_ID phase=create actor=4 definition=41 sprite_family=484 render_tile=-1 name_index=41 name="Troll" res=v0.0/00000000
+[I][AlphaRuntime] WORLD_PRE_COMBAT loc=0 floor=0 player=105,60 origin=0,0
+[I][AlphaRuntime] WORLD_TILE_SAVE x=0 y=0 tile=1 raw=1 source=authoritative-world+terrain
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=combat
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=1 sequence=1
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=combat combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=combat to=text
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=combat gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=text combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=0 floor=0 xy=105,60 dungeon=0
+[I][AlphaRuntime] UI_MODE from=text to=target
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=text gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=1 dungeon=0 source=combat
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=e8466959
+GREEN D3 Original: Charm prints "Creature: " before the crosshair (DS 0x45bb)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=2 depth=0 entrance=1 x=81 y=106 facing=2
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=1 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=2 crc=e8466959
+[I][AlphaRuntime] WORLD_TILE_WRITE caller=quest.volatile_tile x=16 y=30 old=68 new=91 reason=quest.volatile_tile permanent=0 loc=2 floor=0
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=2 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=spell
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=spell combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=2 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] UI_MODE from=spell to=target
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=spell gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=2 crc=e8466959
+[I][AlphaRuntime] MAGIC_FEEDBACK index=1 lead_us=558009 invert_us=1085018 audio=semantic async=1
+[I][AlphaRuntime] WORLD_TILE_WRITE caller=quest.volatile_tile x=16 y=30 old=91 new=68 reason=quest.volatile_tile permanent=0 loc=2 floor=0
+[I][AlphaRuntime] combat command=22 status=success turns=0 events=4 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=22 sequence=2
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=2 crc=e8466959
+GREEN D4 a town An Ylem: Direction-, "POOF!", the object east becomes 0x44 (CAST 0x0230)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=2 depth=0 entrance=1 x=81 y=106 facing=2
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=1 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=2 crc=e8466959
+[I][AlphaRuntime] WORLD_TILE_WRITE caller=quest.volatile_tile x=16 y=30 old=68 new=68 reason=quest.volatile_tile permanent=0 loc=2 floor=0
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=party
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=party combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=2 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] UI_MODE from=party to=spell
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=party gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=spell combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=2 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] UI_MODE from=spell to=target
+[I][AlphaRuntime] INPUT_ROUTE action=select-index ui=spell gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=2 crc=e8466959
+[I][AlphaRuntime] MAGIC_FEEDBACK index=1 lead_us=558009 invert_us=1085018 audio=semantic async=1
+[I][AlphaRuntime] combat command=22 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=2 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=explore
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=22 sequence=2
+[I][AlphaRuntime] combat command=63 status=success turns=1 events=0 time=0 us
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=2 crc=e8466959
+GREEN D4 on bare floor: "Failed!"
+B  the tavern's paid rumour through the real runtime (P2)
+GREEN B0 a barkeeper with opening hours exists in the pack (location 1)
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=1 depth=0 entrance=1 x=232 y=135 facing=2
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=1 prior_dungeon=0 location=1 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=3 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=be416ed6
+[I][AlphaRuntime] combat command=31 status=awaiting response turns=0 events=4 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=shop
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=31 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=shop combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=15 service_id=-1 price=0 quantity=0 state=1->13 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=12 service_id=1 price=3 quantity=1 state=13->38 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=15 service_id=-1 price=0 quantity=0 state=38->14 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=15 service_id=-1 price=0 quantity=0 state=14->13 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=14 service_id=-1 price=0 quantity=0 state=13->18 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] UI_MODE from=shop to=text
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=text combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=19 service_id=23 price=50 quantity=0 state=18->30 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] UI_MODE from=text to=shop
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=text gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=shop combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=15 service_id=-1 price=0 quantity=0 state=30->14 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+GREEN B1 a paid rumour: 50 gold paid, the gossip then "says Sam." is shown [T-Deck] [|"Seek ye a daemon in the desert!"|says Sam.|]
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=1 depth=0 entrance=1 x=232 y=135 facing=2
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=1 prior_dungeon=0 location=1 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=3 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=be416ed6
+[I][AlphaRuntime] combat command=31 status=awaiting response turns=0 events=4 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=shop
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=31 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=shop combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=15 service_id=-1 price=0 quantity=0 state=1->13 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=12 service_id=1 price=3 quantity=1 state=13->38 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=15 service_id=-1 price=0 quantity=0 state=38->14 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=15 service_id=-1 price=0 quantity=0 state=14->13 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=14 service_id=-1 price=0 quantity=0 state=13->18 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] UI_MODE from=shop to=text
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=text combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=19 service_id=23 price=50 quantity=0 state=18->30 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] UI_MODE from=text to=shop
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=text gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=shop combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=16 service_id=-1 price=0 quantity=0 state=30->14 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+GREEN B2 CONTROL: N at "Fair 'nuff?" pays nothing and shows no gossip [T-Deck] []
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=1 depth=0 entrance=1 x=232 y=135 facing=2
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=1 prior_dungeon=0 location=1 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=3 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=be416ed6
+[I][AlphaRuntime] combat command=31 status=awaiting response turns=0 events=4 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=shop
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=31 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=shop combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=15 service_id=-1 price=0 quantity=0 state=1->13 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=12 service_id=1 price=3 quantity=1 state=13->38 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=15 service_id=-1 price=0 quantity=0 state=38->14 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=15 service_id=-1 price=0 quantity=0 state=14->13 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=14 service_id=-1 price=0 quantity=0 state=13->18 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] UI_MODE from=shop to=text
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=text combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=be416ed6
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=19 service_id=23 price=50 quantity=0 state=18->30 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] UI_MODE from=text to=shop
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=text gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=shop combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=15 service_id=-1 price=0 quantity=0 state=30->14 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+GREEN B1 a paid rumour: 50 gold paid, the gossip then "says Sam." is shown [Original] [|"Seek ye a daemon in the desert!"|says Sam.|]
+[I][M51] STAGE t=5000000 id=4 name=display-initialize-entry boot=0 stack_free_min_bytes=8192
+[I][M51] INIT shared-spi t=5000000 already=0
+[I][TDeckBoard] Shared SPI2 initialized: SCK=40 MOSI=41 MISO=38
+[I][TDeckBoard] ST7789 initialized at 320x240 landscape, RGB order, MADCTL=0x60, SPI clock 40000000 Hz
+[I][AlphaRuntime] SETTINGS_LOAD loaded=0 sfx_volume=80 music_volume=80
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=explore combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=full-redraw animated=5 crc=882c78a7
+[I][AlphaRuntime] INPUT_EDGE raw=00,00,00,00,00 prev=00,00,00,00,00 matrix=0,0 physical=matrix-key edge=press mods=S0,A0,H0 printable=65 base=65 symbol=00 ui=explore emitted=character action_char=101 shortcut=none
+[I][AlphaRuntime] DUNGEON_ENTER_REQUEST source=normal dungeon=1 depth=0 entrance=1 x=232 y=135 facing=2
+[I][AlphaRuntime] DUNGEON_ENTER_COMMAND result=success
+[I][AlphaRuntime] combat command=2 status=success turns=0 events=3 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=1 prior_dungeon=0 location=1 floor=0 xy=15,30 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=2 sequence=1
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=3 crc=e8466959
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] UI_MODE from=explore to=target
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=explore gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=target combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=be416ed6
+[I][AlphaRuntime] combat command=31 status=awaiting response turns=0 events=4 time=0 us
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] UI_MODE from=target to=shop
+[I][AlphaRuntime] INPUT_ROUTE action=direction ui=target gameplay_command=31 sequence=2
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=shop combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=15 service_id=-1 price=0 quantity=0 state=1->13 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=12 service_id=1 price=3 quantity=1 state=13->38 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=15 service_id=-1 price=0 quantity=0 state=38->14 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=15 service_id=-1 price=0 quantity=0 state=14->13 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=14 service_id=-1 price=0 quantity=0 state=13->18 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] UI_MODE from=shop to=text
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=text combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=be416ed6
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=text gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=19 service_id=23 price=50 quantity=0 state=18->30 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] UI_MODE from=text to=shop
+[I][AlphaRuntime] INPUT_ROUTE action=confirm ui=text gameplay_command=none
+[I][AlphaRuntime] PRESENTATION_DISPATCH ui=shop combat=0 dungeon=0 source=world
+[I][AlphaRuntime] render 0 us reason=console-cursor animated=4 crc=be416ed6
+[I][AlphaRuntime] SERVICE_ACTION keeper="Sam" shop_type=1 command=16 service_id=-1 price=0 quantity=0 state=30->14 result=3
+[I][AlphaRuntime] debug teleport rebind moved=0 prior_dungeon=0 location=1 floor=0 xy=22,19 dungeon=0
+[I][AlphaRuntime] INPUT_ROUTE action=character ui=shop gameplay_command=none
+[I][AlphaRuntime] render 0 us reason=input-dirty animated=4 crc=be416ed6
+GREEN B2 CONTROL: N at "Fair 'nuff?" pays nothing and shows no gossip [Original] []
+SPP1 runtime: 96/96 checks

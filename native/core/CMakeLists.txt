@@ -2609,6 +2609,12 @@ if(BUILD_TESTING)
   openu5_a4_ui2_runtime(spp1_runtime)
   add_test(NAME spp1_runtime COMMAND spp1_runtime
     "${CMAKE_CURRENT_SOURCE_DIR}/../assets/openu5-alpha1-resources.bin")
+  # SPP2 (docs/SHARED_PRESERVATION_PARITY_SPP2.md): when the dispatcher's turn lands (a command
+  # that ends on a timer, and what the turn brings), paced, through the REAL AlphaRuntime and Board.
+  openu5_a4_ui2_runtime(spp2_runtime)
+  add_test(NAME spp2_runtime COMMAND spp2_runtime
+    "${CMAKE_CURRENT_SOURCE_DIR}/../assets/openu5-alpha1-resources.bin"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../assets/openu5-audio.bin")
   # Alpha 3 A3-05 -- the audio finalization controls through the REAL
   # AlphaRuntime: Alt+Shift+M / Alt+Shift+S mutes by raw keys, the Settings
   # rows while muted, stock vs patched assets, and a kill's single hit burst.

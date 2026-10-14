@@ -626,12 +626,22 @@ void test_a() {
         auto &g = h.rt->game();
         auto &cx = h.rt->command_context_for_test();
         int nx = -1, ny = -1;
+        // SPP2: away from every actor, so the town turn's NPC tail brings no approach. SPP2 opens an
+        // approach the turn brings at once (spp2_runtime N2), and the first cell this scan found, (2,2),
+        // is beside Tika of the Wayfarer Tavern, who comes up to the party on that turn.
+        const auto clear = [&](int x, int y) {
+            for (size_t i = 0; i < cx.actors->count; ++i) {
+                const auto &a = cx.actors->actors[i];
+                if (a.location == g.position.map.location && std::abs(a.x - x) + std::abs(a.y - y) <= 4) return false;
+            }
+            return true;
+        };
         for (int y = 2; y < 30 && nx < 0; ++y)
             for (int x = 2; x < 30 && nx < 0; ++x) {
                 bool ok = is_passable(cx.terrain->effective(cx.world, g.position.map, x, y), TransportMode::Foot).value &&
                           is_passable(cx.terrain->effective(cx.world, g.position.map, x + 1, y), TransportMode::Foot).value &&
                           !cx.shop_services->occupied(cx.shop_services->context, x, y) &&
-                          !cx.shop_services->occupied(cx.shop_services->context, x + 1, y);
+                          !cx.shop_services->occupied(cx.shop_services->context, x + 1, y) && clear(x, y);
                 if (ok) { nx = x; ny = y; }
             }
         g.position.xy = {uint8_t(nx), uint8_t(ny)};

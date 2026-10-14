@@ -1071,6 +1071,7 @@ void AlphaRuntime::dispatch(const openu5::UiIntent&i){
     dirty_=true;
 }
 void AlphaRuntime::command(openu5::Command cmd){
+    ++command_depth_;struct DepthExit{uint8_t &depth;~DepthExit(){--depth;}} depth_exit{command_depth_}; // SPP2
     // R-25 (Batch 19). SJOG cmd_search 0x095c asks for the direction at 0x097e
     // and only THEN calls the picker at 0x09a0, so the command arrives here
     // already aimed and the member is the one thing still missing. Command::
@@ -2245,8 +2246,10 @@ bool AlphaRuntime::handle_input_event(const RawInputEvent&raw){service_combat();
 bool AlphaRuntime::route_input(openu5::UiAction action,DeviceShortcut shortcut,int64_t timestamp_us,
                                const char*source,const char*movement_source){
     // SPP1 A. A command can end on a timer instead of a key (Mix's "Mixing..." hold, a
-    // map reveal): its turn is still owed, so it is charged here, before this input
-    // runs -- the 1988 loop ran it before reading the next key.
+    // map reveal). SPP2: render() charges its turn on the frame the hold ends; this is
+    // the fallback for a hold that ran out (a map reveal is a plain timer) before a
+    // frame saw it -- never later than before this input runs, as the 1988 loop ran
+    // the turn before reading the next key.
     settle_dispatcher_turn();
     arm_dispatcher_turn(action,shortcut);
     const bool routed=route_input_body(action,shortcut,timestamp_us,source,movement_source);
@@ -2291,20 +2294,26 @@ void AlphaRuntime::arm_dispatcher_turn(const openu5::UiAction&a,DeviceShortcut s
     dispatcher_turn_.location=uint8_t(game_.position.map.location);dispatcher_turn_.turns=game_.turns_since_start;
 }
 
-void AlphaRuntime::settle_dispatcher_turn(){
-    if(!dispatcher_turn_.armed)return;
-    if(frontend_.active()){dispatcher_turn_={};return;}
+bool AlphaRuntime::settle_dispatcher_turn(){
+    if(!dispatcher_turn_.armed||command_depth_)return false;
+    if(frontend_.active()){dispatcher_turn_={};return false;}
     const auto m=ui_?ui_->mode():openu5::UiMode::Exploration;
     // A conversation, a shop or a fight runs on its own loop's time. The conversation is
     // read from its session: the device asks "Your interest?" in TextEntry, never in
     // UiMode::Dialogue (found by the SPP1 T-Deck differential, spp1_runtime A11).
     if(context_.combat||m==openu5::UiMode::Dialogue||m==openu5::UiMode::Shop||dialogue_.active)
         dispatcher_turn_.saw_session=true;
-    if(!at_command_prompt())return; // still inside the command
+    if(!at_command_prompt())return false; // still inside the command
     const auto latch=dispatcher_turn_;dispatcher_turn_={};
-    if(latch.saw_session||context_.combat||dungeon_.active!=latch.dungeon||game_.position.map.location!=latch.location)return;
-    if(game_.turns_since_start!=latch.turns)return; // the command charged its own turn
+    if(latch.saw_session||context_.combat||dungeon_.active!=latch.dungeon||game_.position.map.location!=latch.location)return false;
+    if(game_.turns_since_start!=latch.turns)return false; // the command charged its own turn
     openu5::Command turn;turn.kind=openu5::CommandKind::DispatcherTurn;command(turn);
+    // SPP2. What the turn brings follows it in the same pass, as after any routed command
+    // (route_input_body's tail): the town loop's NPC tail runs an adjacent NPC's approach
+    // before the next key (TOWN 0x15bf on), and a fight the turn began has its music.
+    drain_pending_npc_initiation();
+    sync_music();dirty_=true;
+    return true;
 }
 
 bool AlphaRuntime::route_input_body(openu5::UiAction action,DeviceShortcut shortcut,int64_t timestamp_us,
@@ -3178,6 +3187,11 @@ esp_err_t AlphaRuntime::render(Board&board,bool force){
     if(service_dialogue_pacer()){dirty_=true;dirty_reason_="dialogue-pause";}
     if(service_poison_flash()){dirty_=true;dirty_reason_="poison-tick";}
     if(service_hit_cue()){dirty_=true;dirty_reason_="combat-hit-cue";}
+    // SPP2. A command that ended on a timer (Mix's "Mixing..." hold, the map reveal) pays
+    // the dispatcher's turn on the frame it ends: MAINOUT 0x0c0f -> 0x0c39 run the turn
+    // and 0x0d1a goes back to the loop top before 0x0b14 reads a key, so the clock and the
+    // world's moves are on the screen while the next key is chosen.
+    if(settle_dispatcher_turn())dirty_reason_="dispatcher-turn";
     // A4-END1. ENDGAME.OVL owns the screen from game-won on: its throne room is
     // a presentation source below; its full-screen pages (the story, the
     // scroll) are drawn here instead of the game screen, and its fizzle is

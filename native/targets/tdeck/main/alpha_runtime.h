@@ -877,9 +877,13 @@ class AlphaRuntime {
         int64_t turns = 0;
     };
     DispatcherTurnLatch dispatcher_turn_{};
+    // SPP2: command() calls in progress. A latch is never settled inside one (a scene
+    // event's synchronous render() can run there, mid-command).
+    uint8_t command_depth_ = 0;
     bool at_command_prompt() const;
     void arm_dispatcher_turn(const openu5::UiAction &, DeviceShortcut);
-    void settle_dispatcher_turn();
+    /** SPP1 A / SPP2: charges the latched turn if the command is over; true = charged. */
+    bool settle_dispatcher_turn();
     // SPP1 E: the dungeon Look after its "Player: " (member -1 = "None!"; here = the D shortcut).
     void dungeon_look(int16_t member, bool here);
     // A3-01. The one binder of the Developer diagnostics services, shared by

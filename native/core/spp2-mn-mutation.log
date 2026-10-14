@@ -1,0 +1,9 @@
+M1 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED M1 the Mix's world turn is charged when the hold ends, with no further input (MAINOUT 0x0c39 before 0x0b14) (turns +0, clock +0 min) | RED M2 waiting charges nothing more (turns +0, clock +0 min) | RED M3 a key pressed during the hold is swallowed (no Z-stats) and the Mix still costs exactly one turn (turns +0, clock +0 min)
+M2 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED M1 the Mix's world turn is charged when the hold ends, with no further input (MAINOUT 0x0c39 before 0x0b14) (turns +0, clock +0 min) | RED M2 waiting charges nothing more (turns +0, clock +0 min) | RED M3 a key pressed during the hold is swallowed (no Z-stats) and the Mix still costs exactly one turn (turns +0, clock +0 min)
+M3 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED M3 the turn is on the frame the hold ends (turns +0, clock +0 min)
+M4 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED M6 a key that comes before the first frame after the reveal: the Use's turn, then the Pass's (turns +1, clock +2 min)
+N1 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED N2 an R cancelled at Player: charges the town turn, and the NPC's approach opens the conversation before any key (turns +1, clock +1 min)
+N2 KILLED native/targets/tdeck/main/alpha_runtime.cpp  <- RED N3 an R cancelled beside a troll: the turn starts the fight, and its music plays without another key (hut -> overworld)
+N3 EQUIVALENT native/targets/tdeck/main/alpha_runtime.cpp  (defensive: the only render() nested in command() is the unpaced Camp scene (route_event -> apply_camp_scene_event), and Camp (H) never arms the latch, so no test can reach it)
+restored tree: GREEN
+KILLED 6 SURVIVED 0 EQUIVALENT 1 INVALID 0 STALE 0
