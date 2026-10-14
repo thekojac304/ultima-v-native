@@ -1,0 +1,25 @@
+{
+  realRecords: 135,
+  realLabels: 313,
+  isolatedLabelInputPairs: 913,
+  realBranchLinesEntered: 2023,
+  naturalBranchLinesEntered: 1623,
+  sequences: 80264,
+  snapshots: 237746,
+  flowCases: 548,
+  flowSnapshots: 7124,
+  effectCases: 1260,
+  alarmCases: 4096,
+  totalSnapshots: 250226,
+  outputs: 516191,
+  effects: {
+    karma: 621,
+    end: 14504,
+    joinParty: 129,
+    callGuards: 226,
+    gold: 51,
+    giveItem: 735
+  },
+  assetSkips: 0,
+  bytes: 4684102
+}

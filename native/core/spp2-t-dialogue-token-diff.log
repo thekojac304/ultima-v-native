@@ -1,0 +1,13 @@
+SPP2 D-111: build-dialogue/dialogue.bin, before (the SPP1 corpus) vs after (generate-dialogue-fixtures.ts
+answers the second Talk with Game.talkRefusal, as main.ts now does). The file is a stream of uint32 LE
+tokens (strings: length + UTF-16), so the diff is read as 4-byte tokens.
+bytes before 4684102 after 4684102
+differing tokens: 7
+ token 1125904 (byte 4503616): 152814149 -> 2308223891
+ token 1125965 (byte 4503860): 3680848765 -> 1757886535
+ token 1126026 (byte 4504104): 3497416925 -> 797172095
+ token 1157868 (byte 4631472): 382923079 -> 3316786993
+ token 1157929 (byte 4631716): 3192330310 -> 2898224328
+ token 1157990 (byte 4631960): 353383865 -> 3095478155
+ token 1158051 (byte 4632204): 1025003831 -> 3171642457
+tail bytes equal: True

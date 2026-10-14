@@ -116,7 +116,7 @@ for(let si=0;si<scripts.length;si++)for(let v=0;v<4;v++){
  w.n(actions.length);
  for(const [action,text] of actions){snap=new Writer();w.n(action==='start'?0:action==='input'?1:2);w.s(text!);
   if(action==='start'){
-   if(!console.active){const possessed=game.tryTalkPossessed('east');if(possessed){for(const e of possessed){snap.n(0);snap.s(e.text);snap.n(0);}}else{const target=game.talkTarget('east');if(target)console.start(target);else{snap.n(0);snap.s('Funny, no response!');snap.n(0);}}}
+   if(!console.active){const possessed=game.tryTalkPossessed('east');if(possessed){for(const e of possessed){snap.n(0);snap.s(e.text);snap.n(0);}}else{const target=game.talkTarget('east');if(target)console.start(target);else{snap.n(0);snap.s(game.talkRefusal('east'));snap.n(0);}}}
   }else if(action==='input')(console as any).input(text);else if(console.active)(console as any).end();
   snap.n(99);snap.n(+console.active);stateWrite(snap,g);actorsWrite(snap,g,manager.npcs.get(1));snap.n(rng.getSeed());w.n(hash(snap.bytes()));flowSnapshots++;
  }
