@@ -910,6 +910,16 @@ bool Game::run_autotest() {
             if (!autotest_expect(step)) ++autotest_failures_;
         } else if (step.verb == "screenshot") {
             presenter_.save_screenshot(storage::utf8_to_wide(step.args[0]));
+        } else if (step.verb == "window_screenshot") {
+            if (!presenter_.save_window_screenshot(storage::utf8_to_wide(step.args[0]))) {
+                std::fprintf(stderr, "AUTOTEST line %d: window_screenshot failed: %s\n", step.line, SDL_GetError());
+                ++autotest_failures_;
+            }
+        } else if (step.verb == "window_size") {
+            // The resize events arrive on the next passes, as a real drag's do.
+            presenter_.resize_client(std::atoi(step.args[0].c_str()), std::atoi(step.args[1].c_str()));
+            for (int i = 0; i < 3 && pass(false); ++i) {
+            }
         } else if (step.verb == "dump") {
             autotest_dump(step.line);
         } else if (step.verb == "teleport") {

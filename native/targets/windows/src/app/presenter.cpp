@@ -15,6 +15,41 @@ constexpr int kW = panel::kWidth, kH = panel::kHeight;
 SDL_RendererLogicalPresentation presentation_mode(Scaling scaling) {
     return scaling == Scaling::Fit ? SDL_LOGICAL_PRESENTATION_LETTERBOX : SDL_LOGICAL_PRESENTATION_INTEGER_SCALE;
 }
+
+/** A 24-bit BMP (bottom-up rows, BGR, rows padded to 4 bytes) of w x h 0xRRGGBB pixels. */
+bool write_bmp(const std::wstring &path, int w, int h, const uint32_t *rgb) {
+    const int row_bytes = (w * 3 + 3) & ~3;
+    const uint32_t image = uint32_t(row_bytes) * uint32_t(h);
+    uint8_t header[54]{};
+    auto put32 = [&](int at, uint32_t v) {
+        for (int i = 0; i < 4; ++i) header[at + i] = uint8_t(v >> (8 * i));
+    };
+    header[0] = 'B';
+    header[1] = 'M';
+    put32(2, 54 + image);
+    put32(10, 54);
+    put32(14, 40);
+    put32(18, uint32_t(w));
+    put32(22, uint32_t(h));
+    header[26] = 1;
+    header[28] = 24;
+    put32(34, image);
+    std::vector<uint8_t> pixels(image);
+    for (int y = 0; y < h; ++y) {
+        uint8_t *row = pixels.data() + size_t(h - 1 - y) * size_t(row_bytes);
+        for (int x = 0; x < w; ++x) {
+            const uint32_t p = rgb[size_t(y) * size_t(w) + size_t(x)];
+            row[x * 3] = uint8_t(p);
+            row[x * 3 + 1] = uint8_t(p >> 8);
+            row[x * 3 + 2] = uint8_t(p >> 16);
+        }
+    }
+    std::FILE *f = _wfopen(path.c_str(), L"wb");
+    if (!f) return false;
+    const bool ok = std::fwrite(header, 1, sizeof(header), f) == sizeof(header) &&
+                    std::fwrite(pixels.data(), 1, pixels.size(), f) == pixels.size();
+    return std::fclose(f) == 0 && ok;
+}
 } // namespace
 
 Presenter::~Presenter() { destroy(); }
@@ -66,25 +101,71 @@ void Presenter::show() {
     stale_ = true;
 }
 
-void Presenter::present(bool force) {
-    if (!renderer_ || !texture_) return;
-    const uint64_t generation = panel::generation();
-    const bool changed = generation != uploaded_generation_;
-    if (!changed && !force && !stale_) return;
+void Presenter::upload() {
     // The T-Deck's Brightness (the panel's backlight duty) is not applied: a
     // monitor has its own, the desktop Settings page has no Brightness row,
     // and a card copied from a dimmed T-Deck must not darken the window. The
     // picture is drawn at full intensity, exactly as F12 saves it.
-    if (changed) {
-        SDL_UpdateTexture(texture_, nullptr, panel::pixels(), kW * int(sizeof(uint16_t)));
-        uploaded_generation_ = generation;
-    }
+    const uint64_t generation = panel::generation();
+    if (generation == uploaded_generation_) return;
+    SDL_UpdateTexture(texture_, nullptr, panel::pixels(), kW * int(sizeof(uint16_t)));
+    uploaded_generation_ = generation;
+}
+
+void Presenter::draw() {
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);
     SDL_RenderTexture(renderer_, texture_, nullptr, nullptr);
+}
+
+void Presenter::present(bool force) {
+    if (!renderer_ || !texture_) return;
+    const bool changed = panel::generation() != uploaded_generation_;
+    if (!changed && !force && !stale_) return;
+    upload();
+    draw();
     SDL_RenderPresent(renderer_);
     stale_ = false;
     ++frames_;
+}
+
+bool Presenter::read_window(std::vector<uint32_t> &pixels, int &width, int &height) {
+    if (!renderer_ || !texture_) return false;
+    upload();
+    draw();
+    // The logical presentation limits a read to the picture: read the whole output.
+    SDL_SetRenderLogicalPresentation(renderer_, 0, 0, SDL_LOGICAL_PRESENTATION_DISABLED);
+    SDL_Surface *shot = SDL_RenderReadPixels(renderer_, nullptr);
+    SDL_SetRenderLogicalPresentation(renderer_, kW, kH, presentation_mode(scaling_));
+    SDL_Surface *rgb = shot ? SDL_ConvertSurface(shot, SDL_PIXELFORMAT_XRGB8888) : nullptr;
+    if (shot) SDL_DestroySurface(shot);
+    const bool ok = rgb != nullptr;
+    if (rgb) {
+        width = rgb->w;
+        height = rgb->h;
+        pixels.resize(size_t(width) * size_t(height));
+        for (int y = 0; y < height; ++y) {
+            const auto *row = reinterpret_cast<const uint32_t *>(static_cast<const uint8_t *>(rgb->pixels) + size_t(y) * size_t(rgb->pitch));
+            for (int x = 0; x < width; ++x) pixels[size_t(y) * size_t(width) + size_t(x)] = row[x] & 0xFFFFFF;
+        }
+        SDL_DestroySurface(rgb);
+    }
+    SDL_RenderPresent(renderer_);
+    stale_ = false;
+    ++frames_;
+    return ok;
+}
+
+bool Presenter::save_window_screenshot(const std::wstring &path) {
+    std::vector<uint32_t> pixels;
+    int w = 0, h = 0;
+    return read_window(pixels, w, h) && write_bmp(path, w, h, pixels.data());
+}
+
+void Presenter::resize_client(int w, int h) {
+    if (!window_) return;
+    SDL_SetWindowSize(window_, w, h);
+    stale_ = true;
 }
 
 void Presenter::set_fullscreen(bool on) {
@@ -124,41 +205,15 @@ void Presenter::set_vsync(bool on) {
 }
 
 bool Presenter::save_screenshot(const std::wstring &path) const {
-    // A minimal 24-bit BMP of the 320x240 picture (bottom-up rows, BGR).
+    // The 320x240 panel itself, never the window.
     const uint16_t *src = panel::pixels();
-    const int row_bytes = kW * 3; // 960, already a multiple of 4
-    const uint32_t image = uint32_t(row_bytes * kH);
-    uint8_t header[54]{};
-    auto put32 = [&](int at, uint32_t v) {
-        for (int i = 0; i < 4; ++i) header[at + i] = uint8_t(v >> (8 * i));
-    };
-    header[0] = 'B';
-    header[1] = 'M';
-    put32(2, 54 + image);
-    put32(10, 54);
-    put32(14, 40);
-    put32(18, uint32_t(kW));
-    put32(22, uint32_t(kH));
-    header[26] = 1;
-    header[28] = 24;
-    put32(34, image);
-    std::vector<uint8_t> pixels(image);
-    for (int y = 0; y < kH; ++y) {
-        uint8_t *row = pixels.data() + size_t(kH - 1 - y) * size_t(row_bytes);
-        for (int x = 0; x < kW; ++x) {
-            const uint16_t p = src[y * kW + x];
-            const uint8_t r = uint8_t(((p >> 11) & 31) * 255 / 31), g = uint8_t(((p >> 5) & 63) * 255 / 63),
-                          b = uint8_t((p & 31) * 255 / 31);
-            row[x * 3] = b;
-            row[x * 3 + 1] = g;
-            row[x * 3 + 2] = r;
-        }
+    std::vector<uint32_t> rgb(size_t(kW) * size_t(kH));
+    for (size_t i = 0; i < rgb.size(); ++i) {
+        const uint16_t p = src[i];
+        const uint32_t r = ((p >> 11) & 31) * 255 / 31, g = ((p >> 5) & 63) * 255 / 63, b = (p & 31) * 255 / 31;
+        rgb[i] = (r << 16) | (g << 8) | b;
     }
-    std::FILE *f = _wfopen(path.c_str(), L"wb");
-    if (!f) return false;
-    const bool ok = std::fwrite(header, 1, sizeof(header), f) == sizeof(header) &&
-                    std::fwrite(pixels.data(), 1, pixels.size(), f) == pixels.size();
-    return std::fclose(f) == 0 && ok;
+    return write_bmp(path, kW, kH, rgb.data());
 }
 
 } // namespace uv

@@ -34,7 +34,8 @@ endif()
 if(DEVELOPER)
   list(APPEND _args --developer)
 endif()
-execute_process(COMMAND "${EXE}" ${_args}
+# Run inside WORK, so a script's relative paths (window_screenshot) land there.
+execute_process(COMMAND "${EXE}" ${_args} WORKING_DIRECTORY "${WORK}"
   RESULT_VARIABLE _rc OUTPUT_VARIABLE _out ERROR_VARIABLE _err TIMEOUT 240)
 message("${_err}${_out}")
 if(NOT _rc EQUAL 0)

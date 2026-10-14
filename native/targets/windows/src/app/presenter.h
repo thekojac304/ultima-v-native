@@ -10,6 +10,7 @@
 // ignored: the picture is always drawn at full intensity.
 #include <cstdint>
 #include <string>
+#include <vector>
 
 #include "app/desktop_settings.h"
 
@@ -47,11 +48,24 @@ class Presenter {
     /** Writes the current panel picture as a 24-bit BMP (the user's own screenshot). */
     bool save_screenshot(const std::wstring &path) const;
 
+    // --autotest: the window itself, as the player sees it (F12 stays the panel).
+    /** Draws the current frame, reads the whole output back as 0xRRGGBB pixels, then presents it. */
+    bool read_window(std::vector<uint32_t> &pixels, int &width, int &height);
+    /** read_window() as a 24-bit BMP. */
+    bool save_window_screenshot(const std::wstring &path);
+    /** Sets the window's client area to w x h, as a drag, a snap or a maximise does. */
+    void resize_client(int w, int h);
+
     SDL_Window *window() const { return window_; }
     const std::string &error() const { return error_; }
     uint64_t frames_presented() const { return frames_; }
 
   private:
+    /** Uploads the panel when it changed since the last upload. */
+    void upload();
+    /** Clears and draws the frame into the back buffer (no present). */
+    void draw();
+
     SDL_Window *window_ = nullptr;
     SDL_Renderer *renderer_ = nullptr;
     SDL_Texture *texture_ = nullptr;

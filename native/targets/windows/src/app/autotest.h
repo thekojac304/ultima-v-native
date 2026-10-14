@@ -29,6 +29,10 @@
 //                           panel_changed 0|1 (since the previous expect),
 //                           audio_frames_min N
 //   screenshot PATH       write the panel as a BMP
+//   window_screenshot PATH  write the whole window as presented (read back
+//                         from the renderer) as a BMP
+//   window_size W H       set the window's client area to W x H, as a drag,
+//                         a snap or a maximise does
 //   log TEXT              write TEXT to the log
 //   dump                  print the title/menu page or the console's last lines
 //   teleport KIND [LOC | X Y]  through the Developer menu's Teleport page (needs
@@ -37,6 +41,8 @@
 //   fight DEF [N]         a surface fight: open grass, N enemies of definition
 //                         DEF beside the party, Pass until the arena opens
 //   quit                  stop (the script's end stops too)
+// The scenario runner starts the game in its scratch data folder, so a
+// relative PATH lands there.
 #include <cstdint>
 #include <string>
 #include <vector>
