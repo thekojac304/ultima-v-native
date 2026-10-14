@@ -1,0 +1,15 @@
+== spp1_original against the baseline exe: exit 1
+   AUTOTEST line 21: expect frontend = 0 (actual 0) PASS
+   AUTOTEST line 24: expect console = 1.16 (actual Ultima V Native for | Windows 0.5.0-dev | Esc back  F10 menu | Alt+Enter fullscreen |  | ) FAIL
+   AUTOTEST line 28: expect console = | 75 | (actual Ultima V Native for | Windows 0.5.0-dev | Esc back  F10 menu | Alt+Enter fullscreen |  | ) FAIL
+   AUTOTEST line 29: expect no_console = What? (actual Ultima V Native for | Windows 0.5.0-dev | Esc back  F10 menu | Alt+Enter fullscreen |  | ) PASS
+== spp1_original_arena against the baseline exe: exit 1
+   AUTOTEST line 21: expect frontend = 0 (actual 0) PASS
+   AUTOTEST line 23: expect combat = 1 (actual 1) PASS
+   AUTOTEST line 25: expect remember_combat_actions = x (actual 1) PASS
+   AUTOTEST line 28: expect mode = 13 (actual 2) FAIL
+== spp1_enhanced against the baseline exe: exit 1
+   AUTOTEST line 21: expect frontend = 0 (actual 0) PASS
+   AUTOTEST line 24: expect transcript = 1.16 (actual Ultima V Native for Windows 0.5.0-dev | Esc back  F10 menu  Alt+Enter fullscreen | ) FAIL
+   AUTOTEST line 26: expect dungeon = 1 (actual 1) PASS
+   AUTOTEST line 31: expect transcript = Look... (actual Ultima V Native for Windows 0.5.0-dev | Esc back  F10 menu  Alt+Enter fullscreen | Deceit | Ignite torch! | Drink | No fountain here. | ) FAIL

@@ -72,6 +72,11 @@ if(UV_ENABLE_DEVELOPER_TOOLS)
   uv_scenario(surface_combat MODE original DEVELOPER)
   uv_scenario(typed_cast_combat MODE original DEVELOPER)
   uv_scenario(town_talk MODE original DEVELOPER)
+  # SPP1 (docs/SHARED_PRESERVATION_PARITY_SPP1.md): Ctrl+K / Ctrl+V, the dungeon Look and
+  # D, and the arena's P / Y, in both interface modes.
+  uv_scenario(spp1_original MODE original DEVELOPER)
+  uv_scenario(spp1_original_arena MODE original DEVELOPER)
+  uv_scenario(spp1_enhanced MODE enhanced DEVELOPER)
 else()
   message(STATUS "Scenarios dungeon_walk, surface_combat, typed_cast_combat, town_talk skipped: UV_ENABLE_DEVELOPER_TOOLS is OFF")
 endif()

@@ -551,7 +551,10 @@ void test_a() {
     // dispatcher then returns 2, whose handling by the town loop is UNRESOLVED (spp1-findings/A-turn-costs.md):
     // SPP1 leaves the conversation's cost as it was (none). The probe found the device's conversation runs in
     // TextEntry (request Dialogue), never UiMode::Dialogue, so the latch has to read the session itself.
-    // A11b CONTROL, from the binary: Talk at no one is TALK -> 0 -> the dispatcher's 1 -> one town turn.
+    // A11b CONTROL, from the binary: Talk at an empty town cell is TALK 0x048a (no NPC) -> 0x0491 prints
+    // DS 0x91d6 "Nobody's here!" -> 0x0429 returns 0 -> the dispatcher's 1 -> one town turn. Native still
+    // prints the overworld's "Funny, no response!" there (fidelity matrix §7 item 5, ledger D-111), so the
+    // text is NOT pinned here: only that no conversation opened and the turn was spent.
     for (int dos = 0; dos < 2; ++dos) {
         std::unique_ptr<DosProfile> profile;
         if (dos) profile = std::make_unique<DosProfile>();
@@ -592,8 +595,10 @@ void test_a() {
             }
         g.position.xy = {uint8_t(nx), uint8_t(ny)};
         auto c = cost(h, [&] { act(h, ch('t')); act(h, dir(Direction::East)); });
-        check(nx >= 0 && transcript_has(h, "Funny, no response!") && c.turns == 1 && c.minutes == 1,
-              "A11b CONTROL: Talk at no one (\"Funny, no response!\") costs one town turn" + tag + show(c));
+        const auto *ds = h.rt->command_context_for_test().dialogue_services;
+        check(nx >= 0 && transcript_has(h, "Talk-") && !(ds && ds->session.active) && mode(h) == UiMode::Exploration &&
+                  c.turns == 1 && c.minutes == 1,
+              "A11b CONTROL: Talk at an empty town cell opens nothing and costs one town turn" + tag + show(c));
     }
 }
 // --- Candidate C: the arena's J / P / Y through the real runtime ----------------------------

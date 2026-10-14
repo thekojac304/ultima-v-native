@@ -509,7 +509,10 @@ goes RED).
   turn for "Open it first!", "Can't reach plate!" and "Nothing to get!" (`quest_search.cpp:33-58`). TS
   `look()` charges nothing either. Same class as this candidate, larger fixture footprint
   (`check-gameplay.ts:108` alone is 1280 Look rows).
-* Town Talk with no NPC ("Funny, no response!") is TALK → 0 → dispatcher 1 → a turn. Native returns
+* Town Talk with no NPC is TALK → 0 → dispatcher 1 → a turn. *(Correction, SPP1 2026-10-14: the town text is
+  not "Funny, no response!" but TALK `0x048a` (no NPC) → `0x0491` DS 0x91d6 `"\nNobody's here!\n"` → `0x0429`
+  ax=0. "Funny, no response!" is the kernel arm's overworld/dungeon string, which native also prints in a town:
+  ledger D-111.)* Native returns
   `Rejected` with no turn (`dialogue_orchestration.cpp:136,145`).
 * Overworld K without a grapple, or not on foot ("With what?", "On foot!") → a turn in the binary. Native and
   TS: none.

@@ -1,0 +1,48 @@
+# SPP1 (docs/SHARED_PRESERVATION_PARITY_SPP1.md) in Original mode, through the real executable.
+# G: Ctrl+V prints "1.16" and Ctrl+K the karma (K:0x2712; MAINOUT table 0x0bbe), not "What?".
+# E: in a dungeon L is "Look..." with the 1988 "Player: " pick (DNGLOOK 0x0000 -> K:0x4988),
+#    then the Search's Dir-, where Space prints "Dir-Pass"; D is the kernel's "D-What?" (K:0x324e).
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Purist
+key Return
+text M
+text A
+text A
+text A
+text A
+text A
+text A
+text A
+wait 2500
+expect frontend 0
+key V ctrl
+wait 300
+expect console 1.16
+key K ctrl
+wait 300
+# 75: the karma this creation script's answers give (a bare decimal on its own row)
+expect console | 75 |
+expect no_console What?
+teleport dungeon 33
+expect dungeon 1
+text i
+wait 300
+text l
+frames 3
+expect console Look...
+expect mode 9
+key Return
+frames 3
+expect mode 13
+key Space
+wait 600
+expect console Dir-Pass
+expect mode 1
+text d
+wait 300
+expect console D-What?
+expect mode 1

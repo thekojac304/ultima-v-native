@@ -1,0 +1,18 @@
+functions: base 3020, SPP1 3030; changed frame 6, new 10, gone 0
+   -592    656 ->    64 static   alpha_runtime.cpp: bool tdeck::AlphaRuntime::route_input(openu5::UiAction, tdeck::DeviceShortcut, int64_t, const char*, const char*)
+    +80    400 ->   480 static   dungeon.cpp: void openu5::dungeon_action(GameState&, TurnState&, DungeonState&, DungeonAction, DungeonSink, int, int)
+    +64    272 ->   336 static   shop_orchestration.cpp: void openu5::{anonymous}::ShopRun::confirm()
+    +48    272 ->   320 static   combat.cpp: openu5::CombatResult openu5::combat_action(CombatContext&, CombatAction, int32_t, int32_t)
+    +16    128 ->   144 static   alpha_runtime.cpp: void tdeck::AlphaRuntime::cast_selected_spell(int16_t)
+    +16    512 ->   528 static   dungeon_orchestration.cpp: openu5::ActionResult openu5::run_dungeon_command(CommandContext&, Command)
+  new      656 static   alpha_runtime.cpp: bool tdeck::AlphaRuntime::route_input_body(openu5::UiAction, tdeck::DeviceShortcut, int64_t, const char*, const char*)
+  new      144 static   alpha_runtime.cpp: void tdeck::AlphaRuntime::settle_dispatcher_turn()
+  new      128 static   alpha_runtime.cpp: void tdeck::AlphaRuntime::dungeon_look(int16_t, bool)
+  new      128 static   ui_session.cpp: void openu5::UiSession::control_key(char16_t)
+  new       48 static   magic.cpp: openu5::CastGate openu5::cast_gate(const GameState&, const CharacterState&, SpellId, CastContext)
+  new       32 static   alpha_runtime.cpp: bool tdeck::AlphaRuntime::at_command_prompt() const
+  new       32 static   alpha_runtime.cpp: void tdeck::AlphaRuntime::arm_dispatcher_turn(const openu5::UiAction&, tdeck::DeviceShortcut)
+  new       32 static   combat.cpp: openu5::combat_action(CombatContext&, CombatAction, int32_t, int32_t)::<lambda()>
+  new       32 static   combat.cpp: openu5::combat_action(CombatContext&, CombatAction, int32_t, int32_t)::<lambda(int, int)>
+  new       32 static   magic.cpp: bool openu5::spell_targets_member(SpellId)
+largest frame: base 5920, SPP1 5920

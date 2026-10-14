@@ -1,0 +1,42 @@
+# SPP1 C (docs/SHARED_PRESERVATION_PARITY_SPP1.md) in Original mode, through the real executable:
+# the arena's P and Y are COMBAT.OVL's (0x0994 -> CMDS 0x161a, 0x09c0 -> CMDS 0x1418), not "What?".
+# P opens "Push-" and the getdir's Space passes ("Push-Pass"); Y asks "Yell what?" and an empty
+# answer is "Nothing". Each ends the actor's turn.
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Mage
+key Return
+text F
+text B
+text B
+text B
+text B
+text B
+text B
+text B
+wait 2500
+expect frontend 0
+fight 32 2
+expect combat 1
+wait 1500
+expect remember_combat_actions x
+text p
+frames 2
+expect mode 13
+expect console Push-
+key Space
+wait 600
+expect console Push-Pass
+expect combat_actions_advanced 1
+wait 2500
+expect remember_combat_actions x
+text y
+frames 3
+expect console Yell what?
+key Return
+wait 600
+expect console Nothing
+expect combat_actions_advanced 1

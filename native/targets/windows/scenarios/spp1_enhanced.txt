@@ -1,0 +1,45 @@
+# SPP1 (docs/SHARED_PRESERVATION_PARITY_SPP1.md) in Enhanced mode, through the real executable.
+# G: Ctrl+V prints "1.16" (the same shared core as Original).
+# E: the dungeon's D is kept as the Look aimed Here (ledger E-3): "Look...", the member pick,
+#    then "You see:" for the party's own cell; L is the Look itself ("Look...", the pick, Dir-).
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Modern
+key Return
+text M
+text A
+text A
+text A
+text A
+text A
+text A
+text A
+wait 2500
+expect frontend 0
+key V ctrl
+wait 300
+expect transcript 1.16
+teleport dungeon 33
+expect dungeon 1
+text i
+wait 300
+text d
+frames 3
+expect transcript Look...
+expect mode 9
+key Return
+wait 600
+expect transcript You see:
+expect mode 1
+text l
+frames 3
+expect mode 9
+key Return
+frames 3
+expect mode 13
+key Escape
+wait 600
+expect mode 1

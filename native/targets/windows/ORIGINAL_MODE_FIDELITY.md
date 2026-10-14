@@ -90,7 +90,7 @@ changed in this batch); **?** = evidence insufficient.
 |---|---|
 | 1988 | `On who: ` (always asks, ESC → `None!`, spell already spent); `Direction-` + getdir (CAST2 0x0306; Space = Pass); `To phase: ` one key echoed (any non-1–8 key fails). |
 | Windows Original (now) | `On who: Shamino` / `On who: None!`; `Direction-` row with the word appended, Space = `Direction-Pass`; `To phase: 3`, ESC fails the spell. |
-| Status | **DOS** for prompts/keys. **Δ** native refunds the spell when `On who:` is cancelled (D-101, a core rule shared with the T-Deck). |
+| Status | **DOS** for prompts/keys. **Δ** native refunds the spell when `On who:` is cancelled (D-101, a core rule shared with the T-Deck). **SPP1 F (2026-10-14):** the refund is gone on every platform. The charge and MP stay spent, the gates come before the prompt, and the `Player:` caster pays. The ceremony for a cancelled world heal remains (D-101). |
 
 ### 3.5 Mixing
 
@@ -145,7 +145,7 @@ changed in this batch); **?** = evidence insufficient.
 | 1988 | `Talk-` + getdir; `Your interest?\n:` and `You respond-\n:` typed in capitals (cap 15); empty → BYE; **no cancel key** (ESC erases the word); `Nobody's here!` in a town. |
 | Windows Original (now) | `Your interest?` / `:JOB` on the console, capitals, ESC erases, conversations have no cancel key. |
 | Enhanced | the bar `Your interest? >job`; ESC/Back end the conversation. |
-| Status | **DOS**; **Δ** the core answers an empty town cell with `Funny, no response!` (the overworld string). |
+| Status | **DOS**; **Δ** the core answers an empty town cell with `Funny, no response!` (the overworld string). **SPP1:** the binary's text is TALK 0x0491's `Nobody's here!` (DS 0x91d6); still open as ledger D-111. Its turn is now charged (TALK → 0 → 1). A conversation keeps its old cost (none; D-107). |
 
 ### 3.11 Shops and services
 
@@ -181,7 +181,7 @@ changed in this batch); **?** = evidence insufficient.
 | Windows Original (now) | all of those except J/P/Y (still `What?`, §7); every arena command ends the actor's turn as COMBAT.OVL does, cancels included (a cancelled spell aim, ESC at the Use list or at a heal spell's `On who:`, an empty Use or Ready); RETURN or `A` with the crosshair on the actor's own cell is ignored (melee and spells). ESC = Escape was already the core's DOS behaviour. |
 | Enhanced | RETURN = Pass, Backspace = flee, aim ESC free, `Attack` echo, `What?` for the refused letters. |
 | Tests | `scenario_original_arena`, `scenario_typed_cast_combat`, `scenario_surface_combat`. |
-| Status | **DOS** except **Δ** J/P/Y in the arena (core commands missing). |
+| Status | **DOS** except **Δ** J/P/Y in the arena (core commands missing). **SPP1 C (2026-10-14):** J/P/Y are COMBAT.OVL's, in the shared core, on every platform. Original: `Jimmy-` / `Push-` with Space = Pass, and `Yell what?`. The scenario is `spp1_original_arena`. |
 
 ### 3.15 Save / quit
 
@@ -219,6 +219,18 @@ handheld UI contract, Original now ends the actor's turn exactly as COMBAT.OVL
 does, through the core's existing actions (`CombatAttackCancel`,
 `CombatYield`).
 
+**SPP1 update (2026-10-14).** The shared parity batch this section asked for
+is SPP1 A ([`docs/SHARED_PRESERVATION_PARITY_SPP1.md`](../../../docs/SHARED_PRESERVATION_PARITY_SPP1.md) §3.3). Native now charges the dispatcher's turn for R, Z, N, U, C, M and
+the getdir commands on every path. That covers cancels, refusals and a getdir Pass, on
+the T-Deck and in both Windows modes, through one latch in
+`AlphaRuntime::route_input` and the core's `CommandKind::DispatcherTurn`.
+
+Still open (ledger D-107):
+- the town conversation (TALK's nonzero return), which keeps its old cost (none);
+- H;
+- the B / E / Y overlay returns;
+- town and dungeon K.
+
 ## 6. Presentation approximations
 
 (Recorded adaptations of the 1988 screen to the 320 × 240 layout the Windows
@@ -241,25 +253,31 @@ build shares with the T-Deck.)
 
 ## 7. Remaining Original-mode divergences (recorded)
 
-1. World turn costs (§5) — shared core.
-2. Shop offers as a right-panel list instead of console lines (the buy
+1. World turn costs (§5) — shared core. **SPP1 A: fixed** (D-107 holds the remainder).
+2. *(Still open after SPP1: ledger D-105 P1. SPP1 B fixed only the paid
+   rumour's missing text, P2, on every platform.)* Shop offers as a right-panel list instead of console lines (the buy
    lists, pitches and prices are a new presenter for the whole shop flow).
-3. Arena J/P/Y missing; line spells use a reticle instead of a getdir; charm
+3. *(SPP1 C: J/P/Y fixed. SPP1 D: in Original, the line spells read `Direction-`
+   and charm / clone print `Creature: `. The per-turn actor banner is still
+   missing.)* Arena J/P/Y missing; line spells use a reticle instead of a getdir; charm
    spells print `Aim!` instead of `Creature:`; no per-turn actor banner line —
    core.
-4. Dungeon Look (DNGLOOK) missing, so the dungeon `D` (drink) shortcut stays;
+4. *(SPP1 E: the dungeon Look is ported. Original's `D` is `D-What?`; the
+   T-Deck / Enhanced `D` is the Look aimed Here, ledger E-3. The dungeon Get /
+   Open / Jimmy / Search member pick is still missing.)* Dungeon Look (DNGLOOK) missing, so the dungeon `D` (drink) shortcut stays;
    dungeon Get/Open/Jimmy/Search take no member pick (0x4988) — core.
-5. `Funny, no response!` for an empty town cell (core string).
-6. Spell target prompts (`Direction-`, `Aim!`, `To phase:`) open before the
+5. `Funny, no response!` for an empty town cell (core string). *(SPP1: the
+   binary prints `Nobody's here!`, TALK 0x0491 / DS 0x91d6; ledger D-111. The turn is now charged.)*
+6. *(SPP1 F: fixed. A cast the gates refuse opens no target prompt.)* Spell target prompts (`Direction-`, `Aim!`, `To phase:`) open before the
    location/MP/level gates refuse a cast (the gates live inside the core's
    cast; a pre-existing order shared with the T-Deck, plan §8).
-7. Native refunds a heal spell when `On who:` is cancelled (D-101) — core.
-8. Ctrl-K (karma), Ctrl-V (version), Ctrl-B (buffer) not implemented.
+7. Native refunds a heal spell when `On who:` is cancelled (D-101) — core. **SPP1 F: fixed** (the ceremony residual stays in D-101).
+8. Ctrl-K (karma), Ctrl-V (version), Ctrl-B (buffer) not implemented. **SPP1 G:** Ctrl-K and Ctrl-V work. Ctrl-B is deliberately unmapped (a BIOS type-ahead switch; ledger D-108).
 9. Arena Use and the non-potion items print their name on the row after
    `Item:`; the arena's `None!` after a typed spell is its own row.
 10. 22-column console, the 13-column rune wrap, "Select:" placement, the
     Mix legend's arrows spelled `Arrows` (§6).
-11. Rel Hur asks no `Direction-` (the core's target model) — core.
+11. Rel Hur asks no `Direction-` (the core's target model) — core. *(Still open after SPP1: ledger D-106, reference first.)*
 
 ## 8. T-Deck preservation audit
 
