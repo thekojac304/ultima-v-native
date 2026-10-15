@@ -98,6 +98,12 @@ if(BUILD_TESTING)
   add_executable(look_sign_tests tests/look_sign_test.cpp)
   target_link_libraries(look_sign_tests PRIVATE openu5_core)
   add_test(NAME look_sign COMMAND look_sign_tests)
+  # LOOK-POLISH1 (D-117): Look at a sign's post chases to the sign (LOOKOBJ
+  # 0x0510), checked on the 1988 town maps and LOOK2.DAT (git-ignored, as IBM.CH).
+  add_executable(look_post_tests tests/look_post_test.cpp)
+  target_link_libraries(look_post_tests PRIVATE openu5_core)
+  add_test(NAME look_post COMMAND look_post_tests
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../original/u5/ultima5")
   add_executable(gameplay_driver tests/gameplay_driver.cpp)
   target_link_libraries(gameplay_driver PRIVATE openu5_core)
   add_executable(movement_flow_parity_tests tests/movement_flow_parity_test.cpp)
@@ -3294,5 +3300,5 @@ if(BUILD_TESTING)
     set(OPENU5_CTEST_CONFIG_ARGS)
   endif()
   add_custom_target(host-test COMMAND "${CMAKE_CTEST_COMMAND}" ${OPENU5_CTEST_CONFIG_ARGS} --output-on-failure
-  DEPENDS batch17_theft_watchdog_tests batch19_command_char_tests batch19_command_char_regression frontend_tests ui_session_tests display_names_tests quest_search_tests debug_labels_tests ${UI_DEBUG_TEST_TARGET} debug_map_picker_tests debug_developer_tests gameplay_integration_tests look_sign_tests gameplay_driver movement_flow_parity_tests quest_driver shop_parity_tests shop_flow_tests shop_dos_transcript_tests shop_adapter_tests persistence_driver dialogue_adapter_tests dialogue_parity_tests transport_flow_parity_tests world_flow_adapter_tests dungeon_flow_parity_tests world_flow_parity_tests dungeon_parity_tests advanced_combat_parity_tests magic_parity_tests combat_parity_tests core_parity_tests turn_parity_tests travel_parity_tests command_parity_tests item_parity_tests movement_regression presentation_regression dungeon_view_regression dungeon_art_regression gem_view_regression dungeon_input_regression combat_escape_regression combat_loot_open_regression batch12b_hardware_regression input_regression USES_TERMINAL)
+  DEPENDS batch17_theft_watchdog_tests batch19_command_char_tests batch19_command_char_regression frontend_tests ui_session_tests display_names_tests quest_search_tests debug_labels_tests ${UI_DEBUG_TEST_TARGET} debug_map_picker_tests debug_developer_tests gameplay_integration_tests look_sign_tests look_post_tests gameplay_driver movement_flow_parity_tests quest_driver shop_parity_tests shop_flow_tests shop_dos_transcript_tests shop_adapter_tests persistence_driver dialogue_adapter_tests dialogue_parity_tests transport_flow_parity_tests world_flow_adapter_tests dungeon_flow_parity_tests world_flow_parity_tests dungeon_parity_tests advanced_combat_parity_tests magic_parity_tests combat_parity_tests core_parity_tests turn_parity_tests travel_parity_tests command_parity_tests item_parity_tests movement_regression presentation_regression dungeon_view_regression dungeon_art_regression gem_view_regression dungeon_input_regression combat_escape_regression combat_loot_open_regression batch12b_hardware_regression input_regression USES_TERMINAL)
 endif()

@@ -1,0 +1,93 @@
+# LOOK-POLISH1 (D-117, docs/WINDOWS_LOOK_ENHANCED_POLISH.md): the report --
+# Britain, the brick road, Look North -> "Thou dost see parched desert." The
+# party walks from Britain's gate (15,30) up the road to row 21 and west to
+# (9,21), under the armoury's sign (9,19) and its posts (8..10,20). LOOKOBJ
+# look_dispatch 0x0510 follows a post (0xE0..0xE2) to the sign it holds, so
+# DOS says "the sign of an armoury"; LOOK2.DAT's own phrase for a post, the
+# placeholder "parched desert", is never printed. The same keys in both
+# interface modes (scenario_look_signpost_original / _enhanced).
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Visitor
+key Return
+text M
+text A
+text A
+text A
+text A
+text A
+text A
+text A
+wait 2500
+teleport town 2
+expect location 2
+expect position 2 0 15 30
+key Up
+wait 300
+key Up
+wait 300
+key Up
+wait 300
+key Up
+wait 300
+key Up
+wait 300
+key Up
+wait 300
+key Up
+wait 300
+key Up
+wait 300
+key Up
+wait 300
+expect position 2 0 15 21
+key Left
+wait 300
+key Left
+wait 300
+key Left
+wait 300
+key Left
+wait 300
+key Left
+wait 300
+key Left
+wait 300
+expect position 2 0 9 21
+text l
+frames 2
+key Up
+wait 600
+expect rows the sign of an armoury
+expect no_rows parched desert
+screenshot look-north-armoury.bmp
+# One step east: (10,21), North is 0xE0 then 0xE2 -- the same sign.
+key Right
+wait 300
+expect position 2 0 10 21
+text l
+frames 2
+key Up
+wait 600
+expect no_rows parched desert
+# The road itself, two steps further east: still cobble.
+key Right
+wait 300
+key Right
+wait 300
+key Right
+wait 300
+key Right
+wait 300
+key Right
+wait 300
+expect position 2 0 15 21
+text l
+frames 2
+key Up
+wait 600
+expect rows cobble
+quit

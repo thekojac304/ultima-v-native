@@ -6520,7 +6520,7 @@ export class Game {
 
   /** Comando (L)ook sobre la casilla adyacente. */
   look(dir: Direction): GameEvent[] {
-    const { nx, ny } = this.targetCoord(dir);
+    let { nx, ny } = this.targetCoord(dir);
     const pos = this.state.position;
     // cmd_look (LOOKOBJ 0x099c) describe el tile COMPOSITADO: `tile = *ext_a172(x,y)`,
     // buffer donde el actor ya está dibujado ENCIMA del terreno (re/notes/lookobj.md:8-18).
@@ -6534,7 +6534,7 @@ export class Game {
     // Los tiles de casos especiales (pozo/cartel/cielo/reloj/Flame/mazmorra) viven todos
     // por debajo de 0x100; los tiles de actor caen en 0x100..0x1FF → no colisionan y el
     // NPC pasa directo a la descripción genérica por LOOK2.
-    const tile = npc ? npc.type + 0x100 : mapTile;
+    let tile = npc ? npc.type + 0x100 : mapTile;
 
     // BOLA DE CRISTAL (#144) — PRIMERA rama de cmd_look, antes que nada:
     // LOOKOBJ 0x09e4 `cmp word ptr [bp-2], 0x29` / 0x09e8 `jne 0xa40`. Todo el resto
@@ -6606,6 +6606,28 @@ export class Game {
         ];
       }
     }
+
+    // POSTE DE CARTEL (LOOK-POLISH1, D-117) — lo PRIMERO de look_dispatch (LOOKOBJ
+    // 0x0510-0x0550), antes del cielo/pozo/fuente/genérico: mientras el tile sea 0xE0/0xE1/
+    // 0xE2 (el poste y el brazo de un cartel colgante) corrige la posición hacia el cartel
+    // — 0xE0 `dec y`, 0xE1 `inc x`, 0xE2 `dec x` — y RE-LEE el tile COMPOSITADO con
+    // get_tile_ptr (raw 0xffffa172), el mismo buffer que la primera lectura. La frase
+    // LOOK2.DAT de los tres ("parched desert") es un relleno que el original nunca imprime:
+    // en sus mapas toda cadena acaba en un cartel 0xF0..0xF9 (122 postes). La x corregida
+    // es la que ve el resto del dispatch ([bp+6] = di en 0x0552). La cota de 64 pasos es
+    // del port (el binario no tiene ninguna; ningún mapa forma un ciclo).
+    for (let step = 0; tile >= 0xe0 && tile <= 0xe2 && step < 64; step++) {
+      if (tile === 0xe0) ny -= 1;
+      else if (tile === 0xe1) nx += 1;
+      else nx -= 1;
+      if (this.activeMap.wraps) {
+        nx = wrapCoord(nx);
+        ny = wrapCoord(ny);
+      }
+      const anchorNpc = this.npcManager?.npcAt(pos.location, pos.floor, nx, ny);
+      tile = anchorNpc ? anchorNpc.type + 0x100 : this.activeMap.tileAt(nx, ny);
+    }
+    if (tile < 0) return [{ kind: "message", text: "Thou dost see darkness." }];
 
     // Dispatch de especiales (LOOKOBJ look_dispatch 0x0502). `replace` salta look_generic
     // (cielo); `concat` lo llama SIEMPRE (frase LOOK2 vía describeTile) y le pega el sufijo

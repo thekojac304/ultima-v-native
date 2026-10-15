@@ -102,6 +102,10 @@ if(UV_ENABLE_DEVELOPER_TOOLS)
   uv_scenario(enhanced_panels MODE enhanced DEVELOPER)
   # The same Original checks on the handheld's 320x240 screen ("originalScreen": "Handheld").
   uv_scenario(original_dos_panels_handheld MODE original DEVELOPER ARGS --original-screen handheld)
+  # LOOK-POLISH1 (docs/WINDOWS_LOOK_ENHANCED_POLISH.md): Look at a shop sign's post
+  # names the sign (LOOKOBJ 0x0510, D-117), the same in both modes.
+  uv_scenario(look_signpost_original MODE original DEVELOPER SCRIPT look_signpost)
+  uv_scenario(look_signpost_enhanced MODE enhanced DEVELOPER SCRIPT look_signpost)
 else()
   message(STATUS "Scenarios dungeon_walk, surface_combat, typed_cast_combat, town_talk skipped: UV_ENABLE_DEVELOPER_TOOLS is OFF")
 endif()

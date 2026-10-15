@@ -80,8 +80,12 @@ CommandStatus world_look(CommandContext &c,Command cmd,const ActiveMap &map,Even
         if(cmd.member<0||cmd.member>=g.party.character_count)return CommandStatus::Rejected;
         return crystal_ball_vision(c,cmd.member,sink,rand);
     }
-    auto d=direction_delta(cmd.direction);int x=g.position.xy.x+d.dx,y=g.position.xy.y+d.dy;if(map.geometry.wraps){x&=255;y&=255;}int tile=map.tile_at(x,y);
-    if(c.actors)for(size_t i=0;i<c.actors->count;++i){auto &n=c.actors->actors[i];if(n.location==g.position.map.location&&n.z==g.position.map.floor&&n.x==x&&n.y==y){tile=n.schedule.type+256;break;}}
+    auto d=direction_delta(cmd.direction);int x=g.position.xy.x+d.dx,y=g.position.xy.y+d.dy;if(map.geometry.wraps){x&=255;y&=255;}
+    // get_tile_ptr (raw 0xffffa172) is the composited view: an actor covers the terrain.
+    auto seen=[&](int sx,int sy){int t=map.tile_at(sx,sy);
+        if(c.actors)for(size_t i=0;i<c.actors->count;++i){auto &n=c.actors->actors[i];if(n.location==g.position.map.location&&n.z==g.position.map.floor&&n.x==sx&&n.y==sy){t=n.schedule.type+256;break;}}
+        return t;};
+    int tile=seen(x,y);
     if(tile<0){say("Thou dost see darkness.");return CommandStatus::Success;}
     // R-25 (Batch 19).  Tile 0x29 is cmd_look's FIRST comparison in the
     // reference (LOOKOBJ 0x09e4 `cmp [bp-2],0x29` / `jne 0xa40`), and the
@@ -100,6 +104,19 @@ CommandStatus world_look(CommandContext &c,Command cmd,const ActiveMap &map,Even
         while(!s.empty()){auto p=s.rfind('\n');if(!blank(s.substr(p==std::string::npos?0:p+1)))break;s=p==std::string::npos?"":s.substr(0,p);}
         say("Thou dost see");GameEvent e;e.kind=GameEventKind::Message;e.text=s.c_str();e.sign=true;e.sign_raw=sign.raw;e.sign_raw_size=sign.raw_size;if(sink.emit)sink.emit(sink.context,e);return CommandStatus::Success;
     }}
+    // LOOK-POLISH1 (D-117). look_dispatch 0x0510-0x0550, before anything else: a
+    // hanging sign's post and bracket (0xE0 / 0xE1 / 0xE2) point at the sign --
+    // 0xE0 y-1, 0xE1 x+1, 0xE2 x-1 -- and the map is re-read until the tile is no
+    // longer one of them. LOOK2.DAT's own phrase for the three ("parched desert")
+    // is a placeholder the 1988 game never prints; every chain in its maps ends on
+    // a sign (0xF0..0xF9). The bound is native's: the binary has none, and no map
+    // holds a loop.
+    for(int step=0;tile>=0xe0&&tile<=0xe2&&step<64;++step){
+        if(tile==0xe0)--y;else if(tile==0xe1)++x;else --x;
+        if(map.geometry.wraps){x&=255;y&=255;}
+        tile=seen(x,y);
+    }
+    if(tile<0){say("Thou dost see darkness.");return CommandStatus::Success;}
     const bool sun=g.time.hour>=6&&g.time.hour<18;
     std::string phrase;
     if(tile==89)phrase=sun?"the sun!":"the night sky!";

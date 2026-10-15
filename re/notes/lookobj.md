@@ -55,6 +55,13 @@ caller (¿CMDS?).
    las **5 caras reales** {0x89,0x8A,0xA0,0xA4,0xF8}.
 2. Faltaban los casos especiales: **cielo, reloj, Flame, entrada de mazmorra** — añadidos
    exactos (`lookSpecialDescription`, función pura + test `tests/look.test.ts`).
+3. **Postes de cartel 0xE0-0xE2 (LOOK-POLISH1, D-117, 2026-10-14)**: la persecución del ancla
+   de look_dispatch (0x0510-0x0550) no estaba portada ni en el clon ni en native, así que
+   (L)ook a un poste imprimía la frase de relleno de LOOK2.DAT, "parched desert" (reporte:
+   Britain (9,21), Look North). Portada en `game.ts look()` y `native/core/src/look.cpp`:
+   0xE0 → y−1, 0xE1 → x+1, 0xE2 → x−1, re-leyendo el tile compositado; los 122 postes de
+   TOWNE/CASTLE/KEEP (DWELLING ninguno; BRIT/UNDER ninguno) acaban en un cartel 0xF0..0xF9
+   (nunca 0xF8). `docs/WINDOWS_LOOK_ENHANCED_POLISH.md` §2.
 
 ## Portado / Pendiente
 
