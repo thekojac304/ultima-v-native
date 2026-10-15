@@ -89,7 +89,11 @@ enum UiTextFlags : uint8_t {
     // command (the row the original's getkey opened with its LF and bullet),
     // as opposed to a later answer to it ("North" after "Talk-", "Up" after
     // "Klimb-U/D-") or a blank row. Read only by the console layout.
-    UiTextCommand = 8
+    UiTextCommand = 8,
+    // ORIG-DOS2: the tail of the console shops' DOS transcript while its last
+    // row is still open (no line feed yet) -- the next stream text, or the
+    // prompt typed into it, goes on that row (append_stream).
+    UiTextStreamOpen = 16
 };
 
 // A4-UI4 (section 8.20): where the console layout puts the wait cursor.
@@ -472,6 +476,13 @@ class UiSession {
      * append, which is the worst case the original never reaches.
      */
     void append_continuation(UiTextChannel, const char *);
+    /**
+     * ORIG-DOS2: a stream Message (GameEvent::stream) -- the 1988 kernel's
+     * print_string: the text goes on where the last stream text stopped (its
+     * own line feeds, already laid out by the core's DosConsole, are the only
+     * row breaks), splitting into chained blocks when it outgrows one.
+     */
+    void append_stream(UiTextChannel, const char *);
 
   private:
     UiTranscriptStorage transcript_{};
@@ -510,6 +521,7 @@ class UiSession {
     ShopPhase shop_phase_ = ShopPhase::Closed;
     ShopType shop_type_{};
     int32_t shop_town_ = -1; // the shop's town index (the 1988 tavern's letters)
+    bool shop_dos_transcript_ = false; // the session prints its own DOS transcript
     int32_t shop_cursor_ = 0;
     size_t shop_offer_count_ = 0;
     int16_t combat_origin_x_ = 0, combat_origin_y_ = 0;

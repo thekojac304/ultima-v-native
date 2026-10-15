@@ -1081,6 +1081,7 @@ void AlphaRuntime::dispatch(const openu5::UiIntent&i){
     dirty_=true;
 }
 void AlphaRuntime::command(openu5::Command cmd){
+    sync_shop_profile(); // a Talk may open a shop (begin_shop reads the profile)
     ++command_depth_;struct DepthExit{uint8_t &depth;~DepthExit(){--depth;}} depth_exit{command_depth_}; // SPP2
     // R-25 (Batch 19). SJOG cmd_search 0x095c asks for the direction at 0x097e
     // and only THEN calls the picker at 0x09a0, so the command arrives here
@@ -2741,6 +2742,7 @@ bool AlphaRuntime::open_shop_for_test(uint8_t type){
         if(npc.schedule.dialog!=0x81+type)continue;
         if(!openu5::shop_is_open(npc.schedule.times,uint8_t(game_.time.hour)))
             for(uint8_t hour=0;hour<24;++hour)if(openu5::shop_is_open(npc.schedule.times,hour)){game_.time.hour=hour;break;}
+        sync_shop_profile();
         const auto result=openu5::begin_shop(context_,npc);
         refresh_session_context();dirty_=true;dirty_reason_="shop-test";
         ESP_LOGI(kTag,"SHOP_TEST type=%u slot=%u status=%d phase=%d",unsigned(type),unsigned(i),int(result.status),int(shop_.phase));
@@ -2780,185 +2782,17 @@ const char *dos_use_name(int id,const char *fallback){
 
 void AlphaRuntime::present_dos_shop_event(const openu5::GameEvent &e){
     // The 1988 console shops (SHOPPES*.OVL; native/core/spp1-findings/B-shops.md
-    // section 3 and the web port's ui/shop-console.ts): each pass of a list loop
-    // prints its lettered rows and its question on the console, and a key picks
-    // the letter -- there is no highlighted offer list. The core decides the
-    // offers and draws the variants (ShopSession::recent_draws); this prints the
-    // rows it does not emit itself. Original mode only: the T-Deck shows its panel.
-    if(!ui_||!openu5::platform_dos_interface()||e.kind!=openu5::GameEventKind::Shop||!e.shop||!e.shop->session)return;
-    const auto &s=*e.shop->session;
-    auto &state=dos_state();
-    const auto before=state.shop_phase;
-    if(e.shop->kind==openu5::ShopEventKind::Exited||s.phase==openu5::ShopPhase::Closed){
-        state.shop_phase=openu5::ShopPhase::Closed;return;
-    }
-    if(e.shop->kind!=openu5::ShopEventKind::State&&e.shop->kind!=openu5::ShopEventKind::Entered)return;
-    state.shop_phase=s.phase;
-    using T=openu5::ShopConsoleText;
-    // The buyer's sex picks "sir" / "milady" (the active player, else the first
-    // member -- the same pick the core makes for its INT).
-    const int buyer=active_member(game_);
-    const bool lady=buyer>=0&&buyer<game_.party.character_count&&game_.party.characters[buyer].gender==0x0c;
-    const int8_t *draws=s.recent_draws;
-    char block[768]{};size_t n=0;
-    auto add=[&](const char *text){for(;text&&*text&&n+1<sizeof(block);++text)block[n++]=*text;block[n]=0;};
-    auto flush=[&]{if(n){ui_->append(openu5::UiTextChannel::Shop,block);n=0;block[0]=0;}};
-    // '$' is the keeper's name in the DOS strings and records.
-    auto add_keeper=[&](const char *text,const openu5::ShopSession &session){
-        const char *keeper=session.record&&session.record->keeper?session.record->keeper:"";
-        for(;text&&*text;++text){if(*text=='$')add(keeper);else{const char c[2]={*text,0};add(c);}}
-    };
-    const size_t total=openu5::shop_offering_count(game_,s,shop_data_);
-    switch(s.phase){
-    case openu5::ShopPhase::Buy:{
-        // SHOPPES 0x1306: `Buy\n\n"` + EXCL[r] + INTRO[r] on the way in from the
-        // menu; after a pitch, "Anything else," + sir/milady (a purchase) or
-        // "then?" (0x7BBC-0x7BDC). Then the loop 0x0b30: `\n\n`, a row per item
-        // -- 'a'+i, "...", the long name, or the short one when 13 or longer
-        // (0x0be7) -- `\n`, WHICH[r] and `" `. No prices in the list.
-        if(before==openu5::ShopPhase::Menu){
-            add(openu5::shop_console_text(T::BuyEcho));
-            add(openu5::shop_console_text(T::BuyExclaim,draws[1]));
-            add(openu5::shop_console_text(T::BuyIntro,draws[2]));
-        }else if(!s.thrown_out){
-            add(openu5::shop_console_text(T::BuyAnythingElse));
-            add(openu5::shop_console_text(s.bought_in_buy?(lady?T::BuyMilady:T::BuySir):T::BuyThen));
-        }
-        flush();
-        add("\n");
-        for(size_t i=0;i<total;++i){
-            openu5::ShopOffer offer{};
-            if(!openu5::shop_offering_at(game_,s,shop_data_,i,offer)||offer.item<0||offer.item>=48)continue;
-            const char *name=openu5::equipment_display_name(offer.item);
-            if(name&&std::strlen(name)>=13)name=dos_text_or(openu5::DosText::EquipmentShort,offer.item,name);
-            char row[32]{};std::snprintf(row,sizeof(row),"%s%c...%s",i?"\n":"",char('a'+i),name?name:"");
-            add(row);
-        }
-        flush();
-        add("\n");add(openu5::shop_console_text(T::BuyWhich,draws[3]));add("\" ");
-        flush();
-        break;
-    }
-    case openu5::ShopPhase::Reagent:{
-        // SHOPPES 0x0789 / 0x0666: `Yes\n\n"Fine! We sell:\n\n` from the greeting,
-        // then `A...Name` per slot on sale (upper-case, compacted) and
-        // `\nThy interest?" `.
-        if(before==openu5::ShopPhase::Greeting)add(openu5::shop_console_text(T::ReagentsSell));
-        flush();
-        for(size_t i=0;i<total;++i){
-            openu5::ShopOffer offer{};
-            if(!openu5::shop_offering_at(game_,s,shop_data_,i,offer))continue;
-            char row[32]{};std::snprintf(row,sizeof(row),"%c...%s",char('A'+i),openu5::reagent_display_name(offer.item));
-            add(row);flush();
-        }
-        add(openu5::shop_console_text(T::ReagentInterest));flush();
-        break;
-    }
-    case openu5::ShopPhase::Guild:
-        // SHOPPES 0x04cd / 0x03f6: `Yes\n\n"We sell:\n\n` from the greeting, the
-        // three fixed rows and `Thy concern?" `.
-        if(before==openu5::ShopPhase::Greeting)add(openu5::shop_console_text(T::GuildYes));
-        flush();
-        add(openu5::shop_console_text(T::GuildRowKeys));add(openu5::shop_console_text(T::GuildRowGems));
-        add(openu5::shop_console_text(T::GuildRowTorches));add(openu5::shop_console_text(T::GuildConcern));
-        flush();
-        break;
-    case openu5::ShopPhase::Wine:{
-        // SHOPPES2 0x01F4: `"Our wine list,\n` + sir/milady + `.\n\n`, the six
-        // priced lines (DS 0x9B8C..0x9BE6, from the player's data) and
-        // `Thy choice?" `.
-        add(openu5::shop_console_text(T::WineListOpen));
-        add(openu5::shop_console_text(lady?T::TavernMilady:T::TavernSir));
-        add(openu5::shop_console_text(T::WineListAfterName));
-        flush();
-        int at=0x9b8c;
-        for(int line=0;line<6;++line){
-            const char *text=openu5::platform_dos_text(openu5::DosText::Literal,at);
-            if(!text)break;
-            add(text);
-            at+=int(std::strlen(text))+1;
-        }
-        flush();
-        add(openu5::shop_console_text(T::WineThyChoice));flush();
-        break;
-    }
-    // The service menus' questions, which the core does not emit either
-    // (B-shops.md sections 3.5, 3.6, 3.8).
-    case openu5::ShopPhase::HealerNeed:case openu5::ShopPhase::Menu:
-        if(s.type==openu5::ShopType::Healer&&(before==openu5::ShopPhase::Greeting||before==openu5::ShopPhase::HealerAgain)){
-            // `Yes\n\n` + the powers line + `says $.\n\n"What is the nature of thy need?" `.
-            add(openu5::shop_console_text(T::HealerYes));add(openu5::shop_console_text(T::HealerPowers));flush();
-            add_keeper(openu5::shop_console_text(T::HealerSaysNature),s);flush();
-        }else if(s.type==openu5::ShopType::InnKeeper&&before==openu5::ShopPhase::Greeting){
-            add(openu5::shop_console_text(T::InnYes));add_keeper(openu5::shop_console_text(T::InnMenu),s);flush();
-        }
-        break;
-    case openu5::ShopPhase::HealerMember:
-        add(openu5::shop_console_text(T::HealerWho)+1);flush();
-        break;
-    case openu5::ShopPhase::HealerAgain:
-        add(openu5::shop_console_text(T::HealerAnyOther)+1);flush();
-        break;
-    case openu5::ShopPhase::InnAgain:
-        add(openu5::shop_console_text(T::InnMore));flush();
-        break;
-    case openu5::ShopPhase::InnLeaveMember:
-        add_keeper(openu5::shop_console_text(T::InnWhoStay),s);flush();
-        break;
-    case openu5::ShopPhase::InnPickupMember:
-        add(openu5::shop_console_text(T::InnWhoCheckOut)+1);flush();
-        break;
-    case openu5::ShopPhase::Tavern:
-        if(before==openu5::ShopPhase::Greeting||before==openu5::ShopPhase::TavernAgain){
-            // `Yes\n\n"` + the subtype's menu (record 69..72) or, back from
-            // "Anything else", its revisit form (73..76), + `" `.
-            static constexpr uint8_t kTavernSubtype[]={0,0,0,2,3,1,0,2,0};
-            const int subtype=s.town>=0&&size_t(s.town)<sizeof(kTavernSubtype)?kTavernSubtype[s.town]:0;
-            const int record=(before==openu5::ShopPhase::Greeting?69:73)+subtype;
-            add(openu5::shop_console_text(T::TavernYesOpen));
-            if(shop_services_.record)add_keeper(shop_services_.record(shop_services_.context,record),s);
-            add("\" ");flush();
-        }
-        break;
-    case openu5::ShopPhase::TavernAgain:
-        add(openu5::shop_console_text(T::TavernAnythingElse));flush();
-        break;
-    // The deal questions (B-shops.md section 3): the core emits the pitch and
-    // waits for Y/N; the question itself is printed here. A block starts its
-    // own line, so a question that opens with a line break loses one.
-    case openu5::ShopPhase::BuyDeal:
-        // buy_one_item: `\n\n` + ASKS[r] (the select()'s draw) + `" `.
-        add(openu5::shop_console_text(T::BuyAsk,draws[3]));add("\" ");flush();
-        break;
-    case openu5::ShopPhase::SellDeal:case openu5::ShopPhase::HorseDeal:
-        add(openu5::shop_console_text(T::SellDeal)+1);flush();
-        break;
-    case openu5::ShopPhase::GuildDeal:
-        add(openu5::shop_console_text(T::GuildInterested)+1);flush();
-        break;
-    case openu5::ShopPhase::RumorDeal:
-        add(openu5::shop_console_text(T::RumorFairNuff)+1);flush();
-        break;
-    case openu5::ShopPhase::InnRestDeal:
-        add(openu5::shop_console_text(T::InnWiltTake)+1);flush();
-        break;
-    case openu5::ShopPhase::ReagentDeal:
-        // The pitch's own line goes on: ` Is this thy need?" ` (0x7956).
-        ui_->append_continuation(openu5::UiTextChannel::Message,openu5::shop_console_text(T::ReagentNeed));
-        break;
-    case openu5::ShopPhase::HealerDeal:{
-        // SHOPPES 0x1478: the remedy's pitch, then `for % gold.\n\nWilt thou\npay?" `.
-        add("\"");
-        add(openu5::shop_console_text(s.remedy==openu5::HealerService::Cure?T::HealerCurePitch:
-                                      s.remedy==openu5::HealerService::Heal?T::HealerHealPitch:T::HealerResPitch));
-        char price[12]{};std::snprintf(price,sizeof(price),"%ld",long(s.price));
-        for(const char *p=openu5::shop_console_text(T::HealerPay);*p;++p){if(*p=='%')add(price);else{const char c[2]={*p,0};add(c);}}
-        flush();
-        break;
-    }
-    default:break;
-    }
-    dirty_=true;
+    // section 3): ORIG-DOS2 moved their whole console text -- the lists, the
+    // questions, the Y/N and letter echoes, the connective lines -- into the
+    // core (ShopServices::dos_transcript, set by sync_shop_profile()), which
+    // owns every draw that picks a variant. Nothing is left to print here; the
+    // two DOS windows ("Arms", GUEST REGISTER) are compose_dos_panel()'s.
+    if(openu5::platform_dos_interface()&&e.kind==openu5::GameEventKind::Shop)dirty_=true;
+}
+void AlphaRuntime::sync_shop_profile(){
+    const bool dos=openu5::platform_dos_interface();
+    shop_services_.dos_transcript=dos;
+    shop_services_.transactional_services=!dos;
 }
 
 const DeviceShopView *AlphaRuntime::compose_shop_view(){
@@ -4687,6 +4521,7 @@ void AlphaRuntime::bind_shop_services(){
     shop_services_.ship=[](void *p,int32_t x,int32_t y,int32_t tile,int32_t hull,int32_t skiffs){openu5::place_purchased_ship(static_cast<AlphaRuntime*>(p)->context_,x,y,tile,hull,skiffs);};
     shop_services_.horse=[](void *p,int32_t x,int32_t y){openu5::place_purchased_horse(static_cast<AlphaRuntime*>(p)->context_,x,y);};
     shop_services_.transactional_services=true;
+    sync_shop_profile();
 }
 void AlphaRuntime::start_smoke(void*p,int group){auto&r=*static_cast<AlphaRuntime*>(p);r.smoke_.start(group);r.dirty_=true;r.dirty_reason_="smoke-test-start";}
 

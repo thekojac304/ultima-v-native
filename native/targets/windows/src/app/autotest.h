@@ -32,6 +32,11 @@
 //                             as the screen shows them, joined " | ", contain /
 //                             do not contain TEXT), console_last TEXT (the
 //                             bottom row is exactly TEXT),
+//                           rows TEXT / no_rows TEXT (the transcript's last 48
+//                             blocks as console rows -- each block starts a
+//                             row, each line feed ends one -- joined " | ",
+//                             contain / do not contain TEXT: the 1988 shops'
+//                             transcript line by line, scrolled-out rows too),
 //                           roster_cursor N (the picker's reverse-video roster
 //                             row, -1 none), select_banner 0|1,
 //                           overlay_panel 0|1 (the handheld's list/page panel
@@ -83,10 +88,13 @@
 //                         (the open grass the fight step uses)
 //   fight DEF [N]         a surface fight: open grass, N enemies of definition
 //                         DEF beside the party, Pass until the arena opens
-//   shop TYPE             a shop (needs the Developer menu): the first town of
-//                         that type, then the live keeper's begin_shop, as a
-//                         Talk opens it -- blacksmith, tavern, horses, ship,
-//                         reagents, guild, healer, inn
+//   shop TYPE [TOWN]      a shop (needs the Developer menu): the first town of
+//                         that type (or location TOWN), then the live keeper's
+//                         begin_shop, as a Talk opens it -- blacksmith, tavern,
+//                         horses, ship, reagents, guild, healer, inn
+//   give gold N | give reagent SLOT N  set the party's gold, or reagent
+//                         SLOT's count (0..7), as the Developer menu's
+//                         Inventory and Reagents pages do
 //   quit                  stop (the script's end stops too)
 // The scenario runner starts the game in its scratch data folder, so a
 // relative PATH lands there.

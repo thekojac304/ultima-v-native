@@ -394,50 +394,6 @@ ShopResult pay_rumor(GameState &g, int32_t i) {
     r.place = RUMOR_PLACES[RUMOR_GOSSIP_MAP[i]];
     return r;
 }
-// Windows Original's console shops (shop_console_text in shop_orchestration.cpp).
-const char *shop_console_table_text(ShopConsoleText text) {
-    switch (text) {
-    case ShopConsoleText::BuyEcho: return msg_buyEcho;
-    case ShopConsoleText::BuyAnythingElse: return msg_buyAnythingElse;
-    case ShopConsoleText::BuyThen: return msg_buyThen;
-    case ShopConsoleText::BuySir: return msg_buySir;
-    case ShopConsoleText::BuyMilady: return msg_buyMilady;
-    case ShopConsoleText::ReagentsSell: return msg_reagentsSell;
-    case ShopConsoleText::ReagentInterest: return msg_reagentInterest;
-    case ShopConsoleText::GuildYes: return msg_guildYes;
-    case ShopConsoleText::GuildRowKeys: return msg_guildRowKeys;
-    case ShopConsoleText::GuildRowGems: return msg_guildRowGems;
-    case ShopConsoleText::GuildRowTorches: return msg_guildRowTorches;
-    case ShopConsoleText::GuildConcern: return msg_guildConcern;
-    case ShopConsoleText::WineListOpen: return msg_wineListOpen;
-    case ShopConsoleText::WineListAfterName: return msg_wineListAfterName;
-    case ShopConsoleText::WineThyChoice: return msg_wineThyChoice;
-    case ShopConsoleText::TavernSir: return msg_tavernSir;
-    case ShopConsoleText::TavernMilady: return msg_tavernMilady;
-    case ShopConsoleText::SellDeal: return msg_sellDealPrompt;
-    case ShopConsoleText::ReagentNeed: return msg_reagentNeed;
-    case ShopConsoleText::GuildInterested: return msg_guildInterested;
-    case ShopConsoleText::RumorFairNuff: return msg_rumorFairNuff;
-    case ShopConsoleText::InnWiltTake: return msg_innWiltTake;
-    case ShopConsoleText::HealerPay: return msg_healerPay;
-    case ShopConsoleText::HealerCurePitch: return msg_healerCurePitch;
-    case ShopConsoleText::HealerHealPitch: return msg_healerHealPitch;
-    case ShopConsoleText::HealerResPitch: return msg_healerResPitch;
-    case ShopConsoleText::HealerYes: return msg_healerGateYes;
-    case ShopConsoleText::HealerPowers: return msg_healer;
-    case ShopConsoleText::HealerSaysNature: return msg_healerSaysNature;
-    case ShopConsoleText::HealerWho: return msg_healerWho;
-    case ShopConsoleText::HealerAnyOther: return msg_healerAnyOther;
-    case ShopConsoleText::InnYes: return msg_innYes;
-    case ShopConsoleText::InnMenu: return msg_innMenu;
-    case ShopConsoleText::InnMore: return msg_innMore;
-    case ShopConsoleText::InnWhoStay: return msg_innWhoStay;
-    case ShopConsoleText::InnWhoCheckOut: return msg_innWhoCheckOut;
-    case ShopConsoleText::TavernYesOpen: return msg_tavernYesOpen;
-    case ShopConsoleText::TavernAnythingElse: return msg_tavernAnythingElse;
-    default: return "";
-    }
-}
 char tavern_menu_letter(int32_t town, int which) {
     static constexpr uint8_t kSubtype[] = {0, 0, 0, 2, 3, 1, 0, 2, 0};
     static constexpr const char *kLetters[] = {"MCBF", "AWRS", "R  P", "CTHA"};

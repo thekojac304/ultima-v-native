@@ -512,15 +512,17 @@ class AlphaRuntime {
         DeviceDosPanel panel{};
         size_t list_scroll = 0;
         int list_key = -1;
-        // The shop phase the console last showed (the lists are printed on entry).
-        openu5::ShopPhase shop_phase = openu5::ShopPhase::Closed;
     };
     // The 1988 right panel for the open list or page (nullptr when the T-Deck's
     // panel applies): Use, Ready, Mix's reagents, Z-stats' pages.
     const DeviceDosPanel *compose_dos_panel(const openu5::UiSelectionView *current);
-    // The 1988 console shops (Windows Original): the lettered list and its
-    // question printed on the console when a shop enters a list phase.
+    // The 1988 console shops (Windows Original) print the core's own DOS
+    // transcript (ShopServices::dos_transcript): a shop event only redraws.
     void present_dos_shop_event(const openu5::GameEvent &e);
+    // Original: the core's DOS transcript, and the tavern's rounds charged at
+    // once as in 1988 (B-shops P4); the T-Deck's staged services otherwise.
+    // Read by begin_shop, so it is set before every command.
+    void sync_shop_profile();
     std::unique_ptr<DosInterfaceState> dos_state_;
     DosInterfaceState &dos_state() { if (!dos_state_) dos_state_.reset(new DosInterfaceState()); return *dos_state_; }
     openu5::AssetPackReader *tiles_ = nullptr;

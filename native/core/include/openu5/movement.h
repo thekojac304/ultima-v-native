@@ -68,6 +68,10 @@ struct GameEvent {
     const uint8_t *sign_raw=nullptr;
     size_t sign_raw_size=0;
     bool sign=false, gem_from_crystal=false;
+    // A Message that goes on where the console's last text stopped, as the 1988
+    // kernel's print_string does (the console shops' DOS transcript): its text
+    // already carries the console's own line breaks. Never set on the T-Deck.
+    bool stream=false;
     struct Projectile {int16_t from_dx=0,from_dy=0,to_dx=0,to_dy=0;} projectile;
 };
 struct MoveAction { Direction direction = Direction::North; };

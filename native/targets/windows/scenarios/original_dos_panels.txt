@@ -7,7 +7,7 @@
 # handheld (Enhanced / T-Deck) panel showing up here fails the scenario. This
 # runs on Original's default screen, the 1988 game's 320x200 one (screen_box /
 # screen_split; the console 16 cells wide); original_dos_panels_handheld.txt
-# runs the same on the handheld's 320x240 screen.
+# runs the 1988 panels on the handheld's 320x240 screen.
 frames 5
 key Return
 frames 3
@@ -137,7 +137,7 @@ expect shop_panel 0
 key Return
 frames 4
 expect mode 0
-expect no_console Is this thy
+expect no_console this thy need?
 shop reagents
 frames 3
 text y
@@ -198,10 +198,289 @@ shop healer
 frames 3
 text y
 frames 4
-expect console nature of thy
+expect console "What is the | nature of thy | need?"
 text h
 frames 4
 expect shop_panel 0
 expect select_banner 1
 expect right_column screen_split
-expect console Who needs my | aid?
+expect console "Who needs my | aid?"
+key Escape
+frames 4
+text n
+frames 4
+expect mode 0
+# ORIG-DOS2: the console shops line by line. The core prints the 1988
+# transcript itself (ShopServices::dos_transcript; B-shops.md section 3): the
+# Y/N and letter echoes, the lists, the questions and the connective lines, laid
+# out on the 16-column console as print_string lays them out. `rows` reads the
+# transcript as console rows, joined " | " (an empty row shows as "|  |"). Only
+# the DATA.OVL strings are asserted here: the SHOPPE.DAT records, the keepers'
+# names and the rand-picked forms vary or are game text, so the checks run
+# around them.
+give gold 2000
+# The blacksmith's Buy (SHOPPES 0x12B2 / 0x0B30 / 0x09AC): the echo, the list
+# without prices, the letter echoed, "No" / "Yes", "Anything else, then?" and,
+# after a purchase, "milady?".
+shop blacksmith
+frames 3
+key Return
+frames 3
+expect rows says, | "
+text b
+frames 4
+expect rows Sell?" Buy |  | "
+expect rows  |  | a...Dagger | b...Sling | c...Bow | d...Arrows | e...Crossbow | f...Quarrels | g...Magic Bow |  | 
+text a
+frames 4
+expect rows " a |  | "
+text n
+frames 4
+expect rows " No |  | "Anything else, | then? |  | a...Dagger
+text a
+frames 4
+text y
+frames 4
+expect rows " Yes |  | Sold! | "Anything else, | milady? |  | a...Dagger
+key Escape
+frames 4
+expect mode 0
+expect no_rows It is done.
+# The blacksmith's Sell: the echo, the "Arms" window, the offer's "Deal?" and
+# "Done!".
+shop blacksmith
+frames 3
+key Return
+frames 3
+text s
+frames 4
+expect rows Sell?" Sell |  | "
+expect dos_panel_title Arms
+key Return
+frames 4
+expect rows |  | Deal?"
+text y
+frames 4
+expect rows Deal?" Yes |  | "Done!" | says 
+key Escape
+frames 4
+expect mode 0
+# The reagents (SHOPPES 0x075E / 0x0666 / 0x0502) with Ginseng at its cap: the
+# cap line with no pitch and no price, then any key and the list again; "What
+# else?" after N; "I thank thee!" and "Anything else?" after a purchase.
+give reagent 1 99
+shop reagents
+frames 3
+text y
+frames 4
+expect rows Yes |  | "Fine! We sell: |  | A...Ginseng | B...Garlic | C...Spider Silk | D...Nightshade | E...Mandrake |  | Thy interest?"
+text a
+frames 4
+expect rows Thy interest?"  |  | "Thou canst not | carry any more!" | 
+key Return
+frames 4
+expect rows carry any more!" |  | A...Ginseng | B...Garlic
+text b
+frames 4
+expect rows this thy need?"
+text n
+frames 4
+expect rows No |  | "What else? |  | A...Ginseng
+text b
+frames 4
+text y
+frames 4
+expect rows Yes |  | "I thank thee!" | says 
+expect rows . | "Anything else? |  | A...Ginseng
+key Space
+frames 4
+expect mode 0
+# The guild (SHOPPES 0x04A2): the rows, D's limited-time record (its own echo),
+# the letter echoed, "What else, then?" after N, "Sold!" and "What else,
+# m'lady?" after a purchase.
+shop guild
+frames 3
+text y
+frames 4
+expect rows Yes |  | "We sell: |  | a.........Keys | b.........Gems | c......Torches |  | Thy concern?"
+text d
+frames 4
+expect rows Thy concern?" d |  | "
+expect console a.........Keys | b.........Gems | c......Torches |  | Thy concern?"
+text a
+frames 4
+expect rows Thy concern?" a |  | "
+text n
+frames 4
+expect rows Interested?" No |  | "What else, | then? |  | a.........Keys
+text b
+frames 4
+text y
+frames 4
+expect rows Interested?" Yes |  | "Sold!" | says 
+expect rows |  | "What else,  | m'lady? |  | a.........Keys
+key Space
+frames 4
+expect mode 0
+# The tavern (SHOPPES2 0x066C; this one's letters are M A R C): the food round
+# and the house drink announced and charged at once, with no question (B-shops
+# P4); Space is not N at "Anything else for thee?" (P5); the rumour, its price
+# and the gossip.
+shop tavern
+frames 3
+text y
+frames 4
+text m
+frames 4
+expect rows M |  | "That will be 9 | gold for the  | three of ye, | milady. | Enjoy!" |  | "Anything else | for thee?"
+expect mode 4
+key Space
+frames 4
+text y
+frames 4
+expect rows for thee?" Yes |  | "
+text a
+frames 4
+expect rows A |  | "That will be 3 | gold for the  | three of ye, | milady. | Enjoy!" |  | "Anything else | for thee?"
+text y
+frames 4
+text c
+frames 4
+expect rows C |  | "Of what wouldst | thou hear my | lore, milady?" |  | You respond: | 
+text honesty
+key Return
+frames 4
+expect rows You respond: | HONESTY |  | "
+expect rows |  | Fair 'nuff?"
+text y
+frames 4
+expect rows Fair 'nuff?" Yes |  | "
+expect rows . |  | "Anything else | for thee?"
+text n
+frames 4
+expect rows for thee?" No |  | "
+expect mode 0
+# The wine tavern (subtype 1, letters C W - T): the wine list from DATA.OVL, the
+# choice echoed, "Ah, a fine choice" and "Enjoy!".
+shop tavern 19
+frames 3
+text y
+frames 4
+text w
+frames 4
+expect rows W |  | "Our wine list, | milady. |  | a) Rose.......18 | b) Claret....192 | c) Sauterne...79 | d) Muscatel...30 | e) Moselle...275 | f) Chablis....98 |  | Thy choice?"
+text a
+frames 4
+expect rows Thy choice?" A |  | "Ah, a fine | choice, milady. | Enjoy!" |  | "Anything else | for thee?"
+text n
+frames 4
+expect mode 0
+# The rations: the count typed on the question's own row, then "Anything else";
+# a count of 0 is "Hrumph.".
+shop tavern
+frames 3
+text y
+frames 4
+text r
+frames 4
+expect rows |  | How many wouldst | thou like?"
+text 2
+key Return
+frames 4
+expect rows thou like?" 2 |  | "Anything else | for thee?"
+text y
+frames 4
+text r
+frames 4
+text 0
+key Return
+frames 4
+expect rows thou like?" 0 |  | "Hrumph." | "Anything else | for thee?"
+text n
+frames 4
+expect mode 0
+# The healer (SHOPPES 0x14F8; Minoc): the powers and the question, "Healing",
+# "Who needs my aid?" on the roster, "no need of this art", "Is there any other
+# way" (Y or N only: Space is read again), "Nothing" at the nature of thy need.
+shop healer
+frames 3
+text y
+frames 4
+expect rows Yes |  | "We have powers | to Cure, Heal, | or Resurrect." | says 
+expect rows |  | "What is the | nature of thy | need?"
+text h
+frames 4
+expect rows need?" Healing |  | "Who needs my | aid?"
+expect select_banner 1
+key Return
+frames 4
+expect rows |  | "Thou hast no | need of this | art!" | says 
+expect rows |  | "Is there any | other way in | which I may | aid thee?"
+key Space
+frames 4
+expect mode 4
+text y
+frames 4
+expect rows aid thee?" Yes |  | "We have powers
+key Space
+frames 4
+expect rows need?" Nothing |  | "
+expect mode 0
+# The inn (SHOPPES3 0x08B4): Leave echoes L, the rate line before "Wilt thou
+# take it?", "I thank thee."; two guests open the GUEST REGISTER after "Who will
+# check out?", the bill read out, the stay; one guest checks out with no
+# register; the night, and no farewell after "Morning!".
+shop inn
+frames 3
+text y
+frames 4
+expect rows asks, | "Art thou here | to Pick up or | Leave a | companion, or | to Rest for the | night?"
+text l
+frames 4
+expect rows night?" L |  | 
+expect rows asks, | "Who will | stay?"
+text 2
+key Return
+frames 4
+expect rows stay?"  |  | "The rate for | our most | comfortable room | will be 
+expect rows gold | per month, due | at check-out. | Wilt thou take | it?"
+text y
+frames 4
+expect rows it?" Yes |  | "I thank thee." | says 
+expect rows |  | "Is there | anything more | I can do for | thee?"
+text y
+frames 4
+text l
+frames 4
+text 2
+key Return
+frames 4
+text y
+frames 4
+text y
+frames 4
+text p
+frames 4
+expect rows night?"  |  | "Who will | check out?"
+expect dos_panel 1
+key Return
+frames 4
+expect rows check out?"  |  | "That will be 
+expect rows gold, please." |  | "I hope thou | hast found thy | stay enjoyable," | says 
+text y
+frames 4
+text p
+frames 4
+expect rows night?"  |  | "That will be 
+text y
+frames 4
+text r
+frames 4
+expect rows night?" R |  | "
+expect rows | Wilt thou take | it?"
+text y
+frames 6
+expect rows it?" Yes |  | "Have a pleasant | night, milady!" | says 
+expect rows |  | Zzzzzz.... |  | Morning! | 
+expect no_rows Morning! |  | "
+expect mode 0

@@ -173,6 +173,7 @@ class Game {
     bool autotest_teleport(const AutotestStep &step);
     bool autotest_fight(const AutotestStep &step);
     bool autotest_shop(const AutotestStep &step);
+    bool autotest_give(const AutotestStep &step);
     std::string right_column_signature() const;
     std::string dos_screen_check(const std::string &value) const;
     bool autotest_open_grass(int &gx, int &gy);
@@ -825,6 +826,31 @@ bool Game::autotest_expect(const AutotestStep &step) {
         } else {
             ok = (actual.find(value) != std::string::npos) == (name == "console");
         }
+    } else if (name == "rows" || name == "no_rows") {
+        // The transcript's last 48 blocks as console rows, before any of them
+        // scrolls out of the console's window: a block starts a row (unless it
+        // continues the one before) and each line feed in it ends one; rows
+        // joined with " | ". The 1988 shops' text comes laid out by the core
+        // (DosConsole: rows of at most 16 cells), so these are the console's rows.
+        const openu5::UiSession *ui = runtime_->ui();
+        const size_t count = ui ? ui->transcript_size() : 0;
+        bool row_start = true;
+        for (size_t i = count > 48 ? count - 48 : 0; i < count; ++i) {
+            const openu5::UiTextBlock *block = ui->transcript_at(i);
+            if (!block) continue;
+            if (!row_start && !(block->flags & openu5::UiTextContinuesBefore)) actual += " | ";
+            row_start = false;
+            for (size_t k = 0; k < block->length; ++k) {
+                if (block->text[k] == '\n') {
+                    actual += " | ";
+                    row_start = true;
+                } else {
+                    actual += block->text[k];
+                    row_start = false;
+                }
+            }
+        }
+        ok = (actual.find(value) != std::string::npos) == (name == "rows");
     } else if (name == "roster_cursor") {
         // The roster row in reverse video for the picker's cursor (-1: none).
         actual = std::to_string(int(runtime_->party_highlight_for_test().cursor));
@@ -1155,9 +1181,12 @@ bool Game::autotest_shop(const AutotestStep &step) {
         {"reagents", 4, 1}, {"guild", 5, 8}, {"healer", 6, 5}, {"inn", 7, 2}};
     for (const auto &shop : kShops) {
         if (step.args[0] != shop.name) continue;
+        // `shop TYPE TOWN`: another town of that type (the wine tavern, 19).
+        const bool town_given = step.args.size() > 1 && !step.args[1].empty() &&
+                                step.args[1][0] >= '0' && step.args[1][0] <= '9';
         AutotestStep go;
         go.verb = "teleport";
-        go.args = {"town", std::to_string(shop.town)};
+        go.args = {"town", town_given ? step.args[1] : std::to_string(shop.town)};
         if (!autotest_teleport(go)) return false;
         if (step.args.size() > 1 && step.args[1] == "beside") {
             // Stand beside the keeper and leave the Talk to the script ("t" + the
@@ -1175,6 +1204,32 @@ bool Game::autotest_shop(const AutotestStep &step) {
         return opened;
     }
     return false;
+}
+
+// `give gold N` / `give reagent SLOT N`: the counts a shop scenario needs (a
+// purse for the purchases, a reagent at its 99 cap).
+bool Game::autotest_give(const AutotestStep &step) {
+    auto number = [](const std::string &text, int &out) {
+        if (text.empty()) return false;
+        out = 0;
+        for (char c : text) {
+            if (c < '0' || c > '9') return false;
+            out = out * 10 + (c - '0');
+        }
+        return true;
+    };
+    int a = 0, b = 0;
+    if (step.args[0] == "gold" && step.args.size() == 2 && number(step.args[1], a) && a <= 9999) {
+        runtime_->game().gold = uint16_t(a);
+    } else if (step.args[0] == "reagent" && step.args.size() == 3 && number(step.args[1], a) && a < 8 &&
+               number(step.args[2], b) && b <= 99) {
+        runtime_->game().reagent_quantities[a] = b;
+    } else {
+        std::fprintf(stderr, "AUTOTEST give: expected 'gold N' or 'reagent SLOT N'\n");
+        return false;
+    }
+    for (int i = 0; i < 2; ++i) pass(false);
+    return true;
 }
 
 // The right column as the presented panel shows it: the rows of white rule and
@@ -1325,6 +1380,8 @@ bool Game::run_autotest() {
             if (!autotest_fight(step)) ++autotest_failures_;
         } else if (step.verb == "shop") {
             if (!autotest_shop(step)) ++autotest_failures_;
+        } else if (step.verb == "give") {
+            if (!autotest_give(step)) ++autotest_failures_;
         } else if (step.verb == "log") {
             ESP_LOGI(kTag, "AUTOTEST %s", step.args[0].c_str());
         } else if (step.verb == "quit") {

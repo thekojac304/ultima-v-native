@@ -204,7 +204,11 @@ void for_each_wrapped_line(const UiSession &session, size_t columns, Emit emit) 
             }
             word[word_length++] = c;
         }
-        if (!(block->flags & UiTextContinuesAfter)) {
+        // ORIG-DOS2: an open DOS-transcript row is continued by the live
+        // prompt below it, as the 1988 getnum types onto the question's row.
+        const bool joins_live = live_block && !live && i + 1 == session.transcript_size() &&
+                                (block->flags & UiTextStreamOpen);
+        if (!(block->flags & UiTextContinuesAfter) && !joins_live) {
             append_word(*block);
             if (live && spaces && line_length && line_length < columns) line.text[line_length++] = ' ';
             if (line_length) emit_line(*block);
@@ -391,6 +395,43 @@ void UiSession::append_continuation(UiTextChannel channel, const char *text) {
         }
     }
     append(channel, text);
+}
+
+void UiSession::append_stream(UiTextChannel channel, const char *text) {
+    if (!text || !*text) return;
+    blocked_repeat_ = 0;
+    blocked_block_sequence_ = 0;
+    blocked_actor_ = -1;
+    const size_t lines_before = wrapped_line_count();
+    const size_t total = std::strlen(text);
+    const bool open = text[total - 1] != '\n';
+    size_t at = 0;
+    bool continued = false; // the text goes on the open row (even when that block is full)
+    if (transcript_count_ && transcript_.blocks) {
+        const auto index = (transcript_head_ + transcript_count_ - 1) % transcript_.capacity;
+        auto &last = transcript_.blocks[index];
+        if (last.channel == channel && (last.flags & UiTextStreamOpen) && !(last.flags & UiTextContinuesAfter)) {
+            continued = true;
+            const size_t n = std::min(total, kUiTranscriptBlockBytes - 1 - size_t(last.length));
+            std::memcpy(last.text + last.length, text, n);
+            last.length = uint16_t(last.length + n);
+            last.text[last.length] = 0;
+            last.sequence = ++block_sequence_;
+            last.flags = uint8_t(last.flags & ~UiTextStreamOpen);
+            at = n;
+            if (at < total) last.flags |= UiTextContinuesAfter;
+            else if (open) last.flags |= UiTextStreamOpen;
+        }
+    }
+    while (at < total) {
+        const size_t n = std::min(total - at, kUiTranscriptBlockBytes - 1);
+        uint8_t f = (continued || at) ? UiTextContinuesBefore : UiTextNone;
+        if (at + n < total) f |= UiTextContinuesAfter;
+        else if (open) f |= UiTextStreamOpen;
+        push_block(channel, text + at, n, f);
+        at += n;
+    }
+    preserve_scroll_on_growth(lines_before);
 }
 
 void UiSession::append_combat_event(const CombatEvent &event) {
@@ -1346,6 +1387,17 @@ void UiSession::dos_commit_answer(UiMode mode, UiRequestId request, bool yes) {
     // name, the dungeon fountain's "Yes.  Gulp!", the well's and the arrest's
     // "Yes" / "No", the shrine's gold) keep only what is theirs.
     if (request == UiRequestId::SpellName || request == UiRequestId::MixSpellName) return;
+    if (request == UiRequestId::Shop && shop_dos_transcript_) {
+        // ORIG-DOS2: the getstring echoed onto the transcript's own row; the
+        // core's line feeds after it follow on.
+        char typed[kUiTranscriptBlockBytes]{};
+        size_t k = 0;
+        for (size_t i = 0; i < input_length_ && k + 1 < sizeof(typed); ++i)
+            typed[k++] = input_[i] >= u' ' && input_[i] <= 0x7e ? char(input_[i]) : '?';
+        typed[k] = 0;
+        if (k) append_stream(UiTextChannel::Message, typed);
+        return;
+    }
     char line[kUiTranscriptBlockBytes]{};
     size_t n = 0;
     auto put = [&](const char *s) { for (; s && *s && n + 1 < sizeof(line); ++s) line[n++] = *s; };
@@ -1812,6 +1864,7 @@ bool UiSession::handle_shop(const UiAction &a) {
             if (a.kind == UiActionKind::Character) {
                 const char key=lower_ascii(a.character);
                 const bool space_is_no=shop_phase_!=ShopPhase::HealerAgain&&shop_phase_!=ShopPhase::Drunk&&
+                                       shop_phase_!=ShopPhase::TavernAgain&&shop_phase_!=ShopPhase::ShipAgain&&
                                        !(shop_phase_==ShopPhase::Greeting&&shop_type_==ShopType::Healer);
                 if (key=='y') send_action(ShopAction::Confirm,shop_cursor_);
                 else if (key=='n'||(key==' '&&space_is_no)) send_action(ShopAction::Decline,shop_cursor_);
@@ -1881,6 +1934,8 @@ bool UiSession::handle_shop(const UiAction &a) {
                 if (shop_phase_==ShopPhase::Reagent) send_action(ShopAction::Cancel,shop_cursor_);
                 return true;
             }
+            if ((a.kind == UiActionKind::Cancel || a.kind == UiActionKind::Back) && shop_phase_==ShopPhase::Wine)
+                return true;
             if (a.kind == UiActionKind::Character) {
                 const char key=lower_ascii(a.character);
                 if (key==' ') { send_action(ShopAction::Cancel,shop_cursor_); return true; }
@@ -2011,7 +2066,9 @@ bool UiSession::open_debug_menu() {
 
 void UiSession::consume(const GameEvent &e) {
     ++event_sequence_;
-    if (e.kind == GameEventKind::Message || e.kind == GameEventKind::WalkEcho)
+    if (e.kind == GameEventKind::Message && e.stream)
+        append_stream(event_channel(e.kind), e.text);
+    else if (e.kind == GameEventKind::Message || e.kind == GameEventKind::WalkEcho)
         append(event_channel(e.kind), e.text ? e.text : "",
                e.kind == GameEventKind::WalkEcho && e.text && *e.text ? UiTextCommand : UiTextNone);
     switch (e.kind) {
@@ -2065,7 +2122,9 @@ void UiSession::consume(const GameEvent &e) {
             const auto &shop=*e.shop->session;
             if(old_phase!=shop.phase)shop_cursor_=0;
             shop_phase_=shop.phase;shop_type_=shop.type;shop_town_=shop.town;
-            if(e.shop->kind==ShopEventKind::Entered&&shop.record){
+            shop_dos_transcript_=shop.dos_transcript;
+            // The 1988 shop opens with its greeting, under no heading.
+            if(e.shop->kind==ShopEventKind::Entered&&shop.record&&!shop.dos_transcript){
                 char heading[96]{};
                 std::snprintf(heading,sizeof(heading),"%s\n%s, proprietor",
                               shop.record->name&&*shop.record->name?shop.record->name:"Shop",
@@ -2123,9 +2182,17 @@ void UiSession::consume(const GameEvent &e) {
             // 1988: the tavern's rumor is "You respond:\n" (DS 0x9f24) and its
             // rations "How many wouldst thou like?" (DS 0x9c4a, input_number 2).
             const bool dos = platform_dos_interface();
-            if(shop_phase_==ShopPhase::RumorText)begin_text(UiRequestId::Shop,dos?"You respond:\n":"What rumor?",15);
+            // With its DOS transcript the core has printed the question itself.
+            const char *rumor=shop_dos_transcript_?"":dos?"You respond:\n":"What rumor?";
+            const char *rations=shop_dos_transcript_?"":dos?"How many wouldst thou like? ":"How many?";
+            // The answer's own Result event still carries the entry's phase:
+            // with the transcript only a phase entered opens the entry (else
+            // the count just typed opens it again).
+            const bool opens=!shop_dos_transcript_||e.shop->kind!=ShopEventKind::Result;
+            if(!opens){}
+            else if(shop_phase_==ShopPhase::RumorText)begin_text(UiRequestId::Shop,rumor,15);
             else if(shop_phase_==ShopPhase::RationsQuantity)
-                begin_number(UiRequestId::Shop,dos?"How many wouldst thou like? ":"How many?",0,std::numeric_limits<int32_t>::max(),dos?2:10);
+                begin_number(UiRequestId::Shop,rations,0,std::numeric_limits<int32_t>::max(),dos?2:10);
         }
         break;
     case GameEventKind::CampKeyWait:
