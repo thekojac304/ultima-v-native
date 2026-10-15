@@ -4,11 +4,12 @@
 // The virtual panel (src/platform/virtual_panel.h) holds the game's 320x240
 // RGB565 screen. The presenter owns the SDL window, renderer and one
 // streaming texture of that size, uploads the panel when it changed and
-// draws it where app/presentation_layout.h puts it, in whole output pixels
-// (SDL's logical presentation is off): whole-number scales with nearest
-// sampling and the Classic Framed ring (Scaling::Framed, the default) or
-// without it (Scaling::Integer), or the largest 4:3 fit sampled as pixel art
-// (Scaling::Fit). The ring's colours come from two 1x1 RGB565 textures, so
+// draws its first picture_height() rows -- all 240, or the 200 of Original's
+// DOS game screen -- where app/presentation_layout.h puts them, in whole
+// output pixels (SDL's logical presentation is off): whole-number scales with
+// nearest sampling and the Classic Framed ring (Scaling::Framed, the default)
+// or without it (Scaling::Integer), or the largest fit of the picture's shape
+// sampled as pixel art (Scaling::Fit). The ring's colours come from two 1x1 RGB565 textures, so
 // they take the picture's own colour path. The panel's backlight duty (the
 // T-Deck's Brightness) is ignored: the picture is always drawn at full
 // intensity.
@@ -18,7 +19,9 @@
 // it follows a drag or a snap too (window_changed). Each scaling has its
 // window shape -- a framed client in Framed, a bare one otherwise -- and a
 // window takes the new shape when the scaling changes, or as soon as it is a
-// normal window again when it was fullscreen or maximised then.
+// normal window again when it was fullscreen or maximised then. The window is
+// shaped for one picture height too (set_window_shape: 200 in Original's DOS
+// screen, 240 otherwise), and takes the new one the same way.
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -83,8 +86,18 @@ class Presenter {
      */
     void set_scaling(Scaling scaling);
     void set_vsync(bool on);
+    /**
+     * The picture height the window is shaped for ("Window N x" is 320N x
+     * picture_h N): kDosPictureH in Original's DOS screen, else kPictureH. A
+     * normal window takes the new shape at its N, keeping its centre.
+     */
+    void set_window_shape(int picture_h);
+    int window_shape() const { return shape_h_; }
+    /** The panel rows the next frame shows (Board::picture_height): 240, or the DOS screen's 200. */
+    void set_picture_height(int picture_h);
+    int picture_height() const { return picture_h_; }
 
-    /** Writes the current panel picture as a 24-bit BMP (the user's own screenshot). */
+    /** Writes the picture the window shows (320 x picture_height()) as a 24-bit BMP (the user's own screenshot). */
     bool save_screenshot(const std::wstring &path) const;
 
     // --autotest: the window itself, as the player sees it (F12 stays the panel).
@@ -119,7 +132,7 @@ class Presenter {
     void lock_aspect(const WindowPlan &plan);
     /** Sizes, places and aspect-locks a normal window to `plan`. */
     void apply_plan(const WindowPlan &plan);
-    /** A normal window shaped for another scaling takes this one's shape (see set_scaling). */
+    /** A normal window shaped for another scaling or picture height takes this one's shape (see set_scaling). */
     void take_shape();
 
     SDL_Window *window_ = nullptr;
@@ -133,6 +146,9 @@ class Presenter {
     bool stale_ = true;
     Scaling scaling_ = Scaling::Framed;
     Scaling shaped_for_ = Scaling::Framed; // the scaling whose shape the normal window has
+    int shape_h_ = kPictureH;              // the picture height the window is to be shaped for
+    int shaped_h_ = kPictureH;             // the picture height whose shape the normal window has
+    int picture_h_ = kPictureH;            // the panel rows the picture shows
     uint8_t window_scale_ = 3;
     WindowBorders borders_{};
     PresentationLayout layout_{};

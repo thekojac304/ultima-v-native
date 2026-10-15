@@ -9,7 +9,8 @@
 // checker the --autotest window_layout step uses, against frames drawn here
 // from the layout (nearest, and a fractional Fit blended as Direct3D 11's
 // pixel-art sampling does; and against deliberately wrong ones), and the
-// Settings page's Scaling row.
+// Settings page's Scaling row. Then the same for Original's DOS game screen,
+// a 320x200 picture in a window shaped for it.
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -119,22 +120,23 @@ struct Failure {
     }
 };
 
-void rules_for(int W, int H, Failure &f) {
-    const PresentationLayout fr = layout_presentation(W, H, Scaling::Framed);
-    const PresentationLayout in = layout_presentation(W, H, Scaling::Integer);
-    const PresentationLayout fit = layout_presentation(W, H, Scaling::Fit);
-    const std::string at = format("%dx%d: ", W, H);
-    const int u = std::max(1, std::min(W / 320, H / 240));
+void rules_for(int W, int H, Failure &f, int PH = 240) {
+    const PresentationLayout fr = layout_presentation(W, H, Scaling::Framed, PH);
+    const PresentationLayout in = layout_presentation(W, H, Scaling::Integer, PH);
+    const PresentationLayout fit = layout_presentation(W, H, Scaling::Fit, PH);
+    const std::string at = format("%dx%d (320x%d): ", W, H, PH);
+    const int u = std::max(1, std::min(W / 320, H / PH));
     // Whole-number scale, never reduced for the ring.
     if (fr.scale != u || in.scale != u) f.note(at + format("scale %d/%d, expected %d", fr.scale, in.scale, u));
-    if (fr.picture.w != 320 * u || fr.picture.h != 240 * u) f.note(at + "picture is not 320u x 240u");
+    if (fr.picture.w != 320 * u || fr.picture.h != PH * u) f.note(at + "picture is not 320u x PHu");
+    if (fr.picture_h != PH || fit.picture_h != PH) f.note(at + "the layout does not carry the picture height");
     if (!(fr.picture == in.picture)) f.note(at + "Framed and Whole pixels place the picture differently");
     // Centred; the odd pixel goes right / down.
     const int left = fr.picture.x, right = W - fr.picture.x - fr.picture.w;
     const int top = fr.picture.y, bottom = H - fr.picture.y - fr.picture.h;
     if (right - left < 0 || right - left > 1 || bottom - top < 0 || bottom - top > 1)
         f.note(at + format("margins L%d R%d T%d B%d are not centred", left, right, top, bottom));
-    if (W >= 320 && H >= 240 && !inside(fr.picture, W, H)) f.note(at + "picture outside the output");
+    if (W >= 320 && H >= PH && !inside(fr.picture, W, H)) f.note(at + "picture outside the output");
     // The ring's form and thresholds (both sides of an axis or neither).
     const int reach = 7 * u;
     const RingForm want = left < reach || top < 0 ? RingForm::None : top < reach ? RingForm::Pillars : RingForm::Full;
@@ -172,19 +174,19 @@ void rules_for(int W, int H, Failure &f) {
         if (d <= lo || d > hi) f.note(at + format("%s piece %s reaches %d px from the picture (expected %d..%d)", rule ? "rule" : "band", rect_text(r).c_str(), d, lo + 1, hi));
         ring_area += 1LL * r.w * r.h;
     }
-    // Full ring area: rules 2*330u*u + 2*248u*u, band 2*(330+332)u*u + 2*2u*250u.
-    if (want == RingForm::Full && ring_area != (2LL * 330 + 2 * 248 + 2 * (330 + 332) + 2 * 2 * 250) * u * u)
+    // Full ring area: rules 2*330u*u + 2*(PH+8)u*u, band 2*(330+332)u*u + 2*2u*(PH+10)u.
+    if (want == RingForm::Full && ring_area != (2LL * 330 + 2 * (PH + 8) + 2 * (330 + 332) + 2 * 2 * (PH + 10)) * u * u)
         f.note(at + format("full ring area %lld", ring_area));
     if (want == RingForm::Pillars && ring_area != 6LL * u * H) f.note(at + format("pillar area %lld", ring_area));
-    // Fit: the largest 4:3 rectangle, centred, inside the output.
+    // Fit: the largest 320:PH rectangle, centred, inside the output.
     const PixelRect &q = fit.picture;
     if (W > 0 && H > 0) {
         if (!(q.w == W || q.h == H)) f.note(at + "Fit touches neither pair of edges");
         if (!inside(q, W, H)) f.note(at + "Fit picture outside the output");
-        if (std::abs(1LL * q.w * 240 - 1LL * q.h * 320) >= 320) f.note(at + format("Fit %dx%d is not 4:3", q.w, q.h));
+        if (std::abs(1LL * q.w * PH - 1LL * q.h * 320) >= 320) f.note(at + format("Fit %dx%d is not 320:%d", q.w, q.h, PH));
         const int fl = q.x, frr = W - q.x - q.w, ft = q.y, fb = H - q.y - q.h;
         if (frr - fl < 0 || frr - fl > 1 || fb - ft < 0 || fb - ft > 1) f.note(at + "Fit is not centred");
-        const bool exact = q.w % 320 == 0 && q.w / 320 * 240 == q.h;
+        const bool exact = q.w % 320 == 0 && q.w / 320 * PH == q.h;
         if ((fit.scale != 0) != exact || (exact && fit.scale != q.w / 320)) f.note(at + format("Fit scale %d", fit.scale));
     }
 }
@@ -234,7 +236,7 @@ std::vector<uint32_t> draw(const PresentationLayout &l, const std::vector<uint16
     for (int y = std::max(0, p.y); y < std::min(l.output_h, p.y + p.h); ++y)
         for (int x = std::max(0, p.x); x < std::min(l.output_w, p.x + p.w); ++x) {
             const int sx = l.scale ? (x - p.x) / l.scale : int(int64_t(x - p.x) * 320 / p.w);
-            const int sy = l.scale ? (y - p.y) / l.scale : int(int64_t(y - p.y) * 240 / p.h);
+            const int sy = l.scale ? (y - p.y) / l.scale : int(int64_t(y - p.y) * l.picture_h / p.h);
             frame[size_t(y) * size_t(l.output_w) + size_t(x)] = conv(panel[size_t(sy) * 320 + size_t(sx)]);
         }
     return frame;
@@ -665,6 +667,112 @@ void display_row() {
     openu5::set_platform_profile(openu5::PlatformProfile{});
 }
 
+// --- 8. Original's DOS game screen: a 320x200 picture -----------------------------
+void dos_screen() {
+    const int PH = uv::kDosPictureH;
+    struct Row {
+        int w, h;
+        const char *framed, *integer, *fit;
+    };
+    // Worked out by hand: u = max(1, min(W div 320, H div 200)); the ring needs 7u.
+    const Row rows[] = {
+        {1008, 648, "1008x648 full 960x600@24,24", "1008x648 none 960x600@24,24", "1008x648 fit 1008x630@0,9"},
+        {960, 600, "960x600 none 960x600@0,0", "960x600 none 960x600@0,0", "960x600 fit 960x600@0,0"},
+        {1024, 768, "1024x768 full 960x600@32,84", "1024x768 none 960x600@32,84", "1024x768 fit 1024x640@0,64"},
+        {1280, 720, "1280x720 full 960x600@160,60", "1280x720 none 960x600@160,60", "1280x720 fit 1152x720@64,0"},
+        {1280, 800, "1280x800 none 1280x800@0,0", "1280x800 none 1280x800@0,0", "1280x800 fit 1280x800@0,0"},
+        {1366, 768, "1366x768 full 960x600@203,84", "1366x768 none 960x600@203,84", "1366x768 fit 1228x768@69,0"},
+        {1920, 1080, "1920x1080 full 1600x1000@160,40", "1920x1080 none 1600x1000@160,40", "1920x1080 fit 1728x1080@96,0"},
+        {1920, 1200, "1920x1200 full 1920x1200@0,0", "1920x1200 none 1920x1200@0,0", "1920x1200 fit 1920x1200@0,0"},
+        {2560, 1440, "2560x1440 pillars 2240x1400@160,20", "2560x1440 none 2240x1400@160,20", "2560x1440 fit 2304x1440@128,0"},
+        {3840, 2160, "3840x2160 full 3200x2000@320,80", "3840x2160 none 3200x2000@320,80", "3840x2160 fit 3456x2160@192,0"},
+        {320, 200, "320x200 none 320x200@0,0", "320x200 none 320x200@0,0", "320x200 fit 320x200@0,0"},
+    };
+    for (const Row &r : rows) {
+        const std::string framed = describe_layout(layout_presentation(r.w, r.h, Scaling::Framed, PH));
+        const std::string integer = describe_layout(layout_presentation(r.w, r.h, Scaling::Integer, PH));
+        const std::string fit = describe_layout(layout_presentation(r.w, r.h, Scaling::Fit, PH));
+        // 1920x1200 holds 6x exactly: no room for a ring.
+        const std::string want_framed = r.w == 1920 && r.h == 1200 ? "1920x1200 none 1920x1200@0,0" : r.framed;
+        check(framed == want_framed, format("S1 320x200 %dx%d Framed: %s", r.w, r.h, want_framed.c_str()), "got " + framed);
+        check(integer == r.integer, format("S2 320x200 %dx%d Whole pixels: %s", r.w, r.h, r.integer), "got " + integer);
+        check(fit == r.fit, format("S3 320x200 %dx%d Fit: %s", r.w, r.h, r.fit), "got " + fit);
+    }
+    Failure dense, grid;
+    int n = 0;
+    for (int W = 0; W <= 1100; W += 1)
+        for (int H = 0; H <= 760; H += 1, ++n) rules_for(W, H, dense, PH);
+    check(dense.count == 0, format("S4 every output 0..1100 x 0..760 (%d sizes) obeys the rules for a 320x200 picture", n),
+          format("%d failures, first: %s", dense.count, dense.first.c_str()));
+    n = 0;
+    for (int W = 1100; W <= 7680; W += 17)
+        for (int H = 760; H <= 4320; H += 13, ++n) rules_for(W, H, grid, PH);
+    check(grid.count == 0, format("S5 a grid of larger outputs up to 7680x4320 (%d sizes), 320x200 picture", n),
+          format("%d failures, first: %s", grid.count, grid.first.c_str()));
+    // The frame checker on the panel's first 200 rows; rows 200..239 are never shown.
+    const std::vector<uint16_t> panel = test_panel();
+    for (const auto &c : {std::make_pair(1008, 648), std::make_pair(1920, 1080), std::make_pair(2560, 1440)}) {
+        for (Scaling sc : {Scaling::Framed, Scaling::Fit}) {
+            const PresentationLayout l = layout_presentation(c.first, c.second, sc, PH);
+            const std::vector<uint32_t> f = draw(l, panel, expand);
+            const std::string r = uv::check_presented_frame(l, panel.data(), f.data(), c.first, c.second);
+            check(r.empty(), "S6 a 320x200 frame drawn from the layout passes: " + describe_layout(l), r);
+        }
+    }
+    {
+        // The handheld's 240 rows squeezed into the 200-row picture are caught.
+        const PresentationLayout l = layout_presentation(1008, 648, Scaling::Framed, PH);
+        PresentationLayout tall = l;
+        tall.picture_h = 240;
+        const std::vector<uint32_t> f = draw(tall, panel, expand); // rows sampled 6/5 apart
+        std::vector<uint16_t> shifted(panel.begin() + 320, panel.end());
+        shifted.resize(panel.size(), 0);
+        const std::vector<uint32_t> g = draw(l, shifted, expand); // the picture one panel row low
+        check(!uv::check_presented_frame(l, panel.data(), g.data(), 1008, 648).empty(),
+              "S7 a 320x200 picture taken one panel row off is caught");
+        (void)f;
+    }
+    // The window: Window N x shaped for 200 rows.
+    using uv::WindowBorders;
+    using uv::WorkArea;
+    const WorkArea hd{0, 0, 1920, 1032}, offscreen{0, 0, 1024, 768}, full_hd{0, 0, 1920, 1080};
+    const WindowBorders b100{31, 8, 8, 8}, none{};
+    struct Plan {
+        const char *what;
+        WorkArea area;
+        WindowBorders borders;
+        int request;
+        Scaling scaling;
+        const char *want;
+    };
+    const Plan plans[] = {
+        {"1080p 100%: Window 3x framed", hd, b100, 3, Scaling::Framed, "3x framed 1008x648 at 456,203 aspect 336:216"},
+        {"1080p 100%: Window 4x is framed too (the 240-row window is bare)", hd, b100, 4, Scaling::Framed,
+         "4x framed 1344x864 at 288,95 aspect 336:216"},
+        {"1080p 100%: Window 5x does not fit: 4x framed", hd, b100, 5, Scaling::Framed, "4x framed 1344x864 at 288,95 aspect 336:216"},
+        {"1080p 100%: Whole pixels 3x is bare", hd, b100, 3, Scaling::Integer, "3x bare 960x600 at 480,227 aspect 320:200"},
+        {"headless 1024x768: Window 3x framed", offscreen, none, 3, Scaling::Framed, "3x framed 1008x648 at 8,60 aspect 336:216"},
+        {"headless 1024x768: Window 2x framed", offscreen, none, 2, Scaling::Framed, "2x framed 672x432 at 176,168 aspect 336:216"},
+    };
+    for (const Plan &r : plans) {
+        const std::string got = plan_text(uv::plan_window(r.request, r.scaling, r.area, r.borders, PH));
+        check(got == r.want, std::string("S8 320x200 ") + r.what + ": " + r.want, "got " + got);
+    }
+    check(uv::largest_window_scale(full_hd, none, PH) == 5 && uv::largest_window_scale(full_hd, none) == 4,
+          "S9 a 1920x1080 area holds Window 5x of the DOS screen (1600x1000), 4x of the handheld's",
+          format("%d / %d", uv::largest_window_scale(full_hd, none, PH), uv::largest_window_scale(full_hd, none)));
+    check(uv::default_window_scale(1.0f, hd, b100, PH) == 3, "S10 the first-run default at 100% is 3x for the DOS screen too");
+    check(uv::client_window_scale(1008, 648, PH) == 3 && uv::client_window_scale(1008, 648) == 2 &&
+              uv::client_window_scale(1600, 1000, PH) == 5,
+          "S11 a client's Window N x counts 200-row pictures (1008x648 is 3x, 1600x1000 5x)",
+          format("%d %d %d", uv::client_window_scale(1008, 648, PH), uv::client_window_scale(1008, 648),
+                 uv::client_window_scale(1600, 1000, PH)));
+    check(uv::window_picture_height(uv::InterfaceMode::Original, uv::OriginalScreen::Dos) == 200 &&
+              uv::window_picture_height(uv::InterfaceMode::Original, uv::OriginalScreen::Handheld) == 240 &&
+              uv::window_picture_height(uv::InterfaceMode::Enhanced, uv::OriginalScreen::Dos) == 240,
+          "S12 the window is shaped for 200 rows in Original's DOS screen only");
+}
+
 } // namespace
 
 int main() {
@@ -676,5 +784,6 @@ int main() {
     scaling_row();
     window_plans();
     display_row();
+    dos_screen();
     return uvtest::finish("uv_presentation_test");
 }

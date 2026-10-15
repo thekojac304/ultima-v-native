@@ -1,0 +1,185 @@
+# Original's default game screen, the 1988 game's own 320x200 one
+# (board_dos_layout.cpp), in the window: "Window N x" is shaped for 200 rows
+# (320N x 200N, framed (320+16)N x (200+16)N), the 320x240 frontend shows at
+# the largest whole scale that fits there, every scaling and fullscreen place
+# the 320x200 picture, and an interface switch reshapes the window (Enhanced
+# is the handheld's 320x240 screen). Every window_layout reads the window back
+# from the renderer and compares it with the layout colour for colour. SDL's
+# offscreen driver has one 1024x768 display and no window frame. The expected
+# values are worked out by hand from src/app/presentation_layout.h.
+frames 5
+expect scaling Framed
+expect fullscreen 0
+# The title (the handheld's 320x240 frontend) at 2x in Window 3x framed for 200 rows.
+expect window_scale 3
+expect picture 320x240 in 320x200
+expect window_layout 1008x648 full 640x480@184,84
+window_screenshot menu-window-3x.bmp
+key Return
+frames 3
+text C
+frames 3
+text Mage
+key Return
+text F
+text B
+text B
+text B
+text B
+text B
+text B
+text B
+wait 2500
+expect frontend 0
+# In play: the DOS screen at 3x in its own frame; F12's picture is 320x200.
+expect game_screen dos
+expect picture 320x200 in 320x200
+expect window_layout 1008x648 full 960x600@24,24
+expect picture_sampling nearest
+expect right_column screen_split
+expect dos_screen frame
+expect dos_screen 4 100 band
+expect dos_screen 192 184 ink
+window_screenshot dos-window-3x.bmp
+screenshot dos-panel.bmp
+# Alt+Enter: fullscreen (1024x768 here): 3x, the full ring; back, the same window.
+key Return alt
+frames 3
+expect fullscreen 1
+expect window_layout 1024x768 full 960x600@32,84
+window_screenshot dos-fullscreen.bmp
+key Return alt
+frames 3
+expect fullscreen 0
+expect window_layout 1008x648 full 960x600@24,24
+# Larger outputs (a maximised or snapped window): the full ring, pillars, an
+# exact 4x, odd leftovers; the Display row follows the picture's scale.
+window_size 1920 1080
+expect window_layout 1920x1080 full 1600x1000@160,40
+expect window_scale 5
+window_screenshot dos-window-1080.bmp
+window_size 2560 1440
+expect window_layout 2560x1440 pillars 2240x1400@160,20
+expect window_scale 7
+window_size 1280 800
+expect window_layout 1280x800 none 1280x800@0,0
+expect window_scale 4
+window_size 1366 768
+expect window_layout 1366x768 full 960x600@203,84
+expect window_scale 3
+# Ctrl+- / Ctrl+=: Window 2x is 672x432 framed; 3x is the largest that fits the display.
+key - ctrl
+frames 3
+expect window_scale 2
+expect window_layout 672x432 full 640x400@16,16
+key = ctrl
+frames 3
+expect window_scale 3
+expect window_layout 1008x648 full 960x600@24,24
+key = ctrl
+frames 3
+expect window_scale 3
+# Whole pixels, from the System Menu's Settings page (the menu is the
+# handheld's 320x240 screen: 2x in the bare 960x600 window).
+key F10
+frames 3
+expect system_menu 1
+expect picture 320x240 in 320x200
+key Down
+key Down
+key Down
+key Return
+frames 3
+expect menu_line Scaling: Framed
+key Down
+key Down
+frames 2
+expect footer Whole pixels, centred in a thin blue frame
+key Right
+frames 3
+expect scaling Integer
+expect window_layout 960x600 none 640x480@160,60
+key Escape
+frames 2
+key Escape
+frames 3
+expect system_menu 0
+expect picture 320x200 in 320x200
+expect window_layout 960x600 none 960x600@0,0
+window_size 1920 1080
+expect window_layout 1920x1080 none 1600x1000@160,40
+# Fit: the largest 8:5 picture (sampled as pixel art when fractional); the
+# menu's 320x240 in the same window is the largest 4:3.
+key F10
+frames 3
+key Down
+key Down
+key Down
+key Return
+frames 3
+key Down
+key Down
+key Right
+frames 3
+expect scaling Fit
+expect window_layout 1920x1080 fit 1440x1080@240,0
+key Escape
+frames 2
+key Escape
+frames 3
+expect window_layout 1920x1080 fit 1728x1080@96,0
+expect picture_sampling pixelart
+window_size 960 600
+expect window_layout 960x600 fit 960x600@0,0
+expect picture_sampling nearest
+# Back to Framed (Window 3x framed again), then the interface switch: Enhanced
+# is the handheld's 320x240 screen, so its Window 3x is 1008x768; back in
+# Original, 1008x648.
+key F10
+frames 3
+key Down
+key Down
+key Down
+key Return
+frames 3
+key Down
+key Down
+key Right
+frames 3
+expect scaling Framed
+expect window_layout 1008x648 full 640x480@184,84
+key Up
+key Up
+key Right
+frames 3
+expect interface Enhanced
+expect picture 320x240 in 320x240
+expect window_layout 1008x768 full 960x720@24,24
+key Escape
+frames 2
+key Escape
+frames 3
+expect game_screen handheld
+expect right_column world
+expect window_layout 1008x768 full 960x720@24,24
+key F10
+frames 3
+key Down
+key Down
+key Down
+key Return
+frames 3
+key Right
+frames 3
+expect interface Original
+expect window_layout 1008x648 full 640x480@184,84
+key Escape
+frames 2
+key Escape
+frames 3
+expect game_screen dos
+expect right_column screen_split
+expect dos_screen frame
+expect window_layout 1008x648 full 960x600@24,24
+expect windows_json "interfaceMode":"Original"
+expect no_windows_json originalScreen

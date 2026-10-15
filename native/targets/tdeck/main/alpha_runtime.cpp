@@ -265,9 +265,13 @@ esp_err_t AlphaRuntime::initialize(AlphaResourcePack &pack,AlphaResourceReport &
         auto &n=resources_.npc_locations[loc-1];openu5::enter_npc_map(actors_,n.slots,n.count,uint8_t(loc),uint8_t(game_.time.hour),game_.npc_dead[loc-1]);
     }
     // Windows port: the platform profile's banner (openu5/platform_profile.h);
-    // the T-Deck's two lines unless a desktop build installed its own.
-    ui_->append(openu5::UiTextChannel::System,openu5::platform_profile().banner);
-    ui_->append(openu5::UiTextChannel::System,openu5::platform_profile().banner_keys);
+    // the T-Deck's two lines unless a desktop build installed its own. The
+    // 1988 interaction model opens on the game's own empty console: the build
+    // is the System Menu's subtitle there (PlatformProfile::about).
+    if(!openu5::platform_dos_interface()){
+        ui_->append(openu5::UiTextChannel::System,openu5::platform_profile().banner);
+        ui_->append(openu5::UiTextChannel::System,openu5::platform_profile().banner_keys);
+    }
 #if defined(OPENU5_ENABLE_DEVELOPER_TOOLS)
     smoke_.bind({&context_,&resources_,&alpha_report_,&tile_report_,ui_});
     void *debug_mem=heap_caps_malloc(sizeof(openu5::UiDebugMenu),kPsram);if(!debug_mem)return ESP_ERR_NO_MEM;debug_=new(debug_mem)openu5::UiDebugMenu(context_);bind_developer_diagnostics();ui_->attach_debug_menu(debug_);
@@ -1964,7 +1968,11 @@ void AlphaRuntime::refresh_session_context(){
     // compose_context_bar(): a roster picker leaves the world console up, and
     // no prompt bar ever takes rows from it.
     const bool dos=openu5::platform_dos_interface();
-    if(ui_->mode()==openu5::UiMode::Shop){
+    if(openu5::platform_dos_screen()){
+        // Windows Original's 320 x 200 screen has one console whatever is
+        // open, the 1988 text window 2 (board_dos_layout.cpp draws it).
+        transcript_columns=kDosConsoleColumns;transcript_rows=kDosConsoleRows;
+    }else if(ui_->mode()==openu5::UiMode::Shop){
         // Defaults above already match the shop log strip.
     }else if(ui_->selection_view(selection_probe)&&!(dos&&selection_probe.mode==openu5::UiMode::PartySelection)){
         transcript_rows=kSelectorLogRows;

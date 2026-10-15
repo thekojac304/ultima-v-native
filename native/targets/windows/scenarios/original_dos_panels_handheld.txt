@@ -1,0 +1,208 @@
+# Windows Original on the handheld's 320x240 screen ("originalScreen":
+# "Handheld" / --original-screen handheld): the same checks as
+# original_dos_panels.txt, which runs on the default DOS 320x200 screen.
+#
+# Windows Original: how the 1988 game shows its choices (ORIGINAL_MODE_FIDELITY.md
+# section 3; windows/original-dos-interaction). Every list DOS draws in its right
+# panel -- (R)eady, (U)se, Z-stats, (M)ix -- is that panel over the roster and
+# status boxes, with the console left under it; the shops are console shops
+# (lettered lists and questions, no offer panel), with the blacksmith's "Arms"
+# window in the roster box. `right_column` reads the PRESENTED PIXELS, so a
+# handheld (Enhanced / T-Deck) panel showing up here fails the scenario.
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Mage
+key Return
+text F
+text B
+text B
+text B
+text B
+text B
+text B
+text B
+wait 2500
+expect right_column world
+# (R)eady: "Player: " on the roster (no list), then the member's list
+# (ZSTATS 0x0f2e): banner = the name, the scroll frame, `--` for a worn item
+# none of which is left in the pack, the class glyph in RUNES.CH, the DOS
+# short names, the bar on cols 1..13, the down arrow in the band.
+text r
+frames 3
+expect select_banner 1
+expect overlay_panel 0
+expect dos_panel 0
+expect right_column world
+key Return
+frames 3
+expect overlay_panel 0
+expect dos_panel 1
+expect dos_panel_layout box
+expect right_column dos_box
+expect dos_panel_title Mage
+expect dos_panel_row 0 +++++++++++++++
+expect dos_panel_row 1 --*Chain Coif
+expect dos_panel_row 2  1 Sm. Shield
+expect dos_panel_row 4 --*Chain
+expect dos_panel_bar 1
+expect dos_panel_arrow 25
+expect console Item:
+key Down
+frames 3
+expect dos_panel_bar 2
+key Escape
+frames 3
+expect dos_panel 0
+expect right_column world
+expect transcript Item: Done
+# (U)se: "Items:", the extended table's id order (the scroll before the
+# potion), the scroll's decoration and initials in RUNES.CH, the potion's
+# decoration then its colour.
+text u
+frames 3
+expect dos_panel 1
+expect overlay_panel 0
+expect right_column dos_box
+expect dos_panel_title Items:
+expect dos_panel_row 1  2 ******
+expect dos_panel_row 2  3 ****Yellow
+expect dos_panel_bar 1
+expect dos_panel_arrow 0
+key Escape
+frames 3
+expect right_column world
+expect transcript Item: None!
+# Z-stats: the pages in the panel ("Status: " waits on the console).
+text z
+frames 3
+key Return
+frames 3
+expect dos_panel 1
+expect overlay_panel 0
+expect right_column dos_box
+expect dos_panel_title Mage
+expect dos_panel_row 0 Lv-2
+expect dos_panel_row 3 Str=
+expect console Status:
+key Right
+frames 3
+expect dos_panel_row 0 Arms
+expect dos_panel_row 2 Chain Coif
+expect dos_panel_row 4 Long Sword
+key Escape
+frames 3
+expect right_column world
+expect transcript Status: Done
+# (M)ix: "Reagents:", no frame, ` NN NAME` with the DOS short names, the bar
+# over the whole row, RETURN marks one cell in reverse video.
+text m
+frames 3
+text an
+key Return
+frames 4
+expect dos_panel 1
+expect right_column dos_box
+expect dos_panel_title Reagents:
+expect dos_panel_row 1  04 Sulfur Ash
+expect dos_panel_row 4  06 Sp. Silk
+expect dos_panel_row 5  03 Blk. Pearl
+expect dos_panel_bar 1
+key Return
+frames 3
+expect dos_panel_row 1  04+Sulfur Ash
+key Escape
+frames 3
+key Escape
+frames 3
+# The reagent seller (SHOPPES 0x075E): the list in the console, letters,
+# no offer panel; the arrows move nothing; the deal question on the pitch.
+shop reagents
+frames 3
+expect shop_panel 0
+expect right_column world
+text y
+frames 4
+expect shop_panel 0
+expect dos_panel 0
+expect right_column world
+expect console A...Ginseng
+expect console Thy interest?
+# No highlight to move, and RETURN leaves the reagents' list (SHOPPES 0x06e0):
+# an arrow then RETURN must not buy the row an invisible cursor stands on.
+key Down
+frames 2
+expect shop_panel 0
+key Return
+frames 4
+expect mode 0
+expect no_console Is this thy
+shop reagents
+frames 3
+text y
+frames 4
+text a
+frames 4
+expect console Is this thy
+text n
+frames 4
+key Escape
+frames 4
+# The blacksmith (SHOPPES 0x12B2): Buy is a console list, no prices.
+shop blacksmith
+frames 3
+key Return
+frames 3
+text b
+frames 4
+expect shop_panel 0
+expect right_column world
+expect console a...Dagger
+key Escape
+frames 4
+# Sell is the "Arms" window (list_wares 0x0c80) in the roster box, the
+# status box below it, the arrows move its bar.
+shop blacksmith
+frames 3
+key Return
+frames 3
+text s
+frames 4
+expect shop_panel 0
+expect dos_panel 1
+expect dos_panel_title Arms
+expect dos_panel_layout split
+expect right_column dos_split
+expect dos_panel_row 1  1-Sm. Shield
+expect dos_panel_bar 1
+key Down
+frames 3
+expect dos_panel_bar 2
+key Escape
+frames 4
+expect right_column world
+# The guild (SHOPPES 0x04A2): the three fixed rows and "Thy concern?".
+shop guild
+frames 3
+text y
+frames 4
+expect shop_panel 0
+expect right_column world
+expect console a.........Keys
+expect console Thy concern?
+key Escape
+frames 4
+# The healer (SHOPPES 0x14F8): the question on the console, the member on the roster.
+shop healer
+frames 3
+text y
+frames 4
+expect console What is the nature
+text h
+frames 4
+expect shop_panel 0
+expect select_banner 1
+expect right_column world
+expect console Who needs my aid?

@@ -49,6 +49,7 @@ class DesktopProfile {
     static const char *scaling_label(void *context, char *out, size_t capacity);
     static bool scaling_adjust(void *context, int delta);
     static const char *dos_text(void *context, uint8_t table, int index);
+    static bool dos_screen(void *context);
 
     Hooks hooks_{};
 };

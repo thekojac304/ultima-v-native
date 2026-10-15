@@ -2,7 +2,7 @@
 #
 #   cmake -DEXE=... -DSCRIPT=... -DPACKS=<folder with openu5-*.bin> -DWORK=<scratch>
 #         [-DMODE=original|enhanced] [-DIMPORT=<folder with SAVED.GAM/SAVED.OOL>]
-#         [-DVIDEO=<SDL video driver>]
+#         [-DVIDEO=<SDL video driver>] [-DARGS=<more options, ;-separated>]
 #         [-DEXPECT_FILES=a;b] [-DEXPECT_SIZES=name=bytes;...] -P run_scenario.cmake
 #
 # A fresh data folder is made for every run (WORK is deleted first), so a
@@ -39,6 +39,9 @@ if(DEFINED MODE AND NOT MODE STREQUAL "")
 endif()
 if(DEVELOPER)
   list(APPEND _args --developer)
+endif()
+if(DEFINED ARGS AND NOT ARGS STREQUAL "")
+  list(APPEND _args ${ARGS})
 endif()
 # Run inside WORK, so a script's relative paths (window_screenshot) land there.
 execute_process(COMMAND "${EXE}" ${_args} WORKING_DIRECTORY "${WORK}"

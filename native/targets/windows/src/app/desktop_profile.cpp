@@ -14,6 +14,7 @@ constexpr Scaling kScalingOrder[] = {Scaling::Framed, Scaling::Integer, Scaling:
 constexpr int kScalingStates = int(sizeof(kScalingOrder) / sizeof(kScalingOrder[0]));
 
 char g_banner[64];
+char g_about[96];
 } // namespace
 
 size_t DesktopProfile::rows_for(InterfaceMode mode, SettingsRowId *out, size_t capacity) {
@@ -114,9 +115,18 @@ const char *DesktopProfile::dos_text(void *context, uint8_t table, int index) {
     return self->hooks_.dos_text ? self->hooks_.dos_text->text(table, index) : nullptr;
 }
 
+// Original's game screen is the 1988 game's 320x200 one unless windows.json
+// (or --original-screen) asks for the handheld's.
+bool DesktopProfile::dos_screen(void *context) {
+    const auto *self = static_cast<const DesktopProfile *>(context);
+    return original_mode(context) && self->hooks_.settings->original_screen == OriginalScreen::Dos;
+}
+
 void DesktopProfile::install(const Hooks &hooks) {
     hooks_ = hooks;
     std::snprintf(g_banner, sizeof(g_banner), "%s for Windows %s", build::kProductName, build::kVersion);
+    // The System Menu's subtitle row holds 50 cells.
+    std::snprintf(g_about, sizeof(g_about), "%s %s, git %.12s", build::kProductName, build::kVersion, build::kGitCommit);
     openu5::PlatformProfile p{};
     p.back_key = "Esc";
     p.move_keys = "Arrows";
@@ -127,8 +137,10 @@ void DesktopProfile::install(const Hooks &hooks) {
     p.storage_write_error = "disk write error";
     p.storage_short = "disk";
     p.banner = g_banner;
-    // Printed once, when the runtime starts: the same in both interface modes.
+    // Printed once, when the runtime starts in Enhanced; Original opens on the
+    // 1988 game's empty console, and the System Menu names the build instead.
     p.banner_keys = "Esc back  F10 menu  Alt+Enter fullscreen";
+    p.about = g_about;
     p.settings_rows = &DesktopProfile::settings_rows;
     p.settings_context = this;
     p.platform_rows[0] = {&DesktopProfile::interface_label, &DesktopProfile::interface_adjust, this};
@@ -150,6 +162,8 @@ void DesktopProfile::install(const Hooks &hooks) {
     p.dos_interface_context = this;
     p.dos_text = &DesktopProfile::dos_text;
     p.dos_text_context = this;
+    p.dos_screen = &DesktopProfile::dos_screen;
+    p.dos_screen_context = this;
     openu5::set_platform_profile(p);
 }
 

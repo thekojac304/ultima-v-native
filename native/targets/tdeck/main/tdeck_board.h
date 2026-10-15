@@ -197,6 +197,19 @@ public:
     void set_idle_service(IdleService *service) { idle_ = service; }
     const BoardDrawCalls &draw_calls() const { return draw_calls_; }
     void reset_draw_calls() { draw_calls_ = {}; }
+#if defined(OPENU5_DESKTOP_DOS_LAYOUT)
+    // Windows port, Original mode (openu5::platform_dos_screen): the game screen
+    // is the DOS game's own 320 x 200 one on the panel's rows 0..199 --
+    // ULTIMA.EXE's frame (0x63ac..0x64f7), the map whole at (8,8) with the sky
+    // and wind bands outside it, the right panel's two boxes and the 16 x 13
+    // console -- instead of the handheld's 320 x 240 screen. The frontend and
+    // the Developer screen stay the handheld's. Built only into the desktop
+    // target (board_dos_layout.cpp): the T-Deck compiles none of it.
+    void set_dos_layout(bool on);
+    bool dos_layout() const { return dos_layout_; }
+    /** The panel rows the screen on it fills, from row 0: 200 for the DOS screen, else 240. */
+    int picture_height() const;
+#endif
 
 private:
     // A3-04C: every TFT transaction and every draw-loop yield goes through
@@ -267,6 +280,30 @@ private:
      * original's geometry; the console below is not touched.
      */
     esp_err_t draw_dos_panel(const DeviceDosPanel &panel, const uint8_t *runes_font);
+#if defined(OPENU5_DESKTOP_DOS_LAYOUT)
+    // board_dos_layout.cpp: show_alpha, the camp and bed draws on the DOS screen.
+    esp_err_t show_alpha_dos(const uint16_t *pixels, const openu5::UiSession &, const openu5::GameState &,
+                             const openu5::HudWorldState &, const uint8_t *runes_font, const uint8_t *animated_cells,
+                             bool animation_only, const DeviceSelectionView *selection,
+                             DevicePartyHighlight party_highlight, uint32_t viewport_crc,
+                             const openu5::HudDungeonBands *dungeon_bands, bool preserve_party_panel);
+    esp_err_t dos_camp_viewport(const uint16_t *pixels);
+    esp_err_t dos_fill_bed_viewport();
+    esp_err_t dos_refresh_bed_status_panel(const openu5::GameState &, DevicePartyHighlight);
+    /** Every pixel of the frame (rows 0..199) and black below it: the DOS screen's first draw. */
+    esp_err_t draw_dos_frame();
+    /** A band row of the frame (8 px at `y`) with a ►caption◄ notch from `start_x`, or the sky track. */
+    esp_err_t draw_dos_band(int y, const char *caption, int start_x, const openu5::HudWorldState *sky,
+                            const uint8_t *runes_font);
+    /** The right panel at the DOS geometry, x 184..319 x y 0..87 (the world's own is a DeviceDosPanel too). */
+    esp_err_t draw_dos_screen_panel(const DeviceDosPanel &panel, const uint8_t *runes_font);
+    /** The roster, F/G and the date as the frame's two boxes show them (`select_banner`: "Select:"). */
+    void compose_dos_world_panel(DeviceDosPanel &out, const openu5::GameState &, DevicePartyHighlight) const;
+    /** Text window 2: the console's 13 rows of 16 cells and its wait cursor. */
+    esp_err_t draw_dos_console(const openu5::UiSession &, bool force);
+    /** Paints a rectangle pixel by pixel from `pixel(x, y)` (screen coordinates), rows batched as every loop here. */
+    template <class PixelAt> esp_err_t paint_rect(int x, int y, int width, int height, PixelAt pixel);
+#endif
     /** The frontend shell: blue band, >title< caption, white-ruled content window. */
     esp_err_t draw_frontend_shell(const char *title);
     bool chrome_glyph_bit(char c, int row, int col) const;
@@ -371,6 +408,26 @@ private:
     // draws one: the T-Deck never does, so its .bss keeps only the pointer).
     std::unique_ptr<DeviceDosPanel> dos_panel_cache_;
     bool dos_panel_cache_valid_ = false;
+#if defined(OPENU5_DESKTOP_DOS_LAYOUT)
+    // The DOS screen: whether it is selected, whether its frame is on the panel
+    // (anything else that paints the panel clears alpha_drawn_ or sets
+    // frontend_drawn_ / debug_drawn_), and what each part last drew.
+    bool dos_layout_ = false;
+    bool dos_screen_drawn_ = false;
+    struct DosScreenCache {
+        DeviceDosPanel panel{};
+        bool panel_valid = false;
+        uint32_t viewport_crc = 0;
+        bool viewport_valid = false;
+        uint32_t sky_signature = 0;
+        bool sky_valid = false;
+        char bottom_band[34]{};
+        bool bottom_valid = false;
+        char console[kDosConsoleRows][openu5::kUiRenderedLineBytes + 1]{};
+        bool console_valid = false;
+    };
+    std::unique_ptr<DosScreenCache> dos_cache_;
+#endif
     DeviceContextActionBar context_cache_{};
     bool context_cache_valid_ = false;
     struct FrontendCache {

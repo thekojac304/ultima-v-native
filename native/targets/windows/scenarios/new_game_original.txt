@@ -21,8 +21,19 @@ text A
 wait 2500
 expect frontend 0
 expect mode 0
-expect transcript Ultima V Native for Windows
-expect transcript Esc back  F10 menu
+# Original opens on the 1988 game's own empty console: no build line, no key
+# legend (Enhanced prints them); the System Menu names the build instead.
+expect no_transcript Ultima V Native
+expect no_transcript Esc back
+expect game_screen dos
+key F10
+frames 3
+expect system_menu 1
+expect footer Ultima V Native
+expect footer , git
+key Escape
+frames 3
+expect system_menu 0
 expect remember_position x
 key Up
 wait 300

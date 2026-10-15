@@ -82,11 +82,20 @@ struct PlatformProfile {
     // runtime then keeps the device's own name (the T-Deck never asks).
     const char *(*dos_text)(void *context, uint8_t table, int index) = nullptr;
     void *dos_text_context = nullptr;
+    // Whether the game screen is the DOS game's own 320 x 200 one -- the map at
+    // (8,8), the right panel's boxes and the 16 x 13 console of ULTIMA.EXE's
+    // frame -- instead of the handheld's 320 x 240 one. The console then wraps
+    // at 16 columns and shows 13 rows (kDosConsoleColumns / kDosConsoleRows).
+    // Null = the handheld's screen (the T-Deck).
+    bool (*dos_screen)(void *context) = nullptr;
+    void *dos_screen_context = nullptr;
 
     // --- System Menu --------------------------------------------------------
     // Whether the root lists Difficulty and Cheats. Null = always (the T-Deck).
     bool (*enhanced_rows)(void *context) = nullptr;
     void *enhanced_context = nullptr;
+    // The root page's subtitle: what the build is. Null = none (the T-Deck).
+    const char *about = nullptr;
 };
 
 const PlatformProfile &platform_profile();
@@ -103,6 +112,8 @@ bool platform_typed_spell_names();
 bool platform_quit_save_key();
 /** Whether the 1988 interaction model is active now (false on the T-Deck). */
 bool platform_dos_interface();
+/** Whether the game screen is the DOS game's 320 x 200 one now (false on the T-Deck). */
+bool platform_dos_screen();
 
 /**
  * The DATA.OVL tables the 1988 list panels print, by their DGROUP address

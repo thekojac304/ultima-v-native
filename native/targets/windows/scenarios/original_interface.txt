@@ -36,7 +36,7 @@ expect mode 11
 expect overlay_panel 0
 expect dos_panel 1
 expect dos_panel_title Mage
-expect right_column dos_box
+expect right_column screen_box
 expect overlay_title Mage
 expect context_bar 0
 expect transcript Player: Mage
@@ -63,7 +63,7 @@ expect transcript Player: Shamino
 expect overlay_panel 0
 expect dos_panel 1
 expect dos_panel_title Shamino
-expect right_column dos_box
+expect right_column screen_box
 expect context_bar 0
 key Escape
 frames 3

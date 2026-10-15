@@ -83,7 +83,7 @@ bool Presenter::create(const char *title, const DesktopSettings &settings) {
         error_ = std::string("SDL_CreateWindow: ") + SDL_GetError();
         return false;
     }
-    SDL_SetWindowMinimumSize(window_, kW, kH);
+    SDL_SetWindowMinimumSize(window_, kW, kDosPictureH);
     renderer_ = SDL_CreateRenderer(window_, nullptr);
     if (!renderer_) {
         error_ = std::string("SDL_CreateRenderer: ") + SDL_GetError();
@@ -105,6 +105,7 @@ bool Presenter::create(const char *title, const DesktopSettings &settings) {
     SDL_SetRenderLogicalPresentation(renderer_, 0, 0, SDL_LOGICAL_PRESENTATION_DISABLED);
     ESP_LOGI(kTag, "renderer %s, display content scale %.2f", SDL_GetRendererName(renderer_), double(content_scale()));
     scaling_ = settings.scaling;
+    shape_h_ = shaped_h_ = picture_h_ = window_picture_height(settings.interface_mode, settings.original_screen);
     set_vsync(settings.vsync);
     // No saved scale: the first-run default from the display's scale.
     set_window_scale(settings.window_scale == kAutoWindowScale ? default_window_scale() : settings.window_scale);
@@ -146,7 +147,7 @@ void Presenter::upload() {
 void Presenter::draw() {
     int w = 0, h = 0;
     SDL_GetCurrentRenderOutputSize(renderer_, &w, &h);
-    layout_ = layout_presentation(w, h, scaling_);
+    layout_ = layout_presentation(w, h, scaling_, picture_h_);
     // Whole-number scales sample nearest; a fractional Fit samples as pixel
     // art (even columns and rows), where the renderer has it -- SDL falls
     // back to nearest on renderers without it, and so does this.
@@ -163,7 +164,8 @@ void Presenter::draw() {
         SDL_RenderTexture(renderer_, piece.colour == RingColour::Band ? ring_band_ : ring_rule_, nullptr, &dst);
     }
     const SDL_FRect picture = frect(layout_.picture);
-    SDL_RenderTexture(renderer_, texture_, nullptr, &picture);
+    const SDL_FRect source{0.0f, 0.0f, float(kW), float(layout_.picture_h)};
+    SDL_RenderTexture(renderer_, texture_, &source, &picture);
 }
 
 void Presenter::present(bool force) {
@@ -242,7 +244,7 @@ void Presenter::window_changed() {
     if (!normal()) return; // fullscreen or maximised: N stays the size it returns to
     take_shape();
     int w = 0, h = 0;
-    if (SDL_GetWindowSizeInPixels(window_, &w, &h) && w > 0 && h > 0) window_scale_ = uint8_t(client_window_scale(w, h));
+    if (SDL_GetWindowSizeInPixels(window_, &w, &h) && w > 0 && h > 0) window_scale_ = uint8_t(client_window_scale(w, h, shape_h_));
 }
 
 void Presenter::set_fullscreen(bool on) {
@@ -299,12 +301,12 @@ void Presenter::measure_borders() {
 
 uint8_t Presenter::largest_window_scale() {
     measure_borders();
-    return uint8_t(uv::largest_window_scale(work_area(), borders_));
+    return uint8_t(uv::largest_window_scale(work_area(), borders_, shape_h_));
 }
 
 uint8_t Presenter::default_window_scale() {
     measure_borders();
-    return uint8_t(uv::default_window_scale(content_scale(), work_area(), borders_));
+    return uint8_t(uv::default_window_scale(content_scale(), work_area(), borders_, shape_h_));
 }
 
 void Presenter::lock_aspect(const WindowPlan &plan) {
@@ -325,7 +327,7 @@ uint8_t Presenter::set_window_scale(uint8_t scale) {
     }
     measure_borders();
     const WorkArea area = work_area();
-    const WindowPlan plan = plan_window(scale, scaling_, area, borders_);
+    const WindowPlan plan = plan_window(scale, scaling_, area, borders_, shape_h_);
     window_scale_ = uint8_t(plan.scale);
     if (!fullscreen()) apply_plan(plan);
     ESP_LOGI(kTag, "WINDOW %ux asked, %ux %s client %dx%d at %d,%d (work area %dx%d at %d,%d, frame %d/%d/%d/%d)%s",
@@ -343,18 +345,21 @@ void Presenter::apply_plan(const WindowPlan &plan) {
     SDL_SetWindowPosition(window_, plan.x, plan.y);
     lock_aspect(plan);
     shaped_for_ = scaling_;
+    shaped_h_ = shape_h_;
 }
 
 void Presenter::take_shape() {
-    // "Window N x" is a framed client in Framed and a bare one otherwise. A
-    // fullscreen or maximised window keeps the old shape until it is a
-    // normal window again (Windows ignores a size given while maximised).
-    if (shaped_for_ == scaling_ || !normal()) return;
+    // "Window N x" is a framed client in Framed and a bare one otherwise, for
+    // the picture height the window is shaped for. A fullscreen or maximised
+    // window keeps the old shape until it is a normal window again (Windows
+    // ignores a size given while maximised).
+    if ((shaped_for_ == scaling_ && shaped_h_ == shape_h_) || !normal()) return;
     measure_borders();
     const WorkArea area = work_area();
-    const WindowPlan was = plan_window(window_scale_, shaped_for_, area, borders_);
-    WindowPlan plan = plan_window(window_scale_, scaling_, area, borders_);
+    const WindowPlan was = plan_window(window_scale_, shaped_for_, area, borders_, shaped_h_);
+    WindowPlan plan = plan_window(window_scale_, scaling_, area, borders_, shape_h_);
     shaped_for_ = scaling_;
+    shaped_h_ = shape_h_;
     // The same window in both (Whole pixels <-> Fit, or Framed that did not
     // fit framed): the player's size, place and aspect lock stay.
     if (plan.client_w == was.client_w && plan.client_h == was.client_h) return;
@@ -364,8 +369,22 @@ void Presenter::take_shape() {
     plan = keep_centre(plan, x, y, w, h, area, borders_);
     window_scale_ = uint8_t(plan.scale);
     apply_plan(plan);
-    ESP_LOGI(kTag, "WINDOW %s at %ux: %s client %dx%d at %d,%d (was %dx%d at %d,%d)", scaling_name(scaling_),
-             unsigned(plan.scale), plan.framed ? "framed" : "bare", plan.client_w, plan.client_h, plan.x, plan.y, w, h, x, y);
+    ESP_LOGI(kTag, "WINDOW %s 320x%d at %ux: %s client %dx%d at %d,%d (was %dx%d at %d,%d)", scaling_name(scaling_),
+             shape_h_, unsigned(plan.scale), plan.framed ? "framed" : "bare", plan.client_w, plan.client_h, plan.x, plan.y, w,
+             h, x, y);
+}
+
+void Presenter::set_window_shape(int picture_h) {
+    if (picture_h == shape_h_) return;
+    shape_h_ = picture_h;
+    stale_ = true;
+    take_shape();
+}
+
+void Presenter::set_picture_height(int picture_h) {
+    if (picture_h == picture_h_) return;
+    picture_h_ = picture_h;
+    stale_ = true;
 }
 
 void Presenter::set_scaling(Scaling scaling) {
@@ -379,15 +398,16 @@ void Presenter::set_vsync(bool on) {
 }
 
 bool Presenter::save_screenshot(const std::wstring &path) const {
-    // The 320x240 panel itself, never the window.
+    // The picture itself, never the window: the panel's first picture_h_ rows
+    // (320x200 on Original's DOS screen, else the whole 320x240 panel).
     const uint16_t *src = panel::pixels();
-    std::vector<uint32_t> rgb(size_t(kW) * size_t(kH));
+    std::vector<uint32_t> rgb(size_t(kW) * size_t(picture_h_));
     for (size_t i = 0; i < rgb.size(); ++i) {
         const uint16_t p = src[i];
         const uint32_t r = ((p >> 11) & 31) * 255 / 31, g = ((p >> 5) & 63) * 255 / 63, b = (p & 31) * 255 / 31;
         rgb[i] = (r << 16) | (g << 8) | b;
     }
-    return write_bmp(path, kW, kH, rgb.data());
+    return write_bmp(path, kW, picture_h_, rgb.data());
 }
 
 } // namespace uv

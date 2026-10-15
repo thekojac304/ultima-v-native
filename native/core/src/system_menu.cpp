@@ -81,6 +81,8 @@ uint8_t SystemMenuSession::root_rows(RootRow*out)const{uint8_t n=0;const bool en
 uint8_t SystemMenuSession::root_index(RootRow row)const{RootRow rows[kRootRowCount];const uint8_t n=root_rows(rows);for(uint8_t i=0;i<n;++i)if(rows[i]==row)return i;return 0;}
 SystemMenuIntent SystemMenuSession::take_intent(){auto i=pending_;pending_={};return i;}
 FrontendView SystemMenuSession::view()const{FrontendView v{};v.kind=page_==Page::Settings?FrontendViewKind::Settings:FrontendViewKind::SystemMenu;v.title="System Menu";static char d[12][96]{};if(page_==Page::Root){static constexpr const char*kRootNames[kRootRowCount]={"Resume","Save Game","Load Game","Settings","Difficulty","Cheats","Return to Title"};RootRow rows[kRootRowCount];const uint8_t count=root_rows(rows);for(uint8_t i=0;i<count;++i)v.lines[v.line_count++]=kRootNames[rows[i]];v.selected_line=cursor_;const RootRow row=cursor_<count?rows[cursor_]:kResumeRow;platform_format(d[11],96,"{menu} or {back}: resume");
+ // Windows port: the build, where the console no longer prints it (none on the T-Deck).
+ if(platform_profile().about)v.subtitle=platform_profile().about;
  // Alpha 4 UI Batch 2: the selected row says what it will do.
  v.footer=notice_[0]?notice_:row==kSaveRow?"Choose a slot to save this journey in":row==kLoadRow?"Choose a saved journey to load":row==kDifficultyRow?"Original, or a gentler journey":row==kCheatsRow?"Optional cheats; using one marks the save":row==kReturnToTitleRow?"Unsaved progress will be lost":d[11];}
  else if(page_==Page::Load||page_==Page::Save){const bool saving=page_==Page::Save;v.title=saving?"Save Game":"Load Game";v.subtitle=saving?"Choose a slot":"Choose a saved journey";

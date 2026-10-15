@@ -19,17 +19,21 @@ set(_runner "${CMAKE_CURRENT_SOURCE_DIR}/run_scenario.cmake")
 set(_work "${CMAKE_CURRENT_BINARY_DIR}/work")
 
 function(uv_scenario name)
-  cmake_parse_arguments(S "DEVELOPER" "MODE;IMPORT;VIDEO" "EXPECT_FILES;EXPECT_SIZES" ${ARGN})
+  cmake_parse_arguments(S "DEVELOPER" "MODE;IMPORT;VIDEO;SCRIPT" "EXPECT_FILES;EXPECT_SIZES;ARGS" ${ARGN})
+  if(NOT S_SCRIPT)
+    set(S_SCRIPT ${name})
+  endif()
   add_test(NAME scenario_${name}
     COMMAND ${CMAKE_COMMAND}
       -DEXE=$<TARGET_FILE:UltimaVNative>
-      -DSCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/${name}.txt
+      -DSCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/${S_SCRIPT}.txt
       -DPACKS=${UV_SCENARIO_PACKS}
       -DWORK=${_work}/${name}
       -DMODE=${S_MODE}
       -DIMPORT=${S_IMPORT}
       -DVIDEO=${S_VIDEO}
       -DDEVELOPER=${S_DEVELOPER}
+      "-DARGS=${S_ARGS}"
       "-DEXPECT_FILES=${S_EXPECT_FILES}"
       "-DEXPECT_SIZES=${S_EXPECT_SIZES}"
       -P ${_runner})
@@ -48,11 +52,20 @@ uv_scenario(original_keys MODE original)
 uv_scenario(original_interface MODE original)
 uv_scenario(enhanced_interface MODE enhanced)
 # The window as presented (Classic Framed, Whole pixels, Fit, the window's
-# scale and fullscreen), read back from the renderer; F12's picture stays the
-# 320x240 panel (230,454-byte BMP).
-uv_scenario(presentation MODE original
+# scale and fullscreen), read back from the renderer, on the handheld's
+# 320x240 screen (Enhanced's; Original's with --original-screen handheld); F12's
+# picture is the 320x240 panel (230,454-byte BMP).
+uv_scenario(presentation MODE original ARGS --original-screen handheld
   EXPECT_FILES "window-framed-3x.bmp;panel.bmp;window-play-1080.bmp;panel-play.bmp;ultima5/windows.json"
   EXPECT_SIZES "window-framed-3x.bmp=2322486;panel.bmp=230454;window-play-1080.bmp=6220854;panel-play.bmp=230454")
+# The same on Original's default screen, the 1988 game's 320x200 one: the
+# window shaped for it ("Window 3x" = 1008x648 framed), the 320x240 frontend
+# at the largest whole scale that fits there, fullscreen, the three scalings,
+# the window reshaped by an interface switch; F12's picture is 320x200
+# (192,054-byte BMP), the frame's pixels checked against ULTIMA.EXE's.
+uv_scenario(presentation_dos MODE original
+  EXPECT_FILES "dos-window-3x.bmp;dos-panel.bmp;dos-fullscreen.bmp;dos-window-1080.bmp;menu-window-3x.bmp"
+  EXPECT_SIZES "dos-window-3x.bmp=1959606;dos-panel.bmp=192054;dos-fullscreen.bmp=2359350;dos-window-1080.bmp=6220854;menu-window-3x.bmp=1959606")
 # The same kind of checks where the offscreen driver cannot look: a real
 # window on SDL's own Windows driver, so the default renderer (Direct3D 11)
 # samples the ring and a pixel-art Fit, and the window can be maximised. It
@@ -87,6 +100,8 @@ if(UV_ENABLE_DEVELOPER_TOOLS)
   # presented pixels (expect right_column) as well as on the views.
   uv_scenario(original_dos_panels MODE original DEVELOPER)
   uv_scenario(enhanced_panels MODE enhanced DEVELOPER)
+  # The same Original checks on the handheld's 320x240 screen ("originalScreen": "Handheld").
+  uv_scenario(original_dos_panels_handheld MODE original DEVELOPER ARGS --original-screen handheld)
 else()
   message(STATUS "Scenarios dungeon_walk, surface_combat, typed_cast_combat, town_talk skipped: UV_ENABLE_DEVELOPER_TOOLS is OFF")
 endif()

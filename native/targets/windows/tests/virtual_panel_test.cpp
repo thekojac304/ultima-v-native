@@ -24,6 +24,10 @@
 #include "driver/spi_master.h"
 #include "esp_err.h"
 #include "openu5/frontend.h"
+#include "openu5/hud.h"
+#include "openu5/state.h"
+#include "openu5/turn.h"
+#include "openu5/ui_session.h"
 #include "platform/virtual_panel.h"
 #include "tdeck_board.h"
 #include "tdeck_pins.h"
@@ -354,11 +358,179 @@ void real_board() {
     check(panel::stats().malformed == 0, "B12 no malformed transaction across all frontend draws");
 }
 
+// --- Part 3: Original's DOS game screen (board_dos_layout.cpp) -------------------
+// The real Board composes the 1988 game's 320 x 200 screen on the panel's rows
+// 0..199: ULTIMA.EXE's frame, the map whole at (8,8), the sky and wind bands
+// outside it, the right panel's boxes (the world's, or a list's DeviceDosPanel)
+// and the 16 x 13 console; the bed and camp draws and an ending page use the
+// same rows; leaving the layout gives the handheld's 320 x 240 screen back.
+void dos_screen() {
+    constexpr uint16_t kBand = 0x0015, kRule = 0xFFFF, kBlack = 0x0000, kMap = 0x07E0;
+    panel::reset(0x1234);
+    auto board = std::make_unique<tdeck::Board>();
+    check(board->initialize_display() == ESP_OK, "D0 a fresh Board on the virtual panel");
+    board->set_dos_layout(true);
+    check(board->dos_layout() && board->picture_height() == 200, "D1 set_dos_layout(true): the picture is 200 rows",
+          format("%d", board->picture_height()));
+
+    openu5::UiTextBlock storage[32]{};
+    openu5::UiSession ui{{storage, 32}, {}, {16, 21, 12}};
+    ui.set_console_layout(true);
+    ui.append(openu5::UiTextChannel::Message, "Hello from 1988");
+    openu5::GameState game{};
+    game.party.character_count = 1;
+    game.party.party_size = 1;
+    game.party.active_character = 0;
+    std::snprintf(game.party.characters[0].name, sizeof(game.party.characters[0].name), "Avatar");
+    game.party.characters[0].current_hp = 150;
+    game.party.characters[0].status = 'G';
+    game.party.characters[0].party_status = 0;
+    game.food = 63;
+    game.gold = 150;
+    openu5::TurnState turn{};
+    openu5::HudWorldState hud{};
+    hud.sky_visible = hud.wind_visible = true;
+    hud.wind = "West  Winds";
+    hud.marks[0] = {int8_t(5), uint8_t(0x30), false};
+    hud.mark_count = 1;
+    std::vector<uint8_t> runes(128 * 8, 0);
+    for (int r = 0; r < 8; ++r) runes[0x30 * 8 + r] = 0xFF; // a moon that fills its cell
+    std::vector<uint16_t> map(176 * 176, kMap);
+    auto draw = [&](const tdeck::DeviceSelectionView *selection = nullptr) {
+        return board->show_alpha(map.data(), ui, game, turn, hud, runes.data(), nullptr, nullptr, false, nullptr, false, 1,
+                                 nullptr, selection, nullptr, {}, 1);
+    };
+    check(draw() == ESP_OK && panel::stats().malformed == 0, "D2 show_alpha draws the DOS screen (well-formed stream)");
+    struct Probe {
+        int x, y;
+        uint16_t want;
+        const char *what;
+    };
+    auto probe = [&](const char *id, std::initializer_list<Probe> probes) {
+        std::string bad;
+        for (const auto &q : probes)
+            if (at(q.x, q.y) != q.want && bad.empty())
+                bad = format("%s at %d,%d is %04x, expected %04x", q.what, q.x, q.y, unsigned(at(q.x, q.y)), unsigned(q.want));
+        check(bad.empty(), id, bad);
+    };
+    probe("D3 the frame: the map's box rules at x 7 / 184, the bands, the panel's and console's rules, the cut corners",
+          {{7, 100, kRule, "map box left rule"},
+           {184, 100, kRule, "map box right rule"},
+           {20, 7, kRule, "map box top rule"},
+           {20, 184, kRule, "map box bottom rule"},
+           {3, 100, kBand, "left band"},
+           {188, 100, kBand, "separator band"},
+           {191, 30, kRule, "roster box left rule"},
+           {312, 30, kRule, "roster box right rule"},
+           {316, 40, kBand, "right strip"},
+           {200, 56, kRule, "roster box bottom rule"},
+           {200, 60, kBand, "bar between the boxes"},
+           {200, 63, kRule, "status box top rule"},
+           {200, 80, kRule, "status box bottom rule"},
+           {200, 84, kBand, "band over the console"},
+           {300, 87, kRule, "console top rule"},
+           {191, 140, kRule, "console left rule"},
+           {0, 0, kBlack, "top-left corner"},
+           {319, 0, kBlack, "top-right corner"},
+           {0, 191, kBlack, "bottom-left corner"},
+           {100, 195, kBlack, "row 24, left"},
+           {300, 195, kBlack, "row 24, under the console"}});
+    size_t below = 0;
+    for (int y = 200; y < panel::kHeight; ++y)
+        for (int x = 0; x < panel::kWidth; ++x) below += at(x, y) != kBlack;
+    check(below == 0, "D4 the panel's rows 200..239 are black (the presenter never shows them)", format("%zu lit", below));
+    probe("D5 the map is whole at (8,8)-(183,183): no strip covers its top or bottom rows",
+          {{8, 8, kMap, "map top-left"}, {183, 8, kMap, "map top-right"}, {8, 183, kMap, "map bottom-left"},
+           {183, 183, kMap, "map bottom-right"}, {100, 10, kMap, "map row 2"}, {100, 180, kMap, "map row 172"}});
+    probe("D6 the sky band: > at x 40, the notch x 48..143 black, a moon in cell 5 (x 88..95)",
+          {{40, 0, kRule, "> edge"}, {40, 7, kRule, "> edge on the rule row"}, {44, 2, kRule, "> edge"},
+           {50, 3, kBlack, "notch"}, {90, 3, kRule, "moon"}, {151, 0, kRule, "< edge"}, {30, 3, kBand, "band left of >"}});
+    probe("D7 the wind band: >West  Winds< from col 6 (> at x 48, < at x 144)",
+          {{48, 184, kRule, "> edge (the rule's end)"}, {49, 185, kRule, "> edge"}, {54, 188, kBlack, "> notch"},
+           {151, 191, kRule, "< edge"}, {40, 188, kBand, "band left of >"}, {160, 188, kBand, "band right of <"}});
+    auto lit = [&](int x0, int y0, int x1, int y1) {
+        size_t n = 0;
+        for (int y = y0; y <= y1; ++y)
+            for (int x = x0; x <= x1; ++x) n += at(x, y) == kRule;
+        return n;
+    };
+    check(lit(192, 8, 311, 15) > 20 && lit(192, 16, 311, 55) == 0 && lit(192, 64, 311, 71) > 20 && lit(192, 72, 311, 79) > 10,
+          "D8 the panel: one roster row, F/G and the date in their window rows",
+          format("roster %zu, rows 2-6 %zu, F/G %zu, date %zu", lit(192, 8, 311, 15), lit(192, 16, 311, 55),
+                 lit(192, 64, 311, 71), lit(192, 72, 311, 79)));
+    check(lit(192, 184, 319, 191) > 30 && lit(192, 88, 319, 183) == 0,
+          "D9 the console: its one line on the bottom row (y 184..191), the 12 rows above it empty",
+          format("bottom %zu, above %zu", lit(192, 184, 319, 191), lit(192, 88, 319, 183)));
+    const uint64_t world = panel_hash();
+    draw();
+    check(panel_hash() == world, "D10 the same frame again changes nothing");
+
+    // A list: the 1988 right panel as one box (banner, bar, arrow).
+    tdeck::DeviceDosPanel list{};
+    tdeck::dos_panel_clear(list);
+    std::snprintf(list.banner, sizeof(list.banner), "Items:");
+    tdeck::dos_panel_list_frame(list, 7);
+    tdeck::dos_panel_put(list, 1, 1, "First");
+    list.inverse[1] = 0x3ffe;
+    list.arrow = tdeck::kDosArrowDown;
+    tdeck::DeviceSelectionView view{};
+    view.active = true;
+    view.dos = &list;
+    check(draw(&view) == ESP_OK, "D11 a DOS list panel draws");
+    probe("D12 the list: one box (its sides joined across y 57..62), the banner's > at x 216, the arrow's notch at x 240",
+          {{191, 59, kRule, "box left side across the bar"},
+           {312, 59, kRule, "box right side across the bar"},
+           {216, 0, kRule, "banner > edge"},
+           {218, 3, kBand, "banner > fill"},
+           {240, 80, kRule, "arrow > edge (the rule's end)"},
+           {242, 80, kBlack, "arrow notch over the rule"},
+           {263, 87, kRule, "arrow < edge on the console's rule"},
+           {200, 56, kBlack, "no roster rule inside the box"},
+           {200, 60, kBlack, "no bar inside the box"}});
+    check(lit(200, 16, 303, 23) > 200, "D13 the bar row is in reverse video (cols 1..13)", format("%zu", lit(200, 16, 303, 23)));
+    check(draw() == ESP_OK && panel_hash() == world, "D14 closing the list gives the world screen back pixel for pixel");
+
+    // The bed and the camp: the whole 176 x 176 game window, as the original.
+    check(board->fill_bed_viewport() == ESP_OK && at(8, 8) == kBlack && at(183, 183) == kBlack && at(7, 100) == kRule,
+          "D15 fill_bed_viewport blacks the whole map window (8,8)-(183,183), the frame stays");
+    std::vector<uint16_t> camp(176 * 176, 0xF800);
+    check(board->show_camp_viewport(camp.data(), 7) == ESP_OK && at(8, 8) == 0xF800 && at(183, 183) == 0xF800 &&
+              at(20, 7) == kRule,
+          "D16 show_camp_viewport draws the 176 x 176 scene at (8,8)");
+    check(board->refresh_bed_status_panel(game, {}) == ESP_OK && lit(192, 8, 311, 15) > 20,
+          "D17 refresh_bed_status_panel redraws the roster in the DOS panel");
+    check(draw() == ESP_OK && panel_hash() == world, "D18 the next frame restores the map");
+
+    // The frontend is the handheld's 320 x 240 screen; the DOS screen comes back whole.
+    check(board->show_frontend(fixed_view(1)) == ESP_OK && board->picture_height() == 240,
+          "D19 the frontend fills the panel: picture height 240");
+    check(draw() == ESP_OK && board->picture_height() == 200 && panel_hash() == world,
+          "D20 back in play the DOS screen is redrawn whole, pixel for pixel");
+
+    // An ending page (ENDGAME.OVL's 320 x 200 picture) on the same rows.
+    std::vector<uint8_t> page(320 * 200 / 2, 0x11);
+    uint16_t palette[16]{};
+    palette[1] = 0x001F;
+    check(board->show_endgame_page(page.data(), palette, nullptr, nullptr, nullptr, 1, true) == ESP_OK &&
+              at(0, 0) == 0x001F && at(319, 199) == 0x001F && at(0, 200) == kBlack && board->picture_height() == 200,
+          "D21 an ending page is the panel's rows 0..199 on the DOS screen (the handheld's starts at row 20)");
+
+    // Leaving the layout: the handheld's screen, whole.
+    board->set_dos_layout(false);
+    check(draw() == ESP_OK && board->picture_height() == 240 && at(180, 100) == kRule && at(8, 100) == kMap,
+          "D22 set_dos_layout(false): the handheld's 320 x 240 screen (its play window's rule at x 180)",
+          format("height %d, (180,100) %04x", board->picture_height(), unsigned(at(180, 100))));
+    board->set_dos_layout(true);
+    check(draw() == ESP_OK && panel_hash() == world, "D23 and back: the DOS screen pixel for pixel");
+    check(panel::stats().malformed == 0, "D24 no malformed transaction across the DOS screen's draws");
+}
+
 } // namespace
 
 int main() {
     std::printf("uv_virtual_panel_test: the virtual ST7789 driven by hand, then by the real tdeck::Board\n");
     driver_level();
     real_board();
+    dos_screen();
     return uvtest::finish("uv_virtual_panel_test");
 }

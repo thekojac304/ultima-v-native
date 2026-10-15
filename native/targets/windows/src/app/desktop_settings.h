@@ -30,12 +30,18 @@ enum class Scaling : uint8_t { Integer = 0, Fit = 1, Framed = 2 };
 // windows.json leaves "windowScale" out.
 constexpr uint8_t kAutoWindowScale = 0;
 
+// Original mode's game screen: Dos = the 1988 game's own 320x200 one
+// (Board::set_dos_layout; the default), Handheld = the T-Deck's 320x240 one
+// that Enhanced always shows.
+enum class OriginalScreen : uint8_t { Dos = 0, Handheld = 1 };
+
 struct DesktopSettings {
     InterfaceMode interface_mode = InterfaceMode::Original;
     uint8_t window_scale = kAutoWindowScale;  // the picture's scale N in a window (1..8), or automatic
     bool fullscreen = false;
     Scaling scaling = Scaling::Framed;
     bool vsync = true;
+    OriginalScreen original_screen = OriginalScreen::Dos;
 };
 
 constexpr uint8_t kMinWindowScale = 1, kMaxWindowScale = 8;
@@ -45,6 +51,10 @@ const char *interface_mode_name(InterfaceMode);
 const char *scaling_name(Scaling);
 /** The inverse; an unknown name is the default, Framed. */
 Scaling scaling_from_name(const std::string &name);
+/** "DOS" or "Handheld": the names windows.json and --original-screen take. */
+const char *original_screen_name(OriginalScreen);
+/** The inverse; false (and `out` unchanged) for an unknown name. */
+bool original_screen_from_name(const std::string &name, OriginalScreen &out);
 
 /** Reads `path`; a missing or malformed file (or key) keeps the defaults. False only on a malformed file. */
 bool load_desktop_settings(const std::wstring &path, DesktopSettings &out);

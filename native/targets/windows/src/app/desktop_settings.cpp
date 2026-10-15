@@ -44,6 +44,17 @@ Scaling scaling_from_name(const std::string &name) {
     return Scaling::Framed;
 }
 
+const char *original_screen_name(OriginalScreen screen) {
+    return screen == OriginalScreen::Handheld ? "Handheld" : "DOS";
+}
+
+bool original_screen_from_name(const std::string &name, OriginalScreen &out) {
+    if (name == "DOS") out = OriginalScreen::Dos;
+    else if (name == "Handheld") out = OriginalScreen::Handheld;
+    else return false;
+    return true;
+}
+
 std::string encode_desktop_settings(const DesktopSettings &s) {
     Json doc = Json::object();
     doc["version"] = Json(1);
@@ -54,6 +65,8 @@ std::string encode_desktop_settings(const DesktopSettings &s) {
     doc["fullscreen"] = Json(s.fullscreen);
     doc["scaling"] = Json(scaling_name(s.scaling));
     doc["vsync"] = Json(s.vsync);
+    // The default DOS screen is not written (a file from before it existed reads the same).
+    if (s.original_screen != OriginalScreen::Dos) doc["originalScreen"] = Json(original_screen_name(s.original_screen));
     return openu5::save::write_json(doc) + "\n";
 }
 
@@ -73,6 +86,8 @@ bool decode_desktop_settings(const std::string &text, DesktopSettings &out) {
     if (doc.has("scaling") && doc["scaling"].kind == Json::String)
         s.scaling = scaling_from_name(u16_to_ascii(doc["scaling"].string));
     if (doc.has("vsync") && doc["vsync"].kind == Json::Bool) s.vsync = doc["vsync"].truth();
+    if (doc.has("originalScreen") && doc["originalScreen"].kind == Json::String)
+        original_screen_from_name(u16_to_ascii(doc["originalScreen"].string), s.original_screen);
     out = s;
     return true;
 }

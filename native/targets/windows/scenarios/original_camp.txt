@@ -28,7 +28,7 @@ frames 2
 expect mode 7
 expect context_bar 0
 expect console Hole up & camp!
-expect console For how many hours? | (1-9)
+expect console For how many | hours? (1-9)
 key Return
 frames 2
 key Escape
@@ -37,14 +37,14 @@ expect mode 7
 text 0
 frames 2
 expect mode 0
-expect console For how many hours? | (1-9) 0
+expect console For how many | hours? (1-9) 0
 text h
 frames 2
 text 2
 frames 2
 expect mode 8
-expect console For how many hours? | (1-9) 2
-expect console Wilt thou set a watch?
+expect console For how many | hours? (1-9) 2
+expect console Wilt thou set a | watch?
 key Return
 frames 2
 expect mode 8
@@ -53,8 +53,8 @@ frames 2
 expect mode 9
 expect select_banner 1
 expect overlay_panel 0
-expect console Wilt thou set a watch? | Yes
-expect console Who will stand guard?
+expect console Wilt thou set a | watch? Yes
+expect console Who will stand | guard?
 key Escape
 wait 500
 expect console None posted!

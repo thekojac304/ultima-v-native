@@ -28,6 +28,11 @@ constexpr DeviceTextMetrics ui_text_metrics(uint8_t size) {
 // openu5::kHudTranscriptY) and the glass (240) -- Small's 7 px rows: 21. The
 // device's UiSession shows up to this many (AlphaRuntime::session_config()).
 constexpr size_t kConsoleMaxRows=size_t((240-88)/ui_text_metrics(0).line_height);
+// Windows port, the DOS game's 320 x 200 screen (openu5::platform_dos_screen):
+// its console, text window 2 -- set_text_window(2, 24, 11, 39, 23), INTRO.OVL
+// 0x0d1a -- 16 IBM.CH cells by 13 rows at (192, 88). The T-Deck never uses it.
+constexpr size_t kDosConsoleColumns=16,kDosConsoleRows=13;
+static_assert(kDosConsoleRows<=kConsoleMaxRows,"the session keeps enough rows for the DOS console");
 
 // Alpha 4 A4-UI4 (ALPHA4_UI.md section 8): the boot screens name the release
 // the image is, from its PROJECT_VER ("4.0.0-alpha4-ui4-debug" -> "Alpha 4"),

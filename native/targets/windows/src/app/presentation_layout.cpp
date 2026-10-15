@@ -16,7 +16,7 @@ void add(PresentationLayout &l, int x, int y, int w, int h, RingColour colour) {
 // rows (cut at both ends) and the band's sides.
 void full_ring(PresentationLayout &l, int x0, int y0, int u) {
     const int in = (kRingGap + kRingRule) * u; // the rule's outer edge, from the picture
-    const int pw = kPictureW * u, ph = kPictureH * u;
+    const int pw = kPictureW * u, ph = l.picture_h * u;
     add(l, x0 - in, y0 - in, pw + 2 * in, kRingRule * u, RingColour::Rule);           // rule top
     add(l, x0 - in, y0 + ph + kRingGap * u, pw + 2 * in, kRingRule * u, RingColour::Rule); // rule bottom
     add(l, x0 - in, y0 - kRingGap * u, kRingRule * u, ph + 2 * kRingGap * u, RingColour::Rule);          // rule left
@@ -57,24 +57,25 @@ int place(int origin, int span, int client, int before, int after) {
 
 } // namespace
 
-PresentationLayout layout_presentation(int output_w, int output_h, Scaling scaling) {
+PresentationLayout layout_presentation(int output_w, int output_h, Scaling scaling, int picture_h) {
     PresentationLayout l;
     l.output_w = std::max(0, output_w);
     l.output_h = std::max(0, output_h);
     l.scaling = scaling;
-    const int W = l.output_w, H = l.output_h;
+    l.picture_h = std::clamp(picture_h, 1, kPictureH);
+    const int W = l.output_w, H = l.output_h, PH = l.picture_h;
     if (scaling == Scaling::Fit) {
-        // The largest 4:3 rectangle, in whole pixels, centred.
+        // The largest 320:picture_h rectangle, in whole pixels, centred.
         int w = W, h = H;
-        if (int64_t(W) * kPictureH >= int64_t(H) * kPictureW) w = int(int64_t(H) * kPictureW / kPictureH);
-        else h = int(int64_t(W) * kPictureH / kPictureW);
+        if (int64_t(W) * PH >= int64_t(H) * kPictureW) w = int(int64_t(H) * kPictureW / PH);
+        else h = int(int64_t(W) * PH / kPictureW);
         l.picture = PixelRect{(W - w) / 2, (H - h) / 2, w, h};
-        l.scale = (w % kPictureW == 0 && h % kPictureH == 0 && w / kPictureW == h / kPictureH) ? w / kPictureW : 0;
+        l.scale = (w % kPictureW == 0 && h % PH == 0 && w / kPictureW == h / PH) ? w / kPictureW : 0;
         return l;
     }
     // Whole pixels; never smaller than 1, even in an output smaller than the picture.
-    const int u = std::max(1, std::min(W / kPictureW, H / kPictureH));
-    const int pw = kPictureW * u, ph = kPictureH * u;
+    const int u = std::max(1, std::min(W / kPictureW, H / PH));
+    const int pw = kPictureW * u, ph = PH * u;
     // Floor division (also for a negative leftover): the odd pixel goes right / down.
     auto half = [](int leftover) { return leftover >= 0 ? leftover / 2 : -((1 - leftover) / 2); };
     const int x0 = half(W - pw), y0 = half(H - ph);
@@ -82,7 +83,7 @@ PresentationLayout layout_presentation(int output_w, int output_h, Scaling scali
     l.picture = PixelRect{x0, y0, pw, ph};
     if (scaling != Scaling::Framed) return l;
     // Both sides of an axis or neither: the left / top margin is the smaller
-    // one. No ring beside a picture the output cannot hold (smaller than 320x240).
+    // one. No ring beside a picture the output cannot hold (smaller than the picture).
     const int reach = kRingReach * u;
     if (x0 < reach || y0 < 0) return l;
     if (y0 >= reach) {
@@ -140,12 +141,12 @@ std::string check_presented_frame(const PresentationLayout &l, const uint16_t *p
                     // neighbours (nearest sampling), or a blend of them
                     // (pixel art on Direct3D 11): channel by channel within
                     // the range of the 3x3 texels around the nearest one.
-                    const int sx = int(int64_t(x - p.x) * kPictureW / p.w), sy = int(int64_t(y - p.y) * kPictureH / p.h);
+                    const int sx = int(int64_t(x - p.x) * kPictureW / p.w), sy = int(int64_t(y - p.y) * l.picture_h / p.h);
                     want = panel[size_t(sy) * kPictureW + size_t(sx)];
                     int lo[3] = {31, 63, 31}, hi[3] = {0, 0, 0};
                     for (int dy = -1; dy <= 1; ++dy)
                         for (int dx = -1; dx <= 1; ++dx) {
-                            const int tx = std::clamp(sx + dx, 0, kPictureW - 1), ty = std::clamp(sy + dy, 0, kPictureH - 1);
+                            const int tx = std::clamp(sx + dx, 0, kPictureW - 1), ty = std::clamp(sy + dy, 0, l.picture_h - 1);
                             const uint16_t t = panel[size_t(ty) * kPictureW + size_t(tx)];
                             const int c[3] = {t >> 11, (t >> 5) & 63, t & 31};
                             for (int k = 0; k < 3; ++k) {
@@ -185,17 +186,23 @@ std::string check_presented_frame(const PresentationLayout &l, const uint16_t *p
     return std::string();
 }
 
-WindowPlan plan_window(int requested_scale, Scaling scaling, const WorkArea &area, const WindowBorders &borders) {
+int window_picture_height(InterfaceMode mode, OriginalScreen screen) {
+    return mode == InterfaceMode::Original && screen == OriginalScreen::Dos ? kDosPictureH : kPictureH;
+}
+
+WindowPlan plan_window(int requested_scale, Scaling scaling, const WorkArea &area, const WindowBorders &borders,
+                       int picture_h) {
     WindowPlan p;
+    const int ph = std::clamp(picture_h, 1, kPictureH);
     // Framed N, bare N, framed N-1, ...; at 1 the bare window even when it does not fit.
     for (p.scale = std::clamp(requested_scale, int(kMinWindowScale), int(kMaxWindowScale));; --p.scale) {
         p.framed = scaling == Scaling::Framed &&
-                   window_fits((kPictureW + 2 * kFramedMargin) * p.scale, (kPictureH + 2 * kFramedMargin) * p.scale, area, borders);
-        if (p.framed || p.scale == 1 || window_fits(kPictureW * p.scale, kPictureH * p.scale, area, borders)) break;
+                   window_fits((kPictureW + 2 * kFramedMargin) * p.scale, (ph + 2 * kFramedMargin) * p.scale, area, borders);
+        if (p.framed || p.scale == 1 || window_fits(kPictureW * p.scale, ph * p.scale, area, borders)) break;
     }
     const int margin = p.framed ? kFramedMargin : 0;
     p.aspect_w = kPictureW + 2 * margin;
-    p.aspect_h = kPictureH + 2 * margin;
+    p.aspect_h = ph + 2 * margin;
     p.client_w = p.aspect_w * p.scale;
     p.client_h = p.aspect_h * p.scale;
     p.x = place(area.x, area.w, p.client_w, borders.left, borders.right);
@@ -203,21 +210,22 @@ WindowPlan plan_window(int requested_scale, Scaling scaling, const WorkArea &are
     return p;
 }
 
-int largest_window_scale(const WorkArea &area, const WindowBorders &borders) {
+int largest_window_scale(const WorkArea &area, const WindowBorders &borders, int picture_h) {
     int n = kMaxWindowScale;
-    while (n > 1 && !window_fits(kPictureW * n, kPictureH * n, area, borders)) --n;
+    while (n > 1 && !window_fits(kPictureW * n, picture_h * n, area, borders)) --n;
     return n;
 }
 
-int default_window_scale(float content_scale, const WorkArea &area, const WindowBorders &borders) {
+int default_window_scale(float content_scale, const WorkArea &area, const WindowBorders &borders, int picture_h) {
     // A display scale SDL could not read (0, NaN) or a nonsense one counts as 100 %.
     if (!(content_scale >= 0.5f && content_scale <= 8.0f)) content_scale = 1.0f;
     const int n = std::clamp(int(std::floor(3.0 * double(content_scale) + 1e-6)), int(kMinWindowScale), int(kMaxWindowScale));
-    return std::min(n, largest_window_scale(area, borders));
+    return std::min(n, largest_window_scale(area, borders, picture_h));
 }
 
-int client_window_scale(int client_w, int client_h) {
-    return std::clamp(std::min(client_w / kPictureW, client_h / kPictureH), int(kMinWindowScale), int(kMaxWindowScale));
+int client_window_scale(int client_w, int client_h, int picture_h) {
+    return std::clamp(std::min(client_w / kPictureW, client_h / std::max(1, picture_h)), int(kMinWindowScale),
+                      int(kMaxWindowScale));
 }
 
 WindowPlan keep_centre(WindowPlan plan, int x, int y, int w, int h, const WorkArea &area, const WindowBorders &borders) {

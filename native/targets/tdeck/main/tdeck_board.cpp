@@ -650,9 +650,14 @@ esp_err_t Board::show_endgame_page(const uint8_t *page, const uint16_t *palette,
     ESP_RETURN_ON_ERROR(set_display_window(0, 0, kDisplayWidth, kDisplayHeight), kTag, "set ending window");
     gpio_set_level(pins::kTftDataCommand, 1);
     auto &row_bytes = transfer_row_;
+#if defined(OPENU5_DESKTOP_DOS_LAYOUT)
+    const int top = dos_layout_ ? 0 : kEndgameTop; // the DOS screen is the panel's rows 0..199
+#else
+    constexpr int top = kEndgameTop;
+#endif
     for (int row = 0; row < kDisplayHeight; ++row) {
         const RowMark mark = row_mark();
-        const int py = row - kEndgameTop;
+        const int py = row - top;
         for (int x = 0; x < kDisplayWidth; ++x) {
             uint16_t pixel = kBlack;
             if (py >= 0 && py < 200) {
@@ -706,13 +711,18 @@ esp_err_t Board::fizzle_endgame(openu5::EndgameFizzle &picture, openu5::EndgameF
     endgame_capturing_ = false;
     console_cursor_.visible = false; // A4-UI4: the dissolve takes the console
     uint16_t x = 0, y = 0;
+#if defined(OPENU5_DESKTOP_DOS_LAYOUT)
+    const int top = dos_layout_ ? 0 : kEndgameTop; // the DOS screen is the panel's rows 0..199
+#else
+    constexpr int top = kEndgameTop;
+#endif
     for (uint32_t i = 0; i < pixels && picture.next(x, y); ++i)
-        endgame_shadow_[(y + kEndgameTop) * kDisplayWidth + x] = kBlack;
+        endgame_shadow_[(y + top) * kDisplayWidth + x] = kBlack;
     // The bands above and below the picture are the device's own: fn34 over
     // their 320 x 40 rect, kept in step with the picture's progress.
     const uint64_t band_target = uint64_t(picture.produced()) * bands.total() / picture.total();
     while (bands.produced() < band_target && bands.next(x, y))
-        endgame_shadow_[(y < kEndgameTop ? y : y + 200) * kDisplayWidth + x] = kBlack;
+        endgame_shadow_[(y < top ? y : y + 200) * kDisplayWidth + x] = kBlack;
     endgame_page_key_ = -1;
     alpha_drawn_ = false; frontend_cache_valid_ = false; debug_cache_valid_ = false;
     ++tft_timing_.full_screen;
@@ -802,6 +812,9 @@ esp_err_t Board::show_view(const uint16_t *pixels, int width, int height,
 esp_err_t Board::show_camp_viewport(const uint16_t *pixels,uint32_t)
 {
     if(!display_initialized_||!alpha_drawn_||!pixels)return ESP_ERR_INVALID_STATE;
+#if defined(OPENU5_DESKTOP_DOS_LAYOUT)
+    if(dos_layout_)return dos_camp_viewport(pixels);
+#endif
     const auto result=draw_rgb565(openu5::kHudViewportX,openu5::kHudViewportY,
                                   openu5::kViewportPixels,openu5::kViewportPixels,pixels);
     if(result==ESP_OK){viewport_cache_valid_=false;full_square_active_=true;}
@@ -812,6 +825,9 @@ esp_err_t Board::fill_bed_viewport()
 {
     // Original (8,8)-(183,183) is the entire 176x176 gameplay window.
     // Native's sky and wind strips live inside that window, so preserve them.
+#if defined(OPENU5_DESKTOP_DOS_LAYOUT)
+    if(dos_layout_)return dos_fill_bed_viewport();
+#endif
     const auto r=bed_viewport_rect();
     const auto result=fill_rect(r.x,r.y,r.width,r.height,kBlack);
     if(result==ESP_OK)viewport_cache_valid_=false;
@@ -854,6 +870,9 @@ esp_err_t Board::draw_party_rows(const openu5::GameState &game,DevicePartyHighli
 
 esp_err_t Board::refresh_bed_status_panel(const openu5::GameState &game,DevicePartyHighlight party_highlight) {
     if(!display_initialized_||!alpha_drawn_)return ESP_ERR_INVALID_STATE;
+#if defined(OPENU5_DESKTOP_DOS_LAYOUT)
+    if(dos_layout_)return dos_refresh_bed_status_panel(game,party_highlight);
+#endif
     // Drawn unconditionally, as before; the rows' caches learn what is shown.
     ESP_RETURN_ON_ERROR(draw_party_rows(game,party_highlight,true),kTag,"refresh bed party rows");
     // Alpha 4 UI Batch 1: the same three status rows show_alpha draws, with
@@ -902,6 +921,14 @@ esp_err_t Board::show_alpha(const uint16_t *pixels,const openu5::UiSession &ui,
     // corridor whose two directions look alike.
     const bool bands_active=dungeon_bands&&dungeon_bands->active;
     if(!display_initialized_||!pixels)return ESP_ERR_INVALID_STATE;
+#if defined(OPENU5_DESKTOP_DOS_LAYOUT)
+    // Windows Original: the DOS game's 320 x 200 screen (board_dos_layout.cpp);
+    // the Developer screen stays the handheld's. The 1988 model has no shop
+    // panel, prompt bar or text sizes, and its map is never clipped by a strip.
+    if(dos_layout_&&!debug)
+        return show_alpha_dos(pixels,ui,game,hud,runes_font,animated_cells,animation_only,selection,party_highlight,
+                              viewport_crc,dungeon_bands,preserve_party_panel);
+#endif
     (void)turn;(void)overlay;
     debug_last_full_redraw_=false;debug_last_dirty_regions_=0;debug_last_pixels_=0;
     endgame_page_key_=-1;

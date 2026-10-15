@@ -31,6 +31,8 @@ struct AppOptions {
     bool force_fullscreen = false;  // --fullscreen
     bool interface_override = false;
     InterfaceMode interface_mode = InterfaceMode::Original; // --mode original|enhanced
+    bool screen_override = false;
+    OriginalScreen original_screen = OriginalScreen::Dos;   // --original-screen dos|handheld
     int log_level = -1;             // --log-level 0..5 (ESP_LOG_*); -1 = default
     bool show_help = false;
     std::vector<std::string> errors;

@@ -1,10 +1,13 @@
 #pragma once
-// Ultima V Native for Windows: where the 320x240 picture goes in the window.
+// Ultima V Native for Windows: where the picture goes in the window.
 //
 // Pure arithmetic (no SDL), shared by the presenter, the window sizing and
 // the tests. The renderer's output (the window's client area, or the whole
 // screen in fullscreen) is W x H physical pixels; the picture is the virtual
-// panel, never resampled except by a whole number in Framed and Integer:
+// panel's first `picture_h` rows -- all 240 (the handheld's screen, the
+// frontend) or 200 (Original's DOS game screen, Board::picture_height) --
+// never resampled except by a whole number in Framed and Integer. Below, 240
+// stands for picture_h:
 //
 //   Framed   (the default) the largest whole-number scale u that fits,
 //            u = max(1, min(W div 320, H div 240)), centred, and a thin
@@ -15,7 +18,7 @@
 //            side pillars when the height has no room for the ring; nothing
 //            when the width has none (or the output is under 320x240).
 //   Integer  ("Whole pixels") the same picture without the ring.
-//   Fit      ("Fit window") the largest 4:3 rectangle; the scale may be
+//   Fit      ("Fit window") the largest 320:240 rectangle; the scale may be
 //            fractional (the presenter samples it as pixel art: on Direct3D
 //            11, even pixels with a one-pixel blend at their edges; nearest,
 //            so uneven pixels, on renderers without it).
@@ -31,6 +34,8 @@
 namespace uv {
 
 constexpr int kPictureW = 320, kPictureH = 240;
+// Original's DOS game screen: the panel's rows 0..199 (Board::picture_height).
+constexpr int kDosPictureH = 200;
 // The ring, outward from the picture, in picture pixels (times u on screen).
 constexpr int kRingGap = 4;  // black: the Board's own 4 px from its glass edge to the play window (hud.h)
 constexpr int kRingRule = 1; // white
@@ -62,7 +67,9 @@ struct PresentationLayout {
     Scaling scaling = Scaling::Framed;
     /** Output pixels per picture pixel; 0 when Fit's scale is fractional. */
     int scale = 1;
-    /** Where the 320x240 picture is drawn (larger than the output only when the output is smaller than 320x240). */
+    /** The panel rows the picture shows, from row 0: kPictureH or kDosPictureH. */
+    int picture_h = kPictureH;
+    /** Where the 320 x picture_h picture is drawn (larger than the output only when the output is smaller). */
     PixelRect picture;
     RingForm ring = RingForm::None;
     /** The ring as rectangles of one colour each; they never overlap each other or the picture. */
@@ -70,7 +77,7 @@ struct PresentationLayout {
     int piece_count = 0;
 };
 
-PresentationLayout layout_presentation(int output_w, int output_h, Scaling scaling);
+PresentationLayout layout_presentation(int output_w, int output_h, Scaling scaling, int picture_h = kPictureH);
 
 const char *ring_form_name(RingForm form);
 /** "<W>x<H> <full|pillars|none|fit> <w>x<h>@<x>,<y>": what --autotest's window_layout check compares. */
@@ -78,7 +85,7 @@ std::string describe_layout(const PresentationLayout &layout);
 
 /**
  * Compares a presented frame (w x h pixels, 0xRRGGBB) with the layout and the
- * 320x240 RGB565 panel it showed. Each frame pixel is reduced to RGB565 (its
+ * 320x240 RGB565 panel whose first layout.picture_h rows it showed. Each frame pixel is reduced to RGB565 (its
  * top bits), which undoes any renderer's 5/6-to-8-bit expansion exactly, so
  * the picture, the ring and the black are compared colour for colour; and
  * each RGB565 colour must appear as one screen colour throughout, so the
@@ -96,7 +103,10 @@ std::string check_presented_frame(const PresentationLayout &layout, const uint16
 // the ring plus one black pixel so its cut corners read -- when that window
 // fits the display's work area with its frame, else bare (320N x 240N), else
 // a smaller N. On Windows SDL's window coordinates are physical pixels (the
-// process is PerMonitorV2-aware), so N is exact at every display scale.
+// process is PerMonitorV2-aware), so N is exact at every display scale. The
+// window is shaped for one picture height (`picture_h`: 200 in Original's DOS
+// screen, else 240); a taller picture in it (the frontend's 240 rows in a
+// window shaped for 200) takes the largest whole scale that fits there.
 constexpr int kFramedMargin = kRingReach + 1;
 
 /** A display's usable bounds (the taskbar excluded), in desktop pixels. */
@@ -117,23 +127,27 @@ struct WindowPlan {
     int aspect_w = kPictureW, aspect_h = kPictureH; // the client's aspect, locked while the player drags
 };
 
+/** The picture height a window is shaped for: Original's DOS game screen is 200 rows, everything else 240. */
+int window_picture_height(InterfaceMode mode, OriginalScreen screen);
 /** Window N x for `scaling` (only Framed frames it); N is clamped to 1..kMaxWindowScale first. */
-WindowPlan plan_window(int requested_scale, Scaling scaling, const WorkArea &area, const WindowBorders &borders);
+WindowPlan plan_window(int requested_scale, Scaling scaling, const WorkArea &area, const WindowBorders &borders,
+                       int picture_h = kPictureH);
 /** The largest N whose bare window fits the area (at least 1, at most kMaxWindowScale). */
-int largest_window_scale(const WorkArea &area, const WindowBorders &borders);
+int largest_window_scale(const WorkArea &area, const WindowBorders &borders, int picture_h = kPictureH);
 /**
  * The scale a window gets when the player has not chosen one: 3 at a 100 %
  * display scale, floor(3 x content scale) above it (the same size in
  * Windows' scaled units, rounded down), within what fits.
  */
-int default_window_scale(float content_scale, const WorkArea &area, const WindowBorders &borders);
+int default_window_scale(float content_scale, const WorkArea &area, const WindowBorders &borders,
+                         int picture_h = kPictureH);
 /**
  * The "Window N x" a client of w x h shows: the picture's whole-number scale
  * there, max(1, min(w div 320, h div 240)), at most kMaxWindowScale. A
  * planned window gives its own N back (framed or bare); a dragged or snapped
  * one the scale its picture has.
  */
-int client_window_scale(int client_w, int client_h);
+int client_window_scale(int client_w, int client_h, int picture_h = kPictureH);
 /**
  * `plan` for a window that changes shape where it is (a Scaling change):
  * its client centred where the current one (x, y, w x h) is centred, then

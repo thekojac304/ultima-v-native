@@ -18,6 +18,12 @@ text B
 text B
 wait 2500
 expect interface Enhanced
+# The handheld's 320x240 screen, its console opened by the build line and the
+# key legend (Original shows the 1988 game's 320x200 screen and empty console).
+expect game_screen handheld
+expect picture 320x240 in 320x240
+expect transcript Ultima V Native for Windows
+expect transcript Esc back  F10 menu
 # Cast: the "Choose Companion" list and its bar, then the spell list.
 text c
 frames 3

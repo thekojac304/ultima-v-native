@@ -4,7 +4,10 @@
 # status boxes, with the console left under it; the shops are console shops
 # (lettered lists and questions, no offer panel), with the blacksmith's "Arms"
 # window in the roster box. `right_column` reads the PRESENTED PIXELS, so a
-# handheld (Enhanced / T-Deck) panel showing up here fails the scenario.
+# handheld (Enhanced / T-Deck) panel showing up here fails the scenario. This
+# runs on Original's default screen, the 1988 game's 320x200 one (screen_box /
+# screen_split; the console 16 cells wide); original_dos_panels_handheld.txt
+# runs the same on the handheld's 320x240 screen.
 frames 5
 key Return
 frames 3
@@ -21,7 +24,7 @@ text B
 text B
 text B
 wait 2500
-expect right_column world
+expect right_column screen_split
 # (R)eady: "Player: " on the roster (no list), then the member's list
 # (ZSTATS 0x0f2e): banner = the name, the scroll frame, `--` for a worn item
 # none of which is left in the pack, the class glyph in RUNES.CH, the DOS
@@ -31,13 +34,13 @@ frames 3
 expect select_banner 1
 expect overlay_panel 0
 expect dos_panel 0
-expect right_column world
+expect right_column screen_split
 key Return
 frames 3
 expect overlay_panel 0
 expect dos_panel 1
 expect dos_panel_layout box
-expect right_column dos_box
+expect right_column screen_box
 expect dos_panel_title Mage
 expect dos_panel_row 0 +++++++++++++++
 expect dos_panel_row 1 --*Chain Coif
@@ -52,7 +55,7 @@ expect dos_panel_bar 2
 key Escape
 frames 3
 expect dos_panel 0
-expect right_column world
+expect right_column screen_split
 expect transcript Item: Done
 # (U)se: "Items:", the extended table's id order (the scroll before the
 # potion), the scroll's decoration and initials in RUNES.CH, the potion's
@@ -61,7 +64,7 @@ text u
 frames 3
 expect dos_panel 1
 expect overlay_panel 0
-expect right_column dos_box
+expect right_column screen_box
 expect dos_panel_title Items:
 expect dos_panel_row 1  2 ******
 expect dos_panel_row 2  3 ****Yellow
@@ -69,7 +72,7 @@ expect dos_panel_bar 1
 expect dos_panel_arrow 0
 key Escape
 frames 3
-expect right_column world
+expect right_column screen_split
 expect transcript Item: None!
 # Z-stats: the pages in the panel ("Status: " waits on the console).
 text z
@@ -78,7 +81,7 @@ key Return
 frames 3
 expect dos_panel 1
 expect overlay_panel 0
-expect right_column dos_box
+expect right_column screen_box
 expect dos_panel_title Mage
 expect dos_panel_row 0 Lv-2
 expect dos_panel_row 3 Str=
@@ -90,7 +93,7 @@ expect dos_panel_row 2 Chain Coif
 expect dos_panel_row 4 Long Sword
 key Escape
 frames 3
-expect right_column world
+expect right_column screen_split
 expect transcript Status: Done
 # (M)ix: "Reagents:", no frame, ` NN NAME` with the DOS short names, the bar
 # over the whole row, RETURN marks one cell in reverse video.
@@ -100,7 +103,7 @@ text an
 key Return
 frames 4
 expect dos_panel 1
-expect right_column dos_box
+expect right_column screen_box
 expect dos_panel_title Reagents:
 expect dos_panel_row 1  04 Sulfur Ash
 expect dos_panel_row 4  06 Sp. Silk
@@ -118,12 +121,12 @@ frames 3
 shop reagents
 frames 3
 expect shop_panel 0
-expect right_column world
+expect right_column screen_split
 text y
 frames 4
 expect shop_panel 0
 expect dos_panel 0
-expect right_column world
+expect right_column screen_split
 expect console A...Ginseng
 expect console Thy interest?
 # No highlight to move, and RETURN leaves the reagents' list (SHOPPES 0x06e0):
@@ -141,7 +144,7 @@ text y
 frames 4
 text a
 frames 4
-expect console Is this thy
+expect console this thy need?
 text n
 frames 4
 key Escape
@@ -154,7 +157,7 @@ frames 3
 text b
 frames 4
 expect shop_panel 0
-expect right_column world
+expect right_column screen_split
 expect console a...Dagger
 key Escape
 frames 4
@@ -170,7 +173,7 @@ expect shop_panel 0
 expect dos_panel 1
 expect dos_panel_title Arms
 expect dos_panel_layout split
-expect right_column dos_split
+expect right_column screen_split
 expect dos_panel_row 1  1-Sm. Shield
 expect dos_panel_bar 1
 key Down
@@ -178,14 +181,14 @@ frames 3
 expect dos_panel_bar 2
 key Escape
 frames 4
-expect right_column world
+expect right_column screen_split
 # The guild (SHOPPES 0x04A2): the three fixed rows and "Thy concern?".
 shop guild
 frames 3
 text y
 frames 4
 expect shop_panel 0
-expect right_column world
+expect right_column screen_split
 expect console a.........Keys
 expect console Thy concern?
 key Escape
@@ -195,10 +198,10 @@ shop healer
 frames 3
 text y
 frames 4
-expect console What is the nature
+expect console nature of thy
 text h
 frames 4
 expect shop_panel 0
 expect select_banner 1
-expect right_column world
-expect console Who needs my aid?
+expect right_column screen_split
+expect console Who needs my | aid?

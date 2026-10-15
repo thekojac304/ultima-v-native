@@ -156,6 +156,7 @@ class Game {
     void apply_command(const DesktopCommand &command);
     InputContext input_context() const;
     void sync_mode();
+    void apply_game_screen();
     static void on_profile_change(void *context, DesktopProfile::Change what);
     static uint8_t largest_window_scale(void *context);
     void install_profile();
@@ -173,6 +174,7 @@ class Game {
     bool autotest_fight(const AutotestStep &step);
     bool autotest_shop(const AutotestStep &step);
     std::string right_column_signature() const;
+    std::string dos_screen_check(const std::string &value) const;
     bool autotest_open_grass(int &gx, int &gy);
     void push_key(const std::string &name, const std::vector<std::string> &mods);
     void push_text(const std::string &text);
@@ -279,6 +281,7 @@ bool Game::boot() {
     mode_overridden_ = options_.interface_override;
     fullscreen_overridden_ = options_.force_fullscreen || options_.force_windowed;
     if (options_.interface_override) settings_.interface_mode = options_.interface_mode;
+    if (options_.screen_override) settings_.original_screen = options_.original_screen;
     if (options_.force_fullscreen) settings_.fullscreen = true;
     if (options_.force_windowed) settings_.fullscreen = false;
     applied_mode_ = settings_.interface_mode;
@@ -304,6 +307,7 @@ bool Game::boot() {
         exit_code_ = 6;
         return false;
     }
+    apply_game_screen();
 
     // --- Resource packs, with the T-Deck's identity gate (main.cpp) ---------------------
     openu5::AssetPackReader tile_pack;
@@ -376,13 +380,15 @@ bool Game::boot() {
 
     // --- First frame -------------------------------------------------------------------
     runtime_->render(*board_, true);
+    presenter_.set_picture_height(board_->picture_height());
     presenter_.show();
     presenter_.present(true);
     SDL_StartTextInput(presenter_.window());
     heartbeat_us_ = esp_timer_get_time() + 5000000;
     ready_ = true;
-    ESP_LOGI(kTag, "ready: interface=%s window=%ux (%s) scaling=%s fullscreen=%d",
-             interface_mode_name(settings_.interface_mode), unsigned(settings_.window_scale),
+    ESP_LOGI(kTag, "ready: interface=%s screen=%s window=%ux (%s) scaling=%s fullscreen=%d",
+             interface_mode_name(settings_.interface_mode), board_->dos_layout() ? "DOS 320x200" : "handheld 320x240",
+             unsigned(settings_.window_scale),
              stored_settings_.window_scale == kAutoWindowScale ? "automatic" : "saved", scaling_name(settings_.scaling),
              settings_.fullscreen);
     log::flush();
@@ -405,9 +411,21 @@ void Game::sync_mode() {
     mode_overridden_ = false; // the player chose it: it is saved
     input_.set_mode(applied_mode_);
     install_profile();
+    apply_game_screen();
     update_title();
     save_settings();
     ESP_LOGI(kTag, "INTERFACE_MODE %s", interface_mode_name(applied_mode_));
+}
+
+// Original's game screen is the 1988 game's 320x200 one (Board::set_dos_layout);
+// the window is shaped for it -- "Window N x" is 320N x 200N there -- and for
+// the handheld's 320x240 in Enhanced (or with "originalScreen": "Handheld").
+void Game::apply_game_screen() {
+    const bool dos = openu5::platform_dos_screen();
+    if (board_) board_->set_dos_layout(dos);
+    presenter_.set_window_shape(window_picture_height(settings_.interface_mode, settings_.original_screen));
+    settings_.window_scale = presenter_.window_scale();
+    ESP_LOGI(kTag, "GAME_SCREEN %s", dos ? "DOS 320x200" : "handheld 320x240");
 }
 
 void Game::install_profile() {
@@ -474,6 +492,8 @@ void Game::save_settings() {
     DesktopSettings out = settings_;
     if (mode_overridden_) out.interface_mode = stored_settings_.interface_mode;
     if (fullscreen_overridden_) out.fullscreen = stored_settings_.fullscreen;
+    // Only windows.json chooses the Original screen (--original-screen is this run's).
+    out.original_screen = stored_settings_.original_screen;
     out.window_scale = chosen_window_scale_ != kAutoWindowScale ? chosen_window_scale_ : stored_settings_.window_scale;
     if (save_desktop_settings(paths_.ultima5_dir() + L"\\windows.json", out)) stored_settings_ = out;
     else ESP_LOGW(kTag, "windows.json could not be written");
@@ -588,6 +608,7 @@ bool Game::pass(bool may_wait) {
     sync_mode();
     if (input) runtime_->render(*board_);
     runtime_->render(*board_);
+    presenter_.set_picture_height(board_->picture_height());
     presenter_.present();
     const int64_t now = esp_timer_get_time();
     if (now >= heartbeat_us_) {
@@ -788,6 +809,10 @@ bool Game::autotest_expect(const AutotestStep &step) {
         size_t columns = 0, rows = 0;
         tdeck::world_transcript_geometry(runtime_->device_settings().ui_size,
                                          runtime_->context_bar_for_test().active, columns, rows);
+        if (openu5::platform_dos_screen()) {
+            columns = tdeck::kDosConsoleColumns;
+            rows = tdeck::kDosConsoleRows;
+        }
         openu5::UiRenderedLine lines[tdeck::kConsoleMaxRows]{};
         const size_t n = ui ? ui->visible_lines(lines, std::min(rows, tdeck::kConsoleMaxRows), columns) : 0;
         for (size_t i = 0; i < n; ++i) {
@@ -864,11 +889,26 @@ bool Game::autotest_expect(const AutotestStep &step) {
         ok = actual == value;
     } else if (name == "right_column") {
         // What the right column SHOWS, read from the presented panel's pixels
-        // (not from the views): dos_box / dos_split (the 1988 panel over the
-        // boxes, the console under it), tdeck_list / tdeck_shop (the handheld's
-        // right-column panels), world (roster and status boxes), or other.
+        // (not from the views): on the DOS screen screen_box / screen_split
+        // (one box, or the frame's roster and status boxes); on the handheld's
+        // dos_box / dos_split (the 1988 panel over the boxes, the console under
+        // it), tdeck_list / tdeck_shop (the handheld's right-column panels),
+        // world (roster and status boxes); or other.
         actual = right_column_signature();
         ok = actual == value;
+    } else if (name == "game_screen") {
+        // Which game screen the Board composes: dos (320x200) or handheld (320x240).
+        actual = board_->dos_layout() ? "dos" : "handheld";
+        ok = actual == value;
+    } else if (name == "picture") {
+        // The panel rows the window shows now, and the shape the window is sized for.
+        actual = "320x" + std::to_string(presenter_.picture_height()) + " in 320x" + std::to_string(presenter_.window_shape());
+        ok = actual == value;
+    } else if (name == "dos_screen") {
+        // The DOS screen's own pixels: "<x> <y> <colour>" with colour band,
+        // rule, black or ink (white text), or "frame" (every frame pixel there).
+        actual = dos_screen_check(value);
+        ok = actual == "ok";
     } else if (name == "context_bar") {
         actual = runtime_->context_bar_for_test().active ? "1" : "0";
         ok = actual == value;
@@ -1148,6 +1188,15 @@ std::string Game::right_column_signature() const {
         return true;
     };
     constexpr uint16_t kWhite = 0xFFFF, kBand = 0x0015;
+    // The DOS screen (board_dos_layout.cpp): the map's box rule at x 184, the
+    // band beside it, the panel's box rules at x 191 / x 312, the strip at
+    // x 313..319 and the console's top rule either side of the arrow's notch
+    // (x 240..263; a banner's notch cuts the box's top rule, so it is not read);
+    // its two boxes join into one across the bar at y 57..62.
+    if (at(184, 100) == kWhite && run(100, kBand, 185, 190) && at(191, 30) == kWhite && at(312, 30) == kWhite &&
+        run(30, kBand, 313, 319) && run(87, kWhite, 191, 239) && run(87, kWhite, 264, 319))
+        return at(191, 59) == kWhite && at(312, 59) == kWhite ? "screen_box"
+               : run(59, kBand, 192, 230) && run(56, kWhite, 191, 230) ? "screen_split" : "screen_other";
     // The 1988 panel: band rows 0..6 left of the banner's notch, the box's top
     // rule at y 7, the band at 81..86 and the console's top rule at y 87.
     if (run(3, kBand, 184, 200) && run(7, kWhite, 183, 200) && run(83, kBand, 184, 230) && run(87, kWhite, 183, 317))
@@ -1160,6 +1209,58 @@ std::string Game::right_column_signature() const {
         run(86, kWhite, 183, 317))
         return "world";
     return "other";
+}
+
+// expect dos_screen: "frame" compares every pixel the frame owns outside the
+// map, the bands' notches, the panel's window and the console with ULTIMA.EXE's
+// frame as the record measures it; "<x> <y> <band|rule|black|ink>" one pixel.
+std::string Game::dos_screen_check(const std::string &value) const {
+    const uint16_t *px = panel::pixels();
+    auto at = [&](int x, int y) { return px[size_t(y) * size_t(panel::kWidth) + size_t(x)]; };
+    constexpr uint16_t kWhite = 0xFFFF, kBand = 0x0015, kBlack = 0x0000;
+    char text[96];
+    if (value == "frame") {
+        // Rules and bands that nothing covers: the map's box sides, the
+        // separator band, the panel's outer rules beside the roster box, the
+        // console's top rule right of the arrow notch, the strip, row 24.
+        struct Probe { int x, y; uint16_t want; const char *what; };
+        const Probe probes[] = {
+            {7, 100, kWhite, "map box left rule"},     {184, 100, kWhite, "map box right rule"},
+            {3, 100, kBand, "left band"},              {188, 100, kBand, "separator band"},
+            {188, 190, kBand, "separator band bottom"}, {20, 188, kBand, "bottom band"},
+            {191, 140, kWhite, "console left rule"},   {300, 87, kWhite, "console top rule"},
+            {316, 40, kBand, "right strip"},           {191, 30, kWhite, "roster box left rule"},
+            {312, 30, kWhite, "roster box right rule"}, {200, 7, kWhite, "panel top rule"},
+            {20, 7, kWhite, "map box top rule"},        {20, 184, kWhite, "map box bottom rule"},
+            {0, 0, kBlack, "cut top-left corner"},      {319, 0, kBlack, "cut top-right corner"},
+            {0, 191, kBlack, "cut bottom-left corner"}, {100, 195, kBlack, "row 24"},
+            {300, 195, kBlack, "row 24 under the console"}};
+        for (const auto &p : probes)
+            if (at(p.x, p.y) != p.want) {
+                std::snprintf(text, sizeof(text), "%s at %d,%d is %04x, expected %04x", p.what, p.x, p.y,
+                              unsigned(at(p.x, p.y)), unsigned(p.want));
+                return text;
+            }
+        // Below the 200 rows the presenter shows, the panel is black.
+        for (int y = 200; y < panel::kHeight; ++y)
+            for (int x = 0; x < panel::kWidth; ++x)
+                if (at(x, y) != kBlack) {
+                    std::snprintf(text, sizeof(text), "panel row %d is not black at x %d", y, x);
+                    return text;
+                }
+        return "ok";
+    }
+    int x = -1, y = -1;
+    char kind[16]{};
+    if (std::sscanf(value.c_str(), "%d %d %15s", &x, &y, kind) != 3 || x < 0 || y < 0 || x >= panel::kWidth ||
+        y >= panel::kHeight)
+        return "bad check: " + value;
+    const uint16_t got = at(x, y);
+    const std::string k = kind;
+    const bool ok = k == "band" ? got == kBand : k == "rule" || k == "ink" ? got == kWhite : k == "black" ? got == kBlack : false;
+    if (ok) return "ok";
+    std::snprintf(text, sizeof(text), "%d,%d is %04x, not %s", x, y, unsigned(got), kind);
+    return text;
 }
 
 bool Game::run_autotest() {
@@ -1268,6 +1369,13 @@ AppOptions parse_options(int argc, wchar_t **argv) {
                 else if (value == L"original") o.interface_mode = InterfaceMode::Original;
                 else o.errors.push_back("--mode takes original or enhanced");
             }
+        } else if (a == L"--original-screen") {
+            if (next(value)) {
+                o.screen_override = true;
+                if (value == L"dos") o.original_screen = OriginalScreen::Dos;
+                else if (value == L"handheld") o.original_screen = OriginalScreen::Handheld;
+                else o.errors.push_back("--original-screen takes dos or handheld");
+            }
         } else if (a == L"--log-level") {
             if (next(value)) o.log_level = std::clamp(_wtoi(value.c_str()), 0, 5);
         } else {
@@ -1281,6 +1389,8 @@ std::string usage_text() {
     return "Ultima V Native for Windows\n\n"
            "  --data-dir <folder>   use <folder> as the data folder (packs, saves, settings)\n"
            "  --mode original|enhanced   start in this interface mode (this run only)\n"
+           "  --original-screen dos|handheld   Original's game screen: the 1988 320x200 one\n"
+           "                        (the default) or the handheld's 320x240 (this run only)\n"
            "  --fullscreen / --windowed  start fullscreen or in a window (this run only)\n"
            "  --no-audio            no sound output\n"
            "  --developer           allow the Developer menu (Alt+D) in Original mode\n"
