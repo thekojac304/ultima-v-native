@@ -252,11 +252,44 @@ same code; the base rebuilt here is the fair reference.)
 
 ## 9. Screenshots (actual executable)
 
-Taken with the packaged build of this commit; listed in the next commit.
+Taken with `UltimaVNative.exe` from the test package (§10), unpacked into a scratch folder, each run on
+a fresh scratch data folder (the player's `%APPDATA%` data was not used or changed). They are game art,
+so they are kept out of the repository, in `C:\Dev\uvw-original-dos-evidence\origdos2\` (its
+`README.txt` indexes them):
+
+- `screens\` — 84 pictures as the game draws them (what F12 saves; 320 × 200 on the DOS screen), the
+  same sequences in three modes (`dos-` Original on the DOS screen, `hh-` Original on the handheld
+  fallback, `enh-` Enhanced): the world, `Select:`, Ready, Use, Z-stats, Mix, the reagent seller, the
+  blacksmith's `Arms`, the healer, the System Menu, a town and Talk, camp, combat, a dungeon, the
+  blacksmith's Buy transcript, the tavern, the inn's rate line. 24 scripted runs, 0 failures.
+- `windows\` — 36 windows as presented (read back from the renderer): Window 3× (1008 × 648 framed on
+  the DOS screen, 1008 × 768 on the handheld one), Framed / Whole pixels / Fit at 1920 × 1080, Fit and
+  Framed at 2560 × 1440, fullscreen on the offscreen driver.
+- `real\` — **a real fullscreen window on this PC's 2560 × 1440 display** (Direct3D 11): Framed at 7×
+  (`2560x1440 pillars 2240x1400@160,20`) and Fit (`2560x1440 fit 2304x1440@128,0`), both matching the
+  layout pixel for pixel by the game's own frame checker, and the System Menu inside it.
+- `sheets\` — the DOS 1988 captures beside Original (new), Original on the handheld screen and
+  Enhanced (`sidebyside-screens-1..3`); the new screen across the game (`contact-dos-screen-*`);
+  ORIG-DOS1's mockup B beside the real screen (`mockup-B-vs-actual`); Window 3× before and after.
 
 ## 10. Test package
 
-Built from this commit with a clean tree; recorded in the next commit.
+- **File**: `native/targets/windows/dist/UltimaV-Native-Windows-x64-ORIGDOS2-caa20e72-test.zip`
+  (this worktree), 2,324,398 B, SHA-256
+  `1b12f197649ae8150397d005ee6003d79d7651acde719eaa5b0a15f824c55040`. A new name: the earlier test ZIPs
+  are untouched.
+- **Built** by `tools/build-windows.ps1 -Config Release -Test -Package -PackageName
+  UltimaV-Native-Windows-x64-ORIGDOS2-caa20e72-test` from `caa20e72` with a clean tree; BUILD-INFO
+  `Source: caa20e729e61… (windows/original-dos-interaction)`; the exe holds `caa20e729e61`; no game
+  data. The packaged build passes **35 / 35** (`native/core/origdos2-win-package.log`).
+- **Smoke**: the packaged exe ran the 24 screenshot scripts (§9) with 0 failures, and a real
+  fullscreen run on a 2560 × 1440 Direct3D 11 display with pixel-exact layouts.
+- **To see it as tested**: unzip into a new folder; the packs are the same as before (copy the three
+  `openu5-*.bin` or run `Prepare-Game-Data.cmd`). Original opens on the DOS screen whatever an existing
+  `windows.json` says about scaling; a saved `"scaling":"Integer"` (an earlier playtest's) shows it
+  without the ring (Settings → Scaling → Framed adds it), and a saved window scale N gives the 200-row
+  window at that N. `"originalScreen": "Handheld"` in that file brings back the 320 × 240 screen.
+- **Not a release.** No person has played it.
 
 ## 11. Remaining (recorded)
 
@@ -281,8 +314,8 @@ On `windows/original-dos-interaction`, after `60e7c647`:
 | `07edc45b` | the shop transcript (cherry-picked from `4de1d243`, `windows/original-dos-shops`) |
 | `c6a8c6a8` | the handheld Original scenario carries the shop transcript's steps |
 | `98e26f43` | the shop transcript's record (cherry-picked from `00e3bd22`) |
-| this commit | this record, the README / fidelity / plan updates, the logs |
-| next | the test package and the screenshots (§9, §10) |
+| `caa20e72` | this record, the README / fidelity / plan updates, the logs (the package is built from it) |
+| next | this record's §9 / §10: the test package and the screenshots |
 
 `windows/original-dos-shops` (`C:\Dev\uvw-dos-shops`) keeps its two original commits; it was not
 merged.
