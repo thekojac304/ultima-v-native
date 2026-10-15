@@ -1,4 +1,4 @@
-# Ultima V Native â€” Windows target
+# Ultima V Native — Windows target
 
 > Unpublished v0.5.0 RC1 integration: [engineering record](../../../docs/V050_INTEGRATION_RC1.md), [focused hardware acceptance](../../../docs/V050_RC1_HARDWARE_CHECKLIST.md). Earlier SPP1 hardware PASS is user-reported; this RC awaits physical testing.
 
@@ -18,14 +18,14 @@ Player instructions: [`packaging/README-Windows.txt`](packaging/README-Windows.t
 
 - Windows 10/11 x64
 - Visual Studio 2022 or 2026 with the "Desktop development with C++" workload
-  (MSVC v143+, the Windows SDK, the bundled CMake â‰¥ 3.24 and Ninja)
+  (MSVC v143+, the Windows SDK, the bundled CMake ≥ 3.24 and Ninja)
 - Internet access on the first configure (SDL3 3.4.16 is downloaded from its
   official GitHub release and checked against a pinned SHA-256), or an
   unpacked SDL3 source tree passed as `-DFETCHCONTENT_SOURCE_DIR_SDL3=<dir>`,
   or an installed SDL3 with `-DUV_USE_SYSTEM_SDL3=ON`
 
 Nothing else: no package manager, no Node.js, no game data. (Making the
-player's resource packs is a separate, one-time step â€” see
+player's resource packs is a separate, one-time step — see
 [`packaging/README-Windows.txt`](packaging/README-Windows.txt).)
 
 ## Build
@@ -86,12 +86,12 @@ Without `--data-dir`, the game uses `%APPDATA%\Ultima V Native` (or
 ctest --test-dir native/targets/windows/build-release --output-on-failure
 ```
 
-- `tests/` â€” unit and integration tests of the Windows layer (keyboard
+- `tests/` — unit and integration tests of the Windows layer (keyboard
   translation in both modes, desktop settings, the `/sd` storage mount and its
   redirect, the virtual panel with the real Board, the save record layout, the
   SDL audio backend and synth goldens under MSVC, the presentation layout and
   window sizing).
-- `scenarios/` â€” the real executable, headless (SDL offscreen video, dummy
+- `scenarios/` — the real executable, headless (SDL offscreen video, dummy
   audio), driven by `--autotest` scripts through synthetic SDL key events:
   title, character creation, play, both interface modes, typed and list
   casting (also in an arena), System Menu save/load, quick save/load, the
@@ -104,72 +104,72 @@ ctest --test-dir native/targets/windows/build-release --output-on-failure
   `original_arena` and `original_camp` also need
   `UV_ENABLE_DEVELOPER_TOOLS=ON`. The script language is documented in
   `src/app/autotest.h`.
-- `scenarios/presentation_desktop.txt` â€” opt-in (`-DUV_SCENARIO_DESKTOP=ON`,
+- `scenarios/presentation_desktop.txt` — opt-in (`-DUV_SCENARIO_DESKTOP=ON`,
   off by default because it opens a real window): the same window checks on
   SDL's Windows video driver and its default renderer, Direct3D 11 (the
   ring's colours and a pixel-art Fit as a GPU samples them, a Scaling change
   while maximised, a size change while maximised). It needs a display that
-  holds a 1008Ã—768 client with its title bar.
+  holds a 1008×768 client with its title bar.
 
 ## Presentation
 
-The Board draws the T-Deck's 320Ã—240 screen, except in Original play: there
-it composes the DOS game's own 320Ã—200 screen on the panel's rows 0..199
+The Board draws the T-Deck's 320×240 screen, except in Original play: there
+it composes the DOS game's own 320×200 screen on the panel's rows 0..199
 (`native/targets/tdeck/main/board_dos_layout.cpp`, built only here, behind
 `OPENU5_DESKTOP_DOS_LAYOUT`; ULTIMA.EXE's frame, the map whole at (8,8), the
-right panel's boxes, the 16Ã—13 console). `Board::picture_height()` says which
+right panel's boxes, the 16×13 console). `Board::picture_height()` says which
 (200, or 240 for the frontend and the Developer screen) and the presenter
 shows that many rows. `"originalScreen": "Handheld"` in `windows.json` (or
-`--original-screen handheld`) gives Original the 320Ã—240 screen back. Below,
+`--original-screen handheld`) gives Original the 320×240 screen back. Below,
 240 stands for the picture's height. The presenter
 (`src/app/presenter.cpp`) places everything itself in whole output pixels
 (`src/app/presentation_layout.{h,cpp}`, pure functions, SDL's logical
 presentation is off). In Framed and Whole pixels it never resamples the
 picture except by a whole number (nearest sampling: each game pixel is an
-exact uÃ—u square); only the opt-in Fit window scales by a fraction.
-Settings â†’ Scaling, stored in `windows.json` as `"scaling"`:
+exact u×u square); only the opt-in Fit window scales by a fraction.
+Settings → Scaling, stored in `windows.json` as `"scaling"`:
 
 | Row label | `windows.json` | What it does |
 |---|---|---|
-| Scaling: Framed (default) | `"Framed"` | largest whole scale `u = max(1, min(WÃ·320, HÃ·240))`, centred (an odd leftover pixel goes right/bottom), with a ring in the game's chrome where it fits: 4u black, 1u white rule (0xFFFF), 2u band (0x0015) with cut corners; side pillars only when the height has no room (7u), nothing when the width has none |
+| Scaling: Framed (default) | `"Framed"` | largest whole scale `u = max(1, min(W÷320, H÷240))`, centred (an odd leftover pixel goes right/bottom), with a ring in the game's chrome where it fits: 4u black, 1u white rule (0xFFFF), 2u band (0x0015) with cut corners; side pillars only when the height has no room (7u), nothing when the width has none |
 | Scaling: Whole pixels | `"Integer"` | the same picture, no ring |
 | Scaling: Fit window | `"Fit"` | the largest rectangle of the picture's shape (4:3, or 8:5 for the DOS screen); at a fractional scale sampled with `SDL_SCALEMODE_PIXELART`: on Direct3D 11 (SDL's default renderer here) every game pixel gets the same size, with a one-screen-pixel blend where two meet; renderers without pixel-art sampling (software, Direct3D 9) sample nearest, so pixel sizes differ by one |
 
 A missing or unknown `"scaling"` is Framed; the first build's `"Integer"` and
-`"Fit"` keep their meaning. Each of the ring's two colours is a 1Ã—1 RGB565
+`"Fit"` keep their meaning. Each of the ring's two colours is a 1×1 RGB565
 texture stretched whole, so the band is the in-game band's exact colour on
 every renderer (one texel of a wider atlas reached its neighbour at the far
 end of each band row on Direct3D 11).
 
-"Window NÃ—" (Settings â†’ Display, Ctrl+= / Ctrl+-) is the picture at scale N:
-a framed client of 336NÃ—256N in Framed when that window fits the display's
-work area with its real frame, else 320NÃ—240N, else a smaller N -- shaped for
-the mode's game screen: 336NÃ—216N / 320NÃ—200N for Original's DOS screen, and
-an interface switch reshapes it (the 320Ã—240 frontend shows inside at the
+"Window N×" (Settings → Display, Ctrl+= / Ctrl+-) is the picture at scale N:
+a framed client of 336N×256N in Framed when that window fits the display's
+work area with its real frame, else 320N×240N, else a smaller N -- shaped for
+the mode's game screen: 336N×216N / 320N×200N for Original's DOS screen, and
+an interface switch reshapes it (the 320×240 frontend shows inside at the
 largest whole scale that fits). Both
-controls step 1Ã— .. the largest that fits. The Display row shows the scale
+controls step 1× .. the largest that fits. The Display row shows the scale
 the window has: the one the window got, and after a drag or a snap the
 picture's scale then (a maximised or fullscreen window shows the size it
 returns to). `windows.json` keeps the scale the player last chose there (as
 the window got it), never a drag's; with no `"windowScale"` (nothing chosen
-yet) the scale follows the display's scale (3Ã— at 100 %, 4Ã— at 150 %, 6Ã— at
+yet) the scale follows the display's scale (3× at 100 %, 4× at 150 %, 6× at
 200 %), and a saved scale too large for this display is shown reduced but
-kept. A Scaling change that changes the window's shape (framed â†” bare)
-resizes it to the new mode's Window NÃ— around the same centre; Whole pixels
-â†” Fit keeps the window's size and place. Windows ignores sizes while a
+kept. A Scaling change that changes the window's shape (framed ↔ bare)
+resizes it to the new mode's Window N× around the same centre; Whole pixels
+↔ Fit keeps the window's size and place. Windows ignores sizes while a
 window is maximised, so a maximised window is restored before a new size,
 and a Scaling change made while maximised or fullscreen shapes the window
 when it is restored or leaves fullscreen. The window's aspect is locked
 while dragging; fullscreen is borderless at the desktop's mode.
 `--autotest`'s `window_screenshot`, `window_size`, `window_state`,
 `expect window_layout` and `expect picture_sampling` see the window as
-presented; F12 saves the picture itself (the panel's 320Ã—200 or 320Ã—240
+presented; F12 saves the picture itself (the panel's 320×200 or 320×240
 rows), never the window.
 
 The shared code keeps its own suite (`native/core`, GCC/MinGW, 204 tests,
 two of them for Original mode's 1988 interaction model), which must stay
 green for every change made for this target. A shared change must also leave
-the T-Deck's behaviour unchanged: see `ORIGINAL_MODE_FIDELITY.md` Â§8 for how
+the T-Deck's behaviour unchanged: see `ORIGINAL_MODE_FIDELITY.md` §8 for how
 that was checked.
 
 Original mode's interaction rules, with the 1988 evidence for each, are in

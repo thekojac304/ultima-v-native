@@ -13,7 +13,7 @@ import sys
 
 
 def report(build: Path, prefix: str) -> dict:
-    meta = json.loads((build / 'project_description.json').read_text())
+    meta = json.loads((build / 'project_description.json').read_text(encoding='utf-8'))
     image = (build / meta['app_bin']).read_bytes()
     elf = build / meta['app_elf']
     sections_text = subprocess.check_output([prefix + 'size', '-A', str(elf)], text=True)
@@ -39,7 +39,7 @@ def report(build: Path, prefix: str) -> dict:
     for path in sorted(build.rglob('*.su')):
         if '/main/' not in path.as_posix():
             continue
-        for line in path.read_text(errors='replace').splitlines():
+        for line in path.read_text(encoding='utf-8', errors='replace').splitlines():
             match = re.match(r'^.*?:\d+:\d+:(.*?)\t(\d+)\t(.+)$', line)
             if match:
                 name, size, kind = match[1], int(match[2]), match[3]

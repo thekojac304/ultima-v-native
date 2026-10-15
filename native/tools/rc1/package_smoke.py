@@ -32,7 +32,7 @@ def main():
     script = ROOT / 'native/targets/windows/scenarios/boot_title.txt'
     result = subprocess.run([str(exe), '--autotest', str(script)], cwd=output, env=env, capture_output=True, timeout=30)
     log = extract / 'data/ultima5/logs/windows.log'
-    if result.returncode != 10 or 'resource packs are missing or unreadable' not in log.read_text(errors='replace'):
+    if result.returncode != 10 or 'resource packs are missing or unreadable' not in log.read_text(encoding='utf-8', errors='replace'):
         raise ValueError(f'Missing-asset handling failed: exit {result.returncode}')
     (output / 'missing-assets.log').write_bytes(result.stdout + result.stderr + log.read_bytes())
     print('PASS missing assets: exit 10 and actionable pack diagnostic', flush=True)
@@ -65,7 +65,7 @@ def main():
             args_exe += ['--data-dir', str(work)]
         with (work / 'run.log').open('wb') as out:
             subprocess.run(args_exe, cwd=work, env=env, stdout=out, stderr=subprocess.STDOUT, check=True, timeout=240)
-        content = (data / 'ultima5/logs/windows.log').read_text(errors='replace')
+        content = (data / 'ultima5/logs/windows.log').read_text(encoding='utf-8', errors='replace')
         if f'git {commit},' not in content or f'{commit}-dirty' in content:
             raise ValueError(f'Wrong packaged source identity in {name}')
         print('PASS', name, flush=True)

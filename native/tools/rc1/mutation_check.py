@@ -49,8 +49,8 @@ def main():
         restored = build_and_run(build)
         if restored.returncode:
             raise ValueError('Restored capability test failed')
-    firmware = json.loads(args.firmware_commands.read_text())
-    windows = json.loads(args.windows_commands.read_text())
+    firmware = json.loads(args.firmware_commands.read_text(encoding='utf-8'))
+    windows = json.loads(args.windows_commands.read_text(encoding='utf-8'))
     verify(firmware, True); verify(windows, False)
     bad = copy.deepcopy(firmware)
     for entry in bad:

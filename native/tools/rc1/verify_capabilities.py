@@ -27,5 +27,5 @@ if __name__ == '__main__':
     parser.add_argument('commands', type=Path)
     parser.add_argument('--handheld', action='store_true')
     args = parser.parse_args()
-    count = verify(json.loads(args.commands.read_text()), args.handheld)
+    count = verify(json.loads(args.commands.read_text(encoding='utf-8')), args.handheld)
     print(f'PASS: {count} shared translation units, handheld={args.handheld}')
