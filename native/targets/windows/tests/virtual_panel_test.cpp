@@ -359,6 +359,39 @@ void real_board() {
 }
 
 // --- Part 3: Original's DOS game screen (board_dos_layout.cpp) -------------------
+// ULTIMA.EXE's frame, 0x63ac..0x64f7, as the web port's fiel/frame.ts tables
+// give it (fills in the band's blue, the three corner glyphs, the white
+// segments), written out here independently of the Board's code. Without a
+// font the corners are the player's IBM.CH glyphs as measured from captures.
+uint16_t rom_frame_pixel(int x, int y) {
+    struct Rect { int x0, y0, x1, y1; };
+    static const Rect fills[] = {{0x00, 0x00, 0x13f, 0x06}, {0x00, 0xb9, 0xbf, 0xbf}, {0x00, 0x00, 0x06, 0xbf},
+                                 {0xb9, 0x00, 0xbf, 0xbf},  {0x139, 0x00, 0x13f, 0x57}, {0xc0, 0x50, 0x138, 0x57},
+                                 {0xc0, 0x39, 0x138, 0x3f}};
+    static const Rect segments[] = {{0x07, 0x07, 0x07, 0xb8},  {0x07, 0xb8, 0xb8, 0xb8},  {0xb8, 0x07, 0xb8, 0xb8},
+                                    {0x07, 0x07, 0xb8, 0x07},  {0xbf, 0x57, 0xbf, 0xbf},  {0xbf, 0x57, 0x13f, 0x57},
+                                    {0xbf, 0x07, 0x138, 0x07}, {0x138, 0x07, 0x138, 0x38}, {0xbf, 0x38, 0x138, 0x38},
+                                    {0xbf, 0x07, 0xbf, 0x38},  {0xbf, 0x3f, 0x138, 0x3f}, {0x138, 0x3f, 0x138, 0x50},
+                                    {0xbf, 0x50, 0x138, 0x50}, {0xbf, 0x3f, 0xbf, 0x50}};
+    static const uint8_t corners[3][8] = {{0x07, 0x1f, 0x3f, 0x7f, 0x7f, 0xff, 0xff, 0xff},
+                                          {0xe0, 0xf8, 0xfc, 0xfe, 0xfe, 0xff, 0xff, 0xff},
+                                          {0xff, 0xff, 0xff, 0x7f, 0x7f, 0x3f, 0x1f, 0x07}};
+    static const int corner_cells[3][2] = {{0, 0}, {39, 0}, {0, 23}};
+    auto in = [&](const Rect &r) { return x >= r.x0 && x <= r.x1 && y >= r.y0 && y <= r.y1; };
+    uint16_t p = 0x0000;
+    for (const auto &r : fills)
+        if (in(r)) p = 0x0015;
+    for (int c = 0; c < 3; ++c) {
+        const int cx = corner_cells[c][0] * 8, cy = corner_cells[c][1] * 8;
+        if (x >= cx && x < cx + 8 && y >= cy && y < cy + 8)
+            p = (corners[c][y - cy] & (0x80 >> (x - cx))) ? 0x0015 : 0x0000;
+    }
+    for (const auto &r : segments)
+        if (in(r)) p = 0xFFFF;
+    return p;
+}
+
+
 // The real Board composes the 1988 game's 320 x 200 screen on the panel's rows
 // 0..199: ULTIMA.EXE's frame, the map whole at (8,8), the sky and wind bands
 // outside it, the right panel's boxes (the world's, or a list's DeviceDosPanel)
@@ -387,6 +420,9 @@ void dos_screen() {
     game.party.characters[0].party_status = 0;
     game.food = 63;
     game.gold = 150;
+    game.time.month = 4;
+    game.time.day = 5;
+    game.time.year = 139;
     openu5::TurnState turn{};
     openu5::HudWorldState hud{};
     hud.sky_visible = hud.wind_visible = true;
@@ -413,6 +449,26 @@ void dos_screen() {
                 bad = format("%s at %d,%d is %04x, expected %04x", q.what, q.x, q.y, unsigned(at(q.x, q.y)), unsigned(q.want));
         check(bad.empty(), id, bad);
     };
+    {
+        // Every frame pixel outside what changes (the map, the two band
+        // notches, the panel's window rows, the console) against the ROM tables.
+        auto content = [](int x, int y) {
+            return (x >= 8 && x <= 183 && y >= 8 && y <= 183) || (x >= 40 && x <= 151 && y <= 7) ||
+                   (x >= 48 && x <= 151 && y >= 184 && y <= 191) || (x >= 192 && x <= 311 && y >= 8 && y <= 55) ||
+                   (x >= 192 && x <= 311 && y >= 64 && y <= 79) || (x >= 192 && y >= 88 && y <= 191);
+        };
+        std::string bad;
+        size_t compared = 0;
+        for (int y = 0; y < 200; ++y)
+            for (int x = 0; x < panel::kWidth; ++x) {
+                if (content(x, y)) continue;
+                ++compared;
+                if (at(x, y) != rom_frame_pixel(x, y) && bad.empty())
+                    bad = format("%d,%d is %04x, ULTIMA.EXE's frame %04x", x, y, unsigned(at(x, y)), unsigned(rom_frame_pixel(x, y)));
+            }
+        check(bad.empty(), format("D3a the frame is ULTIMA.EXE's (0x63ac..0x64f7) at all %zu pixels outside the content", compared),
+              bad);
+    }
     probe("D3 the frame: the map's box rules at x 7 / 184, the bands, the panel's and console's rules, the cut corners",
           {{7, 100, kRule, "map box left rule"},
            {184, 100, kRule, "map box right rule"},
@@ -458,9 +514,34 @@ void dos_screen() {
           "D8 the panel: one roster row, F/G and the date in their window rows",
           format("roster %zu, rows 2-6 %zu, F/G %zu, date %zu", lit(192, 8, 311, 15), lit(192, 16, 311, 55),
                  lit(192, 64, 311, 71), lit(192, 72, 311, 79)));
+    // panel.ts: "G:150" right-aligned to cell 14 (x 272..311), "4-5-139" centred
+    // in the 15 cells (cells 4..10, x 224..279), nothing in cells 0..3; the
+    // roster's HP right-aligned in cells 10..13 and the status letter in 14.
+    check(lit(304, 64, 311, 71) > 3 && lit(232, 64, 271, 71) == 0 && lit(192, 72, 223, 79) == 0 &&
+              lit(224, 72, 231, 79) > 3 && lit(272, 72, 279, 79) > 3 && lit(280, 72, 311, 79) == 0 &&
+              lit(304, 8, 311, 15) > 3,
+          "D8b the status box: G right-aligned, the date 4-5-139 centred (cells 4..10); the status letter in cell 14",
+          format("G cell 14 %zu, F/G gap %zu, date cells 0-3 %zu / 4 %zu / 10 %zu / 11-14 %zu, roster cell 14 %zu",
+                 lit(304, 64, 311, 71), lit(232, 64, 271, 71), lit(192, 72, 223, 79), lit(224, 72, 231, 79),
+                 lit(272, 72, 279, 79), lit(280, 72, 311, 79), lit(304, 8, 311, 15)));
     check(lit(192, 184, 319, 191) > 30 && lit(192, 88, 319, 183) == 0,
           "D9 the console: its one line on the bottom row (y 184..191), the 12 rows above it empty",
           format("bottom %zu, above %zu", lit(192, 184, 319, 191), lit(192, 88, 319, 183)));
+    {
+        // The console wraps where the screen ends: 16 cells. "The quick brown
+        // fox jumps" is "The quick brown" / "fox jumps" there; a 22-cell
+        // wrap would leave "jumps" alone on the bottom row (cells 0..4).
+        openu5::UiTextBlock wrap_storage[8]{};
+        openu5::UiSession wrap{{wrap_storage, 8}, {}, {16, 21, 12}};
+        wrap.set_console_layout(true);
+        wrap.append(openu5::UiTextChannel::Message, "The quick brown fox jumps");
+        check(board->show_alpha(map.data(), wrap, game, turn, hud, runes.data(), nullptr, nullptr, false, nullptr, false, 1,
+                                nullptr, nullptr, nullptr, {}, 1) == ESP_OK &&
+                  lit(192 + 6 * 8, 184, 192 + 9 * 8 - 1, 191) > 10 && lit(192 + 13 * 8, 176, 192 + 15 * 8 - 1, 183) > 5,
+              "D9b the console wraps at 16 cells: \"fox jumps\" fills cells 0..8 of the bottom row",
+              format("bottom cells 6..8: %zu, row above cells 13..14: %zu", lit(240, 184, 263, 191), lit(296, 176, 311, 183)));
+    }
+    draw();
     const uint64_t world = panel_hash();
     draw();
     check(panel_hash() == world, "D10 the same frame again changes nothing");

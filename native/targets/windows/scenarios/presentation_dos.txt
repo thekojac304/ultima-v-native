@@ -39,7 +39,11 @@ expect picture_sampling nearest
 expect right_column screen_split
 expect dos_screen frame
 expect dos_screen 4 100 band
+# The prompt's bullet on the console's bottom row: glyph 0x02 with its white
+# edge to the tip at col 5 (x 197), black after it (the handheld's is longer).
 expect dos_screen 192 184 ink
+expect dos_screen 197 187 ink
+expect dos_screen 198 187 black
 window_screenshot dos-window-3x.bmp
 screenshot dos-panel.bmp
 # Alt+Enter: fullscreen (1024x768 here): 3x, the full ring; back, the same window.
