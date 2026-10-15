@@ -1,0 +1,10 @@
+# ORIG-DOS2 mutants: one edit each to the core, shop_dos_transcript_tests rebuilt and run, the edit reverted (2026-10-14)
+M1 BuyDeal Y prints no "Yes": KILLED (2 checks failed): FAIL blacksmith: Y echoes 'Yes', 'Sold!', 'Anything else, sir?' (a purchase)
+M2 greeting gate spacing dropped: KILLED (3 checks failed): FAIL horses: a short greeting, and the gate's single space
+M3 DosConsole owes no LF after a soft wrap: KILLED (1 checks failed): FAIL print: a row cut at its trailing space eats the LF and owes one (0x19c7)
+M4 the reagents pitch before the cap (P3): KILLED (5 checks failed): FAIL reagents: at 99 the cap line, no pitch and no price
+M5 the result strings shown again: KILLED (7 checks failed): FAIL blacksmith: no result strings shown
+M6 the stream starts a new row each time: KILLED (2 checks failed): FAIL ui: stream Messages go on the console's open row
+M7 the inn rate line missing: KILLED (7 checks failed): FAIL inn: the rate line before 'Wilt thou take it?'
+M8 the farewell printed after the inn night: KILLED (1 checks failed): FAIL inn: the night, and no farewell after it
+restored: exit 0 shop DOS transcript: 121/121 checks

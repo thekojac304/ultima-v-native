@@ -1,0 +1,63 @@
+# ORIG-DOS2 T-Deck differential (native/core/tools/spp2_differential/README.md), 2026-10-14
+# base: C:\Dev\uvw-shops-base, detached at 60e7c647; head: C:\Dev\uvw-dos-shops (windows/original-dos-shops, uncommitted ORIG-DOS2 tree)
+# packs: native/assets openu5-alpha1-resources.bin + openu5-audio.bin; probe registered temporarily in both trees, removed after
+
+   63635 base.txt
+   63635 head.txt
+   63620 base-paced.txt
+   63620 head-paced.txt
+   62744 base-dos.txt
+   62756 head-dos.txt
+  380010 total
+
+0e53ca58185f4c2c01c6ad2fc7b2e51b1c7d304b5c5dbd53d6d241d11d742000 *base.txt
+0e53ca58185f4c2c01c6ad2fc7b2e51b1c7d304b5c5dbd53d6d241d11d742000 *head.txt
+f01c280397940ee2439223beadcb28f98ca4ce6e367fbe72f3bae8cbeb38e828 *base-paced.txt
+f01c280397940ee2439223beadcb28f98ca4ce6e367fbe72f3bae8cbeb38e828 *head-paced.txt
+23f7c2182aede34aec623c72204c27074fc4cd40da702142b37a0d7e6fe281a5 *base-dos.txt
+e727b576d73f96b9238e5a36c366dcef1cd9f41ef5d01dcd98b9c1b1c4ec168d *head-dos.txt
+
+unpaced: byte-identical
+paced: byte-identical
+
+## positive control: the DOS profile in both trees (ABCDEFGHI --dos)
+non-snapshot lines: base 1, head 1; equal=True
+
+7 classes (family, token at the first divergence, differing fields):
+
+== C-81  token='start'  fields=gram,text,dturns=+0  walks=11
+   C-81-0 step 0 after []
+      base: mode=4 req=0 turns=0 clock=5:08:00 prompt=[] tail=[Talk-South][Iolo's Bows\nGwenneth, proprietor]["Good morning, and welcome to Iolo's Bows!"]
+      head: mode=4 req=0 turns=0 clock=5:08:00 prompt=[] tail=[Britain][Talk-South]["Good morning,\nand welcome to\nIolo's Bows!"\n]
+
+== C-82  token='start'  fields=gram,text,dturns=+0  walks=11
+   C-82-0 step 0 after []
+      base: mode=4 req=0 turns=0 clock=5:09:00 prompt=[] tail=[Talk-East][The Honest Meal\nSam, proprietor]["Jolly good morning, mate! Welcome to The Honest Meal! I am Sam. Canst I get anything for thee?"]
+      head: mode=4 req=0 turns=0 clock=5:09:00 prompt=[] tail=[Moonglow][Talk-East]["Jolly good\nmorning, mate!\nWelcome to The\nHonest Meal! I\nam Sam. Canst I\nget anything for\nthee?" ]
+
+== C-83  token='start'  fields=gram,text,dturns=+0  walks=11
+   C-83-0 step 0 after []
+      base: mode=4 req=0 turns=0 clock=5:08:00 prompt=[] tail=[Talk-West][Horse & Rider\nHettar, proprietor]["A fine morning to thee, friend! I am Hettar, and here at Horse & Rider we sell the strongest horses in the land! Art thou interested?"]
+      head: mode=4 req=0 turns=0 clock=5:08:00 prompt=[] tail=[Trinsic][Talk-West]["A fine morning\nto thee, friend!\nI am Hettar, and\nhere at Horse &\nRider we sell\nthe strongest\nhorses in the\nland! Art thou\ninterested?"\n\n:]
+
+== C-84  token='start'  fields=gram,text,dturns=+0  walks=11
+   C-84-0 step 0 after []
+      base: mode=4 req=0 turns=0 clock=5:11:00 prompt=[] tail=[Talk-West][Island Shipwrights\nBantral, proprietor]["A fine morning to thee, friend! I am Bantral, and here at Island Shipwrights we sell the fastest ships in the land! May I help thee?"]
+      head: mode=4 req=0 turns=0 clock=5:11:00 prompt=[] tail=[Jhelom][Talk-West]["A fine morning\nto thee, friend!\nI am Bantral,\nand here at\nIsland\nShipwrights we\nsell the fastest\nships in the\nland! May I help\nthee?" ]
+
+== C-85  token='start'  fields=gram,text,dturns=+0  walks=11
+   C-85-0 step 0 after []
+      base: mode=4 req=0 turns=0 clock=5:08:00 prompt=[] tail=[Talk-East][The Herbalist\nNilrem, proprietor]["Hail, enchanter, and welcome to The Herbalist! I am Nilrem. Dost thou seek fine magical reagents this morning?"]
+      head: mode=4 req=0 turns=0 clock=5:08:00 prompt=[] tail=[Moonglow][Talk-East]["Hail,\nenchanter, and\nwelcome to The\nHerbalist! I am\nNilrem. Dost\nthou seek fine\nmagical reagents\nthis morning?"\n\n:]
+
+== C-87  token='start'  fields=gram,text,dturns=+0  walks=11
+   C-87-0 step 0 after []
+      base: mode=4 req=0 turns=0 clock=5:08:00 prompt=[] tail=[Talk-South][The Healers Mission\nRegina, proprietor]["Hail wayfarer, and welcome unto our kiosk. I am Regina, of The Healers Mission. Art thou in need of aid?"]
+      head: mode=4 req=0 turns=0 clock=5:08:00 prompt=[] tail=[Minoc][Talk-South]["Hail wayfarer,\nand welcome unto\nour kiosk. I am\nRegina, of The\nHealers Mission.\nArt thou in need\nof aid?" ]
+
+== C-88  token='start'  fields=gram,text,dturns=+0  walks=11
+   C-88-0 step 0 after []
+      base: mode=4 req=0 turns=0 clock=5:08:00 prompt=[] tail=[Talk-South][The Wayfarer Inn\nDonya, proprietor]["Welcome to The Wayfarer Inn, adventurer. My name is Donya, and I own this hostel. May I help thee?"]
+      head: mode=4 req=0 turns=0 clock=5:08:00 prompt=[] tail=[Britain][Talk-South]["Welcome to The\nWayfarer Inn,\nadventurer. My\nname is Donya,\nand I own this\nhostel. May I\nhelp thee?" ]
+
+differing walks by family prefix: {'C': 77}

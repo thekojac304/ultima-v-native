@@ -1,0 +1,299 @@
+# ORIG-DOS2 RED 1: the console transcript tests against the API stubs, with DosConsole implemented and the transcript not yet (2026-10-14)
+FAIL print: a word longer than the room breaks the row (0x1981) and goes on
+  expected: \nABCDEFGHIJK\nLMNOP\nQRST
+  actual:   \nABCDEFGHIJK\nLMNOPQRST
+  first difference at byte 18: expected [\nQRST] actual [QRST]
+FAIL blacksmith: the welcome
+  expected: "Good morning,\nand welcome to\nThe Forge!"\n
+  actual:   
+  first difference at byte 0: expected ["Good morning,\nand welcome to\nThe Forge!] actual []
+FAIL blacksmith: any key, then the Buy or Sell question
+  expected: "Good morning,\nand welcome to\nThe Forge!"\n\nGorn says,\n"Hail, friend!\nWouldst thou Buy\nor Sell?" 
+  actual:   
+  first difference at byte 0: expected ["Good morning,\nand welcome to\nThe Forge!] actual []
+FAIL blacksmith: the Buy echo, the chatter, the list without prices, WHICH
+  expected: "Good morning,\nand welcome to\nThe Forge!"\n\nGorn says,\n"Hail, friend!\nWouldst thou Buy\nor Sell?" Buy\n\n"Excellent!\nWe stock:\n\na...Leather Helm\nb...Chain Coif\nc...Arrows\n\nWhich would ye\nsee?" 
+  actual:   
+  first difference at byte 0: expected ["Good morning,\nand welcome to\nThe Forge!] actual []
+FAIL blacksmith: the letter echo, the pitch, ASKS
+  expected: "Good morning,\nand welcome to\nThe Forge!"\n\nGorn says,\n"Hail, friend!\nWouldst thou Buy\nor Sell?" Buy\n\n"Excellent!\nWe stock:\n\na...Leather Helm\nb...Chain Coif\nc...Arrows\n\nWhich would ye\nsee?" b\n\n"It is 9, 46\ngold.\n\nWouldst thou buy\none?" 
+  actual:   
+  first difference at byte 0: expected ["Good morning,\nand welcome to\nThe Forge!] actual []
+FAIL blacksmith: N echoes 'No', then 'Anything else, then?' and the list
+  expected: "Good morning,\nand welcome to\nThe Forge!"\n\nGorn says,\n"Hail, friend!\nWouldst thou Buy\nor Sell?" Buy\n\n"Excellent!\nWe stock:\n\na...Leather Helm\nb...Chain Coif\nc...Arrows\n\nWhich would ye\nsee?" b\n\n"It is 9, 46\ngold.\n\nWouldst thou buy\none?" No\n\n"Anything else,\nthen?\n\na...Leather Helm\nb...Chain Coif\nc...Arrows\n\nWhat may I show\nthee?" 
+  actual:   
+  first difference at byte 0: expected ["Good morning,\nand welcome to\nThe Forge!] actual []
+FAIL blacksmith: Y echoes 'Yes', 'Sold!', 'Anything else, sir?' (a purchase)
+  expected: "Good morning,\nand welcome to\nThe Forge!"\n\nGorn says,\n"Hail, friend!\nWouldst thou Buy\nor Sell?" Buy\n\n"Excellent!\nWe stock:\n\na...Leather Helm\nb...Chain Coif\nc...Arrows\n\nWhich would ye\nsee?" b\n\n"It is 9, 46\ngold.\n\nWouldst thou buy\none?" No\n\n"Anything else,\nthen?\n\na...Leather Helm\nb...Chain Coif\nc...Arrows\n\nWhat may I show\nthee?" a\n\n"It is 8, 46\ngold.\n\nWilt thou take\nit?" Yes\n\nSold!\n"Anything else,\nsir?\n\na...Leather Helm\nb...Chain Coif\nc...Arrows\n\nWhat may I show\nthee?" 
+  actual:   
+  first difference at byte 0: expected ["Good morning,\nand welcome to\nThe Forge!] actual []
+FAIL blacksmith: Space leaves the list with the purchase farewell
+  expected: "Good morning,\nand welcome to\nThe Forge!"\n\nGorn says,\n"Hail, friend!\nWouldst thou Buy\nor Sell?" Buy\n\n"Excellent!\nWe stock:\n\na...Leather Helm\nb...Chain Coif\nc...Arrows\n\nWhich would ye\nsee?" b\n\n"It is 9, 46\ngold.\n\nWouldst thou buy\none?" No\n\n"Anything else,\nthen?\n\na...Leather Helm\nb...Chain Coif\nc...Arrows\n\nWhat may I show\nthee?" a\n\n"It is 8, 46\ngold.\n\nWilt thou take\nit?" Yes\n\nSold!\n"Anything else,\nsir?\n\na...Leather Helm\nb...Chain Coif\nc...Arrows\n\nWhat may I show\nthee?" \n\n"Bye6!"\nsays Gorn.\n
+  actual:   
+  first difference at byte 0: expected ["Good morning,\nand welcome to\nThe Forge!] actual []
+FAIL blacksmith: no line outside the transcript
+FAIL blacksmith: no result strings shown
+FAIL blacksmith: Space at Buy or Sell echoes 'No' and says farewell
+  expected: "Good morning,\nand welcome to\nThe Forge!"\n\nGorn says,\n"Hail, friend!\nWouldst thou Buy\nor Sell?" No\n\n"Bye1!"\nsays Gorn.\n
+  actual:   
+  first difference at byte 0: expected ["Good morning,\nand welcome to\nThe Forge!] actual []
+FAIL blacksmith sell: the Sell echo and the prompt
+  expected: "Good morning,\nand welcome to\nThe Forge!"\n\nGorn says,\n"Hail, friend!\nWouldst thou Buy\nor Sell?" Sell\n\n"What dost thou\nwish to sell?" 
+  actual:   
+  first difference at byte 0: expected ["Good morning,\nand welcome to\nThe Forge!] actual []
+FAIL blacksmith sell: the offer and Deal?
+  expected: "Good morning,\nand welcome to\nThe Forge!"\n\nGorn says,\n"Hail, friend!\nWouldst thou Buy\nor Sell?" Sell\n\n"What dost thou\nwish to sell?" \n\n"Large Shield\nfor 14 gold?\n\nDeal?" 
+  actual:   
+  first difference at byte 0: expected ["Good morning,\nand welcome to\nThe Forge!] actual []
+FAIL blacksmith sell: Y, Done!, SELLMORE
+  expected: "Good morning,\nand welcome to\nThe Forge!"\n\nGorn says,\n"Hail, friend!\nWouldst thou Buy\nor Sell?" Sell\n\n"What dost thou\nwish to sell?" \n\n"Large Shield\nfor 14 gold?\n\nDeal?" Yes\n\n"Done!"\nsays Gorn.\n\n"What other arms\nwilt thou sell?"\n
+  actual:   
+  first difference at byte 0: expected ["Good morning,\nand welcome to\nThe Forge!] actual []
+FAIL blacksmith sell: an item of no value
+  expected: "Good morning,\nand welcome to\nThe Forge!"\n\nGorn says,\n"Hail, friend!\nWouldst thou Buy\nor Sell?" Sell\n\n"What dost thou\nwish to sell?" \n\n"Large Shield\nfor 14 gold?\n\nDeal?" Yes\n\n"Done!"\nsays Gorn.\n\n"What other arms\nwilt thou sell?"\n\n\n"That, I cannot\nbuy from thee."\nsays Gorn.\n\n"What else can\nye offer me?" 
+  actual:   
+  first difference at byte 0: expected ["Good morning,\nand welcome to\nThe Forge!] actual []
+FAIL blacksmith sell: N echoes 'No'
+  expected: "Good morning,\nand welcome to\nThe Forge!"\n\nGorn says,\n"Hail, friend!\nWouldst thou Buy\nor Sell?" Sell\n\n"What dost thou\nwish to sell?" \n\n"Large Shield\nfor 14 gold?\n\nDeal?" Yes\n\n"Done!"\nsays Gorn.\n\n"What other arms\nwilt thou sell?"\n\n\n"That, I cannot\nbuy from thee."\nsays Gorn.\n\n"What else can\nye offer me?" \n\n"Large Shield\nfor 14 gold?\n\nDeal?" No\n\n"What else hath\nye to sell?" 
+  actual:   
+  first difference at byte 0: expected ["Good morning,\nand welcome to\nThe Forge!] actual []
+FAIL blacksmith sell: ESC says good-bye, and no farewell
+  expected: "Good morning,\nand welcome to\nThe Forge!"\n\nGorn says,\n"Hail, friend!\nWouldst thou Buy\nor Sell?" Sell\n\n"What dost thou\nwish to sell?" \n\n"Large Shield\nfor 14 gold?\n\nDeal?" Yes\n\n"Done!"\nsays Gorn.\n\n"What other arms\nwilt thou sell?"\n\n\n"That, I cannot\nbuy from thee."\nsays Gorn.\n\n"What else can\nye offer me?" \n\n"Large Shield\nfor 14 gold?\n\nDeal?" No\n\n"What else hath\nye to sell?" \n\n"Good-bye..."\nsays Gorn.\n
+  actual:   
+  first difference at byte 0: expected ["Good morning,\nand welcome to\nThe Forge!] actual []
+FAIL blacksmith sell: ammunition growls and ends the visit
+  expected: "Good morning,\nand welcome to\nThe Forge!"\n\nGorn says,\n"Hail, friend!\nWouldst thou Buy\nor Sell?" Sell\n\n"What dost thou\nwish to sell?" \n\n"We don't deal\nin used\nammunition!"\ngrowls Gorn.\n
+  actual:   
+  first difference at byte 0: expected ["Good morning,\nand welcome to\nThe Forge!] actual []
+FAIL blacksmith sell: nothing to sell
+  expected: "Good morning,\nand welcome to\nThe Forge!"\n\nGorn says,\n"Hail, friend!\nWouldst thou Buy\nor Sell?" Sell\n\n"Thou hast\nnothing to\nsell!"\ngrowls Gorn.\n
+  actual:   
+  first difference at byte 0: expected ["Good morning,\nand welcome to\nThe Forge!] actual []
+FAIL reagents: the greeting and its gate spacing
+  expected: "Hi128 Mira?"\n\n:
+  actual:   
+  first difference at byte 0: expected ["Hi128 Mira?"\n\n:] actual []
+FAIL reagents: Y, 'Fine! We sell:', the upper-case list, Thy interest?
+  expected: "Hi128 Mira?"\n\n:Yes\n\n"Fine! We sell:\n\nA...Sulfur Ash\nB...Garlic\nC...Mandrake\n\nThy interest?" 
+  actual:   
+  first difference at byte 0: expected ["Hi128 Mira?"\n\n:Yes\n\n"Fine! We sell:\n\nA.] actual []
+FAIL reagents: at 99 the cap line, no pitch and no price
+  expected: "Hi128 Mira?"\n\n:Yes\n\n"Fine! We sell:\n\nA...Sulfur Ash\nB...Garlic\nC...Mandrake\n\nThy interest?" \n\n"Thou canst not\ncarry any more!"\n\n
+  actual:   
+  first difference at byte 0: expected ["Hi128 Mira?"\n\n:Yes\n\n"Fine! We sell:\n\nA.] actual []
+FAIL reagents: the pitch and 'Is this thy need?'
+  expected: "Hi128 Mira?"\n\n:Yes\n\n"Fine! We sell:\n\nA...Sulfur Ash\nB...Garlic\nC...Mandrake\n\nThy interest?" \n\n"Thou canst not\ncarry any more!"\n\nA...Sulfur Ash\nB...Garlic\nC...Mandrake\n\nThy interest?" \n\n"3 for 7. Is\nthis thy need?"\n
+  actual:   
+  first difference at byte 0: expected ["Hi128 Mira?"\n\n:Yes\n\n"Fine! We sell:\n\nA.] actual []
+FAIL reagents: N, 'What else?' and the list
+  expected: "Hi128 Mira?"\n\n:Yes\n\n"Fine! We sell:\n\nA...Sulfur Ash\nB...Garlic\nC...Mandrake\n\nThy interest?" \n\n"Thou canst not\ncarry any more!"\n\nA...Sulfur Ash\nB...Garlic\nC...Mandrake\n\nThy interest?" \n\n"3 for 7. Is\nthis thy need?"\nNo\n\n"What else?\n\nA...Sulfur Ash\nB...Garlic\nC...Mandrake\n\nThy interest?" 
+  actual:   
+  first difference at byte 0: expected ["Hi128 Mira?"\n\n:Yes\n\n"Fine! We sell:\n\nA.] actual []
+FAIL reagents: Y, 'I thank thee!', 'Anything else?' and the list
+  expected: "Hi128 Mira?"\n\n:Yes\n\n"Fine! We sell:\n\nA...Sulfur Ash\nB...Garlic\nC...Mandrake\n\nThy interest?" \n\n"Thou canst not\ncarry any more!"\n\nA...Sulfur Ash\nB...Garlic\nC...Mandrake\n\nThy interest?" \n\n"3 for 7. Is\nthis thy need?"\nNo\n\n"What else?\n\nA...Sulfur Ash\nB...Garlic\nC...Mandrake\n\nThy interest?" \n\n"3 for 7. Is\nthis thy need?"\nYes\n\n"I thank thee!"\nsays Mira.\n"Anything else?\n\nA...Sulfur Ash\nB...Garlic\nC...Mandrake\n\nThy interest?" 
+  actual:   
+  first difference at byte 0: expected ["Hi128 Mira?"\n\n:Yes\n\n"Fine! We sell:\n\nA.] actual []
+FAIL reagents: Space leaves with the farewell
+  expected: "Hi128 Mira?"\n\n:Yes\n\n"Fine! We sell:\n\nA...Sulfur Ash\nB...Garlic\nC...Mandrake\n\nThy interest?" \n\n"Thou canst not\ncarry any more!"\n\nA...Sulfur Ash\nB...Garlic\nC...Mandrake\n\nThy interest?" \n\n"3 for 7. Is\nthis thy need?"\nNo\n\n"What else?\n\nA...Sulfur Ash\nB...Garlic\nC...Mandrake\n\nThy interest?" \n\n"3 for 7. Is\nthis thy need?"\nYes\n\n"I thank thee!"\nsays Mira.\n"Anything else?\n\nA...Sulfur Ash\nB...Garlic\nC...Mandrake\n\nThy interest?" \n\n"Bye136!"\nsays Mira.\n
+  actual:   
+  first difference at byte 0: expected ["Hi128 Mira?"\n\n:Yes\n\n"Fine! We sell:\n\nA.] actual []
+FAIL reagents: nothing outside the transcript
+FAIL reagents: N at the greeting echoes 'No'
+  expected: "Hi128 Mira?"\n\n:No\n\n"Bye132!"\nsays Mira.\n
+  actual:   
+  first difference at byte 0: expected ["Hi128 Mira?"\n\n:No\n\n"Bye132!"\nsays Mira.] actual []
+FAIL guild: Y, 'We sell:', the three rows, Thy concern?
+  expected: "Hi150 Thane?"\n\n:Yes\n\n"We sell:\n\na.........Keys\nb.........Gems\nc......Torches\n\nThy concern?" 
+  actual:   
+  first difference at byte 0: expected ["Hi150 Thane?"\n\n:Yes\n\n"We sell:\n\na......] actual []
+FAIL guild: D prints the limited-time record (its own echo) and the list
+  expected: "Hi150 Thane?"\n\n:Yes\n\n"We sell:\n\na.........Keys\nb.........Gems\nc......Torches\n\nThy concern?" d\n\n"Limited.\n\na.........Keys\nb.........Gems\nc......Torches\n\nThy concern?" 
+  actual:   
+  first difference at byte 0: expected ["Hi150 Thane?"\n\n:Yes\n\n"We sell:\n\na......] actual []
+FAIL guild: the letter echo, the pitch, Interested?
+  expected: "Hi150 Thane?"\n\n:Yes\n\n"We sell:\n\na.........Keys\nb.........Gems\nc......Torches\n\nThy concern?" d\n\n"Limited.\n\na.........Keys\nb.........Gems\nc......Torches\n\nThy concern?" a\n\n"Lot 160, 294.\n\nInterested?" 
+  actual:   
+  first difference at byte 0: expected ["Hi150 Thane?"\n\n:Yes\n\n"We sell:\n\na......] actual []
+FAIL guild: Y, Sold!, 'What else, m'lord?' and the list
+  expected: "Hi150 Thane?"\n\n:Yes\n\n"We sell:\n\na.........Keys\nb.........Gems\nc......Torches\n\nThy concern?" d\n\n"Limited.\n\na.........Keys\nb.........Gems\nc......Torches\n\nThy concern?" a\n\n"Lot 160, 294.\n\nInterested?" No\n\n"What else,\nthen?\n\na.........Keys\nb.........Gems\nc......Torches\n\nThy concern?" b\n\n"Lot 161, 395.\n\nInterested?" Yes\n\n"Sold!"\nsays Thane.\n\n"What else, \nm'lord?\n\na.........Keys\nb.........Gems\nc......Torches\n\nThy concern?" 
+  actual:   
+  first difference at byte 0: expected ["Hi150 Thane?"\n\n:Yes\n\n"We sell:\n\na......] actual []
+FAIL guild: Space leaves silently, then the farewell
+  expected: "Hi150 Thane?"\n\n:Yes\n\n"We sell:\n\na.........Keys\nb.........Gems\nc......Torches\n\nThy concern?" d\n\n"Limited.\n\na.........Keys\nb.........Gems\nc......Torches\n\nThy concern?" a\n\n"Lot 160, 294.\n\nInterested?" No\n\n"What else,\nthen?\n\na.........Keys\nb.........Gems\nc......Torches\n\nThy concern?" b\n\n"Lot 161, 395.\n\nInterested?" Yes\n\n"Sold!"\nsays Thane.\n\n"What else, \nm'lord?\n\na.........Keys\nb.........Gems\nc......Torches\n\nThy concern?" \n\n"Bye157!"\nsays Thane.\n
+  actual:   
+  first difference at byte 0: expected ["Hi150 Thane?"\n\n:Yes\n\n"We sell:\n\na......] actual []
+FAIL guild: nothing outside the transcript
+FAIL tavern: Y, the subtype's menu record, the quote and space
+  expected: "Hi59 Lugh?"\n\n:Yes\n\n"Menu69" 
+  actual:   
+  first difference at byte 0: expected ["Hi59 Lugh?"\n\n:Yes\n\n"Menu69" ] actual []
+FAIL tavern: the food round echoes its letter, is announced and charged at once
+  expected: "Hi59 Lugh?"\n\n:Yes\n\n"Menu69" M\n\n"That will be 6\ngold for the two\n of ye,\nsir.\nEnjoy!"\n\n"Anything else\nfor thee?" 
+  actual:   
+  first difference at byte 0: expected ["Hi59 Lugh?"\n\n:Yes\n\n"Menu69" M\n\n"That wi] actual []
+FAIL tavern: the round is charged with no question (P4)
+FAIL tavern: the house drink
+  expected: "Hi59 Lugh?"\n\n:Yes\n\n"Menu69" M\n\n"That will be 6\ngold for the two\n of ye,\nsir.\nEnjoy!"\n\n"Anything else\nfor thee?" Yes\n\n"Again73" A\n\n"That will be 2\ngold for the two\n of ye,\nsir.\nEnjoy!"\n\n"Anything else\nfor thee?" 
+  actual:   
+  first difference at byte 0: expected ["Hi59 Lugh?"\n\n:Yes\n\n"Menu69" M\n\n"That wi] actual []
+FAIL tavern: the rumour question
+  expected: "Hi59 Lugh?"\n\n:Yes\n\n"Menu69" M\n\n"That will be 6\ngold for the two\n of ye,\nsir.\nEnjoy!"\n\n"Anything else\nfor thee?" Yes\n\n"Again73" A\n\n"That will be 2\ngold for the two\n of ye,\nsir.\nEnjoy!"\n\n"Anything else\nfor thee?" Yes\n\n"Again73" C\n\n"Of what wouldst\nthou hear my\nlore, sir?"\n\nYou respond:\n
+  actual:   
+  first difference at byte 0: expected ["Hi59 Lugh?"\n\n:Yes\n\n"Menu69" M\n\n"That wi] actual []
+FAIL tavern: an unknown word, and the question again
+  expected: "Hi59 Lugh?"\n\n:Yes\n\n"Menu69" M\n\n"That will be 6\ngold for the two\n of ye,\nsir.\nEnjoy!"\n\n"Anything else\nfor thee?" Yes\n\n"Again73" A\n\n"That will be 2\ngold for the two\n of ye,\nsir.\nEnjoy!"\n\n"Anything else\nfor thee?" Yes\n\n"Again73" C\n\n"Of what wouldst\nthou hear my\nlore, sir?"\n\nYou respond:\n\n\n"That, I cannot\nhelp thee with.\n\nOf what wouldst\nthou hear my\nlore, sir?"\n\nYou respond:\n
+  actual:   
+  first difference at byte 0: expected ["Hi59 Lugh?"\n\n:Yes\n\n"Menu69" M\n\n"That wi] actual []
+FAIL tavern: the rumour's price and Fair 'nuff?
+  expected: "Hi59 Lugh?"\n\n:Yes\n\n"Menu69" M\n\n"That will be 6\ngold for the two\n of ye,\nsir.\nEnjoy!"\n\n"Anything else\nfor thee?" Yes\n\n"Again73" A\n\n"That will be 2\ngold for the two\n of ye,\nsir.\nEnjoy!"\n\n"Anything else\nfor thee?" Yes\n\n"Again73" C\n\n"Of what wouldst\nthou hear my\nlore, sir?"\n\nYou respond:\n\n\n"That, I cannot\nhelp thee with.\n\nOf what wouldst\nthou hear my\nlore, sir?"\n\nYou respond:\n\n\n50 gold.\n\nFair 'nuff?" 
+  actual:   
+  first difference at byte 0: expected ["Hi59 Lugh?"\n\n:Yes\n\n"Menu69" M\n\n"That wi] actual []
+FAIL tavern: the paid rumour is told
+  expected: "Hi59 Lugh?"\n\n:Yes\n\n"Menu69" M\n\n"That will be 6\ngold for the two\n of ye,\nsir.\nEnjoy!"\n\n"Anything else\nfor thee?" Yes\n\n"Again73" A\n\n"That will be 2\ngold for the two\n of ye,\nsir.\nEnjoy!"\n\n"Anything else\nfor thee?" Yes\n\n"Again73" C\n\n"Of what wouldst\nthou hear my\nlore, sir?"\n\nYou respond:\n\n\n"That, I cannot\nhelp thee with.\n\nOf what wouldst\nthou hear my\nlore, sir?"\n\nYou respond:\n\n\n50 gold.\n\nFair 'nuff?" Yes\n\nMalik at\nMoonglow86.\nsays Lugh.\n\n"Anything else\nfor thee?" 
+  actual:   
+  first difference at byte 0: expected ["Hi59 Lugh?"\n\n:Yes\n\n"Menu69" M\n\n"That wi] actual []
+FAIL tavern: N at 'Anything else' and the farewell
+  expected: "Hi59 Lugh?"\n\n:Yes\n\n"Menu69" M\n\n"That will be 6\ngold for the two\n of ye,\nsir.\nEnjoy!"\n\n"Anything else\nfor thee?" Yes\n\n"Again73" A\n\n"That will be 2\ngold for the two\n of ye,\nsir.\nEnjoy!"\n\n"Anything else\nfor thee?" Yes\n\n"Again73" C\n\n"Of what wouldst\nthou hear my\nlore, sir?"\n\nYou respond:\n\n\n"That, I cannot\nhelp thee with.\n\nOf what wouldst\nthou hear my\nlore, sir?"\n\nYou respond:\n\n\n50 gold.\n\nFair 'nuff?" Yes\n\nMalik at\nMoonglow86.\nsays Lugh.\n\n"Anything else\nfor thee?" No\n\n"Bye66!"\nsays Lugh.\n
+  actual:   
+  first difference at byte 0: expected ["Hi59 Lugh?"\n\n:Yes\n\n"Menu69" M\n\n"That wi] actual []
+FAIL tavern: nothing outside the transcript
+FAIL tavern: the wine list
+  expected: "Hi60 Vera?"\n\n:Yes\n\n"Menu70" W\n\n"Our wine list,\nsir.\n\na) Rose.......18\nb) Claret....192\nc) Sauterne...79\nd) Muscatel...30\ne) Moselle...275\nf) Chablis....98\n\nThy choice?" 
+  actual:   
+  first difference at byte 0: expected ["Hi60 Vera?"\n\n:Yes\n\n"Menu70" W\n\n"Our win] actual []
+FAIL tavern: Space at the wine list is the meagre-stock record
+  expected: "Hi60 Vera?"\n\n:Yes\n\n"Menu70" W\n\n"Our wine list,\nsir.\n\na) Rose.......18\nb) Claret....192\nc) Sauterne...79\nd) Muscatel...30\ne) Moselle...275\nf) Chablis....98\n\nThy choice?" \n\nMeagre!"\n"Anything else\nfor thee?" 
+  actual:   
+  first difference at byte 0: expected ["Hi60 Vera?"\n\n:Yes\n\n"Menu70" W\n\n"Our win] actual []
+FAIL tavern: a wine is chosen, echoed and served
+  expected: "Hi60 Vera?"\n\n:Yes\n\n"Menu70" W\n\n"Our wine list,\nsir.\n\na) Rose.......18\nb) Claret....192\nc) Sauterne...79\nd) Muscatel...30\ne) Moselle...275\nf) Chablis....98\n\nThy choice?" \n\nMeagre!"\n"Anything else\nfor thee?" Yes\n\n"Again74" W\n\n"Our wine list,\nsir.\n\na) Rose.......18\nb) Claret....192\nc) Sauterne...79\nd) Muscatel...30\ne) Moselle...275\nf) Chablis....98\n\nThy choice?" B\n\n"Ah, a fine\nchoice, sir.\nEnjoy!"\n\n"Anything else\nfor thee?" 
+  actual:   
+  first difference at byte 0: expected ["Hi60 Vera?"\n\n:Yes\n\n"Menu70" W\n\n"Our win] actual []
+FAIL tavern: the rations pitch and 'How many wouldst thou like?'
+  expected: "Hi59 Lugh?"\n\n:Yes\n\n"Menu69" R\n\n"Food 15 each.\n\nHow many wouldst\nthou like?" 
+  actual:   
+  first difference at byte 0: expected ["Hi59 Lugh?"\n\n:Yes\n\n"Menu69" R\n\n"Food 15] actual []
+FAIL tavern: rations bought, then 'Anything else'
+  expected: "Hi59 Lugh?"\n\n:Yes\n\n"Menu69" R\n\n"Food 15 each.\n\nHow many wouldst\nthou like?" \n\n"Anything else\nfor thee?" 
+  actual:   
+  first difference at byte 0: expected ["Hi59 Lugh?"\n\n:Yes\n\n"Menu69" R\n\n"Food 15] actual []
+FAIL tavern: zero rations, Hrumph.
+  expected: "Hi59 Lugh?"\n\n:Yes\n\n"Menu69" R\n\n"Food 15 each.\n\nHow many wouldst\nthou like?" \n\n"Anything else\nfor thee?" Yes\n\n"Again73" R\n\n"Food 15 each.\n\nHow many wouldst\nthou like?" \n\n"Hrumph."\n"Anything else\nfor thee?" 
+  actual:   
+  first difference at byte 0: expected ["Hi59 Lugh?"\n\n:Yes\n\n"Menu69" R\n\n"Food 15] actual []
+FAIL healer: Y, the powers line and the question
+  expected: "Hi165 Ana?"\n\n:Yes\n\n"We have powers\nto Cure, Heal,\nor Resurrect."\nsays Ana.\n\n"What is the\nnature of thy\nneed?" 
+  actual:   
+  first difference at byte 0: expected ["Hi165 Ana?"\n\n:Yes\n\n"We have powers\nto C] actual []
+FAIL healer: 'Healing' and 'Who needs my aid?'
+  expected: "Hi165 Ana?"\n\n:Yes\n\n"We have powers\nto Cure, Heal,\nor Resurrect."\nsays Ana.\n\n"What is the\nnature of thy\nneed?" Healing\n\n"Who needs my\naid?" 
+  actual:   
+  first difference at byte 0: expected ["Hi165 Ana?"\n\n:Yes\n\n"We have powers\nto C] actual []
+FAIL healer: the offer and 'Wilt thou pay?'
+  expected: "Hi165 Ana?"\n\n:Yes\n\n"We have powers\nto Cure, Heal,\nor Resurrect."\nsays Ana.\n\n"What is the\nnature of thy\nneed?" Healing\n\n"Who needs my\naid?" \n\n"I can heal thee\nfor 12 gold.\n\nWilt thou\npay?" 
+  actual:   
+  first difference at byte 0: expected ["Hi165 Ana?"\n\n:Yes\n\n"We have powers\nto C] actual []
+FAIL healer: Y and 'Is there any other way', no 'It is done.'
+  expected: "Hi165 Ana?"\n\n:Yes\n\n"We have powers\nto Cure, Heal,\nor Resurrect."\nsays Ana.\n\n"What is the\nnature of thy\nneed?" Healing\n\n"Who needs my\naid?" \n\n"I can heal thee\nfor 12 gold.\n\nWilt thou\npay?" Yes\n\n"Is there any\nother way in\nwhich I may\naid thee?" 
+  actual:   
+  first difference at byte 0: expected ["Hi165 Ana?"\n\n:Yes\n\n"We have powers\nto C] actual []
+FAIL healer: no need of this art
+  expected: "Hi165 Ana?"\n\n:Yes\n\n"We have powers\nto Cure, Heal,\nor Resurrect."\nsays Ana.\n\n"What is the\nnature of thy\nneed?" Healing\n\n"Who needs my\naid?" \n\n"I can heal thee\nfor 12 gold.\n\nWilt thou\npay?" Yes\n\n"Is there any\nother way in\nwhich I may\naid thee?" Yes\n\n"We have powers\nto Cure, Heal,\nor Resurrect."\nsays Ana.\n\n"What is the\nnature of thy\nneed?" Curing\n\n"Who needs my\naid?" \n\n"Thou hast no\nneed of this\nart!"\nsays Ana.\n\n"Is there any\nother way in\nwhich I may\naid thee?" 
+  actual:   
+  first difference at byte 0: expected ["Hi165 Ana?"\n\n:Yes\n\n"We have powers\nto C] actual []
+FAIL healer: ESC at the roster is 'No one'
+  expected: "Hi165 Ana?"\n\n:Yes\n\n"We have powers\nto Cure, Heal,\nor Resurrect."\nsays Ana.\n\n"What is the\nnature of thy\nneed?" Healing\n\n"Who needs my\naid?" \n\n"I can heal thee\nfor 12 gold.\n\nWilt thou\npay?" Yes\n\n"Is there any\nother way in\nwhich I may\naid thee?" Yes\n\n"We have powers\nto Cure, Heal,\nor Resurrect."\nsays Ana.\n\n"What is the\nnature of thy\nneed?" Curing\n\n"Who needs my\naid?" \n\n"Thou hast no\nneed of this\nart!"\nsays Ana.\n\n"Is there any\nother way in\nwhich I may\naid thee?" Yes\n\n"We have powers\nto Cure, Heal,\nor Resurrect."\nsays Ana.\n\n"What is the\nnature of thy\nneed?" Resurrect\n\n\n"Who needs my\naid?" No one\n\n"Is there any\nother way in\nwhich I may\naid thee?" 
+  actual:   
+  first difference at byte 0: expected ["Hi165 Ana?"\n\n:Yes\n\n"We have powers\nto C] actual []
+FAIL healer: N and the farewell
+  expected: "Hi165 Ana?"\n\n:Yes\n\n"We have powers\nto Cure, Heal,\nor Resurrect."\nsays Ana.\n\n"What is the\nnature of thy\nneed?" Healing\n\n"Who needs my\naid?" \n\n"I can heal thee\nfor 12 gold.\n\nWilt thou\npay?" Yes\n\n"Is there any\nother way in\nwhich I may\naid thee?" Yes\n\n"We have powers\nto Cure, Heal,\nor Resurrect."\nsays Ana.\n\n"What is the\nnature of thy\nneed?" Curing\n\n"Who needs my\naid?" \n\n"Thou hast no\nneed of this\nart!"\nsays Ana.\n\n"Is there any\nother way in\nwhich I may\naid thee?" Yes\n\n"We have powers\nto Cure, Heal,\nor Resurrect."\nsays Ana.\n\n"What is the\nnature of thy\nneed?" Resurrect\n\n\n"Who needs my\naid?" No one\n\n"Is there any\nother way in\nwhich I may\naid thee?" No\n\n"Bye171!"\nsays Ana.\n
+  actual:   
+  first difference at byte 0: expected ["Hi165 Ana?"\n\n:Yes\n\n"We have powers\nto C] actual []
+FAIL healer: nothing outside the transcript
+FAIL healer: Space at the nature of thy need is 'Nothing'
+  expected: "Hi165 Ana?"\n\n:Yes\n\n"We have powers\nto Cure, Heal,\nor Resurrect."\nsays Ana.\n\n"What is the\nnature of thy\nneed?" Nothing\n\n"Bye171!"\nsays Ana.\n
+  actual:   
+  first difference at byte 0: expected ["Hi165 Ana?"\n\n:Yes\n\n"We have powers\nto C] actual []
+FAIL inn: Y and the menu
+  expected: "Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" 
+  actual:   
+  first difference at byte 0: expected ["Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou ] actual []
+FAIL inn: Leave echoes 'L' and asks who will stay
+  expected: "Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" L\n\nIvo asks,\n"Who will\nstay?" 
+  actual:   
+  first difference at byte 0: expected ["Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou ] actual []
+FAIL inn: the Avatar will not stay
+  expected: "Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" L\n\nIvo asks,\n"Who will\nstay?" \n\nThy friends will\nnot leave thee!\n\nIvo asks,\n"Who will\nstay?" 
+  actual:   
+  first difference at byte 0: expected ["Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou ] actual []
+FAIL inn: the rate line before 'Wilt thou take it?'
+  expected: "Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" L\n\nIvo asks,\n"Who will\nstay?" \n\nThy friends will\nnot leave thee!\n\nIvo asks,\n"Who will\nstay?" \n\n"The rate for\nour most\ncomfortable room\nwill be 31 gold\nper month, due\nat check-out.\nWilt thou take\nit?" 
+  actual:   
+  first difference at byte 0: expected ["Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou ] actual []
+FAIL inn: Y, 'I thank thee.', 'Is there anything more'
+  expected: "Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" L\n\nIvo asks,\n"Who will\nstay?" \n\nThy friends will\nnot leave thee!\n\nIvo asks,\n"Who will\nstay?" \n\n"The rate for\nour most\ncomfortable room\nwill be 31 gold\nper month, due\nat check-out.\nWilt thou take\nit?" Yes\n\n"I thank thee."\nsays Ivo.\n\n"Is there\nanything more\nI can do for\nthee?" 
+  actual:   
+  first difference at byte 0: expected ["Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou ] actual []
+FAIL inn: two guests, 'Who will check out?' (the register)
+  expected: "Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" L\n\nIvo asks,\n"Who will\nstay?" \n\nThy friends will\nnot leave thee!\n\nIvo asks,\n"Who will\nstay?" \n\n"The rate for\nour most\ncomfortable room\nwill be 31 gold\nper month, due\nat check-out.\nWilt thou take\nit?" Yes\n\n"I thank thee."\nsays Ivo.\n\n"Is there\nanything more\nI can do for\nthee?" Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" \n\n"Who will\ncheck out?" 
+  actual:   
+  first difference at byte 0: expected ["Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou ] actual []
+FAIL inn: ESC at the register is 'No one'
+  expected: "Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" L\n\nIvo asks,\n"Who will\nstay?" \n\nThy friends will\nnot leave thee!\n\nIvo asks,\n"Who will\nstay?" \n\n"The rate for\nour most\ncomfortable room\nwill be 31 gold\nper month, due\nat check-out.\nWilt thou take\nit?" Yes\n\n"I thank thee."\nsays Ivo.\n\n"Is there\nanything more\nI can do for\nthee?" Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" \n\n"Who will\ncheck out?" No\none\n\n"Is there\nanything more\nI can do for\nthee?" 
+  actual:   
+  first difference at byte 0: expected ["Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou ] actual []
+FAIL inn: a guest checks out
+  expected: "Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" L\n\nIvo asks,\n"Who will\nstay?" \n\nThy friends will\nnot leave thee!\n\nIvo asks,\n"Who will\nstay?" \n\n"The rate for\nour most\ncomfortable room\nwill be 31 gold\nper month, due\nat check-out.\nWilt thou take\nit?" Yes\n\n"I thank thee."\nsays Ivo.\n\n"Is there\nanything more\nI can do for\nthee?" Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" \n\n"Who will\ncheck out?" No\none\n\n"Is there\nanything more\nI can do for\nthee?" Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" \n\n"Who will\ncheck out?" \n\n"That will be 31\ngold, please."\n\n"I hope thou\nhast found thy\nstay enjoyable,"\nsays Ivo.\n\n"Is there\nanything more\nI can do for\nthee?" 
+  actual:   
+  first difference at byte 0: expected ["Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou ] actual []
+FAIL inn: Rest echoes 'R', the room's price, 'Wilt thou take it?'
+  expected: "Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" L\n\nIvo asks,\n"Who will\nstay?" \n\nThy friends will\nnot leave thee!\n\nIvo asks,\n"Who will\nstay?" \n\n"The rate for\nour most\ncomfortable room\nwill be 31 gold\nper month, due\nat check-out.\nWilt thou take\nit?" Yes\n\n"I thank thee."\nsays Ivo.\n\n"Is there\nanything more\nI can do for\nthee?" Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" \n\n"Who will\ncheck out?" No\none\n\n"Is there\nanything more\nI can do for\nthee?" Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" \n\n"Who will\ncheck out?" \n\n"That will be 31\ngold, please."\n\n"I hope thou\nhast found thy\nstay enjoyable,"\nsays Ivo.\n\n"Is there\nanything more\nI can do for\nthee?" Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" R\n\n"Room 9 gold.\nWilt thou take\nit?" 
+  actual:   
+  first difference at byte 0: expected ["Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou ] actual []
+FAIL inn: the night, and no farewell after it
+  expected: "Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" L\n\nIvo asks,\n"Who will\nstay?" \n\nThy friends will\nnot leave thee!\n\nIvo asks,\n"Who will\nstay?" \n\n"The rate for\nour most\ncomfortable room\nwill be 31 gold\nper month, due\nat check-out.\nWilt thou take\nit?" Yes\n\n"I thank thee."\nsays Ivo.\n\n"Is there\nanything more\nI can do for\nthee?" Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" \n\n"Who will\ncheck out?" No\none\n\n"Is there\nanything more\nI can do for\nthee?" Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" \n\n"Who will\ncheck out?" \n\n"That will be 31\ngold, please."\n\n"I hope thou\nhast found thy\nstay enjoyable,"\nsays Ivo.\n\n"Is there\nanything more\nI can do for\nthee?" Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" R\n\n"Room 9 gold.\nWilt thou take\nit?" Yes\n\n"Have a pleasant\nnight, sir!"\nsays Ivo.\n\nZzzzzz....\n\nMorning!\n
+  actual:   
+  first difference at byte 0: expected ["Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou ] actual []
+FAIL inn: nothing outside the transcript ('It shall be done.')
+FAIL inn: one guest checks out with no register
+  expected: "Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" \n\n"That will be 31\ngold, please."\n\n"I hope thou\nhast found thy\nstay enjoyable,"\nsays Ivo.\n\n"Is there\nanything more\nI can do for\nthee?" 
+  actual:   
+  first difference at byte 0: expected ["Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou ] actual []
+FAIL inn: N at the room, then the farewell
+  expected: "Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" \n\n"That will be 31\ngold, please."\n\n"I hope thou\nhast found thy\nstay enjoyable,"\nsays Ivo.\n\n"Is there\nanything more\nI can do for\nthee?" Yes\n\nIvo asks,\n"Art thou here\nto Pick up or\nLeave a\ncompanion, or\nto Rest for the\nnight?" R\n\n"Room 12 gold.\nWilt thou take\nit?" No\n\n\n\n"Bye182!"\nsays Ivo.\n
+  actual:   
+  first difference at byte 0: expected ["Hi175 Ivo?"\n\n:Yes\n\nIvo asks,\n"Art thou ] actual []
+FAIL shipwright: Y and the menu record 119
+  expected: "Hi107 Sal?"\n\n:Yes\n\n"Ships here." 
+  actual:   
+  first difference at byte 0: expected ["Hi107 Sal?"\n\n:Yes\n\n"Ships here." ] actual []
+FAIL shipwright: F, the frigate's pitch, Wilt thou take it?
+  expected: "Hi107 Sal?"\n\n:Yes\n\n"Ships here." F\n\nFrigate 930\ngold.\n\nTake it?" 
+  actual:   
+  first difference at byte 0: expected ["Hi107 Sal?"\n\n:Yes\n\n"Ships here." F\n\nFri] actual []
+FAIL shipwright: sold, 'anything else, sir?', no 'She awaits thee'
+  expected: "Hi107 Sal?"\n\n:Yes\n\n"Ships here." F\n\nFrigate 930\ngold.\n\nTake it?" Yes\n\n\n\n"Sold!"\n\nMore, sir?" 
+  actual:   
+  first difference at byte 0: expected ["Hi107 Sal?"\n\n:Yes\n\n"Ships here." F\n\nFri] actual []
+FAIL shipwright: N and the farewell
+  expected: "Hi107 Sal?"\n\n:Yes\n\n"Ships here." F\n\nFrigate 930\ngold.\n\nTake it?" Yes\n\n\n\n"Sold!"\n\nMore, sir?" No\n\n"Bye113!"\nsays Sal.\n
+  actual:   
+  first difference at byte 0: expected ["Hi107 Sal?"\n\n:Yes\n\n"Ships here." F\n\nFri] actual []
+FAIL shipwright: nothing outside the transcript
+FAIL ui: stream Messages go on the console's open row
+  [Talk-North]
+  ["Hi there"]
+  [Yes]
+  []
+  ["Fine!]
+  []
+  [Thy interest?"]
+  [No]
+  []
+  [next]
+shop DOS transcript: 32/110 checks
+
+# ORIG-DOS2 RED 2: the rations count re-opened by its own Result (the UiSession fix disabled)
+FAIL ui: the purchase's Result does not reopen the count
+FAIL ui: 'Anything else' takes the next key
+shop DOS transcript: 112/114 checks

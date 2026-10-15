@@ -1,0 +1,9 @@
+# ORIG-DOS2 Windows mutant (2026-10-14): Original keeps the T-Deck's staged tavern rounds (sync_shop_profile: transactional_services=true); scenario_original_dos_panels rebuilt and run, then the edit reverted
+AUTOTEST line 332: expect rows = M |  | "That will be 9 | gold for the  | three of ye, | milady. | Enjoy!" |  | "Anything else | for thee?" (actual Mix Reagents |  | For what spell? | :AN NOX  |  | Arrows to move, | RETURN selects. | Type M to mix: | What? | "
+AUTOTEST line 338: expect rows = for thee?" Yes |  | " (actual  | For what spell? | :AN NOX  |  | Arrows to move, | RETURN selects. | Type M to mix: | What? | "I, Nilrem, | welcome those of | wizardly power | to The Herbalist | this morning. | Seek ye the | pu
+AUTOTEST line 341: expect rows = A |  | "That will be 3 | gold for the  | three of ye, | milady. | Enjoy!" |  | "Anything else | for thee?" (actual  | For what spell? | :AN NOX  |  | Arrows to move, | RETURN selects. | Type M to mix: | What? | "I, Nilrem, | we
+AUTOTEST done: 3 failure(s); 417 frames presented
+0% tests passed, 1 tests failed out of 1
+The following tests FAILED:
+KILLED (3 scenario checks failed: the tavern's food round and house drink no longer charged at once)
+restored: 100% tests passed, 0 tests failed out of 1

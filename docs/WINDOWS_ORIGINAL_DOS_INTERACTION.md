@@ -193,7 +193,8 @@ A is a presenter change. Neither is implemented; both are proposals.
 1. Shop text the core does not emit: the Y/N and letter echoes (`Yes`, `No`, `a`), some connective
    lines (`What else?`, the inn's rate line, the shipwright's list record), the tavern rounds charged
    at once in DOS (P4), and D-104's semantics -- ledger D-105 P1 / D-104; they need the core's own
-   DOS transcript.
+   DOS transcript. *(ORIG-DOS2, §11: the core's DOS transcript now prints all of the text, and P4 is
+   done; D-104's semantics remain.)*
 2. `►Select:◄` stays in the status caption row: the T-Deck roster starts at y 4, the band has 2 rows.
    B (§7) would give it its DOS place.
 3. The DOS box is 124 px wide inside, the T-Deck's 135: the window sits 4 px right of DOS's.
@@ -214,3 +215,143 @@ A is a presenter change. Neither is implemented; both are proposals.
 | `eeffb850` | The 1988 right panel, the console shops, the DOS name tables, the tests |
 | `e8cb8ba5` | This record, the fidelity matrix and plan updates, the logs |
 | (this commit) | The test package's record (§8) |
+
+## 11. ORIG-DOS2 — the console shops' DOS transcript (2026-10-14)
+
+**Branch** `windows/original-dos-shops` · **worktree** `C:\Dev\uvw-dos-shops` · **base** `60e7c647`
+(ORIG-DOS1's last commit) · **not pushed, merged, published or flashed.** The frozen branches
+(`parity/shared-preservation-1`, `parity/shared-preservation-2`, `main`, `windows/initial-port`) and
+ORIG-DOS1's branch were not written to.
+
+§9 item 1 left the shops' console text half done: ORIG-DOS1's presenter printed the lists and the
+questions, but the Y/N and letter echoes, the connective lines and the variant-picked forms belong
+to the core, which owns every draw (B-shops.md §4: a frontend cannot reconstruct them). This batch
+follows B-shops recommendation 11: the core prints the 1988 transcript itself.
+
+### 11.1 What changed (IMPLEMENTED)
+
+- **Core, `ShopServices::dos_transcript`** (default `false`; copied into `ShopSession` at
+  `begin_shop`). With it the shop prints B-shops §3's sequences from the strings `shop_tables.inc` /
+  `shop_greetings.inc` already compile (DATA.OVL DS): every `Yes` / `No` / `Yes!` / `No!` echo, the
+  letter echoes (`a`, `b` at the blacksmith and the guild, the tavern's own letters, `F` / `S`,
+  `R` / `L` at the inn), the lists (blacksmith, reagents, guild, wine), every question, `What else?`,
+  `What else, then?`, `"Anything else, then?` / `sir?` / `milady?`, `"I thank thee!"` +
+  `"Anything else?` after a reagent purchase, `What else, m'lady?`, the inn's rate line before
+  `Wilt thou take it?`, the room's `"I am sorry, ... no room available."`, `Zzzzzz....`, `Morning!`
+  and `has passed away.`, the bill read out at a pickup, the shipwright's records 119 / 117 / 118 /
+  126 / 123 / 124 / 122, the healer's echoes (`Healing`, `Nothing`, `No one`) and record 173, the
+  tavern's announcement (`That will be N gold for the two..six of ye, sir.`), the drunk warning,
+  the rations' afford-only / scraps / `Thou hast neither gold nor need!`, the rumour's question and
+  its retry, records 84 / 85..88 / 91, the sell flow's prompts, `Done!`, the ammunition and
+  no-value refusals and its `Good-bye`. The core's own result strings (`It is done.`, `She awaits
+  thee at the dock!`, `It shall be done.`, the rations' `Anything else?`) are not shown in that mode.
+- **The 1988 console's cursor, `DosConsole`** (`shop_orchestration.h`): kernel `print_string`
+  0x1850 (its segment loop, the cut at the last space that fits, the eaten space and the owed line
+  feed of 0x19c7, the long-word break of 0x1981) and `putchar` 0x16ba (the wrap past column 15) on
+  the 16-column console (re/notes/printstr-1850-derivacion.md). Each DOS call -- a string or a
+  record is a `print_string`, a single character a `putchar` -- goes through it, so the transcript
+  arrives laid out in DOS's own rows, and the branches SHOPPES takes on the cursor are taken on it:
+  the greeting's `"\n\n:"` / `"\n:"` / space (0x01c6), the reagent pitch's `\n:` (column > 12), the
+  blacksmith row's line feed unless at column 0, the tavern menu's line feed past column 14, the
+  farewell's line feed before `says $.`. A typed rumour word or ration count moves the cursor too.
+- **The transcript reaches the console as stream Messages** (`GameEvent::stream`): `UiSession`
+  appends them where the last one stopped (`append_stream`, `UiTextStreamOpen`), the live prompt
+  continues an open row (the count typed after `thou like?" `), and a typed answer stays on its row.
+  With the transcript `UiSession` prints no `Shop / Keeper, proprietor` heading and no prompt of
+  its own for the rumour and the rations, and the rations' Result event no longer reopens the count
+  it has just taken (the count the player typed, then the next key, went into a fresh number entry:
+  found by the scenario, see §11.4).
+- **Keys (Original)**: `Anything else for thee?` and the shipwright's "anything else" take Y or N
+  only (Space was N; B-shops P5, SHOPPES2 0x07a1 / 0x0862); ESC is read again at the wine list
+  (0x02c8).
+- **Windows Original sets the transcript and drops the staged services** (`sync_shop_profile()`,
+  before every command and the harness's shop): the tavern's food round and house drink are
+  charged at once as in 1988, with no question (B-shops P4); the room's and the rations' prices are
+  no longer staged in the session (the transcript prints them, as DOS does, in the pitch). `AlphaRuntime::present_dos_shop_event()` now prints nothing (the core
+  prints it all); ORIG-DOS1's presenter-only core API went with it (`ShopConsoleText`,
+  `shop_console_text()`, `ShopSession::recent_draws`).
+- **Windows harness**: `shop TYPE TOWN` (another town of the type: the wine tavern, 19), `give gold
+  N` / `give reagent SLOT N`, and `expect rows` / `no_rows` (the transcript as console rows, joined
+  `" | "`, scrolled-out rows included).
+
+Files touched outside the shop code (for the merge with the 320 × 200 screen work): `movement.h`
+(`GameEvent::stream`); `ui_session.{h,cpp}` (`append_stream`, `UiTextStreamOpen`, the live prompt's
+join in `for_each_wrapped_line`, the shop branch of `dos_commit_answer`, besides the shop event and
+key handling); `alpha_runtime.{h,cpp}` (`sync_shop_profile()`, called at the top of `command()` and
+in `open_shop_for_test()`; `present_dos_shop_event()`'s body); the Windows harness
+(`app/application.cpp`, `app/autotest.{h,cpp}`). `tdeck_board.cpp`, `compose_dos_panel()`, the
+console and banner code and `presentation_layout` were not touched.
+
+Nothing changes on the T-Deck: it never sets the flag (no stream Message, no `DosConsole` call) and
+keeps `transactional_services=true`; every new `UiSession` path needs a stream Message or the
+session's flag, except the two key rules above, which sit inside `platform_dos_interface()`.
+
+### 11.2 Evidence for the sequences
+
+- **B-shops.md §3** (the RE pass, DS offsets) and the web port's `game/src/ui/shop-console.ts`.
+- **DATA.OVL**: every DS string the transcript prints was read back from the player's DATA.OVL
+  (`fileoff = DS + 0x10`) and matches `shop_tables.inc` / `shop_greetings.inc` byte for byte.
+- **SHOPPES*.OVL**, disassembled with the repository's `re/tools/batch45_disasm.py` where B-shops
+  is silent or ambiguous: the tavern menu's `'"'`, `' '`, then a line feed past column 14
+  (SHOPPES2 0x06c0-0x06da); the two line feeds of the food round and of the drink are the cost
+  helper's (0x0000-0x005f), printed before the `'W'` test, so the wine list follows `W\n\n` (the web
+  port omits them there); the unknown rumour word reprints the question from `Of what wouldst`
+  (0x0591 -> 0x052a); the inn's room check (0x002c) prints `\n\n` for both Rest and Leave; the inn
+  loop (0x08b4): Leave's Avatar asks again (0x0351 -> 0x0480 -> 0x0301), the night, the lone Avatar
+  (record 191), the morgue (192) and the guards (193) end the visit with farewell(-1), i.e. none.
+
+### 11.3 Tests
+
+| Gate | Result |
+|---|---|
+| `shop_dos_transcript` (new host test, `native/core/tests/shop_dos_transcript_test.cpp`) | **125 / 125 checks** (`native/core/origdos2-green.log`). Synthetic shop data and `R<n>` records (no game text): `DosConsole` against the kernel printer's cases; blacksmith Buy (echo, chatter, list, letter, `No`, `Anything else, then?`, `Yes`, `Sold!`, `milady?`/`sir?`, farewell), Space at Buy-or-Sell; Sell (prompt, offer, `Deal?`, `Done!`, SELLMORE, no value, `No`, good-bye with no farewell, ammunition, nothing to sell); reagents (the 99 cap with no pitch, `What else?`, `I thank thee!` / `Anything else?`, N at the greeting); guild (`D`, letters, `What else, then?`, `Sold!` / `m'lord`); tavern (rounds charged at once, rumour with retry, price, gossip; wine list, Space at it, a wine; rations bought and `Hrumph.`; the drunk warning, Y and N); healer (powers, `Healing`, the offer, `Yes`, no need, `No one`, `Nothing`); inn (Leave, the Avatar, the rate line, `I thank thee.`, the register's `Who will check out?` and `No one`, pickups, the room's price, the night with no farewell, N at the room); shipwright; horses (all three greeting spacings); the default profile prints no transcript; `UiSession`'s stream, a full block, and the rations' count. The variants are read off the shop's own draws (its rng trace); the blacksmith and reagent visits check the draw count, eight of the shops that no line or result string escapes the transcript |
+| RED first | `native/core/origdos2-red.log`: (1) against the API stubs with `DosConsole` implemented, 78 of 110 checks failed (every sequence; one failure is a case of my own hand-laid expectation, corrected before GREEN); (2) the rations' count reopened by its Result, 2 checks |
+| Mutants (one edit each, rebuilt, run, reverted) | **8 / 8 killed** (`native/core/origdos2-mutants.log`): no `Yes` echo; the greeting's spacing; `DosConsole`'s owed line feed; the reagent pitch before the cap; the result strings shown again; the stream starting a new row; the inn's rate line; a farewell after the night. Windows: Original back on the staged tavern rounds -- **killed** by three scenario checks (`native/core/origdos2-windows-mutants.log`). The first host pass let two mutants survive (the greeting's single space and the owed line feed had no case); the horse visit and the trailing-space case were added for them |
+| `scenario_original_dos_panels` (extended) | line by line on the real exe, the DATA.OVL strings only (the records, the keepers' names and the rand-picked forms vary or are game text): blacksmith Buy + Sell, reagents with Ginseng at 99, the guild with `D`, the tavern (round and house drink charged at once, Space not N, the rumour), the wine tavern, the rations (`2`, then `0` = `Hrumph.`), the healer (Space read again at "any other way"), the inn (two Leaves, the register, both pickups, the night, no farewell). ORIG-DOS1's own `console` checks for `Is this thy need?`, `What is the nature of thy need?` and `Who needs my aid?` now read them across DOS's row breaks (`this thy need?`, `"What is the | nature of thy | need?"`) |
+| Windows ctest (MSVC, the real exe) | **33 / 33** (`native/core/origdos2-windows-ctest.log`) |
+| Host suite (GCC, w64devkit) | **208 / 208** (`native/core/origdos2-host-ctest.log`): the 207 of 60e7c647 + `shop_dos_transcript`. In the serial run 207 passed and `typescript_item_fixture_drift` (Node, no shop code) crashed with a SEGFAULT while an ESP-IDF build was running beside it; re-run alone it passes (appended to the log). The baseline at 60e7c647 in this worktree was 207 / 207 |
+
+### 11.4 T-Deck, firmware
+
+| Check | Result |
+|---|---|
+| T-Deck differential (`native/core/tools/spp2_differential/README.md`; base = `C:\Dev\uvw-shops-base` detached at `60e7c647`, head = this tree; the probe registered temporarily in both and removed) | **byte-identical**: unpaced 63,635 lines, SHA-256 `0e53ca58…2000` on both; paced 63,620 lines, `f01c2803…e828` on both (the same figures as ORIG-DOS1's §6.1). Positive control, the DOS profile in both trees: **77 walks differ, all in family C** (the shops), the greetings now laid out in DOS rows with their gate spacing. `native/core/origdos2-tdeck-differential.log` |
+| Firmware build and size diff | **not run here**: by agreement with the session folding this work into `windows/original-dos-interaction` (the 320 × 200 Original screen, `ccb09116`), the firmware build, its size diff, the T-Deck differential and the packaging are run once on the combined branch. (A first build here hit an internal compiler error in ESP-IDF's own `esp_lcd` while another build was running, and was stopped.) |
+| The rations' count on the T-Deck / Enhanced | **not changed**: the same Result event reopens their number entry once after a purchase (the player backs out of it). The fix is behind the transcript flag only, to keep the T-Deck byte-identical; recorded as a follow-up |
+
+### 11.5 Test package
+
+None from this branch (§11.4): the package is made once, from the combined branch.
+
+### 11.6 Remaining (recorded)
+
+1. **D-104, the shops' semantics (B-shops S1–S19), unchanged** -- the transcript prints what the
+   core does. Visible in it: after an inn night, the lone Avatar, the morgue and the guards the
+   core still draws its farewell's variant (S7; Original prints no farewell text, the draw is
+   kept so both platforms stay one game); an unpaid rumour goes on to "Anything else" (S15; DOS
+   ends the visit); the ship flags (S5) -- records 120 / 121 / 125 are never printed, and no drain
+   after a ship (S4); the drunk counter is per visit (S13); a negative ration count is `Hrumph.`
+   (S16); the buyer's INT is member 0's (S1). In Original only, a companion left at the inn marks the
+   visit as a purchase for the farewell's table (S11: text only, same draw).
+2. The shipwright does not reprint record 119 for a key other than F, S or Space (DOS does).
+3. The sell offers' `&` is the device's long name; DOS uses its override table (DS 0x3cce: `Cloth
+   suit`, `Two-Handed Sword`, ...).
+4. The rumour's and the rations' entries: ESC ends them as an empty answer / no rations (DOS's
+   getstring and getnum erase on ESC and end only on RETURN).
+5. On this branch the console stays 22 columns wide: the shops' rows are DOS's 16-column rows
+   (laid out by the core), every other line still wraps at 22 (§9 item 5). `ccb09116`'s 16 × 13
+   console (`platform_dos_screen()`) is the one these rows are made for.
+6. The shop's first cursor column is taken as 0 (the Talk echo's row closed).
+7. Not on the scenario (host-tested): the horse seller, the shipwright, a paid heal, the drunk
+   warning. Not tested anywhere: the healer's charity (record 173) and Skara Brae, the scraps
+   (record 90), afford-only, records 191 / 192 / 193.
+8. The T-Deck / Enhanced rations re-entry (§11.4).
+9. No firmware build, size diff or test ZIP from this branch (§11.4).
+10. No person has played this build; no live DOS shop capture (§9 item 7); no T-Deck was flashed.
+
+### 11.7 Commits
+
+| Commit | What |
+|---|---|
+| `4de1d243` | The core's DOS transcript (`dos_transcript`, `DosConsole`), `UiSession`'s stream, the Original keys, `sync_shop_profile()`, the removed presenter, the tests and the scenario |
+| (this commit) | This record, the fidelity matrix, the logs |
