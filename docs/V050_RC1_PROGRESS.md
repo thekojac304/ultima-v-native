@@ -1,9 +1,9 @@
 # v0.5.0 RC1 progress
 
-- Phase 0 / Gate 0 PASS: release/v0.5.0-rc1 in C:\Dev\ultima-v-native-rc1, based on 9c98054782eb9b62eefbb70718535991e0dede98.
-- All 15 pre-existing worktrees retain their original HEAD and porcelain status. Snapshot: docs/v050-rc1-evidence/preexisting-worktrees.json.
-- main, windows/initial-port, SPP1, SPP2, windows/original-dos-interaction and packaged LOOK-POLISH1 code 5b7f8bbc are ancestors. ORIG-DOS2 shop work is present via the original-dos-interaction line; its separate historical branch is not an ancestor.
-- Phase 1 in progress: fresh GCC host build/serial test run, Windows and ESP-IDF baseline configured. Missing private build-shops/assets.inc in initial host setup was supplied from the preserved latest development checkout; no source fix required.
-- No optimization applied yet. Remaining: finish clean baselines, measure/isolate handheld capabilities, differential and mutation checks, independent review, final clean-commit builds, packaging and hardware handoff.
-- The sandbox launcher fails with HRESULT 0x80070020. Read/build commands use the approved execution fallback. No publication, push, merge or device flash.
-- Evidence logs: native/targets/tdeck/dist/v050-rc1-evidence (ignored; preserve locally).
+- Gates 0–1 PASS: integrated ancestry and original checkout preservation; baseline host 210/210 after documented LF setup correction; Windows 38/38; ESP-IDF 6.1 firmware 1,096,432 bytes.
+- Gate 2 PASS: fixed handheld capabilities recover 21,344 bytes (1,075,088-byte app); RAM/IRAM unchanged; no retained stack-frame increase. Paced and unpaced traces are byte-identical on all 1,065 walks / 8,514 snapshots each; DOS control differs in 1,054 walks. All eight boundary mutants killed.
+- Gate 3 PASS: optimized shared sources pass Windows 38/38, including both interfaces, scaling, preservation, saves/import/export, audio, Look and price/panel checks.
+- Optimization STOP: straightforward platform isolation is complete. Developer tools, shared gameplay, shop semantics, saves and compiler warnings remain intact.
+- Next: independent review of all RC-specific changes; address confirmed findings; full final serial host suite and relevant TypeScript checks; final clean-commit builds/package smoke, external manifest and hardware handoff.
+- Branch release/v0.5.0-rc1; worktree C:\Dev\ultima-v-native-rc1. All existing development checkouts remain protected. Evidence: native/targets/tdeck/dist/v050-rc1-evidence.
+- Nothing pushed, published, merged or flashed. New RC hardware acceptance pending; earlier SPP1 physical PASS is user-reported.

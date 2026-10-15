@@ -62,7 +62,7 @@ if(GIT_FOUND)
   if(_uv_rc EQUAL 0 AND _uv_commit)
     set(UV_GIT_COMMIT "${_uv_commit}")
     # As the firmware does: a build of uncommitted tracked changes says so.
-    execute_process(COMMAND "${GIT_EXECUTABLE}" -c core.autocrlf=false status --porcelain --untracked-files=no
+    execute_process(COMMAND "${GIT_EXECUTABLE}" status --porcelain --untracked-files=no
       WORKING_DIRECTORY "${UV_REPO_ROOT}" OUTPUT_VARIABLE _uv_changes
       OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
     if(_uv_changes)

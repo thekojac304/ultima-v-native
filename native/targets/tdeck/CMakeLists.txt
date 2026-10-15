@@ -37,7 +37,8 @@ endif()
 # FW line with the superseded RC3 image. The RC5 hotfix (section 17: the healer's R key, and the
 # (U)se > In Mani Corp route guards) sets 4.0.0-alpha4-rc5-debug: RC4 plus that one fix, so it never
 # shares a name or an FW line with the superseded RC4 image.
-set(PROJECT_VER "4.0.0-alpha4-rc5-debug")
+# Unified v0.5.0 release candidate; physical acceptance is still pending.
+set(PROJECT_VER "0.5.0-rc1")
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(openu5_tdeck)
 

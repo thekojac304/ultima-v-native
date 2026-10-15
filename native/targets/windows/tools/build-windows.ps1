@@ -22,7 +22,7 @@ param(
     [string]$BuildDir = '',
     [switch]$Test,
     [switch]$Package,
-    [string]$PackageName = 'UltimaV-Native-Windows-x64-dev'
+    [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9._-]*$')] [string]$PackageName = 'UltimaV-Native-Windows-x64-dev'
 )
 $ErrorActionPreference = 'Stop'
 
@@ -71,8 +71,12 @@ if ($Test) {
 # --- Package ---------------------------------------------------------------------
 if ($Package) {
     Step "Package $PackageName.zip"
-    $stage = Join-Path $DistDir $PackageName
-    if (Test-Path $stage) { Remove-Item -Recurse -Force $stage }
+    $distRoot = [IO.Path]::GetFullPath($DistDir).TrimEnd('\') + '\'
+    $stage = [IO.Path]::GetFullPath((Join-Path $DistDir $PackageName))
+    if (-not $stage.StartsWith($distRoot, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Package staging must stay inside $distRoot"
+    }
+    if (Test-Path -LiteralPath $stage) { Remove-Item -LiteralPath $stage -Recurse -Force }
     New-Item -ItemType Directory -Force -Path $stage | Out-Null
 
     # The asset-preparation script: one bundled file, built from the project's
