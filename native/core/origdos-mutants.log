@@ -1,0 +1,25 @@
+ORIG-DOS1 mutants (scratchpad mutants.py): each one-edit mutant built and run against scenario_original_dos_panels, scenario_enhanced_panels, scenario_original_interface
+{"mutant": "M1 lists fall back to the handheld panel in Original", "verdict": "killed", "failed": ["1/3 Test #17: scenario_original_interface ......***Failed    5.29 sec", "2/3 Test #31: scenario_original_dos_panels .....***Failed    6.10 sec"]}
+{"mutant": "M2 Z-stats falls back to the handheld panel", "verdict": "killed", "failed": ["1/3 Test #17: scenario_original_interface ......***Failed    5.28 sec", "2/3 Test #31: scenario_original_dos_panels .....***Failed    6.04 sec"]}
+{"mutant": "M3 the handheld shop panel in Original", "verdict": "killed", "failed": ["2/3 Test #31: scenario_original_dos_panels .....***Failed    6.06 sec"]}
+{"mutant": "M4 views right, pixels wrong: the Board draws the handheld list", "verdict": "killed", "failed": ["1/3 Test #17: scenario_original_interface ......***Failed    5.28 sec", "2/3 Test #31: scenario_original_dos_panels .....***Failed    6.04 sec"]}
+{"mutant": "M5 no console lists in the shops", "verdict": "killed", "failed": ["2/3 Test #31: scenario_original_dos_panels .....***Failed    5.98 sec"]}
+{"mutant": "M6 Use keeps the handheld's potions-first order", "verdict": "killed", "failed": ["2/3 Test #31: scenario_original_dos_panels .....***Failed    6.11 sec"]}
+{"mutant": "M7 Ready's rows carry the device names, not the DOS table", "verdict": "killed", "failed": ["2/3 Test #31: scenario_original_dos_panels .....***Failed    6.11 sec"]}
+{"mutant": "M8 the shop lists take arrows again (no letter-only rule)", "verdict": "survived", "failed": []}
+{"control": "restored source", "build": true, "passed": true}
+--- M8 re-run after the scenario gained 'RETURN leaves the reagents' list':
+[
+ {
+  "mutant": "M8 the shop lists take arrows again (no letter-only rule)",
+  "verdict": "killed",
+  "failed": [
+   "2/3 Test #31: scenario_original_dos_panels .....***Failed    6.31 sec"
+  ]
+ },
+ {
+  "control": "restored source",
+  "build": true,
+  "passed": true
+ }
+]

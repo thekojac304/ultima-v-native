@@ -1,0 +1,75 @@
+Test project C:/Dev/uvw-original-dos/native/targets/windows/build-dos
+      Start 21: scenario_original_arena
+      Start  6: uv_audio_backend_test
+      Start 27: scenario_spp1_original_arena
+ 1/33 Test #27: scenario_spp1_original_arena ..........   Passed   10.37 sec
+      Start 23: scenario_surface_combat
+ 2/33 Test #21: scenario_original_arena ...............   Passed   13.52 sec
+      Start 33: scenario_pc_import_export
+ 3/33 Test  #6: uv_audio_backend_test .................   Passed   15.57 sec
+      Start 12: scenario_typed_cast_original
+ 4/33 Test #23: scenario_surface_combat ...............   Passed    8.06 sec
+      Start 29: scenario_spp2_original
+ 5/33 Test #33: scenario_pc_import_export .............   Passed    7.89 sec
+      Start 24: scenario_typed_cast_combat
+ 6/33 Test #12: scenario_typed_cast_original ..........   Passed    7.23 sec
+      Start 16: scenario_original_keys
+ 7/33 Test #29: scenario_spp2_original ................   Passed    6.88 sec
+      Start 14: scenario_save_load_menu
+ 8/33 Test #24: scenario_typed_cast_combat ............   Passed    6.87 sec
+      Start 26: scenario_spp1_original
+ 9/33 Test #16: scenario_original_keys ................   Passed    6.81 sec
+      Start 28: scenario_spp1_enhanced
+10/33 Test #14: scenario_save_load_menu ...............   Passed    6.36 sec
+      Start 15: scenario_quicksave_enhanced
+11/33 Test #26: scenario_spp1_original ................   Passed    6.34 sec
+      Start 20: scenario_dungeon_walk
+12/33 Test #28: scenario_spp1_enhanced ................   Passed    6.36 sec
+      Start 25: scenario_town_talk
+13/33 Test #15: scenario_quicksave_enhanced ...........   Passed    6.21 sec
+      Start 19: scenario_presentation
+14/33 Test #20: scenario_dungeon_walk .................   Passed    6.11 sec
+      Start 22: scenario_original_camp
+15/33 Test #25: scenario_town_talk ....................   Passed    5.76 sec
+      Start 30: scenario_spp2_enhanced
+16/33 Test #19: scenario_presentation .................   Passed    5.61 sec
+      Start 10: scenario_new_game_original
+17/33 Test #22: scenario_original_camp ................   Passed    5.50 sec
+      Start 18: scenario_enhanced_interface
+18/33 Test #30: scenario_spp2_enhanced ................   Passed    5.18 sec
+      Start 13: scenario_list_cast_enhanced
+19/33 Test #10: scenario_new_game_original ............   Passed    5.02 sec
+      Start  4: uv_virtual_panel_test
+20/33 Test  #4: uv_virtual_panel_test .................   Passed    1.89 sec
+      Start 11: scenario_settings_modes
+21/33 Test #18: scenario_enhanced_interface ...........   Passed    4.86 sec
+      Start 31: scenario_original_dos_panels
+22/33 Test #13: scenario_list_cast_enhanced ...........   Passed    4.36 sec
+      Start  7: uv_presentation_test
+23/33 Test #11: scenario_settings_modes ...............   Passed    1.86 sec
+      Start  9: scenario_boot_title
+24/33 Test  #7: uv_presentation_test ..................   Passed    1.88 sec
+      Start  3: uv_storage_test
+25/33 Test  #9: scenario_boot_title ...................   Passed    1.59 sec
+      Start 17: scenario_original_interface
+26/33 Test  #3: uv_storage_test .......................   Passed    0.80 sec
+      Start 32: scenario_enhanced_panels
+27/33 Test #31: scenario_original_dos_panels ..........   Passed    6.64 sec
+      Start  1: uv_desktop_input_test
+28/33 Test  #1: uv_desktop_input_test .................   Passed    0.17 sec
+      Start  2: uv_desktop_settings_test
+29/33 Test  #2: uv_desktop_settings_test ..............   Passed    0.27 sec
+      Start  5: uv_save_layout_test
+30/33 Test  #5: uv_save_layout_test ...................   Passed    0.09 sec
+      Start  8: uv_audio_backend_offline_continuity
+31/33 Test  #8: uv_audio_backend_offline_continuity ...   Passed    0.02 sec
+32/33 Test #32: scenario_enhanced_panels ..............   Passed    5.10 sec
+33/33 Test #17: scenario_original_interface ...........   Passed    5.45 sec
+
+100% tests passed, 0 tests failed out of 33
+
+Label Time Summary:
+scenario    = 155.93 sec*proc (25 tests)
+windows     =  20.68 sec*proc (8 tests)
+
+Total Test time (real) =  59.76 sec

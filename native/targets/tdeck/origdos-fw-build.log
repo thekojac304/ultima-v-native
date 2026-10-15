@@ -1,0 +1,126 @@
+ninja: Entering directory `build-dos'
+[1/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/tdeck_input.cpp.obj
+[2/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/input_controller.cpp.obj
+[3/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/sd_diagnostic_logger.cpp.obj
+[4/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/keyboard_matrix.cpp.obj
+[5/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/main.cpp.obj
+[6/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/tdeck_board.cpp.obj
+[7/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/device_smoke_tests.cpp.obj
+[8/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/asset_pack.cpp.obj
+[9/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/native_renderer.cpp.obj
+[10/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/alpha_dialogue.cpp.obj
+[11/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/alpha_resources.cpp.obj
+[12/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/alpha_save_generation.cpp.obj
+[13/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/ui_input_adapter.cpp.obj
+[14/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/alpha_save.cpp.obj
+[15/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/dungeon_art_cache.cpp.obj
+[16/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/alpha_audio.cpp.obj
+[17/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/idle_service.cpp.obj
+[18/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/tdeck_audio.cpp.obj
+[19/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/audio.cpp.obj
+[20/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/system_perf.cpp.obj
+[21/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/sfx_synth.cpp.obj
+[22/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/audio_pack.cpp.obj
+[23/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/alpha_runtime.cpp.obj
+[24/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/audio_stream.cpp.obj
+[25/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/render_pacing.cpp.obj
+[26/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/sd_diag_log.cpp.obj
+[27/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/perf_report.cpp.obj
+[28/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/sfx_inventory.cpp.obj
+[29/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/ambient_sfx.cpp.obj
+[30/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/platform_profile.cpp.obj
+[31/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/music_synth.cpp.obj
+[32/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/frontend.cpp.obj
+[33/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/spell_entry.cpp.obj
+[34/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/hud.cpp.obj
+[35/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/frontend_settings.cpp.obj
+[36/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/display_names.cpp.obj
+[37/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/intro_view.cpp.obj
+[38/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/system_menu.cpp.obj
+[39/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/poison_tick.cpp.obj
+[40/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/world_fx.cpp.obj
+[41/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/combat_hit_cue.cpp.obj
+[42/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/scene_timing.cpp.obj
+[43/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/presentation.cpp.obj
+[44/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/endgame_scene.cpp.obj
+[45/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/narrative_scene.cpp.obj
+[46/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/dungeon_encounters.cpp.obj
+[47/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/world_terrain.cpp.obj
+[48/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/world_commands.cpp.obj
+[49/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/look.cpp.obj
+[50/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/ui_session.cpp.obj
+[51/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/command_char.cpp.obj
+[52/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/world_magic.cpp.obj
+[53/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/shrine.cpp.obj
+[54/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/outdoor.cpp.obj
+[55/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/gameplay_save.cpp.obj
+[56/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/quest.cpp.obj
+[57/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/quest_search.cpp.obj
+[58/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/quest_world.cpp.obj
+[59/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/blackthorn_scene.cpp.obj
+[60/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/blackthorn.cpp.obj
+[61/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/shops.cpp.obj
+[62/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/shop_orchestration.cpp.obj
+[63/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/save_json.cpp.obj
+[64/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/dungeon.cpp.obj
+[65/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/persistence.cpp.obj
+[66/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/pc_save.cpp.obj
+[67/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/save_core.cpp.obj
+[68/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/dungeon_view.cpp.obj
+[69/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/dungeon_art.cpp.obj
+[70/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/dungeon_orchestration.cpp.obj
+[71/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/gem_view.cpp.obj
+[72/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/transport.cpp.obj
+[73/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/rng.cpp.obj
+[74/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/time.cpp.obj
+[75/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/loot.cpp.obj
+[76/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/state.cpp.obj
+[77/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/scripted_encounter.cpp.obj
+[78/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/world.cpp.obj
+[79/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/movement.cpp.obj
+[80/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/turn.cpp.obj
+[81/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/actors.cpp.obj
+[82/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/enhanced.cpp.obj
+[83/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/npc_path.cpp.obj
+[84/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/transitions.cpp.obj
+[85/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/pathfind.cpp.obj
+[86/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/inventory_picker.cpp.obj
+[87/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/inventory.cpp.obj
+[88/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/zstats.cpp.obj
+[89/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/rest.cpp.obj
+[90/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/commands.cpp.obj
+[91/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/magic.cpp.obj
+[92/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/combat.cpp.obj
+[93/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/dialogue_effects.cpp.obj
+[94/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/dialogue.cpp.obj
+[95/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/dialogue_orchestration.cpp.obj
+[96/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/ritual_fx.cpp.obj
+[97/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/dialogue_pacer.cpp.obj
+[98/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/ui_debug_menu.cpp.obj
+[99/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/debug_map_picker.cpp.obj
+[100/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/debug_labels.cpp.obj
+[101/110] Performing build step for 'bootloader'
+[1/1] C:\WINDOWS\system32\cmd.exe /C "cd /D C:\Dev\uvw-original-dos\native\targets\tdeck\build-dos\bootloader && C:\Users\lawma\.espressif\python_env\idf6.1_py3.14_env\Scripts\python.exe C:/esp/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 C:/Dev/uvw-original-dos/native/targets/tdeck/build-dos/bootloader/bootloader.bin"
+Bootloader binary size 0x5850 bytes. 0x27b0 bytes (31%) free.
+[102/110] No install step for 'bootloader'
+[103/110] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/C_/Dev/uvw-original-dos/native/core/src/debug_developer.cpp.obj
+[104/110] Completed 'bootloader'
+[105/110] Linking C static library esp-idf\main\libmain.a
+[106/110] Generating esp-idf/esp_system/ld/sections.ld
+NOTE: C:/esp/v6.1/esp-idf/components/bt/host/nimble/Kconfig.in:1428: BT_NIMBLE_MESH_PROVISIONER: 'default 0' is not a valid bool value (only 'y' and 'n' are allowed). Value is treated as 'n'.
+NOTE: C:/esp/v6.1/esp-idf/components/fatfs/Kconfig:240: FATFS_PRINT_LLI: 'default 0' is not a valid bool value (only 'y' and 'n' are allowed). Value is treated as 'n'.
+NOTE: C:/esp/v6.1/esp-idf/components/fatfs/Kconfig:245: FATFS_PRINT_FLOAT: 'default 0' is not a valid bool value (only 'y' and 'n' are allowed). Value is treated as 'n'.
+Skipping linker fragment parsing, fragment files unchanged
+[107/110] Linking CXX executable openu5_tdeck.elf
+[108/110] Generating binary image from built executable
+esptool v5.4.0
+Creating ESP32-S3 image...
+Merged 3 ELF sections.
+Successfully created ESP32-S3 image.
+Generated C:/Dev/uvw-original-dos/native/targets/tdeck/build-dos/openu5_tdeck.bin
+[109/110] C:\WINDOWS\system32\cmd.exe /C "cd /D C:\Dev\uvw-original-dos\native\targets\tdeck\build-dos && C:\Users\lawma\.espressif\python_env\idf6.1_py3.14_env\Scripts\python.exe C:/esp/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app C:/Dev/uvw-original-dos/native/targets/tdeck/build-dos/partition_table/partition-table.bin C:/Dev/uvw-original-dos/native/targets/tdeck/build-dos/openu5_tdeck.bin"
+openu5_tdeck.bin binary size 0x109e70 bytes. Smallest app partition is 0x140000 bytes. 0x36190 bytes (17%) free.
+[110/110] C:\WINDOWS\system32\cmd.exe /C "cd /D C:\Dev\uvw-original-dos\native\targets\tdeck\build-dos && C:\Users\lawma\.espressif\python_env\idf6.1_py3.14_env\Scripts\python.exe C:/Dev/uvw-original-dos/native/targets/tdeck/check_app_budget.py --build-dir C:/Dev/uvw-original-dos/native/targets/tdeck/build-dos"
+OpenU5 app budget: image 1089136 B (0x109e70), app partition 1310720 B (0x140000), free 221584 B (16.9 %)
+OpenU5 Launcher allocation: 1114112 B (1088 KiB, the image rounded up to 64 KiB); the next 64 KiB step is 24977 B away
+build exit 0

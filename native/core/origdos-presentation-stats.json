@@ -1,0 +1,57 @@
+[
+ {
+  "file": "w-default.bmp",
+  "window": "960x720",
+  "scale": 3,
+  "picture": "960x720@0,0",
+  "picture_pct": 100.0,
+  "letterbox_black_pct": 0.0,
+  "ring_pct": 0.0,
+  "black_inside_picture_pct_of_picture": 78.1,
+  "black_total_pct": 78.1
+ },
+ {
+  "file": "w-default.bmp",
+  "window": "1008x768",
+  "scale": 3,
+  "picture": "960x720@24,24",
+  "picture_pct": 89.3,
+  "letterbox_black_pct": 6.7,
+  "ring_pct": 4.05,
+  "black_inside_picture_pct_of_picture": 78.1,
+  "black_total_pct": 76.4
+ },
+ {
+  "file": "w-1080.bmp",
+  "window": "1920x1080",
+  "scale": 4,
+  "picture": "1280x960@320,60",
+  "picture_pct": 59.3,
+  "letterbox_black_pct": 40.7,
+  "ring_pct": 0.0,
+  "black_inside_picture_pct_of_picture": 78.1,
+  "black_total_pct": 87.0
+ },
+ {
+  "file": "w-1080.bmp",
+  "window": "1920x1080",
+  "scale": 4,
+  "picture": "1280x960@320,60",
+  "picture_pct": 59.3,
+  "letterbox_black_pct": 38.1,
+  "ring_pct": 2.69,
+  "black_inside_picture_pct_of_picture": 78.1,
+  "black_total_pct": 84.3
+ },
+ {
+  "file": "w-1080.bmp",
+  "window": "1920x1080",
+  "scale": 4.5,
+  "picture": "1440x1080@240,0",
+  "picture_pct": 75.0,
+  "letterbox_black_pct": 25.0,
+  "ring_pct": 0.0,
+  "black_inside_picture_pct_of_picture": 77.8,
+  "black_total_pct": 83.3
+ }
+]

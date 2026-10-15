@@ -97,7 +97,7 @@ changed in this batch); **?** = evidence insufficient.
 | | |
 |---|---|
 | 1988 | `Mix Reagents` + blank row; `No reagents owned!`; `For what spell?\n:` typed; −1 → `\nNone!`; **−2 (no such spell) goes on** to the reagent picker and any mix is the wrong mix (CMDS 0x1b13 / 0x1bc2); the legend `←,→,↑,↓ to move,` / `RETURN selects.` / `Type M to mix:` in the console; the `Reagents:` panel (legitimate right-panel list); `How much? ` getnum (ESC erases); `Insufficient reagents!` re-asks. |
-| Windows Original (now) | the same, with the legend printed as `Arrows to move,` (the console face has no arrow glyphs); the unmatched name continues as spell 48 into the core's wrong-mix path; the `Reagents:` panel without its footer. |
+| Windows Original (now) | the same, with the legend printed as `Arrows to move,` (the console face has no arrow glyphs); the unmatched name continues as spell 48 into the core's wrong-mix path; the `Reagents:` panel without its footer. *(windows/original-dos-interaction, 2026-10-14: that "panel" was the handheld's right-column list -- 14-px rows, native names, the console cut to a strip. It is now the 1988 panel in the boxes' place, as a DOS capture shows it: `►Reagents:◄` in the band, no frame, ` NN NAME` rows with the DOS short names (`Sp. Silk`, `Blk. Pearl`, from the player's DATA.OVL via the pack), the bar over the whole row, the mark as one reverse-video cell at col 3; the console stays whole under it.)* |
 | Enhanced | the spell list and the A-17 footer legend, unchanged. |
 | Status | **DOS**; **≈** the arrow glyphs spelled `Arrows`. |
 | Uncertainty | where the console breaks between `How much? N` and the next line (print_string word-wrap, not traced). |
@@ -107,7 +107,7 @@ changed in this batch); **?** = evidence insufficient.
 | | |
 |---|---|
 | 1988 | `Use item` + blank row; `No usable items!` (no list); `Item: ` with the `Items:` panel (legitimate list); RETURN/Space choose; ESC → `Item: None!`; the handler prints its own name after `Item: ` (`Potion`, `Scroll`...); potions `On who: `; scrolls/skull key `Direction-`. |
-| Windows Original (now) | `No usable items!`; `Items:` panel without detail or footer; `Item: ` in the console strip; Space/RETURN; `Item: None!`; `On who: `; `Direction-`. |
+| Windows Original (now) | `No usable items!`; `Items:` panel without detail or footer; `Item: ` in the console strip; Space/RETURN; `Item: None!`; `On who: `; `Direction-`. *(windows/original-dos-interaction, 2026-10-14: the list was still the handheld's right-column panel -- native names with `x3` counts, potions before scrolls, the console cut to a strip. It is now the 1988 panel (CAST 0x1792 -> ZSTATS 0x0f2e mode 'U'; re/notes/use-picker-panel.md): `►Items:◄` in the band, the scroll frame of seven rows over the roster and status boxes, print_list_row's cells -- the 2-digit count (none for the 0xff items), the scroll's decoration and initials in RUNES.CH, the potion's decoration then its colour, `Magic Crpt` / `Shard/Hatred` -- in the extended table's id order, the bar on cols 1..13, the arrow glyph in the band when rows hide; `Item: ` and the cursor in the full console under it.)* |
 | Status | **DOS** for the list, keys and rows: `Item: Potion` / `Item: Scroll` (+ blank row) are printed at the pick, before `On who:` / `Direction-` (`Command::item_named`, default false, keeps the core from repeating the name); `On who: None!` still uses the potion up (CAST 0x136a decrements it before the prompt; native's D-51 refund stays on the T-Deck and in Enhanced). **≈** in the arena and for the other items (carpet, skull key, moonstones, sextant...) the core still prints the name on the row after `Item:`; **?** whether a cancelled resurrection scroll is spent (the decrement precedes the handler, not traced per scroll) — native keeps it. |
 
 ### 3.7 Ready / equipment
@@ -115,9 +115,9 @@ changed in this batch); **?** = evidence insufficient.
 | | |
 |---|---|
 | 1988 | `Ready...` + blank row; `Player: ` always (ZSTATS 0x0000); `Thou art empty-\nhanded!`; `Item: ` + the member's own list (banner = the name; legitimate list); ready/unready print **nothing**; a refusal prints `\n\n<message>\n\nItem: `; ESC → `Done`; arena: the actor, the turn ends. |
-| Windows Original (now) | as 1988; the native `Equipped X.` / `Unready X.` lines are gone in Original; a vanishing ring prints `Ring vanishes!` and closes the list (ZSTATS 0x0e45, the only success that does), ending R in the arena. |
+| Windows Original (now) | as 1988; the native `Equipped X.` / `Unready X.` lines are gone in Original; a vanishing ring prints `Ring vanishes!` and closes the list (ZSTATS 0x0e45, the only success that does), ending R in the arena. *(windows/original-dos-interaction, 2026-10-14: the list itself was the handheld's right-column panel with `[equipped]` labels and long names. It is now the 1988 panel (ZSTATS 0x1296 -> 0x0f2e mode 'R'; re/notes/ready-picker-panel.md, and a DOS capture of the user's own install): the member's name in the band, the scroll frame, `NN` / `--` (worn, none in the pack), the class glyph of DS 0x1ae8 in RUNES.CH for an item this member wears, the 10-cell short names of DS 0x1962 (`Leath Helm`, `Spkd. Shld`), the bar on cols 1..13, the arrow in the band.)* |
 | Enhanced | `Ready Whom?` / `Ready Equipment` panels with slot detail and footer; the feedback lines. |
-| Tests | `scenario_original_interface` (Player:, list title, no feedback, `Item: Done`), `scenario_enhanced_interface`. |
+| Tests | `scenario_original_interface` (Player:, list title, no feedback, `Item: Done`), `scenario_enhanced_interface`; *(2026-10-14)* `scenario_original_dos_panels` / `scenario_enhanced_panels` (the panel kind asserted on the presented pixels: `expect right_column`). |
 | Status | **DOS**; **Δ** turn cost outside combat (§5). |
 
 ### 3.8 Z-stats and inventory inspection
@@ -125,9 +125,9 @@ changed in this batch); **?** = evidence insufficient.
 | | |
 |---|---|
 | 1988 | `Z-stats...`; `Player: ` always; `0` → the Equipment page; `\nStatus: ` waits while the pages show; Space/ESC close → `Done`; arena: the actor's page with no prompt, the turn ends. The pages are the only inventory inspection (legitimate right-panel pages). |
-| Windows Original (now) | as 1988: roster picker, `Status: ` ... `Done`, the pages without the member counter and footer, the console strip below them; arena `Z` shows the actor's page and ends the turn on close (it was `What?`). |
+| Windows Original (now) | as 1988: roster picker, `Status: ` ... `Done`, the pages without the member counter and footer, the console strip below them; arena `Z` shows the actor's page and ends the turn on close (it was `What?`). *(windows/original-dos-interaction, 2026-10-14: the pages now sit in the 1988 panel over the boxes (window 1, rows 1..9) with the console whole below: the stats page with the CP437 sex sign (IBM.CH 0x0b / 0x0c) for the T-Deck's `M` / `F`, the Arms page and the four lists with the DOS short names (DS 0x1962, 0x19d2, 0x19e2, 0x1916), the lists in their scroll frame with `-` separators, `(None owned!)` and the band arrow.)* |
 | Enhanced | `Z / Stats` preview panel, pages with footer; arena `Z` = `What?` (unchanged). |
-| Status | **DOS** (keys/prompts); **≈** pages keep the native unabbreviated names (A-11/A-12); **Δ** turn cost outside combat (§5). |
+| Status | **DOS** (keys/prompts); ~~**≈** pages keep the native unabbreviated names (A-11/A-12)~~ *(2026-10-14: the DOS names in Original; the T-Deck and Enhanced keep the native ones)*; **≈** the Arms title's underline (0xfe) is not drawn; **Δ** turn cost outside combat (§5). |
 
 ### 3.9 Direction commands, Get (there is no Drop)
 
@@ -153,8 +153,9 @@ changed in this batch); **?** = evidence insufficient.
 |---|---|
 | 1988 | everything in the console: lettered stock lists, pitches, `Y/N` questions that re-read everything else; the buyer is the active player or the first conscious member; the healer's `"Who needs my aid?"` and the inn's `"Who will stay?"` are the roster picker; the only panel lists are the blacksmith's Sell `Arms` window and the inn's `GUEST REGISTER`. |
 | Windows Original (now) | the shop panel (offers, gold, log) without its key-legend footer; every deal question takes only Y/N; the greeting and "anything else?" gates take Y, N and Space as N (Y/N only at the healer and the drink warning); the blacksmith's door takes any key; the service menus ignore ESC (RETURN is "Nothing" at the healer); the healer's and the inn's member choice is the **roster picker** (reverse-video row, "Select:", digits highlight, RETURN/Space) instead of the panel; the guest register RETURN/Space; the rumor `You respond:` and rations `How many wouldst thou like?` prompts. |
+| Windows Original (2026-10-14, windows/original-dos-interaction) | **console shops**: no offer panel at all. Each pass of a list loop prints its lettered rows and its question on the console (native/core/spp1-findings/B-shops.md section 3, the web port's ui/shop-console.ts): the blacksmith's `Buy` + EXCL + INTRO, `a...Dagger` rows (long names, the short one at 13+), WHICH (the core's own draws, `ShopSession::recent_draws`), `"Anything else, sir?"`; the reagent seller's `Fine! We sell:` / `A...Ginseng` / `Thy interest?`; the guild's three rows and `Thy concern?`; the wine list from the player's DATA.OVL; the deal questions (`Wouldst thou buy one?`, ` Is this thy need?` on the pitch's line, `Deal?`, `Interested?`, `Fair 'nuff?`, `Wilt thou take it?`, the healer's `for N gold. Wilt thou pay?`); the healer's powers line and `What is the nature of thy need?`, `Who needs my aid?`, `Is there any other way...`; the inn's menu, `Who will stay?`, `Who will check out?`, `anything more`; the tavern's menu record (69..72 / 73..76 by subtype) and `Anything else for thee?`. Keys: a letter picks (A..E reagents, a..c guild and `D`'s "limited time" record, F/S shipwright, the tavern's per-town letters MCBF/AWRS/R P/CTHA); the arrows move nothing; Space leaves a list, RETURN only the reagents'. The two panel windows are DOS panels: the blacksmith's `Arms` (roster box, four framed `qq-Short Name` rows, the bar, the arrow in the band, the status box below) and the inn's `GUEST REGISTER` (frame, `GUEST` / `REGISTER:`, names at col 4). |
 | Enhanced | unchanged. |
-| Status | **≈/Δ**: keys and questions are DOS; **Δ** the offers are a right-panel list (the T-Deck's shop panel) rather than console lines — a console-only shop presentation would be a new presenter for the whole shop flow (§7). |
+| Status | ~~**≈/Δ**: keys and questions are DOS; **Δ** the offers are a right-panel list (the T-Deck's shop panel) rather than console lines~~ **DOS** presentation and keys; **Δ** what the core does not decide or emit: the Y/N and letter echoes (`Yes`, `No`, `a`), several connective lines (`What else?`, the inn's rate line, the shipwright's list record), the tavern rounds charged at once (P4), and the D-104 semantics -- each is ledger D-105 P1 / D-104 and needs the core's transcript. |
 
 ### 3.12 Inn / rest / camp
 
@@ -243,9 +244,18 @@ build shares with the T-Deck.)
   where the window ends (the rune echo's own 13-column wrap is not emulated).
 - The roster's green/cyan tints are off in Original; the active player keeps
   its arrow; the arena actor's row is in reverse video.
-- List panels (Ready, Use, Mix reagents, Z-stats, shops) keep the T-Deck's
+- ~~List panels (Ready, Use, Mix reagents, Z-stats, shops) keep the T-Deck's
   panel drawing (title band, rows, the console strip below) without slot
-  details or key legends.
+  details or key legends.~~ *(windows/original-dos-interaction, 2026-10-14:
+  replaced. The lists and pages are the original's right panel
+  (`Board::draw_dos_panel`, a `DeviceDosPanel` of window cells) drawn over the
+  roster and status boxes at the DOS geometry -- band and banner y 0..6, the
+  box's rules at y 7 and y 80, window rows y 8..79, the arrow band y 81..86,
+  the console's rule y 87 -- and the console below is the world's, unchanged.
+  The boxes keep the T-Deck's x 182 / 318 rules and window col 0 is the
+  roster text's x 188, so the box is 11 px wider than DOS's and the window sits
+  4 px right of DOS's (DOS has it against the left rule). The shops have no
+  panel: console lines.)*
 - The Mix legend's `←,→,↑,↓` is printed `Arrows` (the console face has no
   arrow glyphs).
 - A console scrolled back with PgUp hides the live prompt row until it
@@ -257,6 +267,9 @@ build shares with the T-Deck.)
 2. *(Still open after SPP1: ledger D-105 P1. SPP1 B fixed only the paid
    rumour's missing text, P2, on every platform.)* Shop offers as a right-panel list instead of console lines (the buy
    lists, pitches and prices are a new presenter for the whole shop flow).
+   *(windows/original-dos-interaction, 2026-10-14: the offers are console lines
+   now and the panel is gone (§3.11); what remains is the text the core does
+   not emit -- echoes and some connective lines -- and D-104.)*
 3. *(SPP1 C: J/P/Y fixed. SPP1 D: in Original, the line spells read `Direction-`
    and charm / clone print `Creature: `. The per-turn actor banner is still
    missing.)* Arena J/P/Y missing; line spells use a reticle instead of a getdir; charm

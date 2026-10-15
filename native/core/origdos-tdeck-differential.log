@@ -1,0 +1,20 @@
+ORIG-DOS1 T-Deck differential (method: native/core/tools/spp2_differential/README.md)
+base = C:\Dev\uvw-dos-base (detached bf3480e3, SPP2 HEAD) build-probe/tdeck_diff_probe.exe
+head = C:\Dev\uvw-original-dos build-dos/tdeck_diff_probe.exe
+runs: <pack> <audio> (unpaced), --paced, ABCDEFGHI --dos (positive control, both trees)
+
+0e53ca58185f4c2c01c6ad2fc7b2e51b1c7d304b5c5dbd53d6d241d11d742000 *base.txt
+0e53ca58185f4c2c01c6ad2fc7b2e51b1c7d304b5c5dbd53d6d241d11d742000 *head-final.txt
+f01c280397940ee2439223beadcb28f98ca4ce6e367fbe72f3bae8cbeb38e828 *base-paced.txt
+f01c280397940ee2439223beadcb28f98ca4ce6e367fbe72f3bae8cbeb38e828 *head-final-paced.txt
+00974fbbbab39429f28800332097195b463c4a2215671d33862f11226ec3d818 *base-dos.txt
+23f7c2182aede34aec623c72204c27074fc4cd40da702142b37a0d7e6fe281a5 *head-final-dos.txt
+
+differing walks by family prefix: {}
+
+differing walks by family prefix: {}
+
+differing walks by family prefix: {'A': 21, 'Aact': 21, 'B': 10, 'C': 59, 'Dtown': 10, 'Dpalace': 10, 'Ddun': 10, 'Ddun40': 10, 'E': 1, 'H': 6, 'I': 1}
+63635
+
+[exited with code 0]
