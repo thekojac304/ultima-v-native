@@ -1,0 +1,75 @@
+{
+  "audit_date": "2026-10-15",
+  "cleanup1_commit": "8fe5ffe4bae2038095f40b098ea1f40903ca7766",
+  "baseline_primary_commit": "96a55ff9084f69acf776695a4fd1a5c5b15f16cb",
+  "rc1_commit": "a96656b2330097c18c52b78a8840d3749c0e9854",
+  "census_repeated": false,
+  "scoped_repositories": 17,
+  "registered_native_checkouts": 16,
+  "preservation_hashes": 774,
+  "reparse_targets": 54,
+  "frozen_inventory_checksums": 24,
+  "audit_continuity": "17/17 HEADs and branches match CLEANUP1; archived wip3 object and exact DOS-base patch match",
+  "phase_a_comparison": {
+    "passed": 141,
+    "failed": 0
+  },
+  "phase_bc_comparison": {
+    "passed": 141,
+    "failed": 0
+  },
+  "rc1_tooling_tests": {
+    "passed": 5,
+    "failed": 0
+  },
+  "cleanup_safety_tests": {
+    "passed": 15,
+    "skipped": 1,
+    "failed": 0,
+    "skip_reason": "Windows denied test symlink creation"
+  },
+  "verifier_simulated_loss_checks": {
+    "rejected": 5,
+    "failed": 0
+  },
+  "relocation_dependency_search": "No tracked script/config references in 17 repositories; no junction/worktree target matches",
+  "new_layout": "Four directories; three instruction files totaling 1713 bytes; hashes verified against created-layout.csv",
+  "existing_content_moved": "One 44602-byte generated path listing; exact SHA-256 preserved",
+  "dev_root_directories": {
+    "before": 31,
+    "after": 34
+  },
+  "dev_root_loose_files": {
+    "before": 0,
+    "after": 0
+  },
+  "disk_space_recovered_bytes": 0,
+  "disk_scope": "No file deleted; same-volume move; documentation/receipts and Git metadata add storage; allocated NTFS growth not measured",
+  "deferred_approval_rows": 30,
+  "secret_review": "Manual review of durable audit source plus credential-pattern scan of all proposed CLEANUP1 files and all local inventories: no findings; inventories remain excluded for size and machine paths; pattern scan is not universal proof",
+  "hardware_tests": "NOT RUN; RC1 physical acceptance remains pending",
+  "runtime_suites": "Not rerun; no runtime or build implementation changes; retained RC1 evidence hashes verified",
+  "known_git_warning": "Pre-existing origin/HEAD points at missing origin/esp32-tdeck-port; no repair or fetch performed",
+  "local_receipts": {
+    "rc1-tooling-tests.log": {
+      "bytes": 710,
+      "sha256": "09b704b2fcc39e25aa11b4c357f55deccfa7b5653f1632ca2d7f71d6f4cafd94"
+    },
+    "cleanup-safety-tests.log": {
+      "bytes": 1739,
+      "sha256": "4afba50b0f60357e361deb63feca6c50ca14eebacc4984cc2eaa5fe201213689"
+    },
+    "content-review.json": {
+      "bytes": 605,
+      "sha256": "459bc516ad39e27e4d522f3111e60181cc14833e2b5a338f8417b5e251afdfb3"
+    },
+    "relocation-dependencies.json": {
+      "bytes": 1734,
+      "sha256": "94fb1a5a1ca7c01e5255337b8ccb3eca3fa5b328e9c825dcfb1f77bbd6788a49"
+    },
+    "verifier-denial-checks.json": {
+      "bytes": 397,
+      "sha256": "915596ff30335f69a4afd447bc73c9c520f4d81f9fda9dd8d9b140accbf4103f"
+    }
+  }
+}
