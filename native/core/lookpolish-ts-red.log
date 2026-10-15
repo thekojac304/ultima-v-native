@@ -1,0 +1,107 @@
+
+ RUN  v3.2.7 C:/Dev/uvw-look-polish/game
+
+ ❯ tests/look-signpost.test.ts (6 tests | 4 failed) 15ms
+   ✓ Look at a sign's post (LOOKOBJ 0x0510) > LOOK2.DAT's phrase for 0xE0..0xE2 is the placeholder the game never prints 1ms
+   × Look at a sign's post (LOOKOBJ 0x0510) > the report: Britain (9,21), Look North -> the armoury's sign, not parched desert 5ms
+     → expected [ 'Thou dost see parched desert' ] to deeply equal [ Array(1) ]
+   × Look at a sign's post (LOOKOBJ 0x0510) > all four directions follow the chain 1ms
+     → expected [ 'Thou dost see parched desert' ] to deeply equal [ Array(1) ]
+   ✓ Look at a sign's post (LOOKOBJ 0x0510) > the sign itself and ordinary terrain are unchanged 1ms
+   × Look at a sign's post (LOOKOBJ 0x0510) > every post of every 1988 small map names its chain's sign (122 posts) 1ms
+     → Britain z0 (12,8): expected [ 'Thou dost see parched desert' ] to deeply equal [ Array(1) ]
+   × Look at a sign's post (LOOKOBJ 0x0510) > Britain with its NPCs: the report's Look is the sign too 1ms
+     → expected [ 'Thou dost see parched desert' ] to deeply equal [ Array(1) ]
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/look-signpost.test.ts > Look at a sign's post (LOOKOBJ 0x0510) > the report: Britain (9,21), Look North -> the armoury's sign, not parched desert
+AssertionError: expected [ 'Thou dost see parched desert' ] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+  [
+-   "Thou dost see the sign of an armoury",
++   "Thou dost see parched desert",
+  ]
+
+ ❯ tests/look-signpost.test.ts:66:50
+     64| 
+     65|   it("the report: Britain (9,21), Look North -> the armoury's sign, no…
+     66|     expect(lookFrom(BRITAIN, 0, 9, 21, "north")).toEqual(["Thou dost s…
+       |                                                  ^
+     67|     expect(lookFrom(BRITAIN, 0, 8, 21, "north")).toEqual(["Thou dost s…
+     68|     expect(lookFrom(BRITAIN, 0, 10, 21, "north")).toEqual(["Thou dost …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/look-signpost.test.ts > Look at a sign's post (LOOKOBJ 0x0510) > all four directions follow the chain
+AssertionError: expected [ 'Thou dost see parched desert' ] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+  [
+-   "Thou dost see the sign of an armoury",
++   "Thou dost see parched desert",
+  ]
+
+ ❯ tests/look-signpost.test.ts:72:50
+     70| 
+     71|   it("all four directions follow the chain", () => {
+     72|     expect(lookFrom(BRITAIN, 0, 8, 18, "south")).toEqual(["Thou dost s…
+       |                                                  ^
+     73|     expect(lookFrom(BRITAIN, 0, 11, 8, "east")).toEqual(["Thou dost se…
+     74|     expect(lookFrom(BRITAIN, 0, 19, 8, "west")).toEqual(["Thou dost se…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/look-signpost.test.ts > Look at a sign's post (LOOKOBJ 0x0510) > every post of every 1988 small map names its chain's sign (122 posts)
+AssertionError: Britain z0 (12,8): expected [ 'Thou dost see parched desert' ] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+  [
+-   "Thou dost see the sign of a provisioner",
++   "Thou dost see parched desert",
+  ]
+
+ ❯ tests/look-signpost.test.ts:106:15
+    104|               lookFrom(loc.id, floor.z, x, below ? y + 1 : y - 1, belo…
+    105|               `${loc.name} z${floor.z} (${x},${y})`,
+    106|             ).toEqual([`Thou dost see ${look2[t]}`]);
+       |               ^
+    107|           }
+    108|     expect(posts).toBe(122);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  tests/look-signpost.test.ts > Look at a sign's post (LOOKOBJ 0x0510) > Britain with its NPCs: the report's Look is the sign too
+AssertionError: expected [ 'Thou dost see parched desert' ] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+  [
+-   "Thou dost see the sign of an armoury",
++   "Thou dost see parched desert",
+  ]
+
+ ❯ tests/look-signpost.test.ts:112:56
+    110| 
+    111|   it("Britain with its NPCs: the report's Look is the sign too", () =>…
+    112|     expect(lookFrom(BRITAIN, 0, 9, 21, "north", true)).toEqual(["Thou …
+       |                                                        ^
+    113|   });
+    114| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 2 passed (6)
+   Start at  23:34:23
+   Duration  1.29s (transform 477ms, setup 0ms, collect 779ms, tests 15ms, environment 0ms, prepare 95ms)
+

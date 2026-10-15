@@ -1,0 +1,33 @@
+RED L1 the report: Britain (9,21) North, a post (0xE0) -> 'Look-North | Thou dost see parched desert | '
+RED L2 (10,21) North: 0xE0 then 0xE2 -> 'Look-North | Thou dost see parched desert | '
+RED L3 (8,18) South onto 0xE1 -> 'Look-South | Thou dost see parched desert | '
+RED L4 (11,8) East onto 0xE1 -> 'Look-East | Thou dost see parched desert | '
+RED L5 (19,8) West onto 0xE2 -> 'Look-West | Thou dost see parched desert | '
+GREEN L6 control: the road ahead is cobble -> 'Look-North | Thou dost see cobble | '
+GREEN F1 price 1 right-aligned to cell 20 with a margin cell: ' Bow             1 gp '
+GREEN F1 price 13 right-aligned to cell 20 with a margin cell: ' Bow            13 gp '
+GREEN F1 price 109 right-aligned to cell 20 with a margin cell: ' Bow           109 gp '
+GREEN F1 price 1009 right-aligned to cell 20 with a margin cell: ' Bow          1009 gp '
+GREEN F1 price 20190 right-aligned to cell 20 with a margin cell: ' Bow         20190 gp '
+GREEN F2 Arrows (quantity 99) prices in the same cells as Sling, and Buy shows no count: ' Arrows         13 gp '
+GREEN F3 a long name is cut with '.': ' Ring of Reg. 1500 gp '
+GREEN F4 a Sell row shows its count: ' Dagger x6       1 gp '
+GREEN F4 the count survives a cut name: ' Ring of. x2  1500 gp '
+GREEN F5 a companion row has no price: ' Shamino              '
+GREEN F6 'Leather Armour [equipped]' in 21 cells: 'Leather Armour [eq]'
+GREEN F6 a row that fits is unchanged: 'Chain Coif [equipped]'
+GREEN F6 counts that fit are unchanged
+GREEN F6 count and marker both whole: 'Ring of Invi. x2 [eq]'
+GREEN F6 one worn, one in the pack: 'Chain Coif x1 [eq]'
+GREEN F6 a 20-cell name with no tail is unchanged
+RED S1 selected 2: every price ends in one column, a cell before the rule (302 302 302 290 308 290 )
+GREEN S2 the selected row is still the bar
+RED S1 selected 3: every price ends in one column, a cell before the rule (302 302 302 290 308 290 )
+GREEN S2 the selected row is still the bar
+RED S3 a companion row has no ink where a price would be (no '0g')
+GREEN B1 Iolo's Bows (Britain's blacksmith) Buy lists six weapons, Arrows an offer of 99: Dagger=1 Sling=14 Bow=105 Arrows=14 Crossbow=210 Quarrels=21 
+RED B2 its prices end in one column on the panel (302 302 302 290 302 290 )
+GREEN B3 the Dagger's price reads '<n> gp': ' Dagger          1 gp '
+RED B4 Sell shows the pack's count beside the name (Dagger x6):  Small Shield   25 gp | Cloth Armour   13 gp | Dagger          1 gp | Club            4 gp | Flaming Oil     4 gp |
+RED R1 the Ready list keeps 'Leather Armour' and its marker whole in 21 cells: Chain Coif x1 [equippe | Small Shield | Cloth Armour x2 | Leather Armour [equipp | Dagger x6 | Club | Flaming Oil x3 | Long Sword [equipped] | 
+LOOK-POLISH1 runtime: 21/32 checks

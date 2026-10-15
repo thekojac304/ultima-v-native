@@ -119,6 +119,8 @@ A T-Deck differential against `fc4a63aa` (1,052 walks, 8,430 inputs; unpaced and
 
 ---
 
+**LOOK-POLISH1 (2026-10-14) — [`docs/WINDOWS_LOOK_ENHANCED_POLISH.md`](../WINDOWS_LOOK_ENHANCED_POLISH.md).** Branch `windows/look-enhanced-polish` (from ORIG-DOS2's `00ae0410`), not merged. **D-117** (Look at a sign's post said `parched desert`; LOOKOBJ 0x0510) is **SOFTWARE FIXED — HARDWARE UNTESTED** in the reference and native, so it reaches the T-Deck too. The handheld screen's shop and list rows (shared by the T-Deck and Windows Enhanced) were also reformatted — one right-aligned `<n> gp` price column, no price on a companion, Sell's counts, `[equipped]` kept whole — a presentation fix with no ledger row; Windows Original is pixel-identical. The T-Deck differential attributes every changed walk to one of the three (0 unexplained).
+
 ## 1. Reference-faithful behaviour (the default)
 
 Everything not listed in sections 2–4 is intended to reproduce Ultima V exactly,
@@ -324,6 +326,7 @@ answer or a product decision; none is scheduled in Alpha 2 unless marked.
 | D-114 | TALK's converse dispatch answers a guard (object type 0x70) on an even served slot with `The guard offers\nno response!` (0x0378-0x0387) before any dialog; dialog 0xFF calls the guard talk 0x01e2 in every town (0x03d8). Native hands 0xFF to the guard flow only in Blackthorn's palace and otherwise prints `Funny, no response!` | native **and** reference (to check) | SPP2 (2026-10-14) | open |
 | D-115 | A town conversation costs a town turn without the NPC movement: TALK nonzero → dispatcher 2 → TOWN advance_clock(1), 0x0f02 (housekeeping), 0x0c78, then 0x1352(1) instead of NPC.OVL (0x1662 / 0x1671). Native: free (D-107 (1)) | native **and** reference | SPP2 (2026-10-14); 0x1352's purpose PROBABLE | open |
 | D-116 | Hole up's dispatcher turn: a cancelled hours question (kernel 0x3ddc / CMDS 0x0587 → the arm's `jmp 0x31ee`), the ship repair, and the trailing turn after a completed Camp or bed rest. Native charges only the refusal (D-107 (2)) | native **and** reference | SPP2 (2026-10-14), K:0x3288 | open; deferred -- the camp batches (batch32/36/38/44) pin "no final housekeeping pass"; `spp2_runtime --deferred-h` |
+| D-117 | (L)ook at a hanging sign's post or bracket (tiles 0xE0 / 0xE1 / 0xE2) printed LOOK2.DAT's placeholder for them, `parched desert`. LOOKOBJ look_dispatch 0x0510-0x0550 follows the post to the sign (0xE0 y-1, 0xE1 x+1, 0xE2 x-1, re-reading the composited tile) before anything else; all 122 posts in the 1988 town / castle / keep maps end on a sign 0xF0-0xF9 | native **and** reference | LOOK-POLISH1 (2026-10-14), reported on Windows Original (Britain (9,21), Look North); the routine was already verified in `re/ledger/frontier-manual.json` (look_dispatch 0x0502) and `re/notes/lookobj.md`, but never ported | **SOFTWARE FIXED -- HARDWARE UNTESTED** (shared core, both ports; `look_post`, `look_polish_runtime`, `game/tests/look-signpost.test.ts`, `scenario_look_signpost_*`) |
 
 ---
 

@@ -1,0 +1,23 @@
+Test project C:/Dev/uvw-look-polish/native/core/build-look
+    Start 182: gameplay_parity
+1/1 Test #182: gameplay_parity ..................***Failed    9.50 sec
+C:\Dev\uvw-look-polish\native\core\tools\check-gameplay.ts:163
+for(let i=0;i<actual.length;i++){for(const step of actual[i]){step.state=projection(step.state);step.events=step.events.filter((e:any)=>!(e.kind==='sfx'&&nativeOnlyAudioHooks.has(e.text)));}if(!isDeepStrictEqual(actual[i],expected[i])){writeFileSync(dir+'/mismatch.json',JSON.stringify({i,input:inputs[i],actual:actual[i],expected:expected[i]},null,2));throw Error(`Gameplay mismatch ${i}`);}}
+                                                                                                                                                                                                                                                                                                                                                                       ^
+
+Error: Gameplay mismatch 1810
+    at <anonymous> (C:\Dev\uvw-look-polish\native\core\tools\check-gameplay.ts:163:360)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   9.51 sec
+
+The following tests FAILED:
+	182 - gameplay_parity (Failed)
+Errors while running CTest

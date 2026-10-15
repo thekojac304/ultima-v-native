@@ -1,0 +1,5 @@
+LOOK-POLISH1 vitest (game/, npx vitest run --reporter=json), FAIL sets compared, not totals
+baseline 00ae0410: total 8259 passed 7932 failed 116 failed suites 71; fail set 116 (+7 suite-level)
+head (this branch): total 8265 passed 7938 failed 116 failed suites 71; fail set 116 (+7 suite-level)
+FAIL SET IDENTICAL (116 pre-existing, environment-bound)
+new file tests/look-signpost.test.ts: 6/6 pass

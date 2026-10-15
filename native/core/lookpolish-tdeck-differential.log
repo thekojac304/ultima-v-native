@@ -1,0 +1,28 @@
+LOOK-POLISH1 T-Deck differential (native/core/tools/lookpolish_differential): base 00ae0410 in C:\Dev\uvw-lp-base, head = this branch's working tree before commit; same GCC, same packs.
+sha256 base.txt f133db6aa3e8798a96475f264d7c0969c0985afd91db189d56c22c8a720c99d1
+sha256 head.txt 7909072837036911266e5a34bb25f37950aecaf28017cfd71afb63c2cf082526
+sha256 base-paced.txt 49511bf55bfb6513dbe42d1240d2fe34b32ef8ccd274c67dca31a762ecc06a96
+sha256 head-paced.txt 753e3933b848f4ea48053a935b3faa78138230d07a255d5d574e5bb76cfb2a8a
+sha256 head-dos.txt 6bbdff2282fdc05ca4e308c055afd6e0bef3b528f4525456822bbf2d1c5350b5
+== unpaced
+walks 1065, steps 8514, identical walks 1001, differing 64
+  P 5
+  S 51
+  L 8
+== paced
+walks 1065, steps 8514, identical walks 1001, differing 64
+  P 5
+  S 51
+  L 8
+== positive control: head vs head --dos (the Windows Original profile)
+walks 1065 (head 1065), steps 8514 (head 8514)
+identical walks 11, differing walks 1054, walks in one output only 0 []
+non-snapshot lines: base 1, head 1; equal=True
+== walks per class (unpaced)
+P 5 J-look-9-21-N J-look-10-21-N J-look-8-18-S J-look-11-8-E J-look-19-8-W
+S 51 C-81-0 C-81-1 C-81-2 C-81-8 C-81-9 C-82-0 C-82-2 C-82-7 C-82-8 C-82-9 C-82-10 C-83-0 C-83-1 C-83-2 C-83-4 C-83-6 C-83-7 C-83-8 C-83-9 C-83-10 C-84-0 C-84-1 C-84-2 C-84-4 C-84-6 C-84-7 C-84-8 C-84-9 C-84-10 C-85-0 C-85-1 C-85-2 C-85-4 C-85-6 C-85-7 C-85-8 C-85-9 C-85-10 C-87-2 C-87-7 C-87-8 C-87-9 C-87-10 C-88-7 C-88-8 C-88-9 J-iolo-buy J-iolo-sell J-healer J-reagents J-guild
+L 8 A-r-2 A-r-4 Aact-r-1 Aact-r-3 Aact-r-4 Aact-r-7 J-ready J-use
+== walks per class (paced)
+P 5 J-look-9-21-N J-look-10-21-N J-look-8-18-S J-look-11-8-E J-look-19-8-W
+S 51 C-81-0 C-81-1 C-81-2 C-81-8 C-81-9 C-82-0 C-82-2 C-82-7 C-82-8 C-82-9 C-82-10 C-83-0 C-83-1 C-83-2 C-83-4 C-83-6 C-83-7 C-83-8 C-83-9 C-83-10 C-84-0 C-84-1 C-84-2 C-84-4 C-84-6 C-84-7 C-84-8 C-84-9 C-84-10 C-85-0 C-85-1 C-85-2 C-85-4 C-85-6 C-85-7 C-85-8 C-85-9 C-85-10 C-87-2 C-87-7 C-87-8 C-87-9 C-87-10 C-88-7 C-88-8 C-88-9 J-iolo-buy J-iolo-sell J-healer J-reagents J-guild
+L 8 A-r-2 A-r-4 Aact-r-1 Aact-r-3 Aact-r-4 Aact-r-7 J-ready J-use
