@@ -171,7 +171,22 @@ A is a presenter change. Neither is implemented; both are proposals.
 
 ## 8. Test package
 
-See §8 in the commit that records the package (file name, size, SHA-256, the packaged ctest).
+- **File**: `native/targets/windows/dist/UltimaV-Native-Windows-x64-ORIGDOS1-e8cb8ba5-test.zip`
+  (this worktree), 2,304,467 B, SHA-256
+  `1dde51abe33f78f4ccf84c3e053b8a52ab36c772ce60b4ee8217ac0599e809da`. A new name: the SPP1 / SPP2
+  test ZIPs and the Windows worktree's development ZIP are untouched.
+- **Built** by `tools/build-windows.ps1 -Config Release -Test -Package -PackageName
+  UltimaV-Native-Windows-x64-ORIGDOS1-e8cb8ba5-test` from `e8cb8ba5` with a clean tree; BUILD-INFO
+  `Source: e8cb8ba5… (windows/original-dos-interaction)`; the exe logs `git e8cb8ba50ba5`. The
+  packaged build passes **33 / 33** (`native/core/origdos-win-package.log`).
+- **Smoke**: the packaged exe, headless on a scratch data folder, ran the U / R / Z / M script with 0
+  failures and logged `DOS_TEXT tables loaded`; its Ready, Use and Mix panels are pixel-identical to
+  the tested build's (the Z page differs only in the new character's rolled Dex).
+- **To see it as tested**: unzip into a new folder; the packs are the same as before (copy the three
+  `openu5-*.bin` or run `Prepare-Game-Data.cmd`). The player's existing `windows.json` keeps
+  `"scaling":"Integer"`; Settings -> Scaling -> Framed shows Classic Framed's ring (§7). Nothing here
+  changes that file.
+- **Not a release.** No person has played it.
 
 ## 9. Remaining (recorded)
 
@@ -197,5 +212,5 @@ See §8 in the commit that records the package (file name, size, SHA-256, the pa
 | Commit | What |
 |---|---|
 | `eeffb850` | The 1988 right panel, the console shops, the DOS name tables, the tests |
-| (record) | This record, the fidelity matrix and plan updates, the logs |
-| (package) | The test package's record (§8) |
+| `e8cb8ba5` | This record, the fidelity matrix and plan updates, the logs |
+| (this commit) | The test package's record (§8) |
