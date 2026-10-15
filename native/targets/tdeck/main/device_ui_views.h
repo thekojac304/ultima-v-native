@@ -66,7 +66,10 @@ constexpr int kTitleCreditsY=130,kTitleCreditsStep=14,kTitlePromptY=184;
 constexpr int kCharacterQuizArtH=152,kCharacterQuizTextY=154;
 
 constexpr size_t kShopVisibleRows=6;
-struct DeviceShopRow { char name[24]{}; int32_t price=0,quantity=0; };
+// LOOK-POLISH1: `priced` is false for a row that costs nothing to choose (a
+// companion in the healer's or the inn's list); `counted` marks a quantity that
+// is the party's own count (Sell), shown as "xN".
+struct DeviceShopRow { char name[24]{}; int32_t price=0,quantity=0; bool priced=true,counted=false; };
 struct DeviceShopView {
     bool active=false;
     char title[32]{},keeper[24]{},phase[64]{},input[24]{};
@@ -75,6 +78,75 @@ struct DeviceShopView {
     size_t total=0,page_start=0,row_count=0,selected_row=0;
     DeviceShopRow rows[kShopVisibleRows]{};
 };
+
+// LOOK-POLISH1 (docs/WINDOWS_LOOK_ENHANCED_POLISH.md section 3): `name` and its
+// `tail` (" x3", " [equipped]") into `room` cells at `dest`, without a NUL. A
+// pair that does not fit keeps the tail whole and cuts the name, ending it in
+// '.'; returns the cells written.
+inline size_t fit_label(char *dest,size_t room,const char *name,const char *tail) {
+    if(!dest||!room)return 0;
+    name=name?name:"";tail=tail?tail:"";
+    size_t name_length=std::strlen(name);
+    const size_t tail_length=std::strlen(tail);
+    size_t at=0;
+    if(name_length+tail_length>room&&tail_length+2<=room){
+        name_length=room-tail_length-1;
+        while(name_length&&name[name_length-1]==' ')--name_length;
+        std::memcpy(dest,name,name_length);at=name_length;
+        dest[at++]='.';
+    }else{
+        name_length=std::min(name_length,room);
+        std::memcpy(dest,name,name_length);at=name_length;
+    }
+    const size_t tail_cells=std::min(tail_length,room-at);
+    std::memcpy(dest+at,tail,tail_cells);
+    return at+tail_cells;
+}
+
+// An offer row of the shop panel, `cells` list cells wide: 22 in the panel's
+// 134 px text box at ui_text_metrics(1)'s 6 px cells. Cell 0 is the gutter; the
+// price is right-aligned to end one cell before the edge, as "<n> gp" -- the
+// 5x7 face's 'g' is too like its '9' to sit against the digits ("29g" read as
+// 299) -- so every price of a page ends in the same column whatever its digits
+// or the row's quantity. The name runs from cell 1 up to one blank cell before
+// the price; a longer one is cut by fit_label (a Sell row's "xN" kept whole).
+constexpr size_t kShopRowCells=134/6;
+inline void format_shop_row(char *out,size_t capacity,const DeviceShopRow &row,size_t cells=kShopRowCells) {
+    if(!out||!capacity)return;
+    cells=std::min(cells,capacity-1);
+    std::memset(out,' ',cells);out[cells]='\0';
+    if(cells<4)return;
+    const size_t edge=cells-1; // the blank margin cell
+    char price[16]{};
+    if(row.priced)std::snprintf(price,sizeof(price),"%ld gp",long(row.price));
+    const size_t price_length=std::strlen(price);
+    const bool shown=price_length&&price_length+3<=edge;
+    if(shown)std::memcpy(out+edge-price_length,price,price_length);
+    const size_t name_end=shown?edge-price_length-1:edge;
+    char tail[16]{};
+    if(row.counted&&row.quantity>1)std::snprintf(tail,sizeof(tail)," x%ld",long(row.quantity));
+    fit_label(out+1,name_end-1,row.name,tail);
+}
+
+// A list row of the compact selector (Ready, Use, the spells): `label` in
+// `cells` cells -- " %.21s" used to cut "Leather Armour [equipped]" to
+// "Leather Armour [equip". A row that does not fit first writes the marker as
+// "[eq]"; a name still too long is cut by fit_label, its count and marker whole.
+inline void fit_list_row(char *out,size_t capacity,const char *label,size_t cells) {
+    if(!out||!capacity)return;
+    label=label?label:"";
+    cells=std::min(cells,capacity-1);
+    const size_t length=std::strlen(label);
+    if(length<=cells){std::memcpy(out,label,length);out[length]='\0';return;}
+    const char *tail=label+length;
+    for(const char *p=label;*p;++p)
+        if(p[0]==' '&&((p[1]=='x'&&p[2]>='0'&&p[2]<='9')||p[1]=='[')){tail=p;break;}
+    char name[48]{},short_tail[24]{};
+    std::snprintf(name,sizeof(name),"%.*s",int(std::min<size_t>(size_t(tail-label),sizeof(name)-1)),label);
+    std::snprintf(short_tail,sizeof(short_tail),"%s",tail);
+    if(char *marker=std::strstr(short_tail," [equipped]"))std::memcpy(marker," [eq]",6);
+    out[fit_label(out,cells,name,short_tail)]='\0';
+}
 
 // Windows port, the 1988 interaction model (platform_dos_interface()): the DOS
 // game's right panel, text window 1 = cols 24..39 x rows 1..9 of its 40 x 25
@@ -251,7 +323,9 @@ inline bool shop_row_needs_redraw(const DeviceShopView &current,
     return first||have!=had||row==current.selected_row||row==cached.selected_row||
         (have&&(std::strcmp(current.rows[row].name,cached.rows[row].name)!=0||
                 current.rows[row].price!=cached.rows[row].price||
-                current.rows[row].quantity!=cached.rows[row].quantity));
+                current.rows[row].quantity!=cached.rows[row].quantity||
+                current.rows[row].priced!=cached.rows[row].priced||
+                current.rows[row].counted!=cached.rows[row].counted));
 }
 
 }  // namespace tdeck

@@ -206,6 +206,13 @@ void AlphaRuntime::attach_host_test_fixture(const HostTestFixture &fixture) {
     resources_.endgame_room = fixture.pack ? fixture.pack->endgame_room : nullptr;
     resources_.endgame_pages = fixture.pack ? fixture.pack->endgame_pages : nullptr;
 
+    if (fixture.look_text_from_pack && fixture.pack) {
+        resources_.look_offsets = fixture.pack->look_offsets;
+        resources_.look_text = fixture.pack->look_text;
+        resources_.look_count = fixture.pack->look_count;
+        resources_.signs = fixture.pack->signs;
+        resources_.sign_count = fixture.pack->sign_count;
+    }
     look_services_.context = this;
     look_services_.describe = [](void *p, int32_t tile) {
         auto &r = *static_cast<AlphaRuntime *>(p);

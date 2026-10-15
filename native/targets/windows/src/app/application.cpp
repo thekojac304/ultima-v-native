@@ -175,6 +175,7 @@ class Game {
     bool autotest_shop(const AutotestStep &step);
     bool autotest_give(const AutotestStep &step);
     std::string right_column_signature() const;
+    std::string shop_price_column_signature() const;
     std::string dos_screen_check(const std::string &value) const;
     bool autotest_open_grass(int &gx, int &gy);
     void push_key(const std::string &name, const std::vector<std::string> &mods);
@@ -913,6 +914,23 @@ bool Game::autotest_expect(const AutotestStep &step) {
         // The handheld's shop panel (offers, gold, log) over the right column.
         actual = runtime_->shop_view_for_test().active ? "1" : "0";
         ok = actual == value;
+    } else if (name == "shop_row") {
+        // LOOK-POLISH1: "<row> <text>" -- the offer row as the panel writes it
+        // (tdeck::format_shop_row, the Board's own formatter) contains <text>.
+        const auto view = runtime_->shop_view_for_test();
+        const size_t space = value.find(' ');
+        const size_t r = size_t(std::atoi(value.substr(0, space).c_str()));
+        const std::string needle = space == std::string::npos ? std::string() : value.substr(space + 1);
+        char line[24]{};
+        if (view.active && r < view.row_count) tdeck::format_shop_row(line, sizeof(line), view.rows[r]);
+        actual = line;
+        ok = !needle.empty() && actual.find(needle) != std::string::npos;
+    } else if (name == "shop_price_column") {
+        // LOOK-POLISH1: read from the PRESENTED pixels -- every priced offer row's
+        // rightmost ink column; "aligned" when they are one column with at least
+        // one cell (6 px) of margin before the panel's right rule (x 318).
+        actual = shop_price_column_signature();
+        ok = actual.rfind(value, 0) == 0;
     } else if (name == "right_column") {
         // What the right column SHOWS, read from the presented panel's pixels
         // (not from the views): on the DOS screen screen_box / screen_split
@@ -1230,6 +1248,41 @@ bool Game::autotest_give(const AutotestStep &step) {
     }
     for (int i = 0; i < 2; ++i) pass(false);
     return true;
+}
+
+// LOOK-POLISH1: the shop panel's price column as presented. Each offer row is a
+// 14 px pitch from y 37 in the text box x 184..317 (tdeck_board.cpp); the
+// selected row is a white bar with black ink, the others white ink on black.
+// "aligned x=<x> margin=<px>" when every priced row's ink ends in one column
+// and that column leaves at least 6 px before the rule at x 318; otherwise
+// "ragged ..." or "tight ...", with each row's last ink column.
+std::string Game::shop_price_column_signature() const {
+    const auto view = runtime_->shop_view_for_test();
+    if (!view.active) return "no shop";
+    const uint16_t *px = panel::pixels();
+    auto at = [&](int x, int y) { return px[size_t(y) * size_t(panel::kWidth) + size_t(x)]; };
+    std::string columns;
+    int first = -1;
+    bool same = true;
+    size_t priced = 0;
+    for (size_t r = 0; r < view.row_count && r < tdeck::kShopVisibleRows; ++r) {
+        if (!view.rows[r].priced) continue;
+        const int y0 = 37 + int(r) * 14;
+        const uint16_t background = at(184, y0);
+        int last = -1;
+        for (int y = y0; y < y0 + 14; ++y)
+            for (int x = 184; x <= 317; ++x)
+                if (at(x, y) != background) last = std::max(last, x);
+        columns += (columns.empty() ? "" : ",") + std::to_string(last);
+        if (first < 0) first = last;
+        same = same && last == first;
+        ++priced;
+    }
+    if (!priced) return "no prices";
+    const int margin = 318 - first - 1;
+    if (!same) return "ragged " + columns;
+    if (margin < 6) return "tight x=" + std::to_string(first) + " margin=" + std::to_string(margin);
+    return "aligned x=" + std::to_string(first) + " margin=" + std::to_string(margin) + " rows=" + std::to_string(priced);
 }
 
 // The right column as the presented panel shows it: the rows of white rule and

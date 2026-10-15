@@ -1155,10 +1155,8 @@ esp_err_t Board::show_alpha(const uint16_t *pixels,const openu5::UiSession &ui,
             const bool current=i<shop->row_count;
             const bool row_changed=shop_row_needs_redraw(*shop,shop_cache_,i,first);
             if(!row_changed)continue;
-            char line[24]{};if(current){
-                if(shop->rows[i].quantity>1)std::snprintf(line,sizeof(line)," %-12.12s %3ldg",shop->rows[i].name,long(shop->rows[i].price));
-                else std::snprintf(line,sizeof(line)," %-14.14s %3ldg",shop->rows[i].name,long(shop->rows[i].price));
-            }
+            // LOOK-POLISH1: the price in one right-aligned column, "<n> gp".
+            char line[24]{};if(current)format_shop_row(line,sizeof(line),shop->rows[i]);
             ESP_RETURN_ON_ERROR(draw_text_box_metrics(184,37+int(i)*14,134,14,line,kWhite,kListMetrics,current&&i==shop->selected_row,2),kTag,"shop offer row");account(134*14);
         }
         if(first||shop->gold!=shop_cache_.gold){char line[24]{};std::snprintf(line,sizeof(line),"Gold: %ld",long(shop->gold));ESP_RETURN_ON_ERROR(draw_text_box(184,127,134,8,line,kWhite),kTag,"shop gold");account(134*8);}

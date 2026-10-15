@@ -2845,6 +2845,9 @@ const DeviceShopView *AlphaRuntime::compose_shop_view(){
     case openu5::ShopPhase::HealerNeed:phase="HEALING";break;
     default:break;
     }
+    const bool companions=shop_.phase==openu5::ShopPhase::HealerMember||shop_.phase==openu5::ShopPhase::InnLeaveMember||
+        shop_.phase==openu5::ShopPhase::InnPickupMember||
+        (shop_.phase>=openu5::ShopPhase::LegacyHeal&&shop_.phase<=openu5::ShopPhase::LegacyResurrect);
     shop_view_.total=openu5::shop_offering_count(game_,shop_,shop_data_);
     const size_t cursor=shop_view_.total?std::min<size_t>(size_t(std::max<int32_t>(0,ui_->shop_cursor())),shop_view_.total-1):0;
     shop_view_.page_start=(cursor/kShopVisibleRows)*kShopVisibleRows;
@@ -2856,6 +2859,10 @@ const DeviceShopView *AlphaRuntime::compose_shop_view(){
         const char *name=shop_item_name(shop_.phase,offer.item,game_);
         std::snprintf(shop_view_.rows[row].name,sizeof(shop_view_.rows[row].name),"%s",name?name:"Service");
         shop_view_.rows[row].price=offer.price;shop_view_.rows[row].quantity=offer.quantity;
+        // LOOK-POLISH1: a companion is chosen, not bought (no "0g"); Sell's
+        // quantity is the pack's count.
+        shop_view_.rows[row].priced=!companions;
+        shop_view_.rows[row].counted=shop_.phase==openu5::ShopPhase::Sell;
     }
     if(!shop_view_.total&&(shop_.item>=0||shop_.phase==openu5::ShopPhase::HorseDeal||
                            shop_.phase==openu5::ShopPhase::InnRestDeal)){
@@ -3283,11 +3290,20 @@ const DeviceSelectionView *AlphaRuntime::compose_selection_view(){
     selection_view_.page_start=(cursor/kSelectionVisibleRows)*kSelectionVisibleRows;
     selection_view_.row_count=std::min(kSelectionVisibleRows,current.count-selection_view_.page_start);
     selection_view_.selected_row=cursor-selection_view_.page_start;
-    for(size_t row=0;row<selection_view_.row_count;++row)
-        std::snprintf(selection_view_.rows[row],sizeof(selection_view_.rows[row]),"%.22s",selections_[selection_view_.page_start+row].label);
+    // LOOK-POLISH1: the compact selector shows 21 cells after its gutter; a long
+    // name is cut there with its count and "[equipped]" kept whole. (The 1988
+    // model's panel is composed from the labels themselves.)
+    for(size_t row=0;row<selection_view_.row_count;++row){
+        const char *label=selections_[selection_view_.page_start+row].label;
+        if(openu5::platform_dos_interface())std::snprintf(selection_view_.rows[row],sizeof(selection_view_.rows[row]),"%.22s",label);
+        else fit_list_row(selection_view_.rows[row],sizeof(selection_view_.rows[row]),label,21);
+    }
     if(cursor<selection_count_){const int value=selections_[cursor].value;
         if(current.mode==openu5::UiMode::SpellSelection){const auto*def=openu5::spell_definition(openu5::SpellId(value));std::snprintf(selection_view_.detail,sizeof(selection_view_.detail),"%.31s",openu5::spell_effect_summary(openu5::SpellId(value)));std::snprintf(selection_view_.detail2,sizeof(selection_view_.detail2),"Target: %.16s  MP%u",openu5::spell_target_label(openu5::SpellId(value)),unsigned(std::min<int>(def?def->circle:0,9)));}
-        else if(current.mode==openu5::UiMode::EquipmentSelection){const int member=pending_ready_member_>=0?pending_ready_member_:active_member(game_);const auto slot=openu5::slot_for_equip(value);const int equipped=equipped_in_slot(game_.party.characters[member],slot);std::snprintf(selection_view_.detail,sizeof(selection_view_.detail),"Slot: %s",equip_slot_name(slot));std::snprintf(selection_view_.detail2,sizeof(selection_view_.detail2),"Current: %.18s",equipped>=0&&equipped<48?openu5::equipment_display_name(equipped):"None");}
+        else if(current.mode==openu5::UiMode::EquipmentSelection){const int member=pending_ready_member_>=0?pending_ready_member_:active_member(game_);const auto slot=openu5::slot_for_equip(value);const int equipped=equipped_in_slot(game_.party.characters[member],slot);std::snprintf(selection_view_.detail,sizeof(selection_view_.detail),"Slot: %s",equip_slot_name(slot));const char *now=equipped>=0&&equipped<48?openu5::equipment_display_name(equipped):"None";
+            // LOOK-POLISH1: the detail row is 22 cells; "Current: " leaves 13 for the name.
+            if(openu5::platform_dos_interface())std::snprintf(selection_view_.detail2,sizeof(selection_view_.detail2),"Current: %.18s",now);
+            else{char fitted[16]{};fitted[fit_label(fitted,13,now,"")]='\0';std::snprintf(selection_view_.detail2,sizeof(selection_view_.detail2),"Current: %s",fitted);}}
         else if(current.mode==openu5::UiMode::PartySelection&&value>=0&&value<game_.party.character_count){const auto&m=game_.party.characters[value];std::snprintf(selection_view_.detail,sizeof(selection_view_.detail),"HP %u/%u  MP %u  %c",unsigned(m.current_hp),unsigned(m.max_hp),unsigned(m.current_mp),m.status?m.status:'G');}
         else if(selection_request_==openu5::UiRequestId::MixReagents){const char*spell=openu5::spell_display_name(pending_mix_spell_);std::snprintf(selection_view_.detail,sizeof(selection_view_.detail),"Mix: %.24s",spell?spell:"?");}
         else if(current.mode==openu5::UiMode::InventorySelection)std::snprintf(selection_view_.detail,sizeof(selection_view_.detail),"Choose an item to use");}

@@ -213,6 +213,9 @@ class AlphaRuntime {
         openu5::AssetPackReader *real_tiles = nullptr;
         const openu5::AssetPackReport *real_tile_report = nullptr;
         const AlphaResourcePack *dungeon_art_source = nullptr;
+        // LOOK-POLISH1: (L)ook's LOOK2.DAT phrases and the signs from `pack`, the
+        // tables initialize() reads; false keeps the fixture's "something".
+        bool look_text_from_pack = false;
     };
     void attach_host_test_fixture(const HostTestFixture &);
     // Batch 51 read-only windows on the scene pacers, for timing assertions.

@@ -2573,6 +2573,13 @@ if(BUILD_TESTING)
   add_test(NAME a4_ui4_moongate_runtime COMMAND a4_ui4_moongate_runtime
     "${CMAKE_CURRENT_SOURCE_DIR}/../assets/openu5-alpha1-resources.bin"
     "${CMAKE_CURRENT_SOURCE_DIR}/../assets/openu5-audio.bin")
+  # LOOK-POLISH1 (docs/WINDOWS_LOOK_ENHANCED_POLISH.md): Look at a sign's post on the
+  # real runtime (D-117), and the shop panel's one price column, the shop / list row
+  # formatters and the Ready list's marker, on the real Board.
+  openu5_a4_ui2_runtime(look_polish_runtime)
+  add_test(NAME look_polish_runtime COMMAND look_polish_runtime
+    "${CMAKE_CURRENT_SOURCE_DIR}/../assets/openu5-alpha1-resources.bin"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../assets/openu5-audio.bin")
   # The console package and the reverse-video lists (ALPHA4_UI.md section
   # 8.20): bullets, getkey's blank rows, bottom anchoring, the live prompt row
   # and the flame-wave cursor at every text size; pickers and shops as bars.

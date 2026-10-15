@@ -47,6 +47,9 @@ inline const tdeck::AlphaResourcePack *g_art_source = nullptr;
 // fights in a dungeon room. Null keeps the fixture without them, as before.
 inline const DungeonArena *g_arenas = nullptr;
 inline size_t g_arena_count = 0;
+// LOOK-POLISH1: (L)ook's LOOK2.DAT phrases from the pack (HostTestFixture::
+// look_text_from_pack); false keeps every other test on the fixture's "something".
+inline bool g_look_text = false;
 constexpr int64_t kClockStartUs = 5'000'000;
 constexpr uint16_t kBlack = 0x0000, kWhite = 0xffff;
 constexpr uint16_t kDim = 0xad55; // EGA 7, the frontend's footers
@@ -230,6 +233,7 @@ struct Run {
         f.real_tile_report = g_real_tile_report;
         f.dungeon_art_source = g_real_tiles ? g_art_source : nullptr;
         f.paced_scenes = paced;
+        f.look_text_from_pack = g_look_text;
         rt->attach_host_test_fixture(f);
         if (sound) rt->configure_audio(*sound, &audio);
         auto &g = rt->game();

@@ -1,0 +1,103 @@
+# LOOK-POLISH1 (docs/WINDOWS_LOOK_ENHANCED_POLISH.md section 3): Enhanced's shop
+# panel -- the handheld's 320x240 screen -- with prices of one to three digits.
+# Iolo's Bows is Britain's blacksmith (`shop blacksmith`): Buy lists its six
+# weapons (Arrows and Quarrels are offers of quantity 99, which used to narrow
+# their name field and move their price two cells left), Sell the party's pack
+# with its counts; then the reagent seller (grants of 1 and more), the guild
+# and a healer's companion list (no price). `shop_row` reads the row text the
+# panel writes; `shop_price_column` reads the PRESENTED pixels of every priced
+# row: one rightmost ink column, a cell of margin before the right rule.
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Mage
+key Return
+text F
+text B
+text B
+text B
+text B
+text B
+text B
+text B
+wait 2500
+give gold 9999
+shop blacksmith
+frames 3
+key Return
+frames 4
+text b
+frames 4
+expect shop_panel 1
+expect right_column tdeck_shop
+expect shop_row 0 Dagger
+expect shop_row 0 gp
+expect shop_row 3 Arrows
+expect shop_price_column aligned
+screenshot shop-iolo-buy.bmp
+key Down
+frames 2
+key Down
+frames 2
+expect shop_price_column aligned
+screenshot shop-iolo-buy-row2.bmp
+key Escape
+frames 4
+key Escape
+frames 4
+key Escape
+frames 4
+shop blacksmith
+frames 3
+key Return
+frames 4
+text s
+frames 4
+expect shop_panel 1
+expect shop_row 2 Dagger x
+expect shop_price_column aligned
+screenshot shop-iolo-sell.bmp
+key Escape
+frames 4
+key Escape
+frames 4
+key Escape
+frames 4
+shop reagents
+frames 3
+key Return
+frames 4
+expect shop_panel 1
+expect shop_price_column aligned
+screenshot shop-reagents.bmp
+key Escape
+frames 4
+key Escape
+frames 4
+key Escape
+frames 4
+shop guild
+frames 3
+key Return
+frames 4
+expect shop_panel 1
+expect shop_price_column aligned
+screenshot shop-guild.bmp
+key Escape
+frames 4
+key Escape
+frames 4
+key Escape
+frames 4
+shop healer
+frames 3
+key Return
+frames 4
+text h
+frames 4
+expect shop_panel 1
+expect shop_price_column no prices
+screenshot shop-healer-member.bmp
+quit
