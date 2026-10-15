@@ -369,7 +369,21 @@ Kept out of the repository (game art), in `C:\Dev\uvw-look-polish-evidence\`:
 
 ## 9. Windows test package
 
-Filled in after packaging.
+- **File**: `native/targets/windows/dist/UltimaV-Native-Windows-x64-LOOK-POLISH1-5b7f8bbc-test.zip`
+  (this worktree), **2,329,565 B**, SHA-256
+  `270db6a794d304c51114635262ec6c1680e1b95801f941ca266a61705b65dfe7`. A new name; the ORIG-DOS1 /
+  ORIG-DOS2 ZIPs (in `C:\Dev\uvw-original-dos`) and every earlier package are untouched.
+- **Built** by `tools/build-windows.ps1 -Config Release -Test -Package -PackageName
+  UltimaV-Native-Windows-x64-LOOK-POLISH1-5b7f8bbc-test` in a fresh `build-pkg` from `5b7f8bbc` with a
+  clean tree. BUILD-INFO: `Source: 5b7f8bbc8713f5aa9ca8001fc0301d5b928ec198
+  (windows/look-enhanced-polish)`, MSVC 14.51, static C/C++ runtime (no VC++ redistributable needed),
+  SDL 3.4.16 (`SDL3.dll` included), `UltimaVNative.exe` SHA-256 `7d2886de…20fa94`; the asset-preparation
+  bundle rebuilt from the same commit; **no Ultima V game data**. The packaging run passed **38 / 38**
+  (`native/core/lookpolish-win-package.log`).
+- **Smoke** (fresh scratch folder `C:\Dev\uvw-look-polish-evidence\smoke`, a fresh data folder per
+  run, the player's `%APPDATA%` untouched): the packaged exe (it logs `git 5b7f8bbc8713`) passed
+  `look_signpost` in Original and Enhanced, `enhanced_shop_prices` and `original_dos_panels`.
+- **Not a release.** No person has played it.
 
 ## 10. Manual validation
 
@@ -400,4 +414,14 @@ Filled in after packaging.
 
 ## 12. Commits
 
-Filled in after committing.
+On `windows/look-enhanced-polish`, after `00ae0410`:
+
+| Commit | What |
+|---|---|
+| `8a480c9f` | D-117: the post chase in `look.cpp` and `game.ts`; `look_post`, `look-signpost.test.ts`, `scenario_look_signpost_*`; `re/notes/lookobj.md` |
+| `8570d1d3` | the handheld shop and list rows (`device_ui_views.h`, `tdeck_board.cpp`, `alpha_runtime.cpp`); `look_polish_runtime`; `scenario_enhanced_shop_prices` and its two pixel checks; the fixture's opt-in LOOK2 text |
+| `5b7f8bbc` | this record, the ledger row, the differential probe and classifier, the mutation driver, the logs (the package is built from it) |
+| next | this record's §9: the test package |
+
+The suites in §6 ran on the combined working tree before the split into the first two commits;
+the packaging run (38 / 38) ran on `5b7f8bbc`.
