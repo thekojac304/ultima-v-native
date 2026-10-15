@@ -13,6 +13,12 @@ Rand shop_rand(CommandContext &c) {
         const auto value = ctx.game.rng.next(lo, hi).value;
         if (ctx.rng_trace.emit)
             ctx.rng_trace.emit(ctx.rng_trace.context, "shop", lo, hi, value);
+        if (ctx.shop_services) {
+            // Bookkeeping only (ShopSession::recent_draws): the draw is made above.
+            auto &draws = ctx.shop_services->session.recent_draws;
+            for (size_t i = 0; i + 1 < std::size(draws); ++i) draws[i] = draws[i + 1];
+            draws[std::size(draws) - 1] = int8_t(value);
+        }
         return value;
     }};
 }
@@ -761,6 +767,19 @@ ActionResult begin_shop(CommandContext &c, const NpcActor &npc) {
     else
         r.menu();
     return r.out;
+}
+// The fixed strings live with the other shop tables (shops.cpp); the rand-
+// chosen blacksmith forms are this file's (shop_greetings.inc).
+const char *shop_console_table_text(ShopConsoleText text);
+const char *shop_console_text(ShopConsoleText text, int variant) {
+    const int v = variant >= 0 && variant < 4 ? variant : 0;
+    switch (text) {
+    case ShopConsoleText::BuyExclaim: return BLACKSMITH_BUY_EXCLAIMS[v];
+    case ShopConsoleText::BuyIntro: return BLACKSMITH_BUY_INTROS[v];
+    case ShopConsoleText::BuyWhich: return BLACKSMITH_BUY_WHICH[v];
+    case ShopConsoleText::BuyAsk: return BLACKSMITH_BUY_ASKS[v];
+    default: return shop_console_table_text(text);
+    }
 }
 ActionResult execute_shop(CommandContext &c, ShopInput input) {
     ActionResult error;

@@ -171,6 +171,8 @@ class Game {
     void autotest_type(const std::string &text);
     bool autotest_teleport(const AutotestStep &step);
     bool autotest_fight(const AutotestStep &step);
+    bool autotest_shop(const AutotestStep &step);
+    std::string right_column_signature() const;
     bool autotest_open_grass(int &gx, int &gy);
     void push_key(const std::string &name, const std::vector<std::string> &mods);
     void push_text(const std::string &text);
@@ -196,6 +198,7 @@ class Game {
     Presenter presenter_;
     DesktopInput input_;
     DesktopProfile profile_;
+    DosTextTables dos_text_; // Original mode's DOS list names, from the pack's data.json
     std::unique_ptr<tdeck::Board> board_;
     std::unique_ptr<tdeck::AlphaRuntime> runtime_;
     std::unique_ptr<SdlAudioBackend> audio_;
@@ -334,6 +337,10 @@ bool Game::boot() {
         return false;
     }
 
+    // Original mode's list panels print the DOS game's own names: the player's
+    // DATA.OVL tables, as the pack's data.json carries them (app/dos_text.h).
+    if (!dos_text_.load(alpha_pack)) ESP_LOGW(kTag, "DOS_TEXT data.json tables unavailable; lists keep the device names");
+    else ESP_LOGI(kTag, "DOS_TEXT tables loaded");
     runtime_ = std::make_unique<tdeck::AlphaRuntime>();
     const esp_err_t initialized = runtime_->initialize(alpha_pack, alpha_report, tile_pack, tile_report);
     alpha_pack.close();
@@ -409,6 +416,7 @@ void Game::install_profile() {
     hooks.context = this;
     hooks.changed = &Game::on_profile_change;
     hooks.largest_window_scale = &Game::largest_window_scale;
+    hooks.dos_text = &dos_text_;
     profile_.install(hooks);
 }
 
@@ -800,11 +808,66 @@ bool Game::autotest_expect(const AutotestStep &step) {
         actual = runtime_->party_highlight_for_test().select_banner ? "1" : "0";
         ok = actual == value;
     } else if (name == "overlay_panel") {
-        // A list / page panel over the right column (the handheld's pickers).
-        actual = runtime_->selection_view_for_test().active ? "1" : "0";
+        // The handheld's list / page panel over the whole right column (the
+        // T-Deck's pickers, Enhanced); a 1988 DOS panel is not one (dos_panel).
+        const auto view = runtime_->selection_view_for_test();
+        actual = view.active && !view.dos ? "1" : "0";
         ok = actual == value;
     } else if (name == "overlay_title") {
         actual = runtime_->selection_view_for_test().title;
+        ok = actual == value;
+    } else if (name == "dos_panel" || name == "dos_panel_title" || name == "dos_panel_layout" ||
+               name == "dos_panel_row" || name == "dos_panel_bar" || name == "dos_panel_arrow") {
+        // The 1988 right panel the runtime publishes (DeviceDosPanel): whether
+        // there is one, its banner, its layout (box / split), a window row as
+        // text ("N TEXT": row N contains TEXT; box glyphs read '+', RUNES.CH
+        // cells '*'), the bar's row (-1 none) and the arrow glyph (0 none).
+        const auto view = runtime_->selection_view_for_test();
+        const tdeck::DeviceDosPanel *dos = view.active ? view.dos : nullptr;
+        auto row_text = [&](size_t r) {
+            std::string out;
+            for (size_t c = 0; c < tdeck::kDosPanelCols; ++c) {
+                const uint8_t code = dos->cells[r][c];
+                out += (dos->runes[r] >> c) & 1U ? '*' : code < 0x20 || code > 0x7e ? '+' : char(code);
+            }
+            return out;
+        };
+        if (name == "dos_panel") {
+            actual = dos ? "1" : "0";
+            ok = actual == value;
+        } else if (name == "dos_panel_title") {
+            actual = dos ? dos->banner : "";
+            ok = actual == value;
+        } else if (name == "dos_panel_layout") {
+            actual = !dos ? "none" : dos->layout == tdeck::kDosLayoutRosterAndStatus ? "split" : "box";
+            ok = actual == value;
+        } else if (name == "dos_panel_bar") {
+            // The bar is a run of reverse-video cells; Mix's single marked cell is not one.
+            int bar = -1;
+            for (size_t r = 0; dos && r < tdeck::kDosPanelRows && bar < 0; ++r)
+                if ((dos->inverse[r] & 0x0ff0) == 0x0ff0) bar = int(r);
+            actual = std::to_string(bar);
+            ok = actual == value;
+        } else if (name == "dos_panel_arrow") {
+            actual = std::to_string(dos ? int(dos->arrow) : 0);
+            ok = actual == value;
+        } else {
+            const size_t space = value.find(' ');
+            const size_t r = size_t(std::atoi(value.substr(0, space).c_str()));
+            const std::string needle = space == std::string::npos ? std::string() : value.substr(space + 1);
+            actual = dos && r < tdeck::kDosPanelRows ? row_text(r) : std::string("(no DOS panel)");
+            ok = dos && !needle.empty() && actual.find(needle) != std::string::npos;
+        }
+    } else if (name == "shop_panel") {
+        // The handheld's shop panel (offers, gold, log) over the right column.
+        actual = runtime_->shop_view_for_test().active ? "1" : "0";
+        ok = actual == value;
+    } else if (name == "right_column") {
+        // What the right column SHOWS, read from the presented panel's pixels
+        // (not from the views): dos_box / dos_split (the 1988 panel over the
+        // boxes, the console under it), tdeck_list / tdeck_shop (the handheld's
+        // right-column panels), world (roster and status boxes), or other.
+        actual = right_column_signature();
         ok = actual == value;
     } else if (name == "context_bar") {
         actual = runtime_->context_bar_for_test().active ? "1" : "0";
@@ -1042,6 +1105,63 @@ bool Game::autotest_fight(const AutotestStep &step) {
     return runtime_->command_context().combat;
 }
 
+// A shop, as a Talk to its keeper opens one: the first town of that shop type
+// through the Developer menu's Teleport page, then the live keeper's begin_shop
+// (AlphaRuntime::open_shop_for_test). TYPE: blacksmith, tavern, horses, ship,
+// reagents, guild, healer, inn.
+bool Game::autotest_shop(const AutotestStep &step) {
+    static const struct { const char *name; uint8_t type; int town; } kShops[] = {
+        {"blacksmith", 0, 2}, {"tavern", 1, 1}, {"horses", 2, 6}, {"ship", 3, 3},
+        {"reagents", 4, 1}, {"guild", 5, 8}, {"healer", 6, 5}, {"inn", 7, 2}};
+    for (const auto &shop : kShops) {
+        if (step.args[0] != shop.name) continue;
+        AutotestStep go;
+        go.verb = "teleport";
+        go.args = {"town", std::to_string(shop.town)};
+        if (!autotest_teleport(go)) return false;
+        if (step.args.size() > 1 && step.args[1] == "beside") {
+            // Stand beside the keeper and leave the Talk to the script ("t" + the
+            // direction this logs): a real Talk, and a state a save can carry.
+            const int toward = runtime_->place_beside_keeper_for_test(shop.type);
+            for (int i = 0; i < 10; ++i) pass(false);
+            static const char *const kKeys[] = {"Up", "Down", "Right", "Left"}; // openu5::Direction order
+            ESP_LOGI(kTag, "AUTOTEST shop %s beside town=%d toward=%s", shop.name, shop.town,
+                     toward >= 0 && toward < 4 ? kKeys[toward] : "none");
+            return toward >= 0;
+        }
+        const bool opened = runtime_->open_shop_for_test(shop.type);
+        for (int i = 0; i < 10; ++i) pass(false);
+        ESP_LOGI(kTag, "AUTOTEST shop %s town=%d opened=%d", shop.name, shop.town, opened);
+        return opened;
+    }
+    return false;
+}
+
+// The right column as the presented panel shows it: the rows of white rule and
+// band only one layout draws (the Board's own geometry), read from the pixels.
+std::string Game::right_column_signature() const {
+    const uint16_t *px = panel::pixels();
+    auto at = [&](int x, int y) { return px[size_t(y) * size_t(panel::kWidth) + size_t(x)]; };
+    auto run = [&](int y, uint16_t colour, int x0, int x1) {
+        for (int x = x0; x <= x1; ++x)
+            if (at(x, y) != colour) return false;
+        return true;
+    };
+    constexpr uint16_t kWhite = 0xFFFF, kBand = 0x0015;
+    // The 1988 panel: band rows 0..6 left of the banner's notch, the box's top
+    // rule at y 7, the band at 81..86 and the console's top rule at y 87.
+    if (run(3, kBand, 184, 200) && run(7, kWhite, 183, 200) && run(83, kBand, 184, 230) && run(87, kWhite, 183, 317))
+        return run(56, kWhite, 183, 230) && run(59, kBand, 184, 230) && run(63, kWhite, 183, 317) ? "dos_split" : "dos_box";
+    if (run(33, kWhite, 183, 317) && run(35, kWhite, 183, 317) && run(124, kWhite, 183, 317) && run(149, kWhite, 183, 317))
+        return "tdeck_shop";
+    if (run(23, kWhite, 183, 317) && run(43, kWhite, 183, 317) && run(160, kWhite, 183, 317))
+        return "tdeck_list";
+    if (run(2, kWhite, 183, 317) && run(53, kWhite, 183, 317) && run(54, kBand, 183, 317) && run(56, kWhite, 183, 317) &&
+        run(86, kWhite, 183, 317))
+        return "world";
+    return "other";
+}
+
 bool Game::run_autotest() {
     std::ifstream in(std::filesystem::path(options_.autotest_script), std::ios::binary);
     if (!in) {
@@ -1102,6 +1222,8 @@ bool Game::run_autotest() {
             if (!autotest_teleport(step)) ++autotest_failures_;
         } else if (step.verb == "fight") {
             if (!autotest_fight(step)) ++autotest_failures_;
+        } else if (step.verb == "shop") {
+            if (!autotest_shop(step)) ++autotest_failures_;
         } else if (step.verb == "log") {
             ESP_LOGI(kTag, "AUTOTEST %s", step.args[0].c_str());
         } else if (step.verb == "quit") {

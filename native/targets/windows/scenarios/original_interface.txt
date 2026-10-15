@@ -30,7 +30,13 @@ expect console Player:
 key Return
 frames 3
 expect mode 11
-expect overlay_panel 1
+# The list is the 1988 panel over the boxes (ZSTATS 0x1296: the member's name
+# in the band, the scroll frame), not the handheld's right-column list; the
+# console stays under it (2026-10-14, windows/original-dos-interaction).
+expect overlay_panel 0
+expect dos_panel 1
+expect dos_panel_title Mage
+expect right_column dos_box
 expect overlay_title Mage
 expect context_bar 0
 expect transcript Player: Mage
@@ -54,7 +60,10 @@ text 2
 key Space
 frames 3
 expect transcript Player: Shamino
-expect overlay_panel 1
+expect overlay_panel 0
+expect dos_panel 1
+expect dos_panel_title Shamino
+expect right_column dos_box
 expect context_bar 0
 key Escape
 frames 3

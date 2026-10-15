@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -70,6 +71,113 @@ struct DeviceShopView {
     DeviceShopRow rows[kShopVisibleRows]{};
 };
 
+// Windows port, the 1988 interaction model (platform_dos_interface()): the DOS
+// game's right panel, text window 1 = cols 24..39 x rows 1..9 of its 40 x 25
+// screen (ZSTATS set_text_window(1,0x18,1,0x27,9); re/notes/ztats-layout.md
+// section 0), as cells: IBM.CH codes, or RUNES.CH where `runes` says so
+// (set_font 0x3abe = kernel 0x1c9e), in reverse video where `inverse` says so
+// (putchar 0xfd, kernel 0x17a5 -> 0x1845). The banner is the panel's title in
+// the band above (kernel 0x4e50: centred on screen col 30, framed by the band
+// brackets); `arrow` is the scroll glyph in the band below (kernel 0x4dea,
+// fixed at col 31: 0x18 up, 0x19 down, 0x12 both). The Board draws it over the
+// roster and status boxes -- the original's box, with the console under it
+// left as it is. The T-Deck never composes one.
+constexpr size_t kDosPanelRows=9,kDosPanelCols=16;
+constexpr uint8_t kDosBlank=0x20;
+// draw_list_frame (ZSTATS 0x045e): the scroll's IBM.CH box glyphs -- the top and
+// bottom horizontals are different glyphs (ztats-layout.md section 4).
+constexpr uint8_t kDosBoxTopLeft=0x10,kDosBoxTop=0x11,kDosBoxTopRight=0x13,kDosBoxBar=0x17,
+                  kDosBoxBottomLeft=0x14,kDosBoxBottom=0x15,kDosBoxBottomRight=0x16;
+constexpr uint8_t kDosArrowUp=0x18,kDosArrowDown=0x19,kDosArrowBoth=0x12;
+// `layout` 0 is one box over window rows 1..9 (the item lists, Z-stats, Mix),
+// the arrow in the band below it (screen row 10); 1 is the frame's own two
+// boxes -- the roster box (rows 1..6), the band (row 7, where list_wares puts
+// its arrow) and the status box (rows 8..9) -- as the blacksmith's "Arms"
+// window leaves them (SHOPPES 0x0c80). Cells of window row 6 are not drawn in 1.
+constexpr uint8_t kDosLayoutBox=0,kDosLayoutRosterAndStatus=1;
+struct DeviceDosPanel {
+    char banner[kDosPanelCols+1]{};
+    uint8_t layout=kDosLayoutBox;
+    uint8_t arrow=0;
+    uint8_t cells[kDosPanelRows][kDosPanelCols]{};
+    uint16_t runes[kDosPanelRows]{},inverse[kDosPanelRows]{};
+};
+
+inline void dos_panel_clear(DeviceDosPanel &panel) {
+    panel=DeviceDosPanel{};
+    for(auto &row:panel.cells)for(auto &cell:row)cell=kDosBlank;
+}
+/** Writes `text` from (row, col) without wrapping; `runes` marks the cells RUNES.CH. */
+inline size_t dos_panel_put(DeviceDosPanel &panel,size_t row,size_t col,const char *text,bool runes=false) {
+    size_t n=0;
+    for(;text&&text[n]&&row<kDosPanelRows&&col+n<kDosPanelCols;++n){
+        panel.cells[row][col+n]=uint8_t(text[n]);
+        if(runes)panel.runes[row]=uint16_t(panel.runes[row]|(1u<<(col+n)));
+    }
+    return n;
+}
+/** draw_list_frame(contentRows+1): the frame in window cols 0..14, rows 0..contentRows+1. */
+inline void dos_panel_list_frame(DeviceDosPanel &panel,size_t content_rows) {
+    constexpr size_t last=kDosPanelCols-2; // 15 cells wide: cols 0..14
+    if(content_rows+2>kDosPanelRows)content_rows=kDosPanelRows-2;
+    panel.cells[0][0]=kDosBoxTopLeft;panel.cells[0][last]=kDosBoxTopRight;
+    const size_t bottom=content_rows+1;
+    panel.cells[bottom][0]=kDosBoxBottomLeft;panel.cells[bottom][last]=kDosBoxBottomRight;
+    for(size_t c=1;c<last;++c){panel.cells[0][c]=kDosBoxTop;panel.cells[bottom][c]=kDosBoxBottom;}
+    for(size_t r=1;r<=content_rows;++r){panel.cells[r][0]=kDosBoxBar;panel.cells[r][last]=kDosBoxBar;}
+}
+/** The arrow glyph for a window of `visible` rows at `scroll` over `total`. */
+inline uint8_t dos_panel_arrow(size_t scroll,size_t visible,size_t total) {
+    const bool up=scroll>0,down=scroll+visible<total;
+    return up&&down?kDosArrowBoth:up?kDosArrowUp:down?kDosArrowDown:uint8_t(0);
+}
+/** The minimal scroll that keeps `cursor` in a window of `visible` rows. */
+inline size_t dos_panel_scroll(size_t cursor,size_t scroll,size_t visible) {
+    if(cursor<scroll)scroll=cursor;
+    if(visible&&cursor>scroll+visible-1)scroll=cursor-visible+1;
+    return scroll;
+}
+
+// One row of print_list_row (ZSTATS 0x05e2; re/notes/use-picker-panel.md
+// sections 3-6 and ready-picker-panel.md section 3), into a row of `width`
+// cells from `col`: [2-digit count, space-padded | "--" for 0 | nothing when
+// hidden (0xff)][separator -- RUNES.CH when < 0x20 (0x0615)][the name, whose
+// first byte may be a format sigil: '*' scroll (decoration + initials in
+// RUNES.CH, 0x0638), '!' potion (decoration in RUNES.CH, then the colour,
+// 0x0664), '(' moonstone ("Moonstone " then the phase digit in RUNES.CH,
+// 0x068e)]. The DGROUP strings the routine prints come from the caller.
+struct DosListRowText {
+    const char *zero_fill=nullptr;       // DS 0x9778 "--"
+    const char *scroll_decoration=nullptr; // DS 0x977c (0x1c " + ")
+    const char *potion_decoration=nullptr; // DS 0x9782 (0x1d " + ")
+    const char *moonstone=nullptr;       // DS 0x9788 "Moonstone "
+};
+inline void dos_list_row(DeviceDosPanel &panel,size_t row,size_t col,size_t width,int quantity,bool hidden,
+                         uint8_t separator,const char *name,const char *side,const DosListRowText &text) {
+    if(row>=kDosPanelRows)return;
+    const size_t end=std::min(kDosPanelCols,col+width);
+    size_t at=col;
+    auto put=[&](uint8_t code,bool runes){
+        if(at>=end)return;
+        panel.cells[row][at]=code;
+        if(runes)panel.runes[row]=uint16_t(panel.runes[row]|(1u<<at));
+        ++at;
+    };
+    auto put_text=[&](const char *s,bool runes){for(;s&&*s;++s)put(uint8_t(*s),runes);};
+    if(!hidden){
+        char count[3]{};
+        if(quantity==0&&text.zero_fill)std::snprintf(count,sizeof(count),"%.2s",text.zero_fill);
+        else std::snprintf(count,sizeof(count),"%2d",std::min(99,std::max(0,quantity)));
+        put(uint8_t(count[0]),false);put(uint8_t(count[1]?count[1]:' '),false);
+        put(separator,separator<0x20);
+    }
+    const char *n=name?name:"";
+    if(*n=='*'){put_text(text.scroll_decoration,true);put_text(n+1,true);}
+    else if(*n=='!'){put_text(text.potion_decoration,true);put_text(side?side:n+1,false);}
+    else if(*n=='('){put_text(text.moonstone,false);if(n[1])put(uint8_t(n[1]),true);}
+    else put_text(n,false);
+}
+
 constexpr size_t kSelectionVisibleRows=8;
 struct DeviceSelectionView {
     bool active=false,detail_panel=false;
@@ -78,6 +186,10 @@ struct DeviceSelectionView {
     DeviceContextActionBar context{};
     size_t total=0,page_start=0,row_count=0,selected_row=0;
     char rows[kSelectionVisibleRows][24]{};
+    // The 1988 interaction model's right panel (above). When set, the Board
+    // draws it in the original's place and leaves the console as it is; the
+    // fields above are then only the scenario facts' copy of the list.
+    const DeviceDosPanel *dos=nullptr;
 };
 
 inline bool selection_uses_transcript(const DeviceSelectionView &view) {

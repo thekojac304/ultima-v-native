@@ -49,6 +49,12 @@ struct DosProfile {
         p.typed_spell_names = [](void *) { return g_dos; };
         p.quit_save_key = [](void *) { return g_dos; };
         p.dos_interface = [](void *) { return g_dos; };
+        // The DOS tables the Windows profile reads from the pack (dos_text.cpp);
+        // here only the class glyph, RUNES.CH 0x01 for every item. No names:
+        // the lists then keep the device's own, which the checks do not read.
+        p.dos_text = [](void *, uint8_t table, int) -> const char * {
+            return table == uint8_t(DosText::EquipmentGlyph) ? "\x01" : nullptr;
+        };
         set_platform_profile(p);
     }
     ~DosProfile() {
@@ -207,6 +213,89 @@ void test_dos() {
 }
 
 // ---------------------------------------------------------------------------
+// windows/original-dos-interaction (2026-10-14): the item list is the 1988
+// right panel over the boxes, the console left whole under it -- never the
+// handheld's right-column list.
+//   W7 a DOS profile, Avatar with a worn helm and a spare shield: (R)eady,
+//      RETURN on Avatar
+//      W7a a DeviceDosPanel is composed: the name in the band, the frame, the
+//          worn helm's `--` and RUNES.CH glyph, the shield's count
+//      W7b its pixels: the band (y 3) and the box's top rule (y 7) left of the
+//          banner's notch, the console's top rule at y 87; none of the
+//          selector's rules (y 23 / 43 / 160) and no context bar (y 215)
+//      W7c the console is the world's: "Item: " is its last row, the cursor after it
+//      W7d ESC: "Item: Done", the panel gone, the roster and caption back
+//   T7 the T-Deck control: the same keys draw the selector list (y 23 / 43)
+//      and compose no DOS panel
+bool band_row(int y, int x0, int x1) {
+    for (int x = x0; x <= x1; ++x)
+        if (px(x, y) != 0x0015) return false;
+    return true;
+}
+bool white_run(int y, int x0, int x1) {
+    for (int x = x0; x <= x1; ++x)
+        if (px(x, y) != kWhite) return false;
+    return true;
+}
+void equip_avatar(Run &h) {
+    auto &g = h.rt->game();
+    g.equipment_quantities[0] = 0; // Leather Helm: worn, none left in the pack
+    g.equipment_quantities[4] = 2; // two Small Shields in the pack
+    g.party.characters[0].helmet = 0;
+}
+
+void test_dos_lists() {
+    std::printf("\nW7 the 1988 item list (DOS profile)\n");
+    DosProfile profile;
+    Run h(kParty);
+    equip_avatar(h);
+    h.run(100);
+    const uint64_t roster_before = region_hash(kLeft, 4, kWidth, 48);
+    act(h, ch(u'r'));
+    act(h, kind(UiActionKind::Confirm));
+    dump("w7-dos-ready");
+    const auto view = h.rt->selection_view_for_test();
+    const tdeck::DeviceDosPanel *dos = view.active ? view.dos : nullptr;
+    const bool composed = dos && std::strcmp(dos->banner, "Avatar") == 0 && dos->cells[0][0] == tdeck::kDosBoxTopLeft &&
+                          dos->cells[1][1] == '-' && dos->cells[1][2] == '-' && ((dos->runes[1] >> 3) & 1U) &&
+                          dos->cells[2][2] == '2' && dos->cells[2][3] == ' ' && dos->inverse[1] == 0x3ffe;
+    check(h.rt->ui()->mode() == UiMode::EquipmentSelection && composed,
+          "W7a (R)eady composes the 1988 panel: \"Avatar\" in the band, the frame, \"--\" + the RUNES.CH glyph on "
+          "the worn helm, \"2\" on the shields, the bar on cols 1..13");
+    check(band_row(3, 184, 200) && white_run(7, 183, 200) && white_run(87, 183, 317),
+          "W7b the band (y 3) and the box's top rule (y 7) left of the notch, the console's rule at y 87");
+    check(!rule(23) && !rule(43) && !rule(160) && !rule(215),
+          "W7b' none of the handheld selector's rules (y 23 / 43 / 160) and no context bar (y 215)");
+    std::string why;
+    const auto c = console(h);
+    check(c.from_end(0) == "Item: " && cursor_after(h, c, 6, why),
+          "W7c the console is whole under the panel: its last row is \"Item: \" [" + c.from_end(0) +
+              "], the cursor after it (" + why + ")");
+    act(h, kind(UiActionKind::Cancel));
+    dump("w7-dos-ready-closed");
+    const auto c2 = console(h);
+    // (A blank row, then the command prompt's new, empty row, follow it.)
+    check(h.rt->ui()->mode() == UiMode::Exploration && !h.rt->selection_view_for_test().active &&
+              (c2.from_end(0) == "Item: Done" || c2.from_end(1) == "Item: Done" || c2.from_end(2) == "Item: Done") &&
+              region_hash(kLeft, 4, kWidth, 48) == roster_before && white_run(86, 183, 317) && !white_run(87, 183, 317),
+          "W7d ESC: \"Item: Done\" [" + c2.from_end(3) + "] [" + c2.from_end(2) + "] [" + c2.from_end(1) + "] [" + c2.from_end(0) +
+              "], the panel gone, the roster back, the console's rule at y 86 again");
+}
+
+void test_tdeck_lists() {
+    std::printf("\nT7 the T-Deck control: the same keys, the handheld list\n");
+    Run h(kParty);
+    equip_avatar(h);
+    h.run(100);
+    act(h, ch(u'r'));
+    act(h, kind(UiActionKind::Confirm));
+    const auto view = h.rt->selection_view_for_test();
+    check(h.rt->ui()->mode() == UiMode::EquipmentSelection && view.active && !view.dos && rule(23) && rule(43) &&
+              !white_run(87, 183, 317),
+          "T7 (R)eady draws the selector list (rules at y 23 / 43) and composes no DOS panel");
+}
+
+// ---------------------------------------------------------------------------
 void test_tdeck() {
     std::printf("\nT  the T-Deck control (default profile)\n");
     Run h(kParty);
@@ -246,6 +335,8 @@ int main(int argc, char **argv) {
     g_dump = arg_after(argc, argv, "--dump");
     test_dos();
     test_tdeck();
+    test_dos_lists();
+    test_tdeck_lists();
     check(!platform_dos_interface() && platform_profile().dos_interface == nullptr,
           "Z the default profile is restored after the DOS scope");
     std::printf("win_dos_runtime: %d/%d checks\n", checks - failures, checks);

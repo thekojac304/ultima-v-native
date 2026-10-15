@@ -273,6 +273,13 @@ class AlphaRuntime {
     // the identical apply_debug_teleport(context_, ...) call, and the SAME
     // pool QuestWorldServices writes.
     openu5::CommandContext &command_context_for_test() { return context_; }
+    // Scenario harness (Windows autotest "shop"): open the shop of the live
+    // keeper whose dialog is 0x81 + type in this town through begin_shop, as a
+    // Talk to that keeper hands off -- moving the clock to an open hour first.
+    bool open_shop_for_test(uint8_t type);
+    // ...or stand the party beside that keeper (at an open hour) for a real
+    // Talk; returns the openu5::Direction toward the keeper, -1 if none.
+    int place_beside_keeper_for_test(uint8_t type);
     const std::vector<openu5::QuestObject> &objects_for_test() const { return objects_; }
     // Alpha 4 A4-SAVE2: the runtime's one save service (its save list and the
     // live journey's slot), so a host test can compare what the menus were
@@ -290,6 +297,7 @@ class AlphaRuntime {
     // highlight -- as the next frame would see them (a default value when
     // there is none). Read-only; the T-Deck never calls them.
     DeviceSelectionView selection_view_for_test() { const auto *v = compose_selection_view(); return v ? *v : DeviceSelectionView{}; }
+    DeviceShopView shop_view_for_test() { const auto *v = compose_shop_view(); return v ? *v : DeviceShopView{}; }
     DeviceContextActionBar context_bar_for_test() { const auto *b = compose_context_bar(); return b ? *b : DeviceContextActionBar{}; }
     DevicePartyHighlight party_highlight_for_test() const { return compose_party_highlight(); }
     // A3-HF4 host-test seam: the device-owned interaction and presentation
@@ -498,7 +506,21 @@ class AlphaRuntime {
         uint8_t mantra_count = 0;
         bool zstats_combat_turn = false;
         bool ready_ring_vanished = false;
+        // The DOS right panel compose_selection_view() publishes, and the list
+        // window's first visible row (item_page_controller's minimal scroll)
+        // for the list it was kept for.
+        DeviceDosPanel panel{};
+        size_t list_scroll = 0;
+        int list_key = -1;
+        // The shop phase the console last showed (the lists are printed on entry).
+        openu5::ShopPhase shop_phase = openu5::ShopPhase::Closed;
     };
+    // The 1988 right panel for the open list or page (nullptr when the T-Deck's
+    // panel applies): Use, Ready, Mix's reagents, Z-stats' pages.
+    const DeviceDosPanel *compose_dos_panel(const openu5::UiSelectionView *current);
+    // The 1988 console shops (Windows Original): the lettered list and its
+    // question printed on the console when a shop enters a list phase.
+    void present_dos_shop_event(const openu5::GameEvent &e);
     std::unique_ptr<DosInterfaceState> dos_state_;
     DosInterfaceState &dos_state() { if (!dos_state_) dos_state_.reset(new DosInterfaceState()); return *dos_state_; }
     openu5::AssetPackReader *tiles_ = nullptr;

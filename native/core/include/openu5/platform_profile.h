@@ -75,6 +75,13 @@ struct PlatformProfile {
     // strings are the binary's own. Null = the T-Deck's handheld interface.
     bool (*dos_interface)(void *context) = nullptr;
     void *dos_interface_context = nullptr;
+    // The DOS game's own short names and glyphs for its right-panel lists
+    // (the (U)se and (R)eady pickers, Z-stats' lists, Mix's reagents, the
+    // blacksmith's "Arms" window), read from the player's game data by the
+    // platform: see DosText. Null, or a null result, = no DOS name; the
+    // runtime then keeps the device's own name (the T-Deck never asks).
+    const char *(*dos_text)(void *context, uint8_t table, int index) = nullptr;
+    void *dos_text_context = nullptr;
 
     // --- System Menu --------------------------------------------------------
     // Whether the root lists Difficulty and Cheats. Null = always (the T-Deck).
@@ -96,6 +103,23 @@ bool platform_typed_spell_names();
 bool platform_quit_save_key();
 /** Whether the 1988 interaction model is active now (false on the T-Deck). */
 bool platform_dos_interface();
+
+/**
+ * The DATA.OVL tables the 1988 list panels print, by their DGROUP address
+ * (re/notes/use-picker-panel.md, ready-picker-panel.md, ztats-layout.md).
+ * `index` is the table's own index; a Literal is addressed by its DS offset.
+ */
+enum class DosText : uint8_t {
+    EquipmentShort, // DS 0x1962: 48 short equipment names ("Leath Helm"), the Ready picker / Arms
+    EquipmentGlyph, // DS 0x1ae8: 48 RUNES.CH class glyphs, one byte as a 1-char string
+    UseItem,        // DS 0x1916: 38 (U)se entries, with their '*' '!' '(' sigils
+    PotionColour,   // DS 0x19c2: 8 potion colours, the '!' entries' side strings
+    Reagent,        // DS 0x19d2: 8 short reagent names ("Blk. Pearl")
+    Spell,          // DS 0x19e2: 48 short spell names ("In Sanct G")
+    Literal,        // a NUL-terminated DGROUP string at DS `index` ("--", "Moonstone ")
+};
+/** The platform's DOS text, or nullptr (always on the T-Deck). */
+const char *platform_dos_text(DosText table, int index);
 /**
  * Copies `text` into `out` (always terminated, truncated to fit), replacing
  * {back}, {move}, {menu}, {import}, {export} and {storage} with the

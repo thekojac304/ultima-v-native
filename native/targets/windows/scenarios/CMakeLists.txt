@@ -81,6 +81,12 @@ if(UV_ENABLE_DEVELOPER_TOOLS)
   # overworld's "What?" turn.
   uv_scenario(spp2_original MODE original DEVELOPER)
   uv_scenario(spp2_enhanced MODE enhanced DEVELOPER)
+  # windows/original-dos-interaction (ORIGINAL_MODE_FIDELITY.md section 3): the
+  # 1988 right panel for Ready / Use / Z-stats / Mix and the console shops in
+  # Original, the handheld's panels in Enhanced -- both asserted on the
+  # presented pixels (expect right_column) as well as on the views.
+  uv_scenario(original_dos_panels MODE original DEVELOPER)
+  uv_scenario(enhanced_panels MODE enhanced DEVELOPER)
 else()
   message(STATUS "Scenarios dungeon_walk, surface_combat, typed_cast_combat, town_talk skipped: UV_ENABLE_DEVELOPER_TOOLS is OFF")
 endif()

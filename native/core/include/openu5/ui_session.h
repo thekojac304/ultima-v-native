@@ -509,6 +509,7 @@ class UiSession {
     Command pending_command_{};
     ShopPhase shop_phase_ = ShopPhase::Closed;
     ShopType shop_type_{};
+    int32_t shop_town_ = -1; // the shop's town index (the 1988 tavern's letters)
     int32_t shop_cursor_ = 0;
     size_t shop_offer_count_ = 0;
     int16_t combat_origin_x_ = 0, combat_origin_y_ = 0;

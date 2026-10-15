@@ -13,6 +13,7 @@
 #include <cstddef>
 
 #include "app/desktop_settings.h"
+#include "app/dos_text.h"
 #include "openu5/platform_profile.h"
 
 namespace uv {
@@ -27,6 +28,8 @@ class DesktopProfile {
         void (*changed)(void *context, Change what) = nullptr;
         /** The largest window scale the display holds now; the Display row steps 1..it, then Fullscreen (null = 8). */
         uint8_t (*largest_window_scale)(void *context) = nullptr;
+        /** The DOS name tables Original mode's list panels print (null = none). */
+        const DosTextTables *dos_text = nullptr;
     };
 
     /** Installs the profile (call again after the interface mode changed: the banner keys follow it). */
@@ -45,6 +48,7 @@ class DesktopProfile {
     static bool display_adjust(void *context, int delta);
     static const char *scaling_label(void *context, char *out, size_t capacity);
     static bool scaling_adjust(void *context, int delta);
+    static const char *dos_text(void *context, uint8_t table, int index);
 
     Hooks hooks_{};
 };

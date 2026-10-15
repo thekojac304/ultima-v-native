@@ -1846,6 +1846,63 @@ bool UiSession::handle_shop(const UiAction &a) {
             }
             if (a.kind == UiActionKind::Character || a.kind == UiActionKind::Back) return true;
         }
+        if (shop_phase_==ShopPhase::Tavern) {
+            // The tavern's menu letters depend on the tavern (SHOPPES2 0x066C;
+            // tavern_menu_letter): food, drink, rations, chat; Space, ESC and
+            // RETURN leave without an echo; other keys are read again.
+            if (a.kind == UiActionKind::Confirm || a.kind == UiActionKind::Cancel) { send_action(ShopAction::End,shop_cursor_); return true; }
+            if (a.kind == UiActionKind::Character) {
+                const char key=lower_ascii(a.character);
+                auto is=[&](int which){const char l=tavern_menu_letter(shop_town_,which);return l!=' '&&lower_ascii(char16_t(l))==key;};
+                if (key==' ') send_action(ShopAction::End,shop_cursor_);
+                else if (is(0)) send_action(ShopAction::Round,shop_cursor_);
+                else if (is(1)) send_action(ShopAction::Drink,shop_cursor_);
+                else if (is(2)) send_action(ShopAction::Rations,shop_cursor_);
+                else if (is(3)) send_action(ShopAction::Rumor,shop_cursor_);
+            }
+            return true;
+        }
+        const bool console_list=shop_phase_==ShopPhase::Buy||shop_phase_==ShopPhase::Reagent||
+                                shop_phase_==ShopPhase::Guild||shop_phase_==ShopPhase::Wine||
+                                shop_phase_==ShopPhase::Ship;
+        if (console_list) {
+            // The console lists take a LETTER (getkey; B-shops.md section 3): no
+            // highlight to move, so the arrows are read and dropped; Space leaves
+            // every list (the blacksmith 0x0b85, the reagents 0x06da, the guild
+            // 0x0426, the wine's "meagre stock" 0x02ce, the shipwright); RETURN
+            // leaves only the reagents' (0x06e0) and is re-read elsewhere; the
+            // shipwright's letters are F and S. A letter past the list is re-read
+            // (the core refuses it).
+            if (a.kind == UiActionKind::Direction || a.kind == UiActionKind::Next ||
+                a.kind == UiActionKind::Previous || a.kind == UiActionKind::HighlightIndex ||
+                a.kind == UiActionKind::SelectIndex)
+                return true;
+            if (a.kind == UiActionKind::Confirm) {
+                if (shop_phase_==ShopPhase::Reagent) send_action(ShopAction::Cancel,shop_cursor_);
+                return true;
+            }
+            if (a.kind == UiActionKind::Character) {
+                const char key=lower_ascii(a.character);
+                if (key==' ') { send_action(ShopAction::Cancel,shop_cursor_); return true; }
+                if (shop_phase_==ShopPhase::Ship) {
+                    if (key=='f'||key=='s') send_action(ShopAction::SelectItem,key=='f'?0:1);
+                    return true;
+                }
+                // The guild's 'D' is its "limited time" record (SHOPPES 0x0456).
+                const int32_t row=key-'a';
+                if (key>='a'&&key<='z'&&(size_t(row)<shop_offer_count_||(shop_phase_==ShopPhase::Guild&&row==3))) {
+                    shop_cursor_=row; send_action(ShopAction::SelectItem,row);
+                }
+                return true;
+            }
+        }
+        if (shop_phase_==ShopPhase::Sell && a.kind == UiActionKind::Character) {
+            // The "Arms" window (list_wares SHOPPES 0x0c80): the arrows move the
+            // bar, RETURN or Space sells the row under it, ESC is done; letters
+            // are no key there.
+            if (a.character==u' ') send_action(ShopAction::SelectItem,shop_cursor_);
+            return true;
+        }
     }
     // Back is hierarchical: the shop service decides whether the current
     // sub-flow returns to its menu/list or exits the shop altogether.
@@ -2007,7 +2064,7 @@ void UiSession::consume(const GameEvent &e) {
             const auto old_phase=shop_phase_;
             const auto &shop=*e.shop->session;
             if(old_phase!=shop.phase)shop_cursor_=0;
-            shop_phase_=shop.phase;shop_type_=shop.type;
+            shop_phase_=shop.phase;shop_type_=shop.type;shop_town_=shop.town;
             if(e.shop->kind==ShopEventKind::Entered&&shop.record){
                 char heading[96]{};
                 std::snprintf(heading,sizeof(heading),"%s\n%s, proprietor",

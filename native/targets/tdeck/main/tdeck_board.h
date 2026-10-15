@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <array>
 #include <cstdint>
+#include <memory>
 
 #include "esp_err.h"
 #include "openu5/state.h"
@@ -259,6 +260,13 @@ private:
      */
     esp_err_t draw_band_strip(int x, int y, int width, int height, int rule_row, const char *caption,
                               const openu5::HudWorldState *sky, const uint8_t *runes_font);
+    /**
+     * Windows port, the 1988 interaction model: the DOS right panel (a
+     * DeviceDosPanel) over the roster and status boxes, x 182..319 x y 0..87 --
+     * the banner band, the box, the window's cells and the arrow band, in the
+     * original's geometry; the console below is not touched.
+     */
+    esp_err_t draw_dos_panel(const DeviceDosPanel &panel, const uint8_t *runes_font);
     /** The frontend shell: blue band, >title< caption, white-ruled content window. */
     esp_err_t draw_frontend_shell(const char *title);
     bool chrome_glyph_bit(char c, int row, int col) const;
@@ -359,6 +367,10 @@ private:
     bool shop_cache_valid_ = false;
     DeviceSelectionView selection_cache_{};
     bool selection_cache_valid_ = false;
+    // The DOS panel last drawn (heap, only once the 1988 interaction model
+    // draws one: the T-Deck never does, so its .bss keeps only the pointer).
+    std::unique_ptr<DeviceDosPanel> dos_panel_cache_;
+    bool dos_panel_cache_valid_ = false;
     DeviceContextActionBar context_cache_{};
     bool context_cache_valid_ = false;
     struct FrontendCache {

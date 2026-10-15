@@ -67,6 +67,10 @@ bool platform_dos_interface() {
     return g_profile.dos_interface && g_profile.dos_interface(g_profile.dos_interface_context);
 }
 
+const char *platform_dos_text(DosText table, int index) {
+    return g_profile.dos_text ? g_profile.dos_text(g_profile.dos_text_context, uint8_t(table), index) : nullptr;
+}
+
 bool platform_enhanced_rows() {
     return !g_profile.enhanced_rows || g_profile.enhanced_rows(g_profile.enhanced_context);
 }

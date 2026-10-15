@@ -116,6 +116,10 @@ include("${UV_WIN_DIR}/cmake/LootNames.cmake")
 set(UV_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 file(MAKE_DIRECTORY "${UV_GENERATED_DIR}")
 uv_generate_loot_names("${UV_REPO_ROOT}/game/src/core/data/longEquipNames.json" "${UV_GENERATED_DIR}")
+# dos_equipment_tables.inc, Original mode's (R)eady names and glyphs (cmake/DosTables.cmake).
+include("${UV_WIN_DIR}/cmake/DosTables.cmake")
+uv_generate_dos_tables("${UV_REPO_ROOT}/game/src/core/data/shortEquipNames.json"
+                       "${UV_REPO_ROOT}/game/src/core/readyPicker.ts" "${UV_GENERATED_DIR}")
 
 # ---------------------------------------------------------------------------
 # 1. The shared core: the T-Deck firmware's own source list
@@ -195,6 +199,7 @@ add_library(uv_desktop STATIC
   src/app/desktop_input.cpp
   src/app/desktop_profile.cpp
   src/app/desktop_settings.cpp
+  src/app/dos_text.cpp
   src/app/presentation_layout.cpp
   src/app/presenter.cpp
   src/app/sdl_audio_backend.cpp)

@@ -975,6 +975,13 @@ bool beside(Run &h, int location, int slot, int hour, Direction &toward) {
 }
 /** Into the tavern's town, beside the barkeeper, (T)alk toward it and be served a drink (the rumour's T is only
  *  answered once served: ShopSession::tavern_served); true = the shop session is back at its menu. */
+/** The tavern menu's key for `which` (1 drink, 3 chat): the handheld's fixed D / T, or -- in Original,
+ *  windows/original-dos-interaction 2026-10-14 (B-shops.md P5) -- the tavern's own DOS letter. */
+char16_t tavern_key(const ShopSession &shop, int which) {
+    if (!platform_dos_interface()) return which == 1 ? u'd' : u't';
+    const char letter = tavern_menu_letter(shop.town, which);
+    return char16_t(letter >= 'A' && letter <= 'Z' ? letter + 32 : letter);
+}
 bool open_tavern(Run &h, const Tavern &t) {
     auto &c = h.rt->command_context_for_test();
     h.rt->game().gold = 5000;
@@ -986,7 +993,7 @@ bool open_tavern(Run &h, const Tavern &t) {
         const auto &shop = c.shop_services->session;
         for (int i = 0; i < 4 && shop.phase != ShopPhase::Tavern; ++i) act(h, ch('y'));
         if (shop.phase != ShopPhase::Tavern) return false;
-        act(h, ch('d'));
+        act(h, ch(tavern_key(shop, 1)));
         if (shop.phase == ShopPhase::TavernDrinkDeal) act(h, ch('y'));
         for (int i = 0; i < 4 && shop.phase != ShopPhase::Tavern; ++i) act(h, ch('y'));
         return shop.phase == ShopPhase::Tavern && shop.tavern_served;
@@ -1008,7 +1015,7 @@ void test_b() {
             auto &c = h.rt->command_context_for_test();
             const auto &shop = c.shop_services->session;
             if (!open) { check(false, "B1 the tavern opens at its menu" + tag + " (phase " + n(int(shop.phase)) + ")"); continue; }
-            act(h, ch('t'));
+            act(h, ch(tavern_key(shop, 3)));
             const bool asked = mode(h) == UiMode::TextEntry;
             for (char16_t k : {u'b', u'r', u'i', u't'}) act(h, ch(k));
             act(h, kind(UiActionKind::Confirm));

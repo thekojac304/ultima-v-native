@@ -541,6 +541,7 @@ void AlphaRuntime::route_event(const openu5::GameEvent&e){
     }
     present_audio(e);
     ui_->consume(e);
+    present_dos_shop_event(e);
     // A4-END1. game-won is the overlay-13 stub (ULTIMA.EXE 0x7c4a): from here
     // ENDGAME.OVL owns the screen and the keyboard, and never gives them back.
     if(e.kind==openu5::GameEventKind::GameWon)start_endgame();
@@ -727,6 +728,7 @@ void AlphaRuntime::release_scene_event(void *p,const openu5::GameEvent &e){
     // -- the same instant the session sees it -- never when it was emitted.
     self.present_audio(e);
     self.ui_->consume(e);
+    self.present_dos_shop_event(e);
 }
 
 // Y-04 (Batch 7B). The beat sink of the narrative pacer. A beat is the whole
@@ -981,7 +983,11 @@ void AlphaRuntime::dispatch(const openu5::UiIntent&i){
     else if(i.kind==openu5::UiIntentKind::Shop){const int64_t s=esp_timer_get_time();auto input=i.shop;
         // UiSession owns a compact cursor; the authoritative shop contract
         // selects by item/member id. Resolve through the live offerings list.
-        if(input.action==openu5::ShopAction::SelectItem||input.action==openu5::ShopAction::SelectMember){openu5::ShopOffer offer{};if(!openu5::shop_offering_at(game_,shop_,shop_data_,size_t(input.value),offer)){ui_->append(openu5::UiTextChannel::System,"Shop selection unavailable");return;}input.value=offer.item;}
+        // The 1988 guild's 'D' (SHOPPES 0x0456) is no offer: its id 3 goes to the
+        // core as it is, which prints the "limited time" record.
+        const bool guild_d=openu5::platform_dos_interface()&&shop_.phase==openu5::ShopPhase::Guild&&
+                           input.action==openu5::ShopAction::SelectItem&&input.value==3;
+        if(!guild_d&&(input.action==openu5::ShopAction::SelectItem||input.action==openu5::ShopAction::SelectMember)){openu5::ShopOffer offer{};if(!openu5::shop_offering_at(game_,shop_,shop_data_,size_t(input.value),offer)){ui_->append(openu5::UiTextChannel::System,"Shop selection unavailable");return;}input.value=offer.item;}
         const auto phase_before=shop_.phase;auto result=openu5::execute_shop(context_,input);command_high_us_=std::max<uint32_t>(command_high_us_,uint32_t(esp_timer_get_time()-s));
         ESP_LOGI(kTag,"SERVICE_ACTION keeper=\"%s\" shop_type=%d command=%d service_id=%ld price=%ld quantity=%ld state=%d->%d result=%d",
                  shop_.record&&shop_.record->keeper?shop_.record->keeper:"Merchant",int(shop_.type),int(input.action),
@@ -1991,6 +1997,11 @@ void AlphaRuntime::open_selection(openu5::UiMode mode,openu5::UiRequestId reques
     else if(mode==openu5::UiMode::EquipmentSelection){const int member=pending_ready_member_>=0?pending_ready_member_:active_member(game_);const auto ready=openu5::ready_items(game_,member);for(int n=0;n<ready.count;++n){const int i=ready.ids[n];add(i,openu5::equipment_display_name(i),game_.equipment_quantities[i],openu5::is_item_equipped(game_.party.characters[member],i));}}
     else if(mode==openu5::UiMode::SpellSelection){for(int i=0;i<48;++i)if(request==openu5::UiRequestId::Custom||game_.spell_quantities[i]>0)add(i,openu5::spell_display_name(i),game_.spell_quantities[i]);}
     const bool dos=openu5::platform_dos_interface();
+    // The 1988 (U)se list walks the extended table 0xB9EE in id order
+    // (find_next_owned 0x05a4 from CAST 0x17a2): scrolls 0x00-0x07, potions
+    // 0x08-0x0f, the carpet, the keys, then the rest -- not potions first.
+    if(dos&&mode==openu5::UiMode::InventorySelection&&request==openu5::UiRequestId::Inventory)
+        std::stable_sort(selections_,selections_+selection_count_,[](const Selection &a,const Selection &b){return a.value<b.value;});
     // The 1988 interaction model has no empty list: (U)se with nothing usable
     // is "No usable items!" (CAST DS 0x489f) and (R)eady with nothing owned
     // "Thou art empty-\nhanded!" (ZSTATS DS 0x997e), and the command ends.
@@ -2691,6 +2702,257 @@ const char *AlphaRuntime::overlay() const {static char text[64]{};text[0]=0;
 #endif
     return text;}
 
+int AlphaRuntime::place_beside_keeper_for_test(uint8_t type){
+    if(!context_.actors||!context_.terrain||!context_.shop_services)return -1;
+    const uint8_t location=uint8_t(game_.position.map.location);
+    for(size_t i=0;i<context_.actors->count;++i){
+        auto &npc=context_.actors->actors[i];
+        if(npc.location!=location||npc.schedule.dialog!=0x81+type)continue;
+        if(!openu5::shop_is_open(npc.schedule.times,uint8_t(game_.time.hour))){
+            for(uint8_t hour=0;hour<24;++hour)if(openu5::shop_is_open(npc.schedule.times,hour)){game_.time.hour=hour;break;}
+            openu5::snap_npcs_to_schedule(*context_.actors,location,uint8_t(game_.time.hour));
+        }
+        for(const auto d:{openu5::Direction::South,openu5::Direction::North,openu5::Direction::East,openu5::Direction::West}){
+            const auto dd=openu5::direction_delta(d);
+            const int x=npc.x+dd.dx,y=npc.y+dd.dy;
+            const int tile=context_.terrain->effective(context_.world,game_.position.map,x,y);
+            if(!openu5::is_passable(tile,openu5::TransportMode::Foot).value||
+               context_.shop_services->occupied(context_.shop_services->context,x,y))continue;
+            game_.position.xy={uint8_t(x),uint8_t(y)};dirty_=true;dirty_reason_="shop-test";
+            return int(d==openu5::Direction::South?openu5::Direction::North:d==openu5::Direction::North?openu5::Direction::South:
+                       d==openu5::Direction::East?openu5::Direction::West:openu5::Direction::East);
+        }
+    }
+    return -1;
+}
+
+bool AlphaRuntime::open_shop_for_test(uint8_t type){
+    if(!context_.actors||!ui_)return false;
+    for(size_t i=0;i<context_.actors->count;++i){
+        auto &npc=context_.actors->actors[i];
+        if(npc.schedule.dialog!=0x81+type)continue;
+        if(!openu5::shop_is_open(npc.schedule.times,uint8_t(game_.time.hour)))
+            for(uint8_t hour=0;hour<24;++hour)if(openu5::shop_is_open(npc.schedule.times,hour)){game_.time.hour=hour;break;}
+        const auto result=openu5::begin_shop(context_,npc);
+        refresh_session_context();dirty_=true;dirty_reason_="shop-test";
+        ESP_LOGI(kTag,"SHOP_TEST type=%u slot=%u status=%d phase=%d",unsigned(type),unsigned(i),int(result.status),int(shop_.phase));
+        return result.status==openu5::CommandStatus::AwaitingResponse||result.status==openu5::CommandStatus::Success;
+    }
+    return false;
+}
+
+namespace {
+// The DOS text the platform reads from the player's game data, or the device's
+// own name when it has none (a host fixture without the tables).
+const char *dos_text_or(openu5::DosText table,int index,const char *fallback){
+    const char *text=openu5::platform_dos_text(table,index);
+    return text&&*text?text:fallback;
+}
+DosListRowText dos_list_row_text(){
+    DosListRowText text;
+    text.zero_fill=dos_text_or(openu5::DosText::Literal,0x9778,"--");
+    text.scroll_decoration=openu5::platform_dos_text(openu5::DosText::Literal,0x977c);
+    text.potion_decoration=openu5::platform_dos_text(openu5::DosText::Literal,0x9782);
+    text.moonstone=openu5::platform_dos_text(openu5::DosText::Literal,0x9788);
+    return text;
+}
+// item_page_controller's bar (putchar 0xfd before the cursor's row at 0x103e
+// and after it at 0x0fb5): the row is printed from window col 1 and padded to
+// its 14th cell (0x06b9), so the bar covers cols 1..13.
+constexpr uint16_t kDosListBar=0x3ffe;
+// Mix's bar is the driver's XOR rectangle over the whole window row
+// (mix_reagent_select, CMDS 0x18be): cols 0..15.
+constexpr uint16_t kDosMixBar=0xffff;
+constexpr size_t kDosListRows=7; // draw_list_frame(8): seven content rows
+// A short name the DOS tables hold for a Use row (0x1916), or the device's.
+const char *dos_use_name(int id,const char *fallback){
+    return dos_text_or(openu5::DosText::UseItem,id,fallback);
+}
+} // namespace
+
+void AlphaRuntime::present_dos_shop_event(const openu5::GameEvent &e){
+    // The 1988 console shops (SHOPPES*.OVL; native/core/spp1-findings/B-shops.md
+    // section 3 and the web port's ui/shop-console.ts): each pass of a list loop
+    // prints its lettered rows and its question on the console, and a key picks
+    // the letter -- there is no highlighted offer list. The core decides the
+    // offers and draws the variants (ShopSession::recent_draws); this prints the
+    // rows it does not emit itself. Original mode only: the T-Deck shows its panel.
+    if(!ui_||!openu5::platform_dos_interface()||e.kind!=openu5::GameEventKind::Shop||!e.shop||!e.shop->session)return;
+    const auto &s=*e.shop->session;
+    auto &state=dos_state();
+    const auto before=state.shop_phase;
+    if(e.shop->kind==openu5::ShopEventKind::Exited||s.phase==openu5::ShopPhase::Closed){
+        state.shop_phase=openu5::ShopPhase::Closed;return;
+    }
+    if(e.shop->kind!=openu5::ShopEventKind::State&&e.shop->kind!=openu5::ShopEventKind::Entered)return;
+    state.shop_phase=s.phase;
+    using T=openu5::ShopConsoleText;
+    // The buyer's sex picks "sir" / "milady" (the active player, else the first
+    // member -- the same pick the core makes for its INT).
+    const int buyer=active_member(game_);
+    const bool lady=buyer>=0&&buyer<game_.party.character_count&&game_.party.characters[buyer].gender==0x0c;
+    const int8_t *draws=s.recent_draws;
+    char block[768]{};size_t n=0;
+    auto add=[&](const char *text){for(;text&&*text&&n+1<sizeof(block);++text)block[n++]=*text;block[n]=0;};
+    auto flush=[&]{if(n){ui_->append(openu5::UiTextChannel::Shop,block);n=0;block[0]=0;}};
+    // '$' is the keeper's name in the DOS strings and records.
+    auto add_keeper=[&](const char *text,const openu5::ShopSession &session){
+        const char *keeper=session.record&&session.record->keeper?session.record->keeper:"";
+        for(;text&&*text;++text){if(*text=='$')add(keeper);else{const char c[2]={*text,0};add(c);}}
+    };
+    const size_t total=openu5::shop_offering_count(game_,s,shop_data_);
+    switch(s.phase){
+    case openu5::ShopPhase::Buy:{
+        // SHOPPES 0x1306: `Buy\n\n"` + EXCL[r] + INTRO[r] on the way in from the
+        // menu; after a pitch, "Anything else," + sir/milady (a purchase) or
+        // "then?" (0x7BBC-0x7BDC). Then the loop 0x0b30: `\n\n`, a row per item
+        // -- 'a'+i, "...", the long name, or the short one when 13 or longer
+        // (0x0be7) -- `\n`, WHICH[r] and `" `. No prices in the list.
+        if(before==openu5::ShopPhase::Menu){
+            add(openu5::shop_console_text(T::BuyEcho));
+            add(openu5::shop_console_text(T::BuyExclaim,draws[1]));
+            add(openu5::shop_console_text(T::BuyIntro,draws[2]));
+        }else if(!s.thrown_out){
+            add(openu5::shop_console_text(T::BuyAnythingElse));
+            add(openu5::shop_console_text(s.bought_in_buy?(lady?T::BuyMilady:T::BuySir):T::BuyThen));
+        }
+        flush();
+        add("\n");
+        for(size_t i=0;i<total;++i){
+            openu5::ShopOffer offer{};
+            if(!openu5::shop_offering_at(game_,s,shop_data_,i,offer)||offer.item<0||offer.item>=48)continue;
+            const char *name=openu5::equipment_display_name(offer.item);
+            if(name&&std::strlen(name)>=13)name=dos_text_or(openu5::DosText::EquipmentShort,offer.item,name);
+            char row[32]{};std::snprintf(row,sizeof(row),"%s%c...%s",i?"\n":"",char('a'+i),name?name:"");
+            add(row);
+        }
+        flush();
+        add("\n");add(openu5::shop_console_text(T::BuyWhich,draws[3]));add("\" ");
+        flush();
+        break;
+    }
+    case openu5::ShopPhase::Reagent:{
+        // SHOPPES 0x0789 / 0x0666: `Yes\n\n"Fine! We sell:\n\n` from the greeting,
+        // then `A...Name` per slot on sale (upper-case, compacted) and
+        // `\nThy interest?" `.
+        if(before==openu5::ShopPhase::Greeting)add(openu5::shop_console_text(T::ReagentsSell));
+        flush();
+        for(size_t i=0;i<total;++i){
+            openu5::ShopOffer offer{};
+            if(!openu5::shop_offering_at(game_,s,shop_data_,i,offer))continue;
+            char row[32]{};std::snprintf(row,sizeof(row),"%c...%s",char('A'+i),openu5::reagent_display_name(offer.item));
+            add(row);flush();
+        }
+        add(openu5::shop_console_text(T::ReagentInterest));flush();
+        break;
+    }
+    case openu5::ShopPhase::Guild:
+        // SHOPPES 0x04cd / 0x03f6: `Yes\n\n"We sell:\n\n` from the greeting, the
+        // three fixed rows and `Thy concern?" `.
+        if(before==openu5::ShopPhase::Greeting)add(openu5::shop_console_text(T::GuildYes));
+        flush();
+        add(openu5::shop_console_text(T::GuildRowKeys));add(openu5::shop_console_text(T::GuildRowGems));
+        add(openu5::shop_console_text(T::GuildRowTorches));add(openu5::shop_console_text(T::GuildConcern));
+        flush();
+        break;
+    case openu5::ShopPhase::Wine:{
+        // SHOPPES2 0x01F4: `"Our wine list,\n` + sir/milady + `.\n\n`, the six
+        // priced lines (DS 0x9B8C..0x9BE6, from the player's data) and
+        // `Thy choice?" `.
+        add(openu5::shop_console_text(T::WineListOpen));
+        add(openu5::shop_console_text(lady?T::TavernMilady:T::TavernSir));
+        add(openu5::shop_console_text(T::WineListAfterName));
+        flush();
+        int at=0x9b8c;
+        for(int line=0;line<6;++line){
+            const char *text=openu5::platform_dos_text(openu5::DosText::Literal,at);
+            if(!text)break;
+            add(text);
+            at+=int(std::strlen(text))+1;
+        }
+        flush();
+        add(openu5::shop_console_text(T::WineThyChoice));flush();
+        break;
+    }
+    // The service menus' questions, which the core does not emit either
+    // (B-shops.md sections 3.5, 3.6, 3.8).
+    case openu5::ShopPhase::HealerNeed:case openu5::ShopPhase::Menu:
+        if(s.type==openu5::ShopType::Healer&&(before==openu5::ShopPhase::Greeting||before==openu5::ShopPhase::HealerAgain)){
+            // `Yes\n\n` + the powers line + `says $.\n\n"What is the nature of thy need?" `.
+            add(openu5::shop_console_text(T::HealerYes));add(openu5::shop_console_text(T::HealerPowers));flush();
+            add_keeper(openu5::shop_console_text(T::HealerSaysNature),s);flush();
+        }else if(s.type==openu5::ShopType::InnKeeper&&before==openu5::ShopPhase::Greeting){
+            add(openu5::shop_console_text(T::InnYes));add_keeper(openu5::shop_console_text(T::InnMenu),s);flush();
+        }
+        break;
+    case openu5::ShopPhase::HealerMember:
+        add(openu5::shop_console_text(T::HealerWho)+1);flush();
+        break;
+    case openu5::ShopPhase::HealerAgain:
+        add(openu5::shop_console_text(T::HealerAnyOther)+1);flush();
+        break;
+    case openu5::ShopPhase::InnAgain:
+        add(openu5::shop_console_text(T::InnMore));flush();
+        break;
+    case openu5::ShopPhase::InnLeaveMember:
+        add_keeper(openu5::shop_console_text(T::InnWhoStay),s);flush();
+        break;
+    case openu5::ShopPhase::InnPickupMember:
+        add(openu5::shop_console_text(T::InnWhoCheckOut)+1);flush();
+        break;
+    case openu5::ShopPhase::Tavern:
+        if(before==openu5::ShopPhase::Greeting||before==openu5::ShopPhase::TavernAgain){
+            // `Yes\n\n"` + the subtype's menu (record 69..72) or, back from
+            // "Anything else", its revisit form (73..76), + `" `.
+            static constexpr uint8_t kTavernSubtype[]={0,0,0,2,3,1,0,2,0};
+            const int subtype=s.town>=0&&size_t(s.town)<sizeof(kTavernSubtype)?kTavernSubtype[s.town]:0;
+            const int record=(before==openu5::ShopPhase::Greeting?69:73)+subtype;
+            add(openu5::shop_console_text(T::TavernYesOpen));
+            if(shop_services_.record)add_keeper(shop_services_.record(shop_services_.context,record),s);
+            add("\" ");flush();
+        }
+        break;
+    case openu5::ShopPhase::TavernAgain:
+        add(openu5::shop_console_text(T::TavernAnythingElse));flush();
+        break;
+    // The deal questions (B-shops.md section 3): the core emits the pitch and
+    // waits for Y/N; the question itself is printed here. A block starts its
+    // own line, so a question that opens with a line break loses one.
+    case openu5::ShopPhase::BuyDeal:
+        // buy_one_item: `\n\n` + ASKS[r] (the select()'s draw) + `" `.
+        add(openu5::shop_console_text(T::BuyAsk,draws[3]));add("\" ");flush();
+        break;
+    case openu5::ShopPhase::SellDeal:case openu5::ShopPhase::HorseDeal:
+        add(openu5::shop_console_text(T::SellDeal)+1);flush();
+        break;
+    case openu5::ShopPhase::GuildDeal:
+        add(openu5::shop_console_text(T::GuildInterested)+1);flush();
+        break;
+    case openu5::ShopPhase::RumorDeal:
+        add(openu5::shop_console_text(T::RumorFairNuff)+1);flush();
+        break;
+    case openu5::ShopPhase::InnRestDeal:
+        add(openu5::shop_console_text(T::InnWiltTake)+1);flush();
+        break;
+    case openu5::ShopPhase::ReagentDeal:
+        // The pitch's own line goes on: ` Is this thy need?" ` (0x7956).
+        ui_->append_continuation(openu5::UiTextChannel::Message,openu5::shop_console_text(T::ReagentNeed));
+        break;
+    case openu5::ShopPhase::HealerDeal:{
+        // SHOPPES 0x1478: the remedy's pitch, then `for % gold.\n\nWilt thou\npay?" `.
+        add("\"");
+        add(openu5::shop_console_text(s.remedy==openu5::HealerService::Cure?T::HealerCurePitch:
+                                      s.remedy==openu5::HealerService::Heal?T::HealerHealPitch:T::HealerResPitch));
+        char price[12]{};std::snprintf(price,sizeof(price),"%ld",long(s.price));
+        for(const char *p=openu5::shop_console_text(T::HealerPay);*p;++p){if(*p=='%')add(price);else{const char c[2]={*p,0};add(c);}}
+        flush();
+        break;
+    }
+    default:break;
+    }
+    dirty_=true;
+}
+
 const DeviceShopView *AlphaRuntime::compose_shop_view(){
     if(!ui_||(ui_->mode()!=openu5::UiMode::Shop&&ui_->request()!=openu5::UiRequestId::Shop))return nullptr;
     const bool transactional=shop_.phase==openu5::ShopPhase::Buy||shop_.phase==openu5::ShopPhase::Sell||
@@ -2707,7 +2969,11 @@ const DeviceShopView *AlphaRuntime::compose_shop_view(){
     // roster picker (SHOPPES 0x1397, SHOPPES3 0x030d -> 0x2d7a): no panel, the
     // roster row in reverse video (compose_party_highlight()).
     const bool dos=openu5::platform_dos_interface();
-    if(dos&&(shop_.phase==openu5::ShopPhase::HealerMember||shop_.phase==openu5::ShopPhase::InnLeaveMember))return nullptr;
+    // The 1988 shops are console shops (SHOPPES*.OVL; ORIGINAL_MODE_FIDELITY.md
+    // section 3.11): lettered lists and questions on the console, the members on
+    // the roster -- no offer panel. Their two panel windows, the blacksmith's
+    // "Arms" and the inn's GUEST REGISTER, are DOS panels (compose_dos_panel()).
+    if(dos)return nullptr;
     shop_view_={};shop_view_.active=true;shop_view_.gold=game_.gold;
     std::snprintf(shop_view_.title,sizeof(shop_view_.title),"%s",
                   shop_.record&&shop_.record->name?shop_.record->name:"Shop");
@@ -2892,8 +3158,202 @@ bool AlphaRuntime::handle_zstats_input(const openu5::UiAction &action){
     return true;
 }
 
+const DeviceDosPanel *AlphaRuntime::compose_dos_panel(const openu5::UiSelectionView *current){
+    if(!openu5::platform_dos_interface())return nullptr;
+    auto &state=dos_state();auto &panel=state.panel;
+    dos_panel_clear(panel);
+    const auto text=dos_list_row_text();
+    if(ui_&&ui_->mode()==openu5::UiMode::Shop){
+        const size_t total=openu5::shop_offering_count(game_,shop_,shop_data_);
+        const size_t cursor=total?std::min<size_t>(size_t(std::max<int32_t>(0,ui_->shop_cursor())),total-1):0;
+        const int key=1000+int(shop_.phase);
+        if(state.list_key!=key){state.list_key=key;state.list_scroll=0;}
+        if(shop_.phase==openu5::ShopPhase::Sell){
+            // list_wares (SHOPPES 0x0c80): the "Arms" window (DS 0x7ef4 by
+            // kernel 0x4e50) in the roster box -- a frame of four rows, each
+            // `qq-Short Name` (the count space-padded, '-', the 0x1962 name), the
+            // bar over cols 1..13, the arrow in the band (0x0dde-0x0e1d) -- and
+            // the status box below it as the frame always shows it.
+            constexpr size_t kArmsRows=4;
+            panel.layout=kDosLayoutRosterAndStatus;
+            std::snprintf(panel.banner,sizeof(panel.banner),"Arms");
+            dos_panel_list_frame(panel,kArmsRows);
+            state.list_scroll=dos_panel_scroll(cursor,std::min(state.list_scroll,total?total-1:0),kArmsRows);
+            for(size_t k=0;k<kArmsRows&&state.list_scroll+k<total;++k){
+                openu5::ShopOffer offer{};
+                if(!openu5::shop_offering_at(game_,shop_,shop_data_,state.list_scroll+k,offer))continue;
+                const int id=offer.item;
+                if(id<0||id>=48)continue;
+                dos_list_row(panel,k+1,1,13,game_.equipment_quantities[id],false,'-',
+                             dos_text_or(openu5::DosText::EquipmentShort,id,openu5::equipment_display_name(id)),nullptr,text);
+                if(state.list_scroll+k==cursor)panel.inverse[k+1]=kDosListBar;
+            }
+            panel.arrow=dos_panel_arrow(state.list_scroll,kArmsRows,total);
+        }else{
+            // The inn's GUEST REGISTER (SHOPPES3 0x04e6): no banner, the frame
+            // drawn inline (seven rows, as draw_list_frame(8)), "    GUEST" and
+            // "  REGISTER:" (DS 0x4fc0 / 0x4fca) on rows 1-2, the names from col 4
+            // on rows 4-7, scrolling under the driver's bar.
+            constexpr size_t kGuestRows=4;
+            dos_panel_list_frame(panel,kDosListRows);
+            dos_panel_put(panel,1,1,dos_text_or(openu5::DosText::Literal,0x4fc0,"    GUEST"));
+            const char *register_line=dos_text_or(openu5::DosText::Literal,0x4fca,"  REGISTER:");
+            char head[16]{};size_t n=0;
+            for(;register_line[n]&&register_line[n]!='\n'&&n+1<sizeof(head);++n)head[n]=register_line[n];
+            dos_panel_put(panel,2,1,head);
+            state.list_scroll=dos_panel_scroll(cursor,std::min(state.list_scroll,total?total-1:0),kGuestRows);
+            for(size_t k=0;k<kGuestRows&&state.list_scroll+k<total;++k){
+                openu5::ShopOffer offer{};
+                if(!openu5::shop_offering_at(game_,shop_,shop_data_,state.list_scroll+k,offer))continue;
+                if(offer.item<0||offer.item>=game_.party.character_count)continue;
+                char name[12]{};std::snprintf(name,sizeof(name),"%.9s",game_.party.characters[offer.item].name);
+                dos_panel_put(panel,4+k,4,name);
+                if(state.list_scroll+k==cursor)panel.inverse[4+k]=kDosListBar;
+            }
+            return &panel;
+        }
+        // The status box under the "Arms" window: F/G and the date (panel.ts).
+        char food[8]{},gold[8]{},date[16]{};
+        std::snprintf(food,sizeof(food),"F:%u",unsigned(game_.food));
+        std::snprintf(gold,sizeof(gold),"G:%u",unsigned(game_.gold));
+        std::snprintf(date,sizeof(date),"%ld-%ld-%ld",long(game_.time.month),long(game_.time.day),long(game_.time.year));
+        dos_panel_put(panel,7,0,food);
+        dos_panel_put(panel,7,15-std::min<size_t>(15,std::strlen(gold)),gold);
+        dos_panel_put(panel,8,(15-std::min<size_t>(15,std::strlen(date)))/2,date);
+        return &panel;
+    }
+    // Z-stats (cmd_zstats, ZSTATS 0x0a3a): the page in window 1 under its banner
+    // (0x6c70) -- the stats/arms/provisions text as the model lays it out, the
+    // four lists in their scroll frame (render_item_list 0x06e8).
+    if(zstats_open_){
+        const auto input=zstats_input();
+        const auto page=openu5::compose_zstats_page(input,zstats_page_,zstats_scroll_);
+        std::snprintf(panel.banner,sizeof(panel.banner),"%.*s",int(kDosPanelCols),page.banner);
+        if(page.kind==openu5::ZStatsPageKind::List){
+            dos_panel_list_frame(panel,kDosListRows);
+            const auto list=openu5::zstats_list(input,zstats_page_);
+            if(!list.count){
+                // DS 0x9794 "(None owned!)", centred inside the frame on row 4.
+                const char *none=dos_text_or(openu5::DosText::Literal,0x9794,page.rows[0].text);
+                const size_t n=std::min(std::strlen(none),size_t(13));
+                dos_panel_put(panel,4,1+(13-n)/2,none);
+            }
+            for(size_t i=0;i<page.row_count&&i<kDosListRows;++i){
+                const auto &entry=list.entries[page.list_scroll+i];
+                const char *name=entry.name;const char *side=nullptr;
+                if(zstats_page_==openu5::kZStatsPageReagents)name=dos_text_or(openu5::DosText::Reagent,entry.index,name);
+                else if(zstats_page_==openu5::kZStatsPageSpells)name=dos_text_or(openu5::DosText::Spell,entry.index,name);
+                else if(zstats_page_==openu5::kZStatsPageArmaments)name=dos_text_or(openu5::DosText::EquipmentShort,entry.index,name);
+                else{
+                    name=dos_use_name(entry.index,name);
+                    if(name&&*name=='!')side=openu5::platform_dos_text(openu5::DosText::PotionColour,entry.index-8);
+                }
+                // render_item_list's separator is '-' (0x2d, @0x0765).
+                dos_list_row(panel,i+1,1,13,entry.quantity,entry.quantity_hidden,0x2d,name,side,text);
+            }
+            panel.arrow=uint8_t(page.more_above&&page.more_below?kDosArrowBoth:page.more_above?kDosArrowUp:
+                                page.more_below?kDosArrowDown:0);
+            return &panel;
+        }
+        for(size_t r=0;r<page.row_count&&r<kDosPanelRows;++r)dos_panel_put(panel,r,0,page.rows[r].text);
+        if(page.kind==openu5::ZStatsPageKind::Stats&&page.member>=0&&page.member<game_.party.character_count){
+            // draw_stat_page prints the record's own sex byte (+0x09) with
+            // putchar (0x0125): IBM.CH 0x0b / 0x0c, the CP437 male / female signs
+            // the T-Deck's ASCII face spells 'M' / 'F'.
+            const uint8_t sex=game_.party.characters[page.member].gender;
+            if(panel.cells[0][1]=='M'||panel.cells[0][1]=='F')panel.cells[0][1]=sex==0x0c?0x0c:0x0b;
+        }else if(page.kind==openu5::ZStatsPageKind::Arms&&page.member>=0&&page.member<game_.party.character_count){
+            // draw_arms_page names the worn slots from the short table (0x1962,
+            // print_padded_string 0x0278), one per row from row 2.
+            const auto &c=game_.party.characters[page.member];
+            const uint8_t slots[]={c.helmet,c.armor,c.weapon,c.shield,c.ring,c.amulet};
+            size_t row=2;
+            for(const uint8_t id:slots){
+                if(id>=48||row>=kDosPanelRows)continue;
+                for(auto &cell:panel.cells[row])cell=kDosBlank;
+                panel.cells[row][0]=kDosBlank;
+                dos_panel_put(panel,row,1,dos_text_or(openu5::DosText::EquipmentShort,id,openu5::equipment_display_name(id)));
+                ++row;
+            }
+        }
+        return &panel;
+    }
+    if(!current)return nullptr;
+    const size_t count=selection_count_,cursor=count?std::min(current->cursor,count-1):0;
+    const bool mix=selection_request_==openu5::UiRequestId::MixReagents;
+    const bool use=current->mode==openu5::UiMode::InventorySelection&&selection_request_==openu5::UiRequestId::Inventory;
+    const bool ready=current->mode==openu5::UiMode::EquipmentSelection;
+    if(!mix&&!use&&!ready)return nullptr;
+    const int key=int(selection_request_);
+    if(state.list_key!=key){state.list_key=key;state.list_scroll=0;}
+    if(mix){
+        // mix_reagent_select (CMDS 0x18be): "Reagents:" (DS 0x8f64) in the band,
+        // no frame (window (24,1)-(39,9)); a '\n' before each row puts the
+        // reagents on rows 1..8: " NN NAME" (0x1932, the count '0'-padded,
+        // 0x1950), the mark over col 3 (0x0f in reverse video, 0x19ee-0x1a2c).
+        std::snprintf(panel.banner,sizeof(panel.banner),"%s",dos_text_or(openu5::DosText::Literal,0x8f64,"Reagents:"));
+        for(size_t i=0;i<count&&i<8;++i){
+            const int r=selections_[i].value;if(r<0||r>=8)continue;
+            char line[kDosPanelCols+1]{};
+            std::snprintf(line,sizeof(line)," %02d %s",int(std::min<int32_t>(99,game_.reagent_quantities[r])),
+                          dos_text_or(openu5::DosText::Reagent,r,openu5::reagent_display_name(r)));
+            dos_panel_put(panel,i+1,0,line);
+            uint16_t inverse=i==cursor?kDosMixBar:0;
+            if(pending_mix_mask_&(1u<<r)){panel.cells[i+1][3]=0x0f;inverse^=uint16_t(1u<<3);}
+            panel.inverse[i+1]=inverse;
+        }
+        return &panel;
+    }
+    // item_page_controller (ZSTATS 0x0f2e): the scroll frame of seven rows,
+    // print_list_row's cells, the bar, and the arrow when more rows hide.
+    dos_panel_list_frame(panel,kDosListRows);
+    state.list_scroll=dos_panel_scroll(cursor,std::min(state.list_scroll,count?count-1:0),kDosListRows);
+    const int member=ready?(pending_ready_member_>=0?pending_ready_member_:active_member(game_)):-1;
+    if(ready){
+        // cmd_ready's banner is the member's record name (0x12dd -> 0x6c70).
+        std::snprintf(panel.banner,sizeof(panel.banner),"%.9s",
+                      member>=0&&member<game_.party.character_count?game_.party.characters[member].name:"");
+    }else std::snprintf(panel.banner,sizeof(panel.banner),"%s",dos_text_or(openu5::DosText::Literal,0x48b8,"Items:"));
+    for(size_t k=0;k<kDosListRows&&state.list_scroll+k<count;++k){
+        const size_t i=state.list_scroll+k;const int id=selections_[i].value;
+        if(ready&&id>=0&&id<48&&member>=0&&member<game_.party.character_count){
+            // The separator is the class glyph of DS 0x1ae8 when this member
+            // wears the item (0x104b-0x1070), RUNES.CH by print_list_row's 0x0615.
+            const bool worn=openu5::is_item_equipped(game_.party.characters[member],id);
+            const char *glyph=openu5::platform_dos_text(openu5::DosText::EquipmentGlyph,id);
+            const uint8_t separator=worn?(glyph&&*glyph?uint8_t(*glyph):uint8_t('*')):kDosBlank;
+            dos_list_row(panel,k+1,1,13,game_.equipment_quantities[id],false,separator,
+                         dos_text_or(openu5::DosText::EquipmentShort,id,openu5::equipment_display_name(id)),nullptr,text);
+        }else if(use&&id>=0){
+            // (U)se: the extended table 0xB9EE. Scrolls, potions, carpets and
+            // skull keys carry a count; every other entry is stored 0xff, so its
+            // row has no count column (use-picker-panel.md section 3.1).
+            int quantity=0;bool hidden=false;
+            if(id<8)quantity=game_.scroll_quantities[id];
+            else if(id<16)quantity=game_.potion_quantities[id-8];
+            else if(id==16)quantity=game_.magic_carpets;
+            else if(id==17)quantity=game_.skull_keys;
+            else hidden=true;
+            const char *name=dos_use_name(id,selections_[i].label);
+            const char *side=name&&*name=='!'?openu5::platform_dos_text(openu5::DosText::PotionColour,id-8):nullptr;
+            dos_list_row(panel,k+1,1,13,quantity,hidden,kDosBlank,name,side,text);
+        }
+        if(i==cursor)panel.inverse[k+1]=kDosListBar;
+    }
+    panel.arrow=dos_panel_arrow(state.list_scroll,kDosListRows,count);
+    return &panel;
+}
+
 const DeviceSelectionView *AlphaRuntime::compose_selection_view(){
     if(!ui_)return nullptr;
+    // The 1988 shops' two list windows (compose_dos_panel()).
+    if(openu5::platform_dos_interface()&&ui_->mode()==openu5::UiMode::Shop&&
+       (shop_.phase==openu5::ShopPhase::Sell||shop_.phase==openu5::ShopPhase::InnPickupMember)){
+        selection_view_={};selection_view_.active=true;selection_view_.mode=uint8_t(openu5::UiMode::Shop);
+        selection_view_.dos=compose_dos_panel(nullptr);
+        std::snprintf(selection_view_.title,sizeof(selection_view_.title),"%s",selection_view_.dos?selection_view_.dos->banner:"");
+        return selection_view_.dos?&selection_view_:nullptr;
+    }
     // R-22. While the (Z)-stats modal owns the keyboard it also owns the right
     // panel. It is painted with the SAME compact-selector primitive every other
     // modal uses -- title band, two detail lines, eight text rows, context bar --
@@ -2939,6 +3399,8 @@ const DeviceSelectionView *AlphaRuntime::compose_selection_view(){
         if(openu5::platform_dos_interface()){
             selection_view_.detail[0]=selection_view_.detail2[0]=0;
             selection_view_.detail_panel=false;selection_view_.context={};
+            // ...drawn as the original's panel, over the boxes only.
+            selection_view_.dos=compose_dos_panel(nullptr);
         }
         return &selection_view_;
     }
@@ -3004,6 +3466,9 @@ const DeviceSelectionView *AlphaRuntime::compose_selection_view(){
             std::snprintf(selection_view_.title,sizeof(selection_view_.title),"Items:");
         selection_view_.detail[0]=selection_view_.detail2[0]=0;
         selection_view_.detail_panel=false;selection_view_.context={};
+        // Drawn as the original's panel in the boxes' place (the console keeps
+        // its rows and the prompt), not as the T-Deck's right-column list.
+        selection_view_.dos=compose_dos_panel(&current);
     }
     return &selection_view_;
 }

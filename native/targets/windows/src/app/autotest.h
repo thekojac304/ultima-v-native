@@ -34,8 +34,18 @@
 //                             bottom row is exactly TEXT),
 //                           roster_cursor N (the picker's reverse-video roster
 //                             row, -1 none), select_banner 0|1,
-//                           overlay_panel 0|1 (a list/page panel covers the
-//                             right column), overlay_title TEXT,
+//                           overlay_panel 0|1 (the handheld's list/page panel
+//                             covers the right column), overlay_title TEXT,
+//                           dos_panel 0|1 (the 1988 right panel over the
+//                             boxes), dos_panel_title TEXT, dos_panel_layout
+//                             box|split|none, dos_panel_row "N TEXT" (window
+//                             row N contains TEXT; box glyphs '+', RUNES.CH
+//                             cells '*'), dos_panel_bar N (-1 none),
+//                             dos_panel_arrow N (the glyph, 0 none),
+//                           shop_panel 0|1 (the handheld's shop panel),
+//                           right_column dos_box|dos_split|tdeck_list|
+//                             tdeck_shop|world|other (read from the presented
+//                             panel's PIXELS, not from the views),
 //                           context_bar 0|1, prompt TEXT (the open prompt
 //                             contains TEXT),
 //                           remember_turns (any value) / turns_advanced 1|0,
@@ -73,6 +83,10 @@
 //                         (the open grass the fight step uses)
 //   fight DEF [N]         a surface fight: open grass, N enemies of definition
 //                         DEF beside the party, Pass until the arena opens
+//   shop TYPE             a shop (needs the Developer menu): the first town of
+//                         that type, then the live keeper's begin_shop, as a
+//                         Talk opens it -- blacksmith, tavern, horses, ship,
+//                         reagents, guild, healer, inn
 //   quit                  stop (the script's end stops too)
 // The scenario runner starts the game in its scratch data folder, so a
 // relative PATH lands there.

@@ -954,9 +954,17 @@ esp_err_t Board::show_alpha(const uint16_t *pixels,const openu5::UiSession &ui,
         ESP_RETURN_ON_ERROR(fill_rect(openu5::kHudPartyFrameX,0,kDisplayWidth-openu5::kHudPartyFrameX,kDisplayHeight,kBlack),kTag,"leave shop panel");
         shop_cache_valid_=false;context_cache_valid_=false;alpha_ui_cache_valid_=false;
     }
-    if((!selection||!selection->active)&&selection_cache_valid_){
+    // Windows port, the 1988 interaction model: a DOS panel covers only the
+    // roster and status boxes (draw_dos_panel); the console stays the world's.
+    const bool dos_panel=selection&&selection->active&&selection->dos;
+    if((!selection||!selection->active||dos_panel)&&selection_cache_valid_){
         ESP_RETURN_ON_ERROR(fill_rect(openu5::kHudPartyFrameX,0,kDisplayWidth-openu5::kHudPartyFrameX,kDisplayHeight,kBlack),kTag,"leave compact selector");
         selection_cache_valid_=false;context_cache_valid_=false;alpha_ui_cache_valid_=false;
+        std::memset(transcript_cache_,0,sizeof(transcript_cache_));
+    }
+    if(!dos_panel&&dos_panel_cache_valid_){
+        ESP_RETURN_ON_ERROR(fill_rect(openu5::kHudPartyFrameX,0,kDisplayWidth-openu5::kHudPartyFrameX,88,kBlack),kTag,"leave DOS panel");
+        dos_panel_cache_valid_=false;alpha_ui_cache_valid_=false;
     }
     // Alpha 4 UI Batch 1 (ALPHA4_UI.md): the two 9 px strips keep their
     // rectangles and become frame -- 8 rows of band with the original's notch
@@ -1030,6 +1038,7 @@ esp_err_t Board::show_alpha(const uint16_t *pixels,const openu5::UiSession &ui,
         alpha_ui_cache_valid_=false;alpha_ui_size_cache_=ui_size;
         std::memset(transcript_cache_,0,sizeof(transcript_cache_));
     }
+    const bool chrome_redrawn=!alpha_ui_cache_valid_; // the frame below paints over a DOS panel
     if(!alpha_ui_cache_valid_){
         // Alpha 4 UI Batch 1 (ALPHA4_UI.md): the original's frame structure
         // (web port frame.ts) inside the unchanged HUD rectangles. Everything
@@ -1133,7 +1142,19 @@ esp_err_t Board::show_alpha(const uint16_t *pixels,const openu5::UiSession &ui,
         shop_cache_=*shop;shop_cache_valid_=true;alpha_ui_cache_valid_=true;
         return ESP_OK;
     }
-    if(selection&&selection->active){
+    if(dos_panel){
+        // The 1988 interaction model: the original's right panel, in the boxes'
+        // place; the console below is drawn as in the world, prompt and cursor
+        // included ("Item: " waits there, as in DOS).
+        if(!dos_panel_cache_)dos_panel_cache_.reset(new DeviceDosPanel());
+        if(chrome_redrawn||!dos_panel_cache_valid_||std::memcmp(dos_panel_cache_.get(),selection->dos,sizeof(DeviceDosPanel))!=0){
+            ESP_RETURN_ON_ERROR(draw_dos_panel(*selection->dos,runes_font),kTag,"draw DOS panel");
+            ++debug_last_dirty_regions_;debug_last_pixels_+=size_t(kDisplayWidth-openu5::kHudPartyFrameX)*88;
+            *dos_panel_cache_=*selection->dos;dos_panel_cache_valid_=true;
+        }
+        // The rows under the panel are gone: they redraw in full when it closes.
+        for(auto &row:panel_rows_)row.valid=false;
+    }else if(selection&&selection->active){
         console_cursor_.visible=false;
         const bool first=!selection_cache_valid_;
         auto account=[&](size_t count){++debug_last_dirty_regions_;debug_last_pixels_+=count;};
@@ -1155,7 +1176,7 @@ esp_err_t Board::show_alpha(const uint16_t *pixels,const openu5::UiSession &ui,
         if(selection->context.active){ESP_RETURN_ON_ERROR(draw_context_bar(selection->context,182,137,first),kTag,"selector context action bar");account(137*25);}
         selection_cache_=*selection;selection_cache_valid_=true;alpha_ui_cache_valid_=true;return ESP_OK;
     }
-    if(!preserve_party_panel) {
+    if(!preserve_party_panel&&!dos_panel) {
         ESP_RETURN_ON_ERROR(draw_party_rows(game,party_highlight,!alpha_ui_cache_valid_),kTag,"draw party rows");
     }
     // Batch 9B.  While a dungeon session is mounted the caption is the DUNGEON's
@@ -1166,7 +1187,7 @@ esp_err_t Board::show_alpha(const uint16_t *pixels,const openu5::UiSession &ui,
     // 0x4e50, centred) while it asks; the caption row is that title's place
     // here, the panel having no band row above the roster.
     if(party_highlight.select_banner)name="       Select:";
-    if(!preserve_party_panel){
+    if(!preserve_party_panel&&!dos_panel){
         status_move_=movement_mode;
         ESP_RETURN_ON_ERROR(draw_status_rows(game,name,movement_mode,!alpha_ui_cache_valid_),kTag,"draw world status");
     }
@@ -1637,6 +1658,102 @@ esp_err_t Board::draw_band_strip(int x,int y,int width,int height,int rule_row,c
         if(!row_batch_ends(used,row_length,row,height))continue;
         spi_transaction_t transaction{};transaction.length=used*8;transaction.tx_buffer=transfer_row_.data();used=0;
         ESP_RETURN_ON_ERROR(tft_row(transaction,mark),kTag,"write band strip rows");
+    }
+    return ESP_OK;
+}
+
+esp_err_t Board::draw_dos_panel(const DeviceDosPanel &panel,const uint8_t *runes_font)
+{
+    // The original's right panel on the T-Deck's 320 x 240 frame. DOS draws it at
+    // x 184..319 x y 0..87 of its 320 x 200 screen: the band (y 0..6) with the
+    // banner's notch, the box's top rule (y 7), text window 1 (rows 1..9, y 8..79),
+    // the box's bottom rule (y 80), the band (y 81..86) with the arrow's notch,
+    // and the console's top rule (y 87); the console starts at y 88, as here. The
+    // boxes' rules stay at the T-Deck's x 182 / 318; window col 0 is the roster
+    // text's x 188 (kRosterTextX), so the window ends at x 315, inside the box.
+    if(!display_initialized_||!alpha_drawn_)return ESP_ERR_INVALID_STATE;
+    constexpr int kX=openu5::kHudPartyFrameX,kW=kDisplayWidth-kX,kH=88;
+    constexpr int kBoxRight=openu5::kHudPartyFrameX+openu5::kHudPartyFrameW-1;
+    constexpr int kWindowX=kRosterTextX,kWindowY=8,kWindowW=int(kDosPanelCols)*8;
+    constexpr int kBottomRuleY=kWindowY+int(kDosPanelRows)*8,kConsoleRuleY=kH-1;
+    // kernel 0x4dea: the arrow band's > at screen col 30, the glyph at 31, < at 32.
+    constexpr int kArrowCell=6;
+    // The banner (0x4e50, as the web port's skin.ts): > + text + < centred in the
+    // 15 cells of the roster window, the text on a black notch.
+    // The two-box layout's band (screen row 7, y 56..63).
+    const bool split=panel.layout==kDosLayoutRosterAndStatus;
+    constexpr int kBandRowY=kWindowY+6*8;
+    const int length=int(std::min(std::strlen(panel.banner),kDosPanelCols));
+    const int start=length?std::max(0,(15-(length+2))/2):-100;
+    auto bracket=[&](int i,int row,bool mirror,uint16_t base)->uint16_t{
+        const uint8_t bit=uint8_t(0x80U>>unsigned(mirror?7-i:i));
+        if(kBracketWhite[row]&bit)return kChromeRule;
+        if(kBracketBlue[row]&bit)return kChromeBand;
+        return (mirror?i<7:i>0)?kBlack:base;
+    };
+    auto glyph_on=[&](uint8_t code,bool runes,int gy,int gx)->bool{
+        const uint8_t *font=runes&&runes_font?runes_font:ibm_font_;
+        if(!font)return chrome_glyph_bit(char(code),gy,gx);
+        return (font[size_t(code&0x7fU)*8+size_t(gy)]&(0x80U>>unsigned(gx)))!=0;
+    };
+    ESP_RETURN_ON_ERROR(set_display_window(kX,0,kW,kH),kTag,"set DOS panel window");
+    gpio_set_level(pins::kTftDataCommand,1);
+    const size_t row_length=size_t(kW)*2;
+    size_t used=0;
+    RowMark mark{};
+    for(int y=0;y<kH;++y){
+        if(used==0)mark=row_mark();
+        uint8_t *out=transfer_row_.data()+used;
+        for(int col=0;col<kW;++col){
+            const int x=kX+col,rel=x-kWindowX;
+            const int cell=rel>=0?rel/8:-1-(-rel-1)/8,gx=rel-cell*8;
+            uint16_t pixel=kBlack;
+            if(y<kWindowY){
+                const uint16_t base=y==kWindowY-1&&x<=kBoxRight?kChromeRule:kChromeBand;
+                pixel=base;
+                if(cell==start)pixel=bracket(gx,y,false,base);
+                else if(cell>start&&cell<=start+length)
+                    pixel=glyph_on(uint8_t(panel.banner[cell-start-1]),false,y,gx)?kWhite:kBlack;
+                else if(cell==start+length+1)pixel=bracket(gx,y,true,base);
+                // The frame's cut top-right corner (kCornerCutSmall).
+                if((y==0&&x>=kDisplayWidth-kCornerCutSmall[0])||(y==1&&x>=kDisplayWidth-kCornerCutSmall[1]))pixel=kBlack;
+            }else if(split&&y>=kBandRowY&&y<kBandRowY+8){
+                // The band between the roster and status boxes: the roster box's
+                // bottom rule, the band (with list_wares' arrow notch), the status
+                // box's top rule.
+                const int row=y-kBandRowY;
+                const uint16_t base=(row==0||row==7)&&x<=kBoxRight?kChromeRule:kChromeBand;
+                pixel=base;
+                if(panel.arrow&&row<7){
+                    if(cell==kArrowCell)pixel=bracket(gx,row,false,base);
+                    else if(cell==kArrowCell+1)pixel=glyph_on(panel.arrow,false,row,gx)?kWhite:kBlack;
+                    else if(cell==kArrowCell+2)pixel=bracket(gx,row,true,base);
+                }
+            }else if(y<kBottomRuleY){
+                if(x==kX||x==kBoxRight)pixel=kChromeRule;
+                else if(x>kBoxRight)pixel=kChromeBand;
+                else if(rel>=0&&rel<kWindowW){
+                    const size_t r=size_t((y-kWindowY)/8),c=size_t(cell);const int gy=(y-kWindowY)%8;
+                    const bool on=glyph_on(panel.cells[r][c],(panel.runes[r]>>c)&1U,gy,gx);
+                    pixel=(on!=(((panel.inverse[r]>>c)&1U)!=0))?kWhite:kBlack;
+                }
+            }else if(y==kConsoleRuleY)pixel=kChromeRule;
+            else{
+                const uint16_t base=y==kBottomRuleY&&x<=kBoxRight?kChromeRule:kChromeBand;
+                pixel=base;
+                if(panel.arrow&&!split){
+                    const int row=y-kBottomRuleY;
+                    if(cell==kArrowCell)pixel=bracket(gx,row,false,base);
+                    else if(cell==kArrowCell+1)pixel=glyph_on(panel.arrow,false,row,gx)?kWhite:kBlack;
+                    else if(cell==kArrowCell+2)pixel=bracket(gx,row,true,base);
+                }
+            }
+            out[col*2]=uint8_t(pixel>>8);out[col*2+1]=uint8_t(pixel);
+        }
+        used+=row_length;
+        if(!row_batch_ends(used,row_length,y,kH))continue;
+        spi_transaction_t transaction{};transaction.length=used*8;transaction.tx_buffer=transfer_row_.data();used=0;
+        ESP_RETURN_ON_ERROR(tft_row(transaction,mark),kTag,"write DOS panel rows");
     }
     return ESP_OK;
 }

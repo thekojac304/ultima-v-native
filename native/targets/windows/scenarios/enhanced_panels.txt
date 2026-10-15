@@ -1,0 +1,75 @@
+# Windows Enhanced keeps the handheld's panels (windows/original-dos-interaction):
+# the same keys as original_dos_panels.txt, and the right column shows the
+# T-Deck's list / page / shop panels -- never a 1988 DOS panel.
+frames 5
+key Return
+frames 3
+text C
+frames 3
+text Mage
+key Return
+text F
+text B
+text B
+text B
+text B
+text B
+text B
+text B
+wait 2500
+expect right_column world
+text r
+frames 3
+expect dos_panel 0
+expect overlay_panel 1
+expect overlay_title Ready Whom?
+expect right_column tdeck_list
+key Return
+frames 3
+expect dos_panel 0
+expect overlay_panel 1
+expect overlay_title Ready Equipment
+expect right_column tdeck_list
+key Escape
+frames 3
+key Escape
+frames 3
+text u
+frames 3
+expect dos_panel 0
+expect overlay_panel 1
+expect overlay_title Use Item
+expect right_column tdeck_list
+key Escape
+frames 3
+text z
+frames 3
+key Return
+frames 3
+expect dos_panel 0
+expect overlay_panel 1
+expect right_column tdeck_list
+key Escape
+frames 3
+key Escape
+frames 3
+shop reagents
+frames 3
+key Return
+frames 4
+expect dos_panel 0
+expect shop_panel 1
+expect right_column tdeck_shop
+key Escape
+frames 4
+key Escape
+frames 4
+shop blacksmith
+frames 3
+key Return
+frames 3
+text s
+frames 4
+expect dos_panel 0
+expect shop_panel 1
+expect right_column tdeck_shop

@@ -108,6 +108,12 @@ bool DesktopProfile::scaling_adjust(void *context, int delta) {
     return true;
 }
 
+// Original mode's list panels print the DOS game's own names (dos_text.h).
+const char *DesktopProfile::dos_text(void *context, uint8_t table, int index) {
+    const auto *self = static_cast<const DesktopProfile *>(context);
+    return self->hooks_.dos_text ? self->hooks_.dos_text->text(table, index) : nullptr;
+}
+
 void DesktopProfile::install(const Hooks &hooks) {
     hooks_ = hooks;
     std::snprintf(g_banner, sizeof(g_banner), "%s for Windows %s", build::kProductName, build::kVersion);
@@ -142,6 +148,8 @@ void DesktopProfile::install(const Hooks &hooks) {
     // the handheld's list panels and key legends.
     p.dos_interface = &DesktopProfile::original_mode;
     p.dos_interface_context = this;
+    p.dos_text = &DesktopProfile::dos_text;
+    p.dos_text_context = this;
     openu5::set_platform_profile(p);
 }
 

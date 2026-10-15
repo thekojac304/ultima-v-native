@@ -43,7 +43,9 @@ wait 2500
 expect remember_combat_actions x
 text z
 frames 3
-expect overlay_panel 1
+expect overlay_panel 0
+expect dos_panel 1
+expect right_column dos_box
 expect combat_actions_advanced 0
 key Space
 wait 600
