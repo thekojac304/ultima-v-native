@@ -1889,8 +1889,16 @@ if(BUILD_TESTING)
   # each through the REAL AlphaRuntime on the REAL tdeck_board.cpp over the
   # fake ST7789 (host_tests/a4_ui2_harness.h), with the two-slot memory card.
   function(openu5_a4_ui2_runtime name)
+    set(_runtime_test_source "../targets/tdeck/host_tests/${name}_test.cpp")
+    set(_runtime_core openu5_core)
+    if(ARGC GREATER 1)
+      set(_runtime_test_source "${ARGV1}")
+    endif()
+    if(ARGC GREATER 2)
+      set(_runtime_core "${ARGV2}")
+    endif()
     add_executable(${name}
-      ../targets/tdeck/host_tests/${name}_test.cpp
+      "${_runtime_test_source}"
       ../targets/tdeck/host_tests/alpha_runtime_host_fixture.cpp
       ../targets/tdeck/host_tests/board_shims/fake_tdeck_bus.cpp
       ../targets/tdeck/main/tdeck_board.cpp
@@ -1909,7 +1917,7 @@ if(BUILD_TESTING)
       ../targets/tdeck/main/alpha_dialogue.cpp
       ../targets/tdeck/main/native_renderer.cpp
       ../targets/tdeck/host_tests/host_stubs/device_smoke_tests_host_stub.cpp)
-    target_link_libraries(${name} PRIVATE openu5_core)
+    target_link_libraries(${name} PRIVATE ${_runtime_core})
     target_include_directories(${name} PRIVATE
       ../targets/tdeck/host_tests/board_shims
       ../targets/tdeck/host_tests/esp_shims
@@ -2617,6 +2625,13 @@ if(BUILD_TESTING)
   # AlphaRuntime on the REAL Board chooses the caster on the roster (reverse-video row,
   # "Select:" caption, no selector panel, no context bar) and reads "Spell name:" on the
   # console; the default profile in the same binary keeps the T-Deck's panel and bar.
+  # Opt-in release evidence: the unmodified handheld runtime on raw input walks.
+  option(OPENU5_BUILD_RC1_DIFFERENTIAL "Build the v0.5.0 handheld preservation probes" OFF)
+  if(OPENU5_BUILD_RC1_DIFFERENTIAL)
+    openu5_a4_ui2_runtime(rc1_tdeck_reference
+      "${CMAKE_CURRENT_SOURCE_DIR}/tools/lookpolish_differential/tdeck_diff_probe_test.cpp")
+    target_compile_definitions(rc1_tdeck_reference PRIVATE PROBE_DOS=1)
+  endif()
   openu5_a4_ui2_runtime(win_dos_runtime)
   add_test(NAME win_dos_runtime COMMAND win_dos_runtime
     "${CMAKE_CURRENT_SOURCE_DIR}/../assets/openu5-alpha1-resources.bin")

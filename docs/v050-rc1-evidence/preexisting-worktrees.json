@@ -1,0 +1,234 @@
+{
+  "recorded": "2026-10-15T01:26:30.6547394-04:00",
+  "worktrees": [
+    {
+      "path": "C:/Dev/OpenU5-Native",
+      "head": "96a55ff9084f69acf776695a4fd1a5c5b15f16cb",
+      "status": [
+        "?? native/core/a4-final-hw-fw-build.log",
+        "?? native/core/a4-final-hw-fw-configure.log",
+        "?? native/core/a4-final-hw-package.log",
+        "?? native/targets/tdeck/A4-FINAL-HW.md"
+      ]
+    },
+    {
+      "path": "C:/Dev/ultima-v-native-parity",
+      "head": "fc4a63aa627616600c6d5ea202d599215eaf5dfe",
+      "status": []
+    },
+    {
+      "path": "C:/Dev/ultima-v-native-spp2",
+      "head": "bf3480e3f4b507d33f4bf44a25e794394afdf9f4",
+      "status": []
+    },
+    {
+      "path": "C:/Dev/ultima-v-native-windows",
+      "head": "e089f2c5fdc142148f918908b62a2fbd49e72408",
+      "status": [
+        "?? native/core/fid-audit-win.log",
+        "?? native/core/fid-baseline-host-build.log",
+        "?? native/core/fid-baseline-host-ctest.log",
+        "?? native/core/fid-baseline-win.log",
+        "?? native/core/fid-fw-build.log",
+        "?? native/core/fid-fw-build2.log",
+        "?? native/core/fid-step1-host-ctest.log",
+        "?? native/core/fid-step1-win.log",
+        "?? native/core/fid-step2-win.log",
+        "?? native/core/fid-step3-host-ctest.log",
+        "?? native/core/fid-step3-winbuild.log",
+        "?? native/core/fid-step4-host-ctest.log",
+        "?? native/core/fid-step4-win.log",
+        "?? native/core/fid-step5-host-ctest.log",
+        "?? native/core/final-fw-build.log",
+        "?? native/core/final-fw-build2.log",
+        "?? native/core/final-host-build.log",
+        "?? native/core/final-host-ctest.log",
+        "?? native/core/final-win-package.log",
+        "?? native/core/final-win-package2.log",
+        "?? native/core/merge-win.log",
+        "?? native/core/win-baseline-build.log",
+        "?? native/core/win-baseline-configure.log",
+        "?? native/core/win-baseline-ctest.log",
+        "?? native/core/win-fw-build.log",
+        "?? native/core/win-fw-configure.log",
+        "?? native/core/win-fw-export.log",
+        "?? native/core/win-phase1-build.log",
+        "?? native/core/win-phase1-ctest.log",
+        "?? native/core/win-phase2-build.log",
+        "?? native/core/win-phase2-ctest.log",
+        "?? native/core/win-phase3-build.log",
+        "?? native/core/win-phase3-ctest.log",
+        "?? native/core/win-phase3b-build.log",
+        "?? native/core/win-phase3b-ctest.log",
+        "?? native/core/win-phase4-build.log",
+        "?? native/core/win-phase4-ctest.log",
+        "?? native/core/win-review-build.log",
+        "?? native/core/win-review-ctest.log",
+        "?? native/core/win-review-host-ctest.log",
+        "?? native/core/win-review-mutants.log",
+        "?? native/core/win-review-package.log",
+        "?? native/core/win-review-zipcheck.log"
+      ]
+    },
+    {
+      "path": "C:/Dev/uvw-base",
+      "head": "2c8de82176f112936135083eeaac21bcc65dcf10",
+      "status": [
+        "?? audit-fw/a3_04a_hotpath_check.py.base.log",
+        "?? audit-fw/a3_04a_hotpath_check.py.head.log",
+        "?? audit-fw/a3_04b_iram_check.py.base.log",
+        "?? audit-fw/a3_04b_iram_check.py.head.log",
+        "?? audit-fw/a3_04f_image_check.py.base.log",
+        "?? audit-fw/a3_04f_image_check.py.head.log",
+        "?? audit-fw/arch-base.json",
+        "?? audit-fw/arch-head.json",
+        "?? audit-fw/files-base.json",
+        "?? audit-fw/files-head.json",
+        "?? audit-fw/layout-base.txt",
+        "?? audit-fw/layout-head.txt",
+        "?? audit-fw/objcmp.txt",
+        "?? audit-fw/scripts/ann.py",
+        "?? audit-fw/scripts/build_mockups.py",
+        "?? audit-fw/scripts/callers.py",
+        "?? audit-fw/scripts/ds.py",
+        "?? audit-fw/scripts/dsw.py",
+        "?? audit-fw/scripts/dwarf_layout.py",
+        "?? audit-fw/scripts/dx.py",
+        "?? audit-fw/scripts/edit_doc1.py",
+        "?? audit-fw/scripts/edit_holeup.py",
+        "?? audit-fw/scripts/edit_rt1.py",
+        "?? audit-fw/scripts/edit_rt2.py",
+        "?? audit-fw/scripts/edit_rt3.py",
+        "?? audit-fw/scripts/edit_shrine.py",
+        "?? audit-fw/scripts/eol.py",
+        "?? audit-fw/scripts/family_matrix.py",
+        "?? audit-fw/scripts/fndiff.py",
+        "?? audit-fw/scripts/iramcmp.py",
+        "?? audit-fw/scripts/iramcmp2.py",
+        "?? audit-fw/scripts/letterbox.py",
+        "?? audit-fw/scripts/measure_black.py",
+        "?? audit-fw/scripts/measure_window.py",
+        "?? audit-fw/scripts/montage.py",
+        "?? audit-fw/scripts/mutants.py",
+        "?? audit-fw/scripts/newer_than.py",
+        "?? audit-fw/scripts/objcmp.py",
+        "?? audit-fw/scripts/objfn.py",
+        "?? audit-fw/scripts/objnorm.py",
+        "?? audit-fw/scripts/pathstrings.py",
+        "?? audit-fw/scripts/profile.py",
+        "?? audit-fw/scripts/rostrings.py",
+        "?? audit-fw/scripts/rv_ds.py",
+        "?? audit-fw/scripts/screens_montage.py",
+        "?? audit-fw/scripts/sections.py",
+        "?? audit-fw/scripts/stubs.py",
+        "?? audit-fw/scripts/symdiff.py",
+        "?? audit-fw/scripts/to_crlf.py",
+        "?? audit-fw/scripts/u5dis.py",
+        "?? audit-fw/size-archives-base.txt",
+        "?? audit-fw/size-archives-diff.txt",
+        "?? audit-fw/size-archives-head.txt",
+        "?? audit-fw/size-base.json",
+        "?? audit-fw/size-base.txt",
+        "?? audit-fw/size-diff-unified.txt",
+        "?? audit-fw/size-diff.txt",
+        "?? audit-fw/size-files-base.txt",
+        "?? audit-fw/size-files-diff.txt",
+        "?? audit-fw/size-files-head.txt",
+        "?? audit-fw/size-head.json",
+        "?? audit-fw/size-head.txt",
+        "?? audit-fw/symdiff.txt",
+        "?? native/core/probe-build.log",
+        "?? native/core/probe-configure.log",
+        "?? native/targets/tdeck/base-fw-build.log",
+        "?? native/targets/tdeck/base-idf-export.log"
+      ]
+    },
+    {
+      "path": "C:/Dev/uvw-dos-base",
+      "head": "bf3480e3f4b507d33f4bf44a25e794394afdf9f4",
+      "status": [
+        "?? native/core/probe-build.log",
+        "?? native/core/probe-configure.log"
+      ]
+    },
+    {
+      "path": "C:/Dev/uvw-dos-shops",
+      "head": "00e3bd22d784e037106b88e4d552a0a752ab19b3",
+      "status": []
+    },
+    {
+      "path": "C:/Dev/uvw-dos2-base",
+      "head": "60e7c647bfa00e02f34d995d96556dcfe4342312",
+      "status": [
+        " M native/core/CMakeLists.txt",
+        "?? native/core/build-probe.build.log",
+        "?? native/core/build-probe.configure.log",
+        "?? native/targets/tdeck/host_tests/tdeck_diff_probe_test.cpp"
+      ]
+    },
+    {
+      "path": "C:/Dev/uvw-look-polish",
+      "head": "9c98054782eb9b62eefbb70718535991e0dede98",
+      "status": []
+    },
+    {
+      "path": "C:/Dev/uvw-lp-base",
+      "head": "00ae0410b39a6c88529ee9aae6bcf3943e1d313b",
+      "status": [
+        "?? native/core/probe-build.log",
+        "?? native/core/probe-configure.log"
+      ]
+    },
+    {
+      "path": "C:/Dev/uvw-original-dos",
+      "head": "00ae0410b39a6c88529ee9aae6bcf3943e1d313b",
+      "status": [
+        "?? native/targets/tdeck/origdos-fw-export.log"
+      ]
+    },
+    {
+      "path": "C:/Dev/uvw-present",
+      "head": "d689ef0148ed87a1b053eef0ad8f91580c9c1de9",
+      "status": []
+    },
+    {
+      "path": "C:/Dev/uvw-shops-base",
+      "head": "60e7c647bfa00e02f34d995d96556dcfe4342312",
+      "status": []
+    },
+    {
+      "path": "C:/Dev/uvw-spp1-base",
+      "head": "e089f2c5fdc142148f918908b62a2fbd49e72408",
+      "status": []
+    },
+    {
+      "path": "C:/Dev/uvw-spp2-base",
+      "head": "fc4a63aa627616600c6d5ea202d599215eaf5dfe",
+      "status": []
+    }
+  ],
+  "branches": [
+    "  enhanced-mode                     2485950e [enhanced/enhanced-mode] Update",
+    "+ main                              96a55ff9 (C:/Dev/OpenU5-Native) [origin/main] Refine T-Deck UI fidelity",
+    "+ parity/shared-preservation-1      fc4a63aa (C:/Dev/ultima-v-native-parity) SPP1: record the rebuilt Windows test package",
+    "+ parity/shared-preservation-2      bf3480e3 (C:/Dev/ultima-v-native-spp2) SPP2: record the Windows test package",
+    "  preserve/a4-parity1-wip           ff456642 PRESERVE: A4-UI4/hf1 + A4-PARITY1 working tree snapshot (not for merge)",
+    "+ windows/initial-port              e089f2c5 (C:/Dev/ultima-v-native-windows) build-windows: provenance dirty check follows the checkout's line endings",
+    "* windows/look-enhanced-polish      9c980547 LOOK-POLISH1: record the Windows test package",
+    "+ windows/original-dos-interaction  00ae0410 (C:/Dev/uvw-original-dos) ORIG-DOS2: record the Windows test package and the screenshots",
+    "+ windows/original-dos-shops        00e3bd22 (C:/Dev/uvw-dos-shops) ORIG-DOS2: the record -- sequences, evidence, tests, the T-Deck differential",
+    "+ windows/presentation-wip          d689ef01 (C:/Dev/uvw-present) Docs: Fit's pixel-art sampling, windows.json vs the Display row; mutation record corrected",
+    "  remotes/enhanced/HEAD             -> enhanced/main",
+    "  remotes/enhanced/enhanced-mode    2485950e Update",
+    "  remotes/enhanced/esp32-tdeck-port 4d77fe77 Ignore ESP-IDF build artifacts",
+    "  remotes/enhanced/main             291736a4 Sync from upstream: game data strings extracted to runtime asset, four fidelity fixes, refreshed docs",
+    "  remotes/origin/main               96a55ff9 Refine T-Deck UI fidelity"
+  ],
+  "remotes": [
+    "enhanced\thttps://github.com/thekojac304/OpenU5-Enhanced.git (fetch)",
+    "enhanced\thttps://github.com/thekojac304/OpenU5-Enhanced.git (push)",
+    "origin\thttps://github.com/thekojac304/ultima-v-native.git (fetch)",
+    "origin\thttps://github.com/thekojac304/ultima-v-native.git (push)"
+  ],
+  "base": "9c98054782eb9b62eefbb70718535991e0dede98"
+}

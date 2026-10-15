@@ -5,3 +5,6 @@
 /build/
 /build-*/
 /build-core/
+
+# Local RC packages and immutable validation evidence.
+/dist/
