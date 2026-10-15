@@ -1,0 +1,23 @@
+ORIG-DOS2 DOS-screen mutants (session scratchpad mutants2.py): each one-edit mutant built and run against
+uv_virtual_panel_test, uv_presentation_test, scenario_(presentation_dos|original_dos_panels|new_game_original|enhanced_interface|original_interface)
+Round 1 (before D8b; D9b and D3a were already in):
+{"mutant": "M1 Original shows the handheld screen (the Board's DOS layout never set)", "verdict": "killed", "failed": ["2/7 Test #10: scenario_new_game_original .......***Failed    5.12 sec", "3/7 Test #20: scenario_presentation_dos ........***Failed    5.95 sec", "4/7 Test #32: scenario_original_dos_panels .....***Failed    6.46 sec", "7/7 Test #17: scenario_original_interface ......***Failed    5.28 sec"]}
+{"mutant": "M2 the presenter shows the panel's 240 rows on the DOS screen", "verdict": "killed", "failed": ["3/7 Test #20: scenario_presentation_dos ........***Failed    5.93 sec"]}
+{"mutant": "M3 the window keeps the handheld's 240-row shape", "verdict": "killed", "failed": ["3/7 Test #20: scenario_presentation_dos ........***Failed    5.74 sec"]}
+{"mutant": "M4 the console wraps at 22 cells on the DOS screen", "verdict": "killed", "failed": []}
+{"mutant": "M5 Original prints the build line and key legend again", "verdict": "killed", "failed": ["2/7 Test #10: scenario_new_game_original .......***Failed    5.00 sec"]}
+{"mutant": "M6 the separator band one pixel left (x 184..190)", "verdict": "killed", "failed": []}
+{"mutant": "M7 the band ends without draw_box_edge's corner pixels", "verdict": "killed", "failed": ["3/7 Test #20: scenario_presentation_dos ........***Failed    5.82 sec"]}
+{"mutant": "M8 Window N x keeps the 240-row aspect", "verdict": "killed", "failed": ["3/7 Test #20: scenario_presentation_dos ........***Failed    5.73 sec"]}
+{"mutant": "M9 F12 saves the whole 240-row panel", "verdict": "killed", "failed": ["3/7 Test #20: scenario_presentation_dos ........***Failed    5.78 sec"]}
+{"mutant": "M10 the frontend is cut to the DOS screen's 200 rows", "verdict": "killed", "failed": ["3/7 Test #20: scenario_presentation_dos ........***Failed    6.01 sec"]}
+{"mutant": "M11 a list's box is not joined across the bar", "verdict": "killed", "failed": ["4/7 Test #32: scenario_original_dos_panels .....***Failed    6.56 sec", "7/7 Test #17: scenario_original_interface ......***Failed    5.26 sec"]}
+{"mutant": "M12 the console bullet is the handheld's long one", "verdict": "killed", "failed": ["3/7 Test #20: scenario_presentation_dos ........***Failed    5.81 sec"]}
+{"mutant": "M13 the wind caption centred instead of at col 6", "verdict": "killed", "failed": []}
+{"mutant": "M14 the date not centred in the status box", "verdict": "survived", "failed": []}
+{"mutant": "M15 the map clipped like the handheld's (top 9 rows)", "verdict": "killed", "failed": []}
+{"control": "restored source", "passed": true}
+Round 2 (after D8b, the survivor re-run):
+{"mutant": "M14 the date not centred in the status box", "verdict": "killed", "failed": []}
+{"control": "restored source", "passed": true}
+Round 1's M4 / M6 / M13 / M15 list no 'failed' lines only because the result parser expected 'Test #' and ctest printed 'Test  #4'; their runs failed uv_virtual_panel_test (mutant-M4/M6/M13/M15 logs).

@@ -76,10 +76,17 @@ packs go in.
 
 3. STARTING THE GAME
 --------------------
-Double-click UltimaVNative.exe. The window opens with the original 320x240
-picture at three times its size (more on a high-DPI display: 4x at 150 %,
-6x at 200 % Windows scaling, as far as the screen allows), with sharp,
-square pixels, inside a thin frame in the game's own blue and white.
+Double-click UltimaVNative.exe. In Original mode you play on the 1988 DOS
+game's own 320x200 screen: the map, the party and food/gold boxes and the
+16-column message console where the DOS game has them, in its blue-and-white
+frame. Enhanced mode (and the title, menus and Settings in both modes) uses
+the T-Deck's 320x240 screen design. The window opens with the picture at
+three times its size (more on a high-DPI display: 4x at 150 %, 6x at 200 %
+Windows scaling, as far as the screen allows), with sharp, square pixels,
+inside a thin frame in the game's own blue and white. The window is sized
+for the mode's screen (Window 3x is 960x600 for Original's, 960x720 for
+Enhanced's, plus the frame); the 320x240 menus show inside it at the largest
+whole size that fits.
 Alt+Enter (or F11) switches to fullscreen and back; Ctrl+= / Ctrl+- change
 the window's size. Once you choose a size it is remembered.
 
@@ -88,8 +95,9 @@ chooses how it fills a window or the screen:
   Framed        (the default) whole pixels, centred, in a thin blue frame
                 where there is room; black around it, as on the 1988 screen
   Whole pixels  the same picture with no frame
-  Fit window    fills as much as it can at 4:3. When that is not a whole
-                multiple of 320x240, the edges between pixels are softened
+  Fit window    fills as much as it can at the picture's own shape (8:5
+                for Original's 320x200 screen, 4:3 for 320x240). When that
+                is not a whole multiple of it, the edges between pixels are softened
                 slightly (every pixel stays the same size); on graphics
                 drivers without that, some pixels are one screen pixel
                 wider instead
@@ -125,6 +133,8 @@ ORIGINAL (the default) is the preservation mode:
     command prompt says "What?". The questions and answers appear in the
     message console as they did in 1988 ("Player: Iolo", "Save game? Yes",
     "Look-North"), with no key bar under them. CONTROLS.txt lists the rules;
+  - the 1988 screen (above); the console starts empty, as in 1988 (the
+    build's name and version are on the System Menu, F10, under its title);
   - Cast and Mix ask "Spell name:" / "For what spell?" and you TYPE the
     first letter of each syllable, as in 1988 (I L = IN LOR, V F = VAS FLAM;
     the order does not matter; Backspace removes a syllable, Enter accepts,
@@ -186,10 +196,13 @@ The data folder is  %APPDATA%\Ultima V Native  (Ctrl+O in the game opens it):
       saves\                  the save slots
       settings.json           game settings (the same file the T-Deck uses)
       windows.json            window size, scaling, fullscreen and interface
-                              mode (delete it to return to the defaults)
+                              mode (delete it to return to the defaults);
+                              "originalScreen": "Handheld" gives Original
+                              the T-Deck's 320x240 screen instead of DOS's
       import\  export\        PC/DOS save transfer
       logs\windows.log        the log -- attach it to bug reports
-  screenshots\                F12 pictures
+  screenshots\                F12 pictures (the game's own picture: 320x200
+                              in Original play, 320x240 otherwise)
 
   PORTABLE: create an empty file named portable.txt beside UltimaVNative.exe
   and the data folder becomes the "data" folder next to the program (the
@@ -198,16 +211,17 @@ The data folder is  %APPDATA%\Ultima V Native  (Ctrl+O in the game opens it):
   (the game's files then go in D:\my folder\ultima5).
   Only one copy of the game can run on one data folder at a time.
 
-Command-line options: UltimaVNative.exe --help  (--mode, --fullscreen and
---windowed apply to that run only).
+Command-line options: UltimaVNative.exe --help  (--mode, --original-screen,
+--fullscreen and --windowed apply to that run only).
 
 
 8. KNOWN LIMITATIONS OF THIS BUILD
 ----------------------------------
   - Keyboard only: no mouse or game-controller play yet.
-  - The picture is the original 320x240 layout (the T-Deck's screen design),
-    scaled up by whole pixels; there is no higher-resolution or widescreen
-    layout, so a wide screen shows black (and the frame) at the sides.
+  - Original's game screen is the 1988 320x200 layout; Enhanced and the
+    menus are the T-Deck's 320x240 design. Both are scaled up by whole
+    pixels; there is no higher-resolution or widescreen layout, so a wide
+    screen shows black (and the frame) at the sides.
   - Making the packs needs Node.js (or a prepared T-Deck SD card).
   - The rules carry the project's documented, non-blocking differences from
     the 1988 game (see the project's preservation ledger).

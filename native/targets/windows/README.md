@@ -111,7 +111,15 @@ ctest --test-dir native/targets/windows/build-release --output-on-failure
 
 ## Presentation
 
-The Board draws the T-Deck's 320×240 screen; the presenter
+The Board draws the T-Deck's 320×240 screen, except in Original play: there
+it composes the DOS game's own 320×200 screen on the panel's rows 0..199
+(`native/targets/tdeck/main/board_dos_layout.cpp`, built only here, behind
+`OPENU5_DESKTOP_DOS_LAYOUT`; ULTIMA.EXE's frame, the map whole at (8,8), the
+right panel's boxes, the 16×13 console). `Board::picture_height()` says which
+(200, or 240 for the frontend and the Developer screen) and the presenter
+shows that many rows. `"originalScreen": "Handheld"` in `windows.json` (or
+`--original-screen handheld`) gives Original the 320×240 screen back. Below,
+240 stands for the picture's height. The presenter
 (`src/app/presenter.cpp`) places everything itself in whole output pixels
 (`src/app/presentation_layout.{h,cpp}`, pure functions, SDL's logical
 presentation is off). In Framed and Whole pixels it never resamples the
@@ -123,7 +131,7 @@ Settings → Scaling, stored in `windows.json` as `"scaling"`:
 |---|---|---|
 | Scaling: Framed (default) | `"Framed"` | largest whole scale `u = max(1, min(W÷320, H÷240))`, centred (an odd leftover pixel goes right/bottom), with a ring in the game's chrome where it fits: 4u black, 1u white rule (0xFFFF), 2u band (0x0015) with cut corners; side pillars only when the height has no room (7u), nothing when the width has none |
 | Scaling: Whole pixels | `"Integer"` | the same picture, no ring |
-| Scaling: Fit window | `"Fit"` | the largest 4:3 rectangle; at a fractional scale sampled with `SDL_SCALEMODE_PIXELART`: on Direct3D 11 (SDL's default renderer here) every game pixel gets the same size, with a one-screen-pixel blend where two meet; renderers without pixel-art sampling (software, Direct3D 9) sample nearest, so pixel sizes differ by one |
+| Scaling: Fit window | `"Fit"` | the largest rectangle of the picture's shape (4:3, or 8:5 for the DOS screen); at a fractional scale sampled with `SDL_SCALEMODE_PIXELART`: on Direct3D 11 (SDL's default renderer here) every game pixel gets the same size, with a one-screen-pixel blend where two meet; renderers without pixel-art sampling (software, Direct3D 9) sample nearest, so pixel sizes differ by one |
 
 A missing or unknown `"scaling"` is Framed; the first build's `"Integer"` and
 `"Fit"` keep their meaning. Each of the ring's two colours is a 1×1 RGB565
@@ -133,7 +141,10 @@ end of each band row on Direct3D 11).
 
 "Window N×" (Settings → Display, Ctrl+= / Ctrl+-) is the picture at scale N:
 a framed client of 336N×256N in Framed when that window fits the display's
-work area with its real frame, else 320N×240N, else a smaller N. Both
+work area with its real frame, else 320N×240N, else a smaller N -- shaped for
+the mode's game screen: 336N×216N / 320N×200N for Original's DOS screen, and
+an interface switch reshapes it (the 320×240 frontend shows inside at the
+largest whole scale that fits). Both
 controls step 1× .. the largest that fits. The Display row shows the scale
 the window has: the one the window got, and after a drag or a snap the
 picture's scale then (a maximised or fullscreen window shows the size it
@@ -150,7 +161,8 @@ when it is restored or leaves fullscreen. The window's aspect is locked
 while dragging; fullscreen is borderless at the desktop's mode.
 `--autotest`'s `window_screenshot`, `window_size`, `window_state`,
 `expect window_layout` and `expect picture_sampling` see the window as
-presented; F12 always saves the raw 320×240 panel.
+presented; F12 saves the picture itself (the panel's 320×200 or 320×240
+rows), never the window.
 
 The shared code keeps its own suite (`native/core`, GCC/MinGW, 204 tests,
 two of them for Original mode's 1988 interaction model), which must stay

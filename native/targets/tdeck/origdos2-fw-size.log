@@ -1,0 +1,47 @@
+[1/5] C:\WINDOWS\system32\cmd.exe /C "cd /D C:\Dev\uvw-original-dos\native\targets\tdeck\build-dos && C:\Users\lawma\.espressif\python_env\idf6.1_py3.14_env\Scripts\python.exe C:/esp/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app C:/Dev/uvw-original-dos/native/targets/tdeck/build-dos/partition_table/partition-table.bin C:/Dev/uvw-original-dos/native/targets/tdeck/build-dos/openu5_tdeck.bin"
+openu5_tdeck.bin binary size 0x10b6a0 bytes. Smallest app partition is 0x140000 bytes. 0x34960 bytes (16%) free.
+
+[2/5] C:\WINDOWS\system32\cmd.exe /C "cd /D C:\Dev\uvw-original-dos\native\targets\tdeck\build-dos && C:\Users\lawma\.espressif\python_env\idf6.1_py3.14_env\Scripts\python.exe C:/Dev/uvw-original-dos/native/targets/tdeck/check_app_budget.py --build-dir C:/Dev/uvw-original-dos/native/targets/tdeck/build-dos"
+OpenU5 app budget: image 1095328 B (0x10b6a0), app partition 1310720 B (0x140000), free 215392 B (16.4 %)
+
+OpenU5 Launcher allocation: 1114112 B (1088 KiB, the image rounded up to 64 KiB); the next 64 KiB step is 18785 B away
+
+[3/5] Performing build step for 'bootloader'
+[1/1] C:\WINDOWS\system32\cmd.exe /C "cd /D C:\Dev\uvw-original-dos\native\targets\tdeck\build-dos\bootloader && C:\Users\lawma\.espressif\python_env\idf6.1_py3.14_env\Scripts\python.exe C:/esp/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 C:/Dev/uvw-original-dos/native/targets/tdeck/build-dos/bootloader/bootloader.bin"
+
+Bootloader binary size 0x5850 bytes. 0x27b0 bytes (31%) free.
+
+
+[4/5] No install step for 'bootloader'
+[5/5] Completed 'bootloader'
+[0/1] C:\WINDOWS\system32\cmd.exe /C "cd /D C:\Dev\uvw-original-dos\native\targets\tdeck\build-dos && C:\Users\lawma\.espressif\tools\cmake\4.0.3\bin\cmake.exe -D IDF_SIZE_TOOL=C:/Users/lawma/.espressif/python_env/idf6.1_py3.14_env/Scripts/python.exe;-m;esp_idf_size -D MAP_FILE=C:/Dev/uvw-original-dos/native/targets/tdeck/build-dos/openu5_tdeck.map -D OUTPUT_JSON= -P C:/esp/v6.1/esp-idf/tools/cmake/run_size_tool.cmake"
+Memory Type Usage Summary
+┌─────────────────────┬──────────────┬──────────┬────────────────┬───────────────┐
+│ Memory Type/Section │ Used [bytes] │ Used [%] │ Remain [bytes] │ Total [bytes] │
+├─────────────────────┼──────────────┼──────────┼────────────────┼───────────────┤
+│ Flash Code          │       757258 │          │                │               │
+│    .text            │       757258 │          │                │               │
+│ Flash Data          │       238780 │          │                │               │
+│    .rodata          │       238508 │          │                │               │
+│    .appdesc         │          256 │          │                │               │
+│    .tdata           │           16 │          │                │               │
+│ DIRAM               │       136838 │    40.04 │         204922 │        341760 │
+│    .text            │        60683 │    17.76 │                │               │
+│    .bss             │        54080 │    15.82 │                │               │
+│    .data            │        22075 │     6.46 │                │               │
+│ IRAM                │        16384 │    100.0 │              0 │         16384 │
+│    .text            │        15356 │    93.73 │                │               │
+│    .vectors         │         1028 │     6.27 │                │               │
+│ RTC SLOW            │           48 │     0.59 │           8144 │          8192 │
+│    .force_slow      │           36 │     0.44 │                │               │
+│    .rtc_noinit      │           12 │     0.15 │                │               │
+│ RTC FAST            │           24 │     0.29 │           8168 │          8192 │
+│    .rtc_reserved    │           24 │     0.29 │                │               │
+└─────────────────────┴──────────────┴──────────┴────────────────┴───────────────┘
+Total image size: 1095216 bytes (.bin may be padded larger)
+Note: The reported total sizes may be smaller than those in the technical reference manual due to reserved memory and application configuration. The total flash size available for the application is not included by default, as it cannot be reliably determined due to the presence of other data like the bootloader, partition table, and application partition size.
+Executing action: size
+Running ninja in directory C:\Dev\uvw-original-dos\native\targets\tdeck\build-dos
+Executing "ninja all"...
+Running ninja in directory C:\Dev\uvw-original-dos\native\targets\tdeck\build-dos
+Executing "ninja size"...

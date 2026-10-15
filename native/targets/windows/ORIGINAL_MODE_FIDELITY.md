@@ -239,13 +239,27 @@ Still open (ledger D-107):
 (Recorded adaptations of the 1988 screen to the 320 × 240 layout the Windows
 build shares with the T-Deck.)
 
+*(ORIG-DOS2, 2026-10-14: Original's default game screen is now the DOS game's
+own 320 × 200 one (`board_dos_layout.cpp`; record
+`docs/WINDOWS_ORIGINAL_DOS_SCREEN.md`): ULTIMA.EXE's frame, the map whole at
+(8,8), the sky and wind bands outside it, the right panel's two boxes, the
+lists' DOS panel at the DOS geometry and the 16 × 13 console. The items below
+marked "DOS screen" no longer apply there; they still describe Original on
+the handheld's screen (`"originalScreen": "Handheld"`) and Enhanced.)*
+
 - **"Select:"** appears in the status caption row (y 58): the T-Deck panel has
   only a 2-px band above the roster, so the DOS 8-px banner row has no place
-  without moving the boxes (shared layout).
+  without moving the boxes (shared layout). *(DOS screen: `►Select:◄` on the
+  band above the roster, centred in the window's 15 cells, as kernel 0x4e50.)*
 - The console is the T-Deck's 22-column window, not DOS's 16; long prompts wrap
   where the window ends (the rune echo's own 13-column wrap is not emulated).
+  *(DOS screen: text window 2, 16 cells × 13 rows at (192, 88), in IBM.CH,
+  white, the echo bullet glyph 0x02's shape; the rune echo's 13-column wrap is
+  still not emulated, and rune lines print in Latin as on the handheld.)*
 - The roster's green/cyan tints are off in Original; the active player keeps
-  its arrow; the arena actor's row is in reverse video.
+  its arrow; the arena actor's row is in reverse video. *(DOS screen: the same;
+  the status box is DOS's F/G and centred date, without the handheld's
+  location caption and clock.)*
 - ~~List panels (Ready, Use, Mix reagents, Z-stats, shops) keep the T-Deck's
   panel drawing (title band, rows, the console strip below) without slot
   details or key legends.~~ *(windows/original-dos-interaction, 2026-10-14:
@@ -257,7 +271,9 @@ build shares with the T-Deck.)
   The boxes keep the T-Deck's x 182 / 318 rules and window col 0 is the
   roster text's x 188, so the box is 11 px wider than DOS's and the window sits
   4 px right of DOS's (DOS has it against the left rule). The shops have no
-  panel: console lines.)*
+  panel: console lines.)* *(DOS screen: the panel is at the DOS geometry
+  exactly -- rules x 191 / 312, window col 0 at x 192, the strip x 313..319
+  -- and matches the DOSBox-X captures pixel for pixel.)*
 - The Mix legend's `←,→,↑,↓` is printed `Arrows` (the console face has no
   arrow glyphs).
 - A console scrolled back with PgUp hides the live prompt row until it
@@ -295,7 +311,9 @@ build shares with the T-Deck.)
 9. Arena Use and the non-potion items print their name on the row after
    `Item:`; the arena's `None!` after a typed spell is its own row.
 10. 22-column console, the 13-column rune wrap, "Select:" placement, the
-    Mix legend's arrows spelled `Arrows` (§6).
+    Mix legend's arrows spelled `Arrows` (§6). *(ORIG-DOS2: on the default DOS
+    screen the console is 16 columns and "Select:" is on the band; the rune
+    wrap and `Arrows` remain.)*
 11. Rel Hur asks no `Direction-` (the core's target model) — core. *(Still open after SPP1: ledger D-106, reference first.)*
 
 ## 8. T-Deck preservation audit

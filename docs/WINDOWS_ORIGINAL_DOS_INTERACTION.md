@@ -196,11 +196,13 @@ A is a presenter change. Neither is implemented; both are proposals.
    DOS transcript. *(ORIG-DOS2, §11: the core's DOS transcript now prints all of the text, and P4 is
    done; D-104's semantics remain.)*
 2. `►Select:◄` stays in the status caption row: the T-Deck roster starts at y 4, the band has 2 rows.
-   B (§7) would give it its DOS place.
+   B (§7) would give it its DOS place. *(ORIG-DOS2: mockup B is implemented as Original's default
+   screen, recomposed rather than cropped -- `docs/WINDOWS_ORIGINAL_DOS_SCREEN.md`; `►Select:◄` is on
+   the band there. Items 2, 3 and 5 remain only on the handheld fallback screen.)*
 3. The DOS box is 124 px wide inside, the T-Deck's 135: the window sits 4 px right of DOS's.
 4. The Arms page's title underline (0xfe) is not drawn.
 5. The console stays the T-Deck's 22-column compact face (DOS: 16 IBM.CH columns); the Mix legend
-   still spells `Arrows`.
+   still spells `Arrows`. *(ORIG-DOS2: 16 IBM.CH columns on the DOS screen; `Arrows` remains.)*
 6. Home / End in the item lists (DOS item_page_controller has them) are not mapped on the desktop.
 7. No live DOS capture of a shop (static evidence only). The attempt -- the party stood beside
    Moonglow's reagent seller in the Windows build, exported as a PC save and loaded in DOS -- met

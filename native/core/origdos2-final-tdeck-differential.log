@@ -1,0 +1,37 @@
+ORIG-DOS2 T-Deck differential on the integrated branch (method: native/core/tools/spp2_differential/README.md)
+base = C:\Dev\uvw-dos2-base (detached 60e7c647, ORIG-DOS1 HEAD) native/core/build-probe/tdeck_diff_probe.exe
+head = C:\Dev\uvw-original-dos at 98e26f43 (the DOS screen + the shop transcript) native/core/build-probe/tdeck_diff_probe.exe
+runs: <pack> <audio> (unpaced), --paced, ABCDEFGHI --dos (both trees); spp1_probe_compare.py --examples 1
+
+0e53ca58185f4c2c01c6ad2fc7b2e51b1c7d304b5c5dbd53d6d241d11d742000  base.txt
+0e53ca58185f4c2c01c6ad2fc7b2e51b1c7d304b5c5dbd53d6d241d11d742000  head.txt
+f01c280397940ee2439223beadcb28f98ca4ce6e367fbe72f3bae8cbeb38e828  base-paced.txt
+f01c280397940ee2439223beadcb28f98ca4ce6e367fbe72f3bae8cbeb38e828  head-paced.txt
+23f7c2182aede34aec623c72204c27074fc4cd40da702142b37a0d7e6fe281a5  base-dos.txt
+e727b576d73f96b9238e5a36c366dcef1cd9f41ef5d01dcd98b9c1b1c4ec168d  head-dos.txt
+non-snapshot lines: base 1, head 1; equal=True
+
+0 classes (family, token at the first divergence, differing fields):
+
+differing walks by family prefix: {}
+non-snapshot lines: base 1, head 1; equal=True
+
+0 classes (family, token at the first divergence, differing fields):
+
+differing walks by family prefix: {}
+      head: mode=4 req=0 turns=0 clock=5:08:00 prompt=[] tail=[Minoc][Talk-South]["Hail wayfarer,\nand welcome unto\nour kiosk. I am\nRegina, of The\nHealers Mission.\nArt thou in need\nof aid?" ]
+
+== C-88  token='start'  fields=gram,text,dturns=+0  walks=11
+   C-88-0 step 0 after []
+      base: mode=4 req=0 turns=0 clock=5:08:00 prompt=[] tail=[Talk-South][The Wayfarer Inn\nDonya, proprietor]["Welcome to The Wayfarer Inn, adventurer. My name is Donya, and I own this hostel. May I help thee?"]
+      head: mode=4 req=0 turns=0 clock=5:08:00 prompt=[] tail=[Britain][Talk-South]["Welcome to The\nWayfarer Inn,\nadventurer. My\nname is Donya,\nand I own this\nhostel. May I\nhelp thee?" ]
+
+differing walks by family prefix: {'C': 77}
+    63635 base.txt
+    63635 head.txt
+   127270 total
+
+walks 1052 (head 1052), steps 8430 (head 8430)
+identical walks 975, differing walks 77, walks in one output only 0 []
+7 classes (family, token at the first divergence, differing fields):
+== C-81  token='start'  fields=gram,text,dturns=+0  walks=11
