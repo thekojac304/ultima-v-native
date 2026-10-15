@@ -55,6 +55,7 @@ size_t platform_format(char *out, size_t capacity, const char *text) {
     return n;
 }
 
+#if !defined(OPENU5_FIXED_HANDHELD_PROFILE) || !OPENU5_FIXED_HANDHELD_PROFILE
 bool platform_typed_spell_names() {
     return g_profile.typed_spell_names && g_profile.typed_spell_names(g_profile.typed_spell_context);
 }
@@ -74,6 +75,8 @@ bool platform_dos_screen() {
 const char *platform_dos_text(DosText table, int index) {
     return g_profile.dos_text ? g_profile.dos_text(g_profile.dos_text_context, uint8_t(table), index) : nullptr;
 }
+
+#endif
 
 bool platform_enhanced_rows() {
     return !g_profile.enhanced_rows || g_profile.enhanced_rows(g_profile.enhanced_context);

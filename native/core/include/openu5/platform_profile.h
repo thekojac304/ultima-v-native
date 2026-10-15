@@ -106,6 +106,18 @@ void set_platform_profile(const PlatformProfile &profile);
 size_t platform_settings_rows(SettingsRowId *out, size_t capacity);
 /** Whether the System Menu lists Difficulty and Cheats now. */
 bool platform_enhanced_rows();
+// The firmware fixes these capabilities to its existing handheld defaults.
+// Desktop/ordinary host builds keep the callback-based profile below. Keeping
+// this boundary in one header lets normal dead-code elimination discard DOS
+// presentation without forking any gameplay rules or changing profile layout.
+#if defined(OPENU5_FIXED_HANDHELD_PROFILE) && OPENU5_FIXED_HANDHELD_PROFILE
+inline constexpr bool kPlatformSupportsDosPresentation = false;
+inline constexpr bool platform_typed_spell_names() { return false; }
+inline constexpr bool platform_quit_save_key() { return false; }
+inline constexpr bool platform_dos_interface() { return false; }
+inline constexpr bool platform_dos_screen() { return false; }
+#else
+inline constexpr bool kPlatformSupportsDosPresentation = true;
 /** Whether Cast and Mix take a typed spell name now (false on the T-Deck). */
 bool platform_typed_spell_names();
 /** Whether Q is (Q)uit & Save now (false on the T-Deck). */
@@ -114,6 +126,7 @@ bool platform_quit_save_key();
 bool platform_dos_interface();
 /** Whether the game screen is the DOS game's 320 x 200 one now (false on the T-Deck). */
 bool platform_dos_screen();
+#endif
 
 /**
  * The DATA.OVL tables the 1988 list panels print, by their DGROUP address
@@ -130,7 +143,11 @@ enum class DosText : uint8_t {
     Literal,        // a NUL-terminated DGROUP string at DS `index` ("--", "Moonstone ")
 };
 /** The platform's DOS text, or nullptr (always on the T-Deck). */
+#if defined(OPENU5_FIXED_HANDHELD_PROFILE) && OPENU5_FIXED_HANDHELD_PROFILE
+inline constexpr const char *platform_dos_text(DosText, int) { return nullptr; }
+#else
 const char *platform_dos_text(DosText table, int index);
+#endif
 /**
  * Copies `text` into `out` (always terminated, truncated to fit), replacing
  * {back}, {move}, {menu}, {import}, {export} and {storage} with the

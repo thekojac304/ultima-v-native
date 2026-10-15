@@ -72,6 +72,10 @@ endif()
 if(NOT OPENU5_GIT_COMMIT)
     set(OPENU5_GIT_COMMIT "unknown")
 endif()
+# One capability definition for every TU, including all shared core sources.
+# Firmware never installs a desktop profile; preserve its existing defaults
+# while allowing Windows-only presentation branches to be garbage collected.
+target_compile_definitions(${COMPONENT_LIB} PUBLIC OPENU5_FIXED_HANDHELD_PROFILE=1)
 target_compile_definitions(${COMPONENT_LIB} PRIVATE
     OPENU5_GIT_COMMIT="${OPENU5_GIT_COMMIT}")
 if(OPENU5_ENABLE_DEVELOPER_TOOLS)
