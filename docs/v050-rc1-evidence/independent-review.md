@@ -16,3 +16,7 @@ Reviewer: separate read-only subagent `rc1_independent_review`, baseline `9c9805
 - Developer tools and shared gameplay remain compiled. No tests or warnings were disabled.
 
 Final post-commit builds, package extraction/smoke and artifact manifests are independently checked by the RC tooling after this review. Physical T-Deck acceptance remains the user's task. The reviewer did not edit source, build firmware, mutate code, commit, publish, or flash.
+
+## Post-package smoke correction
+
+Fresh extraction caught a runner-only setup defect after commit `18e464e`: the four gameplay scripts require `--developer`, as their CTest declarations explicitly state, and the first package smoke omitted it. Missing assets, portable boot and standalone preparation of all three matching packs already passed; the game rejected the unprivileged cheat setup. The helper now supplies the exact scenario opt-ins, plain portable boot remains unchanged, and a new regression method derives expected options from CMake (five total helper methods PASS). A valid omitted-flag mutant is rejected. The corrected full ZIP smoke passed all five scenarios before the new clean-commit rebuild. The independent reviewer audited this limited correction and independently reran all five tests: no new actionable finding. Previous receipts, failed smoke and both first-attempt packages are retained in the local attempt archive. Runtime C++ code is unchanged.

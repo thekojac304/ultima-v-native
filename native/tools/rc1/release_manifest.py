@@ -83,6 +83,8 @@ def main():
         raise ValueError('Final differential failed')
     if '8/8 boundary mutants killed' not in (evidence / 'final-boundary-mutations.log').read_text(encoding='utf-8'):
         raise ValueError('Final boundary mutations incomplete')
+    if '2/2 release tooling mutants killed' not in (evidence / 'final-release-tooling-mutations.log').read_text(encoding='utf-8'):
+        raise ValueError('Release tooling mutation checks incomplete')
     smoke = json.loads(args.smoke_summary.read_text(encoding='utf-8'))
     if smoke['git_commit'] != commit or smoke['zip_sha256'] != sha(args.windows_zip):
         raise ValueError('Package smoke is from another commit or ZIP')
@@ -90,7 +92,7 @@ def main():
     if not re.search(r'Tests\s+11 passed \(11\)', ts_log):
         raise ValueError('Relevant TypeScript verification incomplete')
     tooling_log = (evidence / 'final-tooling-regression.log').read_text(encoding='utf-8', errors='replace')
-    if 'Ran 4 tests' not in tooling_log or not re.search(r'^OK\s*$', tooling_log, re.MULTILINE):
+    if 'Ran 5 tests' not in tooling_log or not re.search(r'^OK\s*$', tooling_log, re.MULTILINE):
         raise ValueError('Release provenance regression checks incomplete')
     firmware = json.loads((evidence / 'final-firmware.json').read_text(encoding='utf-8'))
     if firmware['image_sha256'] != sha(args.firmware_bin):
@@ -112,8 +114,8 @@ def main():
                               'launcher_allocation_bytes', 'launcher_free_bytes', 'elf_sections', 'largest_frames']},
                 'tests': {**tests, 'differential': diff, 'boundary_mutations': '8/8 killed; restored PASS',
                           'package_smoke': smoke, 'relevant_typescript': {'passed': 11, 'failed': 0},
-                          'release_provenance_regressions': {'passed': 4, 'failed': 0},
-                          'rc_version_prefix_mutant': 'killed; restored tests PASS (review-version-mutation.log)'},
+                          'release_tooling_regressions': {'passed': 5, 'failed': 0},
+                          'release_tooling_mutations': '2/2 killed; restored tests PASS'},
                 'hardware': {'earlier_spp1': 'PASS, user-reported', 'this_rc': 'NOT RUN',
                              'checklist': str(ROOT / 'docs/V050_RC1_HARDWARE_CHECKLIST.md')}}
     args.output.write_text(json.dumps(manifest, indent=2) + '\n')

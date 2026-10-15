@@ -10,6 +10,22 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[3]
 
+# Keep the required developer opt-in in step with scenarios/CMakeLists.txt.
+SMOKE_CASES = [
+    ('portable-boot', 'boot_title', 'original', 'boot_title', False),
+    ('look-original', 'look_signpost', 'original', 'look_signpost_original', True),
+    ('look-enhanced', 'look_signpost', 'enhanced', 'look_signpost_enhanced', True),
+    ('shop-enhanced', 'enhanced_shop_prices', 'enhanced', 'enhanced_shop_prices', True),
+    ('dos-panels-original', 'original_dos_panels', 'original', 'original_dos_panels', True),
+]
+
+
+def scenario_arguments(exe, script, mode, developer):
+    arguments = [str(exe), '--autotest', str(script), '--mode', mode]
+    if developer:
+        arguments.append('--developer')
+    return arguments
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -49,14 +65,11 @@ def main():
             raise ValueError(f'Prepared pack does not match established input: {pack.name}')
         pack_hashes[pack.name] = hashlib.sha256(made.read_bytes()).hexdigest()
     print('PASS bundled data prep: all three private packs match established hashes', flush=True)
-    cases = [('portable-boot', 'boot_title', 'original'), ('look-original', 'look_signpost', 'original'),
-             ('look-enhanced', 'look_signpost', 'enhanced'), ('shop-enhanced', 'enhanced_shop_prices', 'enhanced'),
-             ('dos-panels-original', 'original_dos_panels', 'original')]
     commit = subprocess.check_output(['git', 'rev-parse', '--short=12', 'HEAD'], cwd=ROOT, text=True).strip()
-    for name, scenario, mode in cases:
+    for name, scenario, mode, _ctest_name, developer in SMOKE_CASES:
         work = output / name
         work.mkdir()
-        args_exe = [str(exe), '--autotest', str(ROOT / f'native/targets/windows/scenarios/{scenario}.txt'), '--mode', mode]
+        args_exe = scenario_arguments(exe, ROOT / f'native/targets/windows/scenarios/{scenario}.txt', mode, developer)
         data = extract / 'data' if name == 'portable-boot' else work
         if name != 'portable-boot':
             (work / 'ultima5').mkdir()
@@ -72,7 +85,7 @@ def main():
     summary = {'git_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
                'zip_sha256': hashlib.sha256(args.zip.read_bytes()).hexdigest(),
                'missing_assets_exit': 10, 'portable_launch': True, 'bundled_data_prep': True,
-               'prepared_private_pack_hashes': pack_hashes, 'scenarios_passed': [case[0] for case in cases]}
+               'prepared_private_pack_hashes': pack_hashes, 'scenarios_passed': [case[0] for case in SMOKE_CASES]}
     (output / 'package-smoke-summary.json').write_text(json.dumps(summary, indent=2))
 
 

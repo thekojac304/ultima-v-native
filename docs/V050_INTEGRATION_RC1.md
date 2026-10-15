@@ -21,7 +21,7 @@ Incremental implementation checkpoints: `aeaa8a34` (baseline/fixtures/diagnostic
 
 The [baseline record](V050_RC1_BASELINE.md) gives exact commands/toolchains, source and configuration hashes, initial failures and their diagnoses. Gate 1 passed before optimization. Host baseline exercised 210 tests: initial 190 PASS plus 20 LF-sensitive checks resolved and rerun PASS with unchanged semantics/test expectations. Windows baseline passed 38/38. Fresh ESP-IDF 6.1 baseline app: 1,096,432 bytes.
 
-The implementation passed the full serial **212/212 host tests** (210 inherited plus dynamic/fixed capability contracts), **38/38 Windows checks**, **11/11 relevant TypeScript tests** (`look-signpost`, `spp2-talk-refusal`), and **4/4 release-provenance regression methods**. Full final suites run again after the final commit; their authoritative counts, source identity and log hashes are recorded in `native/targets/tdeck/dist/v050-rc1-manifest.json`.
+The implementation passed the full serial **212/212 host tests** (210 inherited plus dynamic/fixed capability contracts), **38/38 Windows checks**, **11/11 relevant TypeScript tests** (`look-signpost`, `spp2-talk-refusal`), and **5/5 release-tooling regression methods** (four provenance checks plus the scenario-option contract). Full final suites run again after the final commit; their authoritative counts, source identity and log hashes are recorded in `native/targets/tdeck/dist/v050-rc1-manifest.json`.
 
 The final evidence directory is `native/targets/tdeck/dist/v050-rc1-evidence/` (ignored, retained locally). Important files:
 
@@ -31,11 +31,11 @@ The final evidence directory is `native/targets/tdeck/dist/v050-rc1-evidence/` (
 | `final-host-build.log`, `final-host-ctest.log` | Complete native build, serial host suite including preservation, saves, audio, real-data parity and generator drift |
 | `final-windows-build-test.log` | Full MSVC build/package and 38 tests: Original/Enhanced, native DOS panels, three scaling modes/fullscreen, SPP1/SPP2, Look, shop prices, saves/import/export and audio |
 | `final-typescript.log` | Relevant reference preservation checks, one worker; 11 tests |
-| `final-tooling-regression.log` | Exact RC version/clean provenance checks; four methods |
+| `final-tooling-regression.log` | Exact RC version/clean provenance plus smoke options; five methods |
 | `final-firmware-build.log`, `final-firmware.json`, `final-firmware-size-diff.log` | ESP-IDF build, warnings-as-errors, budget, ELF sections and compiler frame evidence |
 | `final-differential/differential-summary.json` | Strict frozen-baseline comparisons and positive control |
 | `final-boundary-mutations.log` | Eight platform-boundary mutants killed, exact source restored |
-| `review-version-mutation.log` | Prefix-acceptance mutant killed; restored verifier PASS |
+| `final-release-tooling-mutations.log` | Version-prefix and missing-developer-opt-in mutants killed; restored verifier/runner PASS |
 | `package-smoke/package-smoke-summary.json` | Fresh extraction, portable launch, missing-data refusal, bundled data prep, real executable scenarios |
 
 The broader historical TypeScript run has 116 environment-bound failures (LOOK-POLISH1 record), not a clean full-reference PASS. This RC changes no TypeScript gameplay code; the requested relevant TypeScript route was used, and all 11 selected checks passed. No historical failure set was silently called green or disabled.
@@ -82,9 +82,9 @@ The exact pre-optimization probe executable and traces were frozen before changi
 
 Unpaced SHA-256: `7909072837036911266e5a34bb25f37950aecaf28017cfd71afb63c2cf082526`; paced: `753e3933b848f4ea48053a935b3faa78138230d07a255d5d574e5bb76cfb2a8a`. These are host-executed T-Deck code traces, not physical-device execution.
 
-Six compilable capability mutants and two actual-command-list wiring mutants were killed (8/8). The ordinary dynamic profile remains tested separately. An additional exact-version-prefix mutant was killed by the review regression suite. Every mutated source was restored and the restored tests passed; compile failures were never counted as kills. Unrelated historical mutation suites were not rerun.
+Six compilable capability mutants and two actual-command-list wiring mutants were killed (8/8). The ordinary dynamic profile remains tested separately. Two additional release-tooling mutants (exact-version prefix acceptance and missing developer opt-in) were killed by the regression suite. Every mutated source was restored and the restored tests passed; compile failures were never counted as kills. Unrelated historical mutation suites were not rerun.
 
-[Independent review and resolutions](v050-rc1-evidence/independent-review.md): a separate reviewer found two RC-specific defects (README UTF-8 corruption and manifest version-prefix acceptance), both fixed and rechecked. No unresolved serious runtime, capability, preservation, packaging or licensing finding remains.
+[Independent review and resolutions](v050-rc1-evidence/independent-review.md): a separate reviewer found two RC-specific defects (README UTF-8 corruption and manifest version-prefix acceptance), both fixed and rechecked. No unresolved serious runtime, capability, preservation, packaging or licensing finding remains. A subsequent fresh-ZIP smoke found a runner setup defect: the gameplay scripts require the same `--developer` opt-in CTest supplies. The helper now carries explicit scenario requirements; a regression test checks them against the authoritative CMake declarations, and a corrected complete extraction smoke passed before rebuilding from the new final source. The failed attempt and its artifacts remain intact under `v050-rc1-evidence/attempt-18e464e3a928/`. No runtime source or accepted interface changed.
 
 ## Packages, provenance and smoke
 
