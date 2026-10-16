@@ -1,0 +1,2 @@
+"source","destination","bytes","sha256_before","reason","reverse","sha256_after"
+"C:\Dev\OpenU5-Native\docs\workspace\CLEANUP1\path-dependencies.txt","C:\Dev\OpenU5-Native\docs\workspace\CLEANUP1\inventory\path-dependencies.txt","44602","382fe4c4bdf29c04bdaeccf37e83f0795c8c9b19d89ed30f46a161e3ccbc8bc8","Generated machine-specific path listing retained in ignored inventory","Move destination back to source only if source is absent","382fe4c4bdf29c04bdaeccf37e83f0795c8c9b19d89ed30f46a161e3ccbc8bc8"

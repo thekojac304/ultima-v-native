@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-15",
+  "checkpoint": "relocation and interrupted-validation closeout complete",
+  "migration_complete": true,
+  "source_path": "C:\\Dev\\U5Native\\source",
+  "actual_root_moves": 25,
+  "top_level_roots_consolidated": 23,
+  "remaining_old_top_level_u5_roots": 0,
+  "dev_directories_before": 34,
+  "dev_directories_after": 12,
+  "preservation": {
+    "files": 219227,
+    "directories": 55557,
+    "links": 54,
+    "unchanged_file_bytes": 29723558501,
+    "passed": true,
+    "selected_hashes": 774,
+    "catalog_hashes": 41,
+    "frozen_inventory_checksums": 24,
+    "git_repositories": 17,
+    "native_worktree_registrations": 16
+  },
+  "recovery": {
+    "copies": 26,
+    "files": 277769,
+    "bytes": 36069436973,
+    "same_volume": true,
+    "physical_copies": true,
+    "restore_test_passed": true,
+    "rollback_rehearsal_passed": true
+  },
+  "tests": {
+    "post_relocation_receipts": 11,
+    "successful_receipts": 10,
+    "original_failed_firmware_receipt_preserved": true,
+    "ctest_pass_counts": {
+      "primary_host": 202,
+      "rc1_host": 212,
+      "rc1_windows": 38
+    },
+    "release_tooling_passed": 5,
+    "cleanup_safety": {
+      "passed": 15,
+      "skipped": 1,
+      "reason": "Windows symlink privilege"
+    },
+    "firmware": {
+      "original_attempt": {
+        "receipt": "C:\\Dev\\U5Native\\archive\\CLEANUP3\\finish-20261016T002344Z\\tests\\firmware-build.json",
+        "receipt_sha256": "1c85b8c1003e26ca482259ebda7485a7f4af00522ea869966d03c63d787573a9",
+        "log_sha256": "0107f9ae1c00f8ff28eb7d63d4fa51f35034c9db66f624b3322b6e2191cad344",
+        "exit_code": 1,
+        "parallel_jobs": 6,
+        "cause": "Xtensa GCC internal compiler segmentation fault; retained unchanged"
+      },
+      "manual_retry": {
+        "reported_by": "user in closeout request",
+        "arguments": [
+          "ninja",
+          "-j",
+          "2"
+        ],
+        "exit_code": 0,
+        "build_directory": "C:\\Dev\\U5Native\\builds\\cleanup3-finish-20261016T002344Z\\rc1-tdeck",
+        "contemporaneous_retry_console_log_available": false,
+        "completion_evidence": "Independent image integrity, ELF fingerprint, source/configuration and successful Ninja output records"
+      },
+      "independent_incremental_exit_code": 0,
+      "image_bytes": 1075088,
+      "partition_free_bytes": 235632,
+      "image_sha256": "b73831bf957d70d22296b30001bb74865e03b8f67b43594c05a56e4112bc5c79",
+      "elf_sha256": "7670d27dfc3967176eb634c35f96dbcec649abe1399fc493647af38a11d65036",
+      "source_commit": "a96656b2330097c18c52b78a8840d3749c0e9854",
+      "hardware": "NOT RUN"
+    }
+  },
+  "same_byte_drift_outputs_original_mtime_restored": 24,
+  "git_connectivity": [
+    {
+      "root": "C:\\Dev\\U5Native\\source",
+      "fsck_exit": 2,
+      "diagnostic": "error: refs/remotes/origin/HEAD: invalid sha1 pointer 0000000000000000000000000000000000000000\n",
+      "missing_reachable_objects": 0
+    },
+    {
+      "root": "C:\\Dev\\U5Native\\archive\\openu5",
+      "fsck_exit": 0,
+      "diagnostic": "",
+      "missing_reachable_objects": 0
+    }
+  ],
+  "evidence_root": "C:\\Dev\\U5Native\\archive\\CLEANUP3",
+  "closeout_receipts": "C:\\Dev\\U5Native\\archive\\CLEANUP3\\closeout-20261016T011631Z",
+  "full_inventory_receipt": "C:\\Dev\\U5Native\\archive\\CLEANUP3\\final-relocated-closeout-20261016T011631Z.json",
+  "pending_migration": [],
+  "original_failure_and_retry_recorded_separately": true,
+  "closeout_commit_receipt": "C:\\Dev\\U5Native\\archive\\CLEANUP3\\closeout-20261016T011631Z\\git-after-commit.json",
+  "closeout_commit_policy": "single documentation/tool commit; main parent 9424abc6801541b4394d5c21caaf4ff6733ab690; other refs and prior work preserved",
+  "hardware": "NOT RUN"
+}

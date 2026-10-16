@@ -1,0 +1,8 @@
+"action","path","bytes","sha256"
+"create-directory","C:\Dev\ultima-v-builds","0",""
+"create-directory","C:\Dev\ultima-v-archive","0",""
+"create-directory","C:\Dev\openu5-release-artifacts","0",""
+"create-directory","C:\Dev\ultima-v-archive\investigations","0",""
+"create-file","C:\Dev\ultima-v-archive\investigations\README.md","507","2a1614daa71a555242f3b740620687965f5374720f0f9eb8c6ffcdfa4ac3c7f5"
+"create-file","C:\Dev\ultima-v-builds\README.md","508","3c85799bb8a8364094136711bdabd5525a9912b0643e7416d27a84cd524a6d52"
+"create-file","C:\Dev\openu5-release-artifacts\README.md","698","fb6a49098f96e2390540db072476559a7f05d10860da0b444778baeb7c2c38c6"

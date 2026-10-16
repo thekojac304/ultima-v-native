@@ -1,0 +1,8 @@
+scope,decision,dependency_or_preservation_reason,next_step
+C:\Dev loose files,No relocation candidates,Zero loose files at CLEANUP1 and CLEANUP2; 31 existing directory roots retained,Put future temporary output under the adopted locations
+docs/workspace/CLEANUP1/path-dependencies.txt,Relocated into adjacent inventory,Generated absolute path listing; no tracked script/config references in 17 scoped repositories; no matching junction or worktree target,Keep original bytes locally and use updated report link
+Existing root packages and evidence,Retained in place,Release or historical acceptance evidence including distinct RC5 images; copying and retirement remain approval actions,Review exact rows and prerequisites in approvals.csv
+spp2-scratch and uvw-base/audit-fw,Retained in place,Unique scripts and before-state material; absolute sibling-checkout dependencies,Approve complete archive capture and restoration plan before relocation
+Native and archived repositories and all worktrees,Retained in place,Active and historical local work; linked Git metadata and shared junction dependencies,No repository or worktree moves in CLEANUP2
+Existing compiler/build/fixture directories and logs,Retained in place,CMake reads specialized fixture paths; caches and outputs may contain unique work or evidence,Only separately approved narrowly measured cleanup actions
+Source directories and release-critical tooling,No organization changes,Existing layout coherent; no justified dependency-safe source move,Future output/default parameterization requires separate validation

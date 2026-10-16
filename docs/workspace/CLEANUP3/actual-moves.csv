@@ -1,0 +1,26 @@
+source,destination,method,utc
+C:\Dev\OpenU5-Native,C:\Dev\U5Native\source,same-volume rename + git worktree repair,20261016T002344Z
+C:\Dev\_Archive\openu5,C:\Dev\U5Native\archive\openu5,same-volume rename,1792077101.08016
+C:\Dev\ultima-v-native-parity,C:\Dev\U5Native\worktrees\ultima-v-native-parity,git worktree move,1792077274.8626993
+C:\Dev\ultima-v-native-rc1,C:\Dev\U5Native\worktrees\ultima-v-native-rc1,git worktree move,1792077425.518352
+C:\Dev\ultima-v-native-spp2,C:\Dev\U5Native\worktrees\ultima-v-native-spp2,git worktree move,1792077445.4070857
+C:\Dev\ultima-v-native-windows,C:\Dev\U5Native\worktrees\ultima-v-native-windows,git worktree move,1792077464.8084536
+C:\Dev\uvw-base,C:\Dev\U5Native\worktrees\uvw-base,git worktree move,1792077480.2179005
+C:\Dev\uvw-dos-base,C:\Dev\U5Native\worktrees\uvw-dos-base,git worktree move,1792077489.655699
+C:\Dev\uvw-dos-shops,C:\Dev\U5Native\worktrees\uvw-dos-shops,git worktree move,1792077500.6964307
+C:\Dev\uvw-dos2-base,C:\Dev\U5Native\worktrees\uvw-dos2-base,git worktree move,1792077511.4598641
+C:\Dev\uvw-look-polish,C:\Dev\U5Native\worktrees\uvw-look-polish,git worktree move,1792077527.904094
+C:\Dev\uvw-lp-base,C:\Dev\U5Native\worktrees\uvw-lp-base,git worktree move,1792077542.7225814
+C:\Dev\uvw-original-dos,C:\Dev\U5Native\worktrees\uvw-original-dos,git worktree move,1792077552.9788196
+C:\Dev\uvw-present,C:\Dev\U5Native\worktrees\uvw-present,git worktree move,1792077563.0535564
+C:\Dev\uvw-shops-base,C:\Dev\U5Native\worktrees\uvw-shops-base,git worktree move,1792077570.7782145
+C:\Dev\uvw-spp1-base,C:\Dev\U5Native\worktrees\uvw-spp1-base,git worktree move,1792077579.540562
+C:\Dev\uvw-spp2-base,C:\Dev\U5Native\worktrees\uvw-spp2-base,git worktree move,1792077588.3333852
+C:\Dev\spp1-hw-package,C:\Dev\U5Native\releases\historical\spp1-hw-package,same-volume rename,1792077029.7499356
+C:\Dev\uvw-look-polish-evidence,C:\Dev\U5Native\releases\historical\uvw-look-polish-evidence,same-volume rename,1792077030.2402627
+C:\Dev\uvw-original-dos-evidence,C:\Dev\U5Native\releases\historical\uvw-original-dos-evidence,same-volume rename,1792077030.806917
+C:\Dev\spp2-scratch,C:\Dev\U5Native\archive\investigations\spp2-scratch,same-volume rename,1792077032.3140106
+C:\Dev\_Archive\u5-ti89,C:\Dev\U5Native\archive\u5-ti89,same-volume rename,1792077115.8750367
+C:\Dev\ultima-v-archive,C:\Dev\U5Native\archive\legacy-layout,same-volume rename,1792077187.0459893
+C:\Dev\ultima-v-builds,C:\Dev\U5Native\builds\legacy-layout,same-volume rename,1792077207.4942555
+C:\Dev\openu5-release-artifacts,C:\Dev\U5Native\releases\legacy-layout,same-volume rename,1792077187.300531

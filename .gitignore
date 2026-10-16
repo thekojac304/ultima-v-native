@@ -196,3 +196,10 @@ game/tools/careo-visual/_out
 /-
 # A4-UI3 --dump screenshots of the panel: they show the pack's title art (EA data); local review only.
 /native/core/a4-ui3-shots/
+
+# CLEANUP1 local preservation census (file paths, hashes, Git snapshots and reports).
+# Retain on disk; this is evidence, not a disposable cache. Summary and tools are tracked.
+/docs/workspace/CLEANUP1/inventory/
+
+# CLEANUP2 targeted snapshots and validation logs: retained local evidence, not a backup.
+/docs/workspace/CLEANUP2/local/
