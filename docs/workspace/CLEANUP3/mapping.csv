@@ -1,0 +1,26 @@
+source,destination,kind,batch
+C:\Dev\OpenU5-Native,C:\Dev\U5Native\source,primary,git
+C:\Dev\_Archive\openu5,C:\Dev\U5Native\archive\openu5,repository,archive
+C:\Dev\ultima-v-native-parity,C:\Dev\U5Native\worktrees\ultima-v-native-parity,worktree,git
+C:\Dev\ultima-v-native-rc1,C:\Dev\U5Native\worktrees\ultima-v-native-rc1,worktree,git
+C:\Dev\ultima-v-native-spp2,C:\Dev\U5Native\worktrees\ultima-v-native-spp2,worktree,git
+C:\Dev\ultima-v-native-windows,C:\Dev\U5Native\worktrees\ultima-v-native-windows,worktree,git
+C:\Dev\uvw-base,C:\Dev\U5Native\worktrees\uvw-base,worktree,git
+C:\Dev\uvw-dos-base,C:\Dev\U5Native\worktrees\uvw-dos-base,worktree,git
+C:\Dev\uvw-dos-shops,C:\Dev\U5Native\worktrees\uvw-dos-shops,worktree,git
+C:\Dev\uvw-dos2-base,C:\Dev\U5Native\worktrees\uvw-dos2-base,worktree,git
+C:\Dev\uvw-look-polish,C:\Dev\U5Native\worktrees\uvw-look-polish,worktree,git
+C:\Dev\uvw-lp-base,C:\Dev\U5Native\worktrees\uvw-lp-base,worktree,git
+C:\Dev\uvw-original-dos,C:\Dev\U5Native\worktrees\uvw-original-dos,worktree,git
+C:\Dev\uvw-present,C:\Dev\U5Native\worktrees\uvw-present,worktree,git
+C:\Dev\uvw-shops-base,C:\Dev\U5Native\worktrees\uvw-shops-base,worktree,git
+C:\Dev\uvw-spp1-base,C:\Dev\U5Native\worktrees\uvw-spp1-base,worktree,git
+C:\Dev\uvw-spp2-base,C:\Dev\U5Native\worktrees\uvw-spp2-base,worktree,git
+C:\Dev\spp1-hw-package,C:\Dev\U5Native\releases\historical\spp1-hw-package,hardware rollback package,artifacts
+C:\Dev\uvw-look-polish-evidence,C:\Dev\U5Native\releases\historical\uvw-look-polish-evidence,acceptance evidence,artifacts
+C:\Dev\uvw-original-dos-evidence,C:\Dev\U5Native\releases\historical\uvw-original-dos-evidence,acceptance evidence,artifacts
+C:\Dev\spp2-scratch,C:\Dev\U5Native\archive\investigations\spp2-scratch,unique investigation,artifacts
+C:\Dev\_Archive\u5-ti89,C:\Dev\U5Native\archive\u5-ti89,historical TI project/tools,archive
+C:\Dev\ultima-v-archive,C:\Dev\U5Native\archive\legacy-layout,CLEANUP2 archive convention,layout
+C:\Dev\ultima-v-builds,C:\Dev\U5Native\builds\legacy-layout,CLEANUP2 builds convention,builds
+C:\Dev\openu5-release-artifacts,C:\Dev\U5Native\releases\legacy-layout,CLEANUP2 releases convention,layout

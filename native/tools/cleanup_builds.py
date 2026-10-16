@@ -20,7 +20,7 @@ The backup-required group additionally needs a backup marker per entry:
     <backup-dir>/<dirname>/<relpath>    the backed-up copy of each listed file
 The marker must list every unique file of the entry (UNIQUE below); each copy
 must hash to the listed value and, while the source tree still exists, to the
-source file too. Default backup dir: C:\\Dev\\openu5-release-artifacts\\backups.
+source file too. Default backup dir: C:\\Dev\\U5Native\\releases\\backups.
 """
 import argparse
 import hashlib
@@ -32,7 +32,7 @@ import sys
 from pathlib import Path, PurePosixPath
 
 REPO = Path(__file__).resolve().parents[2]
-DEFAULT_BACKUP_DIR = Path(r"C:\Dev\openu5-release-artifacts\backups")
+DEFAULT_BACKUP_DIR = Path(r"C:\Dev\U5Native\releases\backups")
 ALLOWED_UNTRACKED = {"native/core/a4-release-ctest.log"}
 
 KEEP, BACKUP, DELETE = "KEEP", "BACKUP_REQUIRED", "DELETE"
