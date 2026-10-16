@@ -91,3 +91,29 @@ Evidence: `baseline-host-tests.log`, `baseline-host-final-corrected.log`, `basel
 The initial four-job native rebuild hit a GCC 16.2.0 internal compiler error in `stl_uninitialized.h`; the unchanged build completed at two jobs. The initial firmware Ninja launch needed an explicit installed Ninja path; the subsequent two-job build passed. These failed attempts remain in separate logs. No optimization/warning flags or test assertions were weakened for those setup/compiler issues.
 
 The uncommitted review firmware is preserved separately with its ELF and configuration. Clean-source firmware measurements and final package identities are recorded in the following closeout and the external manifest; no review image is presented as a release package.
+
+## Clean-source firmware and release closeout
+
+Clean production source `a264d43c18a98716aa5c3265c45013e9d5764a44` passed the firmware build and capability audit. The following documentation-only closeout commit is rebuilt for both final packages; their exact full source hash is in [the final artifact manifest](C:/Dev/U5Native/builds/ui-polish/evidence/final-release-manifest.json). The final verifier checks identical static footprint after that rebuild.
+
+| Quantity (bytes) | RC1 | RC2 | Difference |
+| --- | ---: | ---: | ---: |
+| App image | 1,075,088 | 1,075,504 | +416 |
+| App partition free | 235,632 | 235,216 | -416 |
+| Launcher allocation free | 39,024 | 38,608 | -416 |
+| .flash.text | 738,518 | 738,902 | +384 |
+| .flash.rodata | 236,988 | 237,020 | +32 |
+| .dram0.data | 22,091 | 22,091 | +0 |
+| .dram0.bss | 54,096 | 54,096 | +0 |
+
+App partition: 1,310,720 bytes. Launcher allocation: 1,114,112 bytes. IRAM sections remain unchanged. Existing frontend-view and System Menu compiler frames remain at 144 and 64 bytes respectively. The generic menu-body lambda frame changes from 144 to 208 bytes, with a new 32-byte settings-line helper and a new 32-byte category leaf. The largest project frame remains DeviceSmokeTests::run at 5,920 bytes; export remains 5,392 and dungeon gem view 4,928. Main/audio task stacks remain 24,576/6,144 bytes. Static RAM data/BSS are unchanged. No hardware free-heap or high-water measurement is claimed.
+
+Final Windows ZIP: `UltimaV-Native-v0.5.0-rc2-Windows-x64.zip`.
+Final raw Launcher app image: `UltimaV-Native-v0.5.0-rc2-TDeck-Launcher.bin`.
+Both are placed together under `C:\Dev\U5Native\releases\v0.5.0-rc2\<full-source-hash>\ui-polish`. The [manifest](C:/Dev/U5Native/builds/ui-polish/evidence/final-release-manifest.json) records exact paths, full SHA-256 values, clean source identity, toolchains, sizes, suite totals, differential classification, package smoke results and pending hardware acceptance. The final ZIP has the established ten-file whitelist and attribution; proprietary game data stays outside it. The BIN is a validated ESP32-S3 app image, not a merged flash image.
+
+[Windows Original captures](C:/Dev/U5Native/builds/ui-polish/evidence/after/original), [Windows Enhanced captures](C:/Dev/U5Native/builds/ui-polish/evidence/after/enhanced), and [host-rendered T-Deck captures](C:/Dev/U5Native/builds/ui-polish/evidence/after/tdeck-host-rendered) include menu, Settings, DOS transfer, intro/View, shortcut and gameplay evidence where applicable. Windows captures also include Large Settings and the long imported-save subtitle. Capture provenance records the actual executable hash and source commit. The final extracted-package smoke checks missing-data handling, bundled asset preparation from the user's game, portable launch and Original/Enhanced scenarios.
+
+Existing RC1 ZIP SHA-256 remains `97e2ae5201076d2f96e51e80063382f7116e39c52d3cbb337faf285e2db51e54`; the RC1 Launcher image remains `742dffcfc2675d02473e1566951af7ff36d743b205051aaac40d72f6893ec787`. Final safety verification compares every other worktree HEAD/status and both original artifact hashes. RC1 and existing saves/packages are preserved.
+
+Remaining release acceptance: physical T-Deck tests and the manual Windows checklist above. Ultima IV transfer remains unavailable, and prior documented timing/preservation qualifications still apply. No new unresolved gameplay, input, save, audio, packaging or build defect remains in the exercised engineering scope.
