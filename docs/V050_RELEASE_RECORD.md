@@ -67,3 +67,21 @@ No gameplay changes, old-release replacement, force-push, history rewrite, workt
 - Original RC2 manifest verifier PASS after restoring its installed compiler paths to PATH; the initial missing-compiler failure is preserved in the local log.
 - Independent promotion audit PASS: exact ten-file archive allowlist, only README changed, AMD64 executable identity, firmware segment checksum/appended SHA, partition budget, matching source and full artifact hashes, required licenses, 67 local documentation links, and no credential-pattern hits or new files over 10 MB across 348 added source files.
 - Commercial game input and prepared-pack directories have no tracked files in the build source. No new screenshots, game packs or saves are added by promotion.
+
+## Public publication and closeout
+
+- Published **2026-10-15T22:37:06.0000000-04:00**, America/New_York; GitHub UTC timestamp `2026-10-16T02:37:06Z`.
+- Public release ID `414476379`: https://github.com/thekojac304/ultima-v-native/releases/tag/v0.5.0.
+- Verified public, **draft=false**, **prerelease=false**, and latest stable release.
+- Anonymous downloads of both platform builds and SHA256SUMS.txt match the local originals byte for byte, including full SHA-256 and exact sizes. GitHub's own upload digests match as well.
+- Annotated tag object `706c5ef6a0f76d10ce4dafb4a9a007b8db2a9992` resolves to build source `355d4a1e564cef4c6a6d422b47dd0b6d9334cfe9`.
+- At publication, local `main` and remote `origin/main` both identified integration commit `b5539080315bc04c9b6117eccf2efa864fd1b7ff`. That commit preserves both RC2 history and the four prior workspace-documentation commits. This subsequent closeout changes documentation only; its exact final main/origin identity is captured after push in the local `builds/v050-final/evidence/public-verification.json` and final delivery report, avoiding a self-referential commit hash in this file.
+- Repository description and all requested topics verified through the anonymous API. Existing relevant topics retained. Homepage remains empty, default branch remains main, and repository remains public.
+- v0.4.0 remains public (release ID `403309475`); its asset name, size, SHA-256 and URL match the saved pre-publication baseline.
+- Fresh anonymous reads verified README, both player guides, release notes and this record are accessible on main.
+- All 15 preexisting linked development worktrees retain their original HEAD/status. Four unrelated untracked primary-checkout hardware-note/log files remain byte-identical. The final release worktree has no unrelated changes; the primary checkout retains those four intentional preexisting untracked files.
+- Release-tooling regression tests rerun: **7/7 PASS**. Final archive/runtime/license/link/credential-pattern checks passed after integrating main. Original RC1/RC2 packages and historical recovery material remain in place.
+
+Local evidence includes `public-verification.json`, `promotion-audit.json`, `preservation-closeout.json`, `hardware-acceptance.json`, full host/Windows/package logs and downloaded public assets under `builds/v050-final/evidence`. An initial public-verification report write failed because Python lacked optional timezone data; the complete retry used Windows timezone data and passed. No release assets or source payloads changed during that retry.
+
+Publication is complete. No hardware acceptance or publication gate remains pending. The known limitations above remain documented rather than being treated as release blockers.
