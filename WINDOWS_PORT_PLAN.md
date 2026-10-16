@@ -1,3 +1,5 @@
+> Windows support is delivered in v0.5.0. This plan is the historical engineering record; use [Windows setup](docs/WINDOWS.md) and [the release record](docs/V050_RELEASE_RECORD.md) for current status.
+
 # Windows Port Plan — Ultima V Native
 
 Branch `windows/initial-port`, worktree `../ultima-v-native-windows`, based on

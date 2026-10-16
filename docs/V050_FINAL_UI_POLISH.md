@@ -1,3 +1,5 @@
+> Acceptance update, 2026-10-15 (America/New_York): the user personally tested final RC2 and reports everything works correctly on T-Deck. This is user-reported hardware PASS for source `355d4a1e564cef4c6a6d422b47dd0b6d9334cfe9`, firmware SHA-256 `62f90df106132ab08c916b245c44cbf91cbb93d6e97f02c0ee33ef8ee7018ed9`, 1,075,504 bytes, embedded `0.5.0-rc2` / `355d4a1e564c`. No serial logs or photographs were supplied. The hardware gate is satisfied. [Final release record](V050_RELEASE_RECORD.md). Pending statements below describe the earlier engineering handoff.
+
 # Ultima V Native v0.5.0 final UI polish
 
 This is an unpublished RC2 candidate. Hardware acceptance is pending. Earlier user acceptance of Windows Original and the SPP1 handheld changes does not validate this candidate.

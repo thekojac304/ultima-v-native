@@ -1,6 +1,6 @@
 # Ultima V Native — Windows target
 
-> Unpublished v0.5.0 RC1 integration: [engineering record](../../../docs/V050_INTEGRATION_RC1.md), [focused hardware acceptance](../../../docs/V050_RC1_HARDWARE_CHECKLIST.md). Earlier SPP1 hardware PASS is user-reported; this RC awaits physical testing.
+> v0.5.0: [player installation](../../../docs/WINDOWS.md), [release and accepted RC2 identity](../../../docs/V050_RELEASE_RECORD.md). The user reports RC2 T-Deck hardware PASS. Historical engineering sections below retain their original context.
 
 A Windows x64 desktop build of Ultima V Native using **SDL3**. It runs the
 same gameplay core and the same application layer as the T-Deck firmware:

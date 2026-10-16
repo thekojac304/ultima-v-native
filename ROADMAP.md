@@ -1,37 +1,22 @@
-# Ultima V Native Roadmap
+# Ultima V Native roadmap
 
-This is the roadmap for **Ultima V Native**, the C++ native implementation. It is not the roadmap of the separate OpenU5 browser/reference implementation, which is kept in [`OPENU5_BROWSER_ROADMAP.md`](docs/browser/OPENU5_BROWSER_ROADMAP.md). No dates are promised.
+This roadmap covers the C++ Native implementation. The separate [OpenU5 browser roadmap](docs/browser/OPENU5_BROWSER_ROADMAP.md) retains its own scope. No dates are promised.
 
-## Current release
+## Delivered in v0.5.0
 
-- **v0.4.0**, a pre-1.0 public release for the LilyGO T-Deck Plus
-- complete and playable from character creation through the ending
-- preservation-focused **Original** mode plus optional **Enhanced** features
-- see [`RELEASE_NOTES_v0.4.0.md`](RELEASE_NOTES_v0.4.0.md)
+- Windows x64 joins LilyGO T-Deck Plus in one release.
+- Shared native engine/application, Windows Original DOS screen and interaction, Enhanced conveniences, fullscreen/scaling and asset preparation.
+- Shared preservation corrections, Enhanced selection improvements, final Settings/menu polish and firmware-size optimization.
+- User-reported RC2 T-Deck hardware PASS; accepted payloads promoted without recompilation. [Release record](docs/V050_RELEASE_RECORD.md).
 
-## Next major goal: Windows
+## Preservation and compatibility
 
-- a native Windows target
-- reuse of the native core where practical
-- a fully faithful Original mode, and the optional Enhanced mode
-- desktop input and UI adaptation
+Continue adjudicating documented discrepancies against the original DOS executable. The historical preservation ledgers remain the evidence trail; their old open-row numbers are not a current list of unresolved defects. Review current [fidelity records](docs/FIDELITY.md), [deliberate divergences](re/deliberate-divergences.md) and [release limitations](RELEASE_NOTES_v0.5.0.md).
 
-Status: a development build exists on the `windows/initial-port` branch (SDL3, MSVC, x64). It compiles the shared core and the T-Deck application layer from the firmware's own sources (with small, behaviour-preserving desktop seams), plays from character creation onward, and is pending a player-testing pass. Plan, decisions and evidence: [`WINDOWS_PORT_PLAN.md`](WINDOWS_PORT_PLAN.md).
+Ultima IV character transfer remains unavailable. A complete real-DOS save round trip and broader edge-case/hardware coverage remain useful future validation. Preserve Original behavior; keep rules-affecting conveniences optional.
 
-## Preservation and parity work
+## Future work
 
-- the documented non-blocking gaps (the D-90 to D-103 ledger rows and older minor rows)
-- continued adjudication against the original DOS binary
-
-## Internal naming cleanup
-
-- a compatibility-aware migration of the remaining `openu5_*` technical identifiers, planned in [`docs/INTERNAL_RENAME_PLAN.md`](docs/INTERNAL_RENAME_PLAN.md)
-
-## Future portability
-
-- possibly other native platforms after Windows; no commitments
-
-## What will not change
-
-- no game data, art, music, text or maps are ever distributed
-- Original mode stays faithful to the 1988 game; enhancements stay optional
+- Compatibility-aware cleanup of historical `openu5` identifiers: [rename plan](docs/INTERNAL_RENAME_PLAN.md).
+- Further native portability may be explored; no platform commitments.
+- Continue clear player documentation and reproducible evidence without distributing commercial game data.

@@ -1,3 +1,5 @@
+> Current v0.5.0 player instructions: [T-Deck setup](../../../docs/TDECK.md). Accepted RC2 is promoted unchanged; [identity and hardware PASS](../../../docs/V050_RELEASE_RECORD.md). The records below are historical.
+
 # Launcher packaging — Alpha 2 and Alpha 3 (RC1 images, released as final)
 
 > **Batch 55: Alpha 2 final is the RC1 image below, byte for byte.** It passed the

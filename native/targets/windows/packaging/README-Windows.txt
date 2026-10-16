@@ -1,4 +1,4 @@
-ULTIMA V NATIVE for Windows -- development build
+ULTIMA V NATIVE for Windows -- v0.5.0
 =================================================
 
 Ultima V Native is a native C++ re-implementation of "Ultima V: Warriors of
@@ -6,10 +6,12 @@ Destiny" (Origin Systems, 1988). It is not an emulator: the game's rules were
 re-derived from the original DOS program and checked against it. The same
 engine runs on the LilyGO T-Deck handheld; this is its Windows x64 build.
 
-THIS IS A DEVELOPMENT BUILD (version in BUILD-INFO.txt). It is playable from
-character creation to the ending, but it has not yet been through a full
-player-testing pass on Windows. Please report problems with the log file
-(see "Files and folders" below).
+STABLE v0.5.0 promotes the accepted RC2 executable unchanged. BUILD-INFO.txt
+and the game intentionally retain version 0.5.0-rc2 and source 355d4a1e564c.
+The source tag v0.5.0 identifies the actual binary source; newer player docs
+are on main. This ZIP updates instructions without changing executable bytes.
+The user reports the same-source RC2 T-Deck firmware works correctly.
+No serial logs or photographs were supplied for that hardware acceptance.
 
 NO GAME DATA IS INCLUDED. You need your own copy of Ultima V (for example the
 GOG.com release). "Ultima" is a registered trademark of Electronic Arts; this
@@ -227,4 +229,11 @@ Command-line options: UltimaVNative.exe --help  (--mode, --original-screen,
   - Making the packs needs Node.js (or a prepared T-Deck SD card).
   - The rules carry the project's documented, non-blocking differences from
     the 1988 game (see the project's preservation ledger).
-  - Development build: see BUILD-INFO.txt for the exact source revision.
+  - Accepted RC2 build identity is retained: see BUILD-INFO.txt.
+  - Ultima IV character transfer remains unavailable.
+  - DOS dungeon transfers are refused; transient state may not round-trip.
+
+Complete guides: https://github.com/thekojac304/ultima-v-native/blob/main/docs/WINDOWS.md
+T-Deck installation: https://github.com/thekojac304/ultima-v-native/blob/main/docs/TDECK.md
+Release: https://github.com/thekojac304/ultima-v-native/releases/tag/v0.5.0
+Windows 10/11 x64; no benchmarked minimum CPU/RAM specification.

@@ -1,3 +1,5 @@
+> v0.5.0 supports Windows and T-Deck. See [current architecture](../../docs/NATIVE_ARCHITECTURE.md), [building](../../docs/BUILDING.md) and [release validation](../../docs/V050_RELEASE_RECORD.md). Earlier batch statements below retain their historical scope.
+
 # Ultima V Native core: semantic commands and world simulation
 
 ## Current gameplay status

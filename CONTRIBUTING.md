@@ -1,6 +1,6 @@
 # Contributing
 
-> **Scope.** This repository holds three kinds of material: **Ultima V Native** (the C++ T-Deck / native implementation, under `native/`), the separate **OpenU5** browser/reference implementation (`game/`, `demo-byo/`, `extractor/`), and **shared reverse-engineering material** (`re/`, `docs/`). Say which one your issue or PR concerns. The setup, test tiers and layer rules below describe the OpenU5 browser workflow; for Native, see [`native/core/README.md`](native/core/README.md) and [`native/targets/tdeck/README.md`](native/targets/tdeck/README.md). The provenance rule (no gameplay change without an assembly citation or parity evidence) applies to both.
+> **Scope.** This repository holds three kinds of material: **Ultima V Native** (the C++ Windows / T-Deck implementation, under `native/`), the separate **OpenU5** browser/reference implementation (`game/`, `demo-byo/`, `extractor/`), and **shared reverse-engineering material** (`re/`, `docs/`). Say which one your issue or PR concerns. Native build instructions: [docs/BUILDING.md](docs/BUILDING.md); Windows details: [native/targets/windows/README.md](native/targets/windows/README.md). Native bug reports should include F10 (Windows) or Alt+M (T-Deck) build identity and reproduction steps. The setup, test tiers and layer rules below describe the OpenU5 browser workflow; for Native, see [`native/core/README.md`](native/core/README.md) and [`native/targets/tdeck/README.md`](native/targets/tdeck/README.md). The provenance rule (no gameplay change without an assembly citation or parity evidence) applies to both.
 
 Thanks for your interest! This project has one non-negotiable rule that shapes
 everything else:
@@ -14,7 +14,7 @@ everything else:
 
 ## Ways to contribute (easiest first)
 
-1. **Bug reports with a save.** The game can export saves (F5 → Export). A report
+1. **Bug reports with a save.** Native exports through Title → DOS Save Transfer; browser controls follow its own documentation. Keep private saves and game data out of public issues. A report
    with an exported save + the RNG seed + steps is reproducible in minutes and
    is the single most valuable contribution. Use the issue template.
 2. **Playtesting against the original.** If you own the GOG version and can run

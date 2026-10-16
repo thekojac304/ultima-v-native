@@ -1,240 +1,89 @@
 # Ultima V Native
 
-**A native implementation of *Ultima V: Warriors of Destiny* for the LilyGO T-Deck, focused on preservation, portability and optional modern quality-of-life enhancements.**
+**A native C++ implementation of Ultima V: Warriors of Destiny for Windows x64 and LilyGO T-Deck Plus.** Explore Britannia, build a party, fight, cast spells, visit shops and dungeons, and play from character creation through the ending. The portable engine runs directly on each platform, with a platform-specific display, storage, input and audio layer.
 
-| | |
-|---|---|
-| **Current release** | [v0.4.0](https://github.com/thekojac304/ultima-v-native/releases/tag/v0.4.0) (2026-10-04), a pre-1.0 public release |
-| **Platform** | LilyGO T-Deck Plus (ESP32-S3), installed through the T-Deck Launcher |
-| **Firmware** | Download from [GitHub Releases](https://github.com/thekojac304/ultima-v-native/releases) |
-| **Game data** | Bring your own copy of Ultima V; nothing from the original game is distributed |
+## Download v0.5.0
 
-v0.4.0 is a pre-1.0 public release, complete and playable from character creation through the ending, with documented non-blocking discrepancies still under active preservation work. It was developed internally as the Alpha 4 / RC5 milestone. The repository also contains the OpenU5 browser port that served as a reference implementation, described [below](#the-browser-port-openu5).
+The first native Windows release joins the T-Deck in one [public release](https://github.com/thekojac304/ultima-v-native/releases/tag/v0.5.0).
 
-![Ultima V Native title screen on the T-Deck](docs/images/screenshots/title-screen.png)
+| Platform | Download | Start here |
+| --- | --- | --- |
+| Windows 10/11 x64 | [Windows ZIP](https://github.com/thekojac304/ultima-v-native/releases/download/v0.5.0/UltimaV-Native-v0.5.0-Windows-x64.zip) | [Windows installation](docs/WINDOWS.md) |
+| LilyGO T-Deck Plus | [Launcher app image](https://github.com/thekojac304/ultima-v-native/releases/download/v0.5.0/UltimaV-Native-v0.5.0-TDeck-Launcher.bin) | [T-Deck installation](docs/TDECK.md) |
+| Checksums | [SHA256SUMS.txt](https://github.com/thekojac304/ultima-v-native/releases/download/v0.5.0/SHA256SUMS.txt) | Compare with `Get-FileHash -Algorithm SHA256` |
+
+**Bring your own legally obtained DOS Ultima V files.** Game data and prepared resource packs are not included. Node.js is needed once to prepare your files; it is not needed to run the Windows game afterward. SDL3.dll and license notices are included in the ZIP.
+
+The accepted RC2 executable and firmware are promoted unchanged. They intentionally still report `0.5.0-rc2`, Git `355d4a1e564c`; this is the stable v0.5.0 payload, not a separate candidate download. The Windows ZIP has refreshed instructions. See the [release record](docs/V050_RELEASE_RECORD.md) for exact provenance and hardware acceptance.
+
+## Original and Enhanced
+
+**Original** preserves the DOS game's rules, commands and prompts. On Windows it also uses the DOS-style 320×200 screen, party selectors, equipment panels and shop conversations. Cast and Mix accept typed spell syllables; Q asks to save. Original is the default interface.
+
+**Enhanced** offers selection panels, spell lists, quick save/load, optional difficulty and cheats, and handheld-friendly interaction. On Windows it uses the shared 320×240 presentation. Changing the interface does not reset difficulty or cheats already stored in a journey. Enhanced conveniences are not claims about the original DOS behavior.
+
+Both platforms share exploration, combat, magic, quests, shops, dungeons, three native save slots with backup recovery, and DOS save import/export. Windows adds fullscreen and configurable pixel scaling. Sound effects work without music files; optional music requires compatible community music-patched assets.
 
 ## Screenshots
 
-Captured from the Ultima V Native T-Deck rendering path at the device's native 320×240 resolution. These are Ultima V Native captures, not OpenU5 browser screenshots.
+The established repository gallery below contains captures from the Native T-Deck rendering path, at 320×240, using user-supplied data. These are rendered captures, not photographs of a device and not evidence of RC2 hardware testing. No new game imagery is added for this release: the contributing policy excludes game art, and separate redistribution permission for the new Windows evidence captures has not been established. Windows Original/Enhanced and menu captures remain local verification evidence.
 
-| | |
-|---|---|
-| ![Britannia overworld](docs/images/screenshots/hero-britannia-coast.png) | ![Britain](docs/images/screenshots/town-britain.png) |
-| Britannia overworld | Britain |
-| ![Hythloth](docs/images/screenshots/dungeon-hythloth.png) | ![Surface combat](docs/images/screenshots/combat-britannia.png) |
-| Hythloth | Surface combat |
-| ![Lord British's Castle](docs/images/screenshots/castle-dialogue.png) | ![Alchemist shop](docs/images/screenshots/shop-alchemist.png) |
-| Lord British's Castle | Alchemist shop |
+| Native title/menu | T-Deck rendering: Britannia |
+| --- | --- |
+| ![Native title](docs/images/screenshots/title-screen.png) | ![Britannia](docs/images/screenshots/hero-britannia-coast.png) |
 
-*The screenshots were rendered using user-supplied Ultima V game data; this project does not distribute original game assets. Ultima V and its artwork remain the property of their respective rights holders.*
+Ultima V artwork remains the property of its rights holders. Screenshots do not grant permission to redistribute game assets.
 
-## What this project is
+## What is new in v0.5.0
 
-This is **not an emulator**. It is a native implementation (a port) of the game: a portable gameplay core with platform-specific input and presentation layers. The T-Deck target drives the core with the device's keyboard and trackball, draws to its display and reads and writes the SD card. The rules in the core were re-derived from the original DOS executable and are checked against it.
+- First Windows x64 release with Original and Enhanced interfaces, DOS presentation and shop interactions, window scaling, fullscreen and portable data storage.
+- Shared preservation corrections to combat, magic, dialogue, shops, exploration and the hanging-sign Look description.
+- Improved Enhanced selection and equipment interfaces, clearer DOS Save Transfer wording, Settings categories and values, and visible System Menu shortcuts.
+- The original Summoning introduction and four-scene View remain available.
+- T-Deck firmware optimization retains the shared behavior while fitting a 1,114,112-byte Launcher allocation; the app is 1,075,504 bytes.
 
-There are two goals, kept separate:
+Native campaign play, save slots/recovery, DOS transfer, optional music and difficulty settings were already present in [v0.4.0](RELEASE_NOTES_v0.4.0.md). [Full v0.5.0 notes](RELEASE_NOTES_v0.5.0.md) describe the changes and limitations.
 
-1. **Preservation.** Reproduce the original DOS game's behavior as closely as practical.
-2. **Optional enhancement.** Offer modern conveniences for a handheld, clearly separated from the 1988 behavior.
+## Installation and controls
 
-## Original mode and Enhanced mode
+Windows: extract the ZIP to a writable folder, run `Prepare-Game-Data.cmd` with your DOS installation, then run `UltimaVNative.exe`. **F10 — System Menu**; Alt+M also works. Alt+Enter/F11 toggles fullscreen; Ctrl+= / Ctrl+- changes window size. [Complete guide](docs/WINDOWS.md).
 
-**Original** is the preservation-focused mode and the default. It aims to reproduce the DOS game's behavior, including parity fixes derived from reverse engineering and comparison work. With Difficulty set to **Original**, no cheats and no World toggles, the game plays the recreated 1988 rules; the regression goldens recorded before each enhancement still reproduce bit for bit.
+T-Deck: prepare the packs on your computer, copy them under `/ultima5/` on a FAT-formatted microSD card, and install the app BIN through your existing T-Deck Launcher. **Alt+M — System Menu**. The download is an app image, not a complete flash image. [Complete guide and rollback](docs/TDECK.md).
 
-**Enhanced** is a set of optional conveniences. They are not presented as authentic 1988 behavior:
+## Documentation and development
 
-- Difficulty presets (Original / Relaxed / Easy) and a Custom difficulty
-- Cheats (Party, Inventory, World, God Mode)
-- Improved trackball behavior (click toggles WASD movement mode, ten speed levels)
-- Save-slot UX (slot pages, backups, recovery marks)
-- Keyboard backlight control
-- A handheld-oriented interface
+| Topic | Documentation |
+| --- | --- |
+| Player setup | [Windows](docs/WINDOWS.md), [T-Deck](docs/TDECK.md) |
+| Controls | [Native controls](docs/NATIVE_CONTROLS.md), [detailed Windows keys](native/targets/windows/packaging/CONTROLS.txt) |
+| Saves | [Save compatibility and DOS transfer](docs/SAVE_COMPATIBILITY.md) |
+| Building | [Build guide](docs/BUILDING.md), [Windows target](native/targets/windows/README.md), [T-Deck target](native/targets/tdeck/README.md) |
+| Architecture | [Native architecture](docs/NATIVE_ARCHITECTURE.md), [core](native/core/README.md) |
+| Validation and limitations | [Release record](docs/V050_RELEASE_RECORD.md), [fidelity](docs/FIDELITY.md), [preservation ledger](docs/hardware/ALPHA2_PRESERVATION_LEDGER.md), [deliberate divergences](re/deliberate-divergences.md) |
+| Contributing | [Contributing](CONTRIBUTING.md), [roadmap](ROADMAP.md) |
+| Licensing | [GPL-3.0](LICENSE), [attribution](NOTICE) |
 
-Not every presentation change can be switched off: the device front end, save management and Developer-menu layout are part of the T-Deck build in both modes. The rules-affecting options (difficulty, cheats, World toggles) are what Original mode leaves untouched.
+Bug reports should identify platform, build/Git identity, interface, difficulty/cheats, reproduction steps and any useful logs. Never post proprietary game data or private saves publicly. Gameplay changes require an assembly citation or parity evidence.
 
-## v0.4.0 highlights
+## Preservation, lineage and AI-assisted development
 
-- Native T-Deck gameplay from character creation to the ending, including the original's full ending sequence
-- A new front end in the original's EGA colours and font: centred title with credits, console, reverse-video lists, moongate transit
-- Three manual save slots, each with a backup generation; save recovery; Continue loads the slot you saved last
-- DOS save import / export for the original `SAVED.GAM` + `SAVED.OOL`
-- Trackball redesign: click-to-toggle WASD mode and ten speed levels
-- Difficulty presets, Custom difficulty and cheats
-- Keyboard backlight setting
-- Cleaner Developer menu (Alt+D)
-- A larger flash layout (1.25 MiB app partition) with room to grow
-- Optional music when community music-patched game files are supplied, including a dungeon-music fix
-- A broad preservation / parity cleanup against the original: palace crown gate, worn crown, Negate against enemy magic, dungeon command keys, the wishing well, the combat clock, healer and Refuge resurrection, new-game underworld skiff and bodies, and more
+Ultima V Native is a native reimplementation, not an emulator. It relied heavily on the separate **OpenU5 TypeScript/browser implementation** as a behavioral reference, alongside direct reverse engineering of the DOS executable, native tests and hardware results. It is not an independent clean-room reconstruction. When the sources disagree, the original DOS executable decides. See [project history](docs/history/PROJECT_HISTORY.md).
 
-Full list: [`RELEASE_NOTES_v0.4.0.md`](RELEASE_NOTES_v0.4.0.md). Engineering history: [`ALPHA4.md`](docs/history/alpha/ALPHA4.md) and [`native/targets/tdeck/ALPHA4_UI.md`](native/targets/tdeck/ALPHA4_UI.md).
+AI coding agents wrote substantial parts of the project. Confidence comes from review, parity/golden tests, mutation testing, build checks and physical testing, not from who wrote the code. v0.5.0 RC2 passed 213 native host tests and 40 Windows tests; the user reports the exact RC2 firmware works correctly on their T-Deck. This is not formal verification or perfect DOS parity.
 
-## Relationship to OpenU5
-
-OpenU5 and Ultima V Native are separate implementations that share reverse-engineering lineage and live in the same repository.
-
-OpenU5 is the TypeScript/browser reference implementation. Ultima V Native is the C++ native implementation targeting T-Deck today and Windows next. Ultima V Native is not the browser build. OpenU5 was heavily used as a behavioral reference and parity oracle during Native development, but OpenU5-specific features, releases, roadmaps, websites and UI work (its website, browser demo, skins, localization and mobile UI) do not represent Ultima V Native.
-
-Ultima V Native was built with substantial help from the OpenU5 codebase. OpenU5's TypeScript implementation served as a major behavioral reference during development, and much of the native parity work compared the C++ implementation against that reference.
-
-OpenU5 was not treated as infallible. When OpenU5, the native implementation, documentation, or observed behavior disagreed, the original DOS executable was reverse-engineered to adjudicate the difference. In some cases that led to corrections in both the native implementation and the reference behavior.
-
-Ultima V Native is therefore not a straight port of OpenU5 and should not be described as an independent clean-room reconstruction. It is a native reimplementation that relied heavily on OpenU5 as a reference implementation, alongside direct reverse engineering of the original game; native work drew on four sources (OpenU5 behavior, DOS-binary reverse engineering, independent native tests, hardware results), and the DOS binary wins when they disagree. See [`PROJECT_HISTORY.md`](docs/history/PROJECT_HISTORY.md) for the lineage.
-
-## How it was built: AI-assisted development
-
-This project was developed heavily with AI coding agents, or informally, "vibe coded." AI wrote a substantial amount of the implementation. Its output was not accepted blindly. The agents typically worked by triangulating four evidence sources:
-
-1. OpenU5 / TypeScript reference behavior
-2. reverse engineering of the original DOS binary
-3. native runtime behavior (host tests and the real device code paths)
-4. physical T-Deck hardware results
-
-When the sources disagreed, the DOS binary decided. Changes were also checked against parity corpora, regression and golden tests, mutation testing and clean firmware builds.
-
-Confidence in the result comes from that evidence, not from who or what wrote the code. For v0.4.0 that includes:
-
-- 201 / 201 host tests passing on the release tree (in the fully provisioned development checkout; see Project status for a clean clone)
-- extensive mutation testing of the parity fixes (for example 110 / 110 mutants killed in the final parity batch)
-- binary-level reverse-engineering notes for the original executable and overlays
-- repeated testing on physical T-Deck hardware
-- a hardware-validated firmware image, the exact image developed as RC5, promoted byte for byte as v0.4.0
-
-This is not a claim of formal verification.
-
-## Development and validation process
-
-Typical work on a behavior follows this loop:
-
-1. Identify a behavior or discrepancy.
-2. Inspect the original DOS binary when needed.
-3. Define the expected behavior against the reference.
-4. Write RED-first tests that fail for the right reason.
-5. Implement the native fix.
-6. Run the parity, golden and preservation tests.
-7. Run mutation / adversarial testing to prove the tests actually bite.
-8. Build the firmware and run the build guards.
-9. Validate on physical hardware.
-10. Document the evidence and the release candidate.
-
-Known discrepancies are tracked rather than hidden. See the [preservation ledger](docs/hardware/ALPHA2_PRESERVATION_LEDGER.md), the [gameplay integration audit](native/targets/tdeck/GAMEPLAY_INTEGRATION_AUDIT.md), the [deliberate divergences](re/deliberate-divergences.md) and the [fidelity docs](docs/FIDELITY.md).
-
-## Platform and hardware
-
-The supported native platform is the **LilyGO T-Deck Plus (ESP32-S3, 16 MB flash, 8 MB PSRAM)**. The firmware uses the device's keyboard, trackball, 320x240 display and microSD card, and installs through the [Launcher](native/targets/tdeck/LAUNCHER.md). See [`native/targets/tdeck/README.md`](native/targets/tdeck/README.md) for the hardware basis and build notes.
-
-## Installing (overview)
-
-1. Download the current firmware (`UltimaV-Native-v0.4.0-TDeck.bin`) from [GitHub Releases](https://github.com/thekojac304/ultima-v-native/releases).
-2. Install it on the T-Deck through the Launcher's SD installer.
-3. Supply your own Ultima V files and generate the SD resource packs from them on your own machine (`npm run pack:native`, `npm run pack:alpha1`, optionally `npm run pack:audio`).
-4. Put the packs under `/ultima5/` on a FAT-formatted microSD card.
-
-The original game's data, maps and assets are not distributed by this project, and the generated packs and local test fixtures derived from your files are not committed. Exact file requirements, sizes and the SD layout: [`RELEASE_NOTES_v0.4.0.md`](RELEASE_NOTES_v0.4.0.md), [`native/ASSETS.md`](native/ASSETS.md).
-
-## Music
-
-The stock DOS Ultima V has **no music**, and this project does not synthesize music that was not in the original. Sound effects are produced on the device. Users with community music-patched Ultima V files (the Exodus *Ultima V Upgrade* patch) can generate an optional audio pack and get music. Music controls are capability-aware: with no music assets present the game stays faithful to stock DOS, and Settings explains why. No music assets are distributed here.
-
-## Saves and DOS compatibility
-
-v0.4.0 has multiple native save slots, Continue, save recovery and DOS save import / export.
-
-DOS save import/export is supported, with a few documented edge cases around transient town state, dungeon saves, and certain world objects:
-
-- Town NPC, chest and other transient state may reset or be re-seeded across a DOS / native round trip.
-- Dungeon saves are intentionally refused for transfer; leave the dungeon first.
-- Some transient world objects, such as dropped items, parked monsters and carpets, are not carried.
-
-Ordinary party, inventory and quest progress is what the bridge is for. The full technical list is in [`ALPHA4_UI.md` §5](native/targets/tdeck/ALPHA4_UI.md) (A4-SAVE3, §5.9 for round-trip limitations).
-
-Import and export were tested on the host and on the T-Deck's own import / export. A full Native → DOS → DOS save → Native round trip against a real DOS install was not run and is not claimed.
-
-## Project status
-
-- **Current release:** v0.4.0, a pre-1.0 public release (tag `v0.4.0`)
-- **Firmware:** hardware-validated; the exact RC5 bytes, unchanged (internal identity `FW 4.0.0-alpha4-rc5-debug`, `Git 59c14b907399`). The historical development tag `alpha4-release` is kept.
-- **Host suite:** Alpha 4 / v0.4.0 was validated at 201 / 201 in the fully provisioned development checkout. A clean public checkout registers 193 host tests; the other eight (`dungeon_parity`, `dungeon_flow_parity`, `world_flow_parity`, `dungeon_view_regression`, `dungeon_combat_regression` and three `typescript_*_fixture_drift` checks) appear once you generate the local map fixtures from your own Ultima V files (see [`native/core/README.md`](native/core/README.md), "Local map fixtures")
-- **Playable:** the game is substantially complete and playable through the ending
-
-This is not a claim of perfect parity. Known, non-blocking discrepancies remain documented in the ledgers above.
-
-## Roadmap
-
-**Next major goal: Windows.** The T-Deck work has matured the native core enough that the next major project is a Windows port. The intended direction:
-
-- keep a fully faithful **Original** mode
-- keep the optional **Enhanced** mode
-- adapt controls and UI for the desktop
-- reuse the native core where practical
-- continue preservation and parity cleanup
-
-**Windows development build (branch `windows/initial-port`).** A Windows x64 build using SDL3 now runs the same native core and application layer as the T-Deck, with a desktop keyboard, Original and Enhanced interface modes, save compatibility with the T-Deck card layout and a one-command asset preparation script. It is a development build pending player testing; see [`WINDOWS_PORT_PLAN.md`](WINDOWS_PORT_PLAN.md) and [`native/targets/windows/README.md`](native/targets/windows/README.md).
-
-No dates are promised. Broader portability to other platforms is a possible long-term direction, nothing more. The full roadmap is [`ROADMAP.md`](ROADMAP.md); the separate OpenU5 browser roadmap is [`OPENU5_BROWSER_ROADMAP.md`](docs/browser/OPENU5_BROWSER_ROADMAP.md).
+OpenU5 remains in `game/`, `demo-byo/` and `extractor/`, with its own [browser roadmap](docs/browser/OPENU5_BROWSER_ROADMAP.md). Its browser demo, features and release lifecycle do not describe Native. Historical `openu5` namespaces, filenames and SD pack names remain for compatibility; see the [internal rename plan](docs/INTERNAL_RENAME_PLAN.md).
 
 ## Known limitations
 
-- Pre-1.0 software; the v0.4.0 firmware is a Debug build that includes the Developer menu.
-- Some documented, non-blocking parity differences remain.
-- Some rare edge cases have no physical-hardware coverage, and real heap figures for v0.4.0 were not captured (no memory problem was observed).
-- You must supply your own game files.
-- DOS save transfer has the edge cases listed above.
-- Music depends on supplied assets.
+- Pre-1.0 software; documented preservation discrepancies remain.
+- Windows play is keyboard-based; no mouse/controller gameplay or widescreen redesign.
+- Ultima IV character transfer is unavailable.
+- DOS save transfer refuses dungeon saves and omits some transient objects/state; a complete Native → DOS → Native session in a real DOS installation is not claimed.
+- Music needs compatible optional patched assets; stock DOS files have no music.
+- RC2 hardware acceptance is a user report. No serial logs, device photographs, measured free heap or stack high-water figures were supplied for that acceptance.
 
-Exhaustive detail: [`RELEASE_NOTES_v0.4.0.md`](RELEASE_NOTES_v0.4.0.md) (Known limitations) and [`ALPHA4.md`](docs/history/alpha/ALPHA4.md).
+## Credits and legal notice
 
-## Reporting bugs and contributing
+Credit to OpenU5 and its reverse-engineering work, Origin Systems and the original creators, [Ultima5Redux](https://github.com/bradhannah/Ultima5Redux) for MIT-licensed tile metadata, SDL3, pngjs, LilyGO, bmorcelli's Launcher and the community Exodus Ultima V Upgrade music patch (not included). Details: [NOTICE](NOTICE).
 
-A useful bug report includes:
-
-- the release / version and, if available, the firmware identity (`FW …` / `Git …` on the boot or Developer screen)
-- Original or Enhanced mode, and the Difficulty / cheat settings if they were changed
-- your save state and the steps to reproduce, with screenshots or logs when useful
-- whether it reproduces after a reload or power cycle
-
-Use the issue templates in [`.github/ISSUE_TEMPLATE`](.github/ISSUE_TEMPLATE) and read [`CONTRIBUTING.md`](CONTRIBUTING.md). The project's rule: no gameplay change is accepted without provenance (an assembly citation or a parity scenario).
-
-## Included reference implementation: OpenU5
-
-The repository also contains the separate **OpenU5** browser/reference implementation (TypeScript + PixiJS), which re-derived the game's rules from the binary with the assembly cited next to the code. This subtree is retained because it is an important reference implementation and historical source of parity expectations; it has its own lifecycle and features, and its roadmap is in [`OPENU5_BROWSER_ROADMAP.md`](docs/browser/OPENU5_BROWSER_ROADMAP.md). Nothing in this section describes Ultima V Native. About OpenU5:
-
-- the `ULTIMA.EXE` kernel and its 24 overlays were disassembled, and the coverage ledger justifies 202,800 / 202,800 bytes
-- hundreds of parity tests compare the re-derived model with the engine, plus runtime checks against the real binary in headless DOSBox-X
-- the original add/rotate/xor RNG is reimplemented bit-exactly
-- a full-game "Grand Tour" playthrough test (OpenU5's browser test suite)
-
-Run OpenU5 locally with your own files in `original/u5/ultima5/`:
-
-```bash
-npm install
-npm run extract        # or: npm run extract -- --src /path/to/your/ultima5
-npm run dev
-```
-
-Controls: [`docs/controls.md`](docs/controls.md). Method: [`docs/methodology.md`](docs/methodology.md). The OpenU5 browser implementation has its own bring-your-own-files demo at [openu5.org](https://openu5.org); extraction runs client-side and nothing is uploaded. That site is OpenU5's, not Ultima V Native's.
-
-Some host parity tests (`native/core`) read local fixtures generated from your own game files; they are gitignored and skipped when absent. See "Local map fixtures" in [`native/core/README.md`](native/core/README.md).
-
-## Credits
-
-- **OpenU5**, a major reference implementation for this project (see [Relationship to OpenU5](#relationship-to-openu5))
-- The reverse-engineering work on the original DOS executable and overlays, recorded in [`re/`](re/)
-- Origin Systems and the original Ultima V creators
-- [Ultima5Redux](https://github.com/bradhannah/Ultima5Redux) (MIT), source of tile metadata; see [`NOTICE`](NOTICE)
-- LilyGO and the T-Deck ecosystem and reference code
-- bmorcelli's Launcher, the SD installer used for firmware installation
-- The community Exodus *Ultima V Upgrade* music patch (not distributed here)
-
-## Legacy `openu5` names
-
-Some internal identifiers and asset filenames still use the historical `openu5` name for compatibility and to avoid unnecessary churn in the released firmware and tooling (for example `openu5-assets.bin`, `openu5-alpha1-resources.bin`, `openu5-audio.bin`, the `openu5_tdeck` build target and the C++ `openu5` namespace). They are technical identifiers, not the current project name. A future migration is planned in [`docs/INTERNAL_RENAME_PLAN.md`](docs/INTERNAL_RENAME_PLAN.md).
-
-## Copyright and assets
-
-Ultima V is copyrighted by its respective rights holders. Ultima is a registered trademark of Electronic Arts; this project is not affiliated with or endorsed by EA. The repository contains **no game data, art, music, text or maps** from Ultima V. You must provide your own legally obtained copy, and local fixtures and resource packs derived from it are generated on your machine and never committed. If you are a rights holder with concerns, please open an issue.
-
-Code is licensed under GPL-3.0; see [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).
-
-### v0.5.0 RC2 UI polish candidate
-
-An unpublished cross-platform candidate adds clearer DOS Save Transfer wording, aligned Settings values and category captions, and in-app System Menu reminders (Windows F10; T-Deck Alt+M). The original View and Summoning sequences and historical menu choices remain. Hardware acceptance is pending; see [the polish record](docs/V050_FINAL_UI_POLISH.md) for evidence and remaining tests.
+Ultima V and its artwork belong to their respective rights holders. Ultima is a registered trademark of Electronic Arts. This project is not affiliated with or endorsed by Electronic Arts or Origin Systems. Commercial game data, art, text, maps and music packs are not distributed; supply your own legally obtained files. Owning a copy does not itself grant redistribution rights. Project code is GPL-3.0; third-party terms remain applicable.

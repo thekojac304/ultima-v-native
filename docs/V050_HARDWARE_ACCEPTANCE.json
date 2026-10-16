@@ -1,0 +1,20 @@
+{
+  "date_local": "2026-10-15",
+  "timezone": "America/New_York",
+  "result": "PASS",
+  "provenance": "user-reported hardware acceptance in release-promotion request",
+  "report": "The user personally tested final v0.5.0 RC2 firmware on the T-Deck and confirms everything is working correctly.",
+  "scope": "general RC2 T-Deck acceptance; no individual checklist outcomes inferred",
+  "git_commit": "355d4a1e564cef4c6a6d422b47dd0b6d9334cfe9",
+  "embedded_version": "0.5.0-rc2",
+  "embedded_git": "355d4a1e564c",
+  "firmware": {
+    "filename": "UltimaV-Native-v0.5.0-rc2-TDeck-Launcher.bin",
+    "path": "C:\\Dev\\U5Native\\releases\\v0.5.0-rc2\\355d4a1e564cef4c6a6d422b47dd0b6d9334cfe9\\ui-polish\\UltimaV-Native-v0.5.0-rc2-TDeck-Launcher.bin",
+    "bytes": 1075504,
+    "sha256": "62f90df106132ab08c916b245c44cbf91cbb93d6e97f02c0ee33ef8ee7018ed9"
+  },
+  "serial_logs_provided": false,
+  "photographs_provided": false,
+  "measured_heap_or_stack_high_water_provided": false
+}
