@@ -65,7 +65,8 @@ CASTING AND MIXING
   ENHANCED mode: choose the spell from a list (arrows, Enter).
 
 SYSTEM
-  F10 (or Alt+M)       System Menu: resume, save, load, settings, title
+  F10                  System Menu: resume, save, load, settings, title
+                       Primary shortcut; Alt+M also works
   Q                    Original mode: "Save game?" -- Y saves the journey in
                        its own slot, N does not; only Y or N answer (as in
                        1988, the game continues)
@@ -77,7 +78,7 @@ SYSTEM
   Settings -> Scaling  Framed (the default) / Whole pixels / Fit window
   F12                  screenshot (data folder\screenshots)
   Ctrl+O               open the data folder (the game's files are in its
-                       ultima5 folder: saves, PC import/export, logs)
+                       ultima5 folder: saves, DOS import/export, logs)
   Alt+F4               close the game (it does NOT save: save first)
   On keyboards with AltGr (German, French, ...), AltGr types its characters;
   use the LEFT Alt key for the Alt chords.
@@ -92,4 +93,4 @@ ENHANCED MODE ONLY  (Settings -> Interface: Enhanced)
 TITLE MENU
   J C T U A R S P      the menu entries' hot keys (Journey onward, Create,
                        Transfer, U5 intro, Acknowledgements, Return to view,
-                       Settings, PC save transfer); arrows + Enter also work
+                       Settings, DOS save transfer); arrows + Enter also work

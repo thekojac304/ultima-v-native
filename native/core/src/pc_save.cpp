@@ -150,7 +150,7 @@ void complete_import(const uint8_t *gam, const uint8_t *ool, J &s, ImportReport 
 
 const char *check_text(Check c) {
     switch (c) {
-    case Check::Ok: return "PC save is valid";
+    case Check::Ok: return "DOS save is valid";
     case Check::GamSize: return "SAVED.GAM is not 4192 bytes";
     case Check::OolSize: return "SAVED.OOL is not 512 bytes";
     case Check::Party: return "SAVED.GAM: party size is not 1-6";
@@ -161,7 +161,7 @@ const char *check_text(Check c) {
     case Check::Weather: return "SAVED.GAM: wind/sail bytes not valid";
     case Check::Codec: return "SAVED.GAM could not be read";
     }
-    return "PC save is not valid";
+    return "DOS save is not valid";
 }
 
 Check check_original(const uint8_t *gam, size_t gam_size, const uint8_t *ool, size_t ool_size) {

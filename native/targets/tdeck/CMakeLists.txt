@@ -38,7 +38,7 @@ endif()
 # (U)se > In Mani Corp route guards) sets 4.0.0-alpha4-rc5-debug: RC4 plus that one fix, so it never
 # shares a name or an FW line with the superseded RC4 image.
 # Unified v0.5.0 release candidate; physical acceptance is still pending.
-set(PROJECT_VER "0.5.0-rc1")
+set(PROJECT_VER "0.5.0-rc2")
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(openu5_tdeck)
 

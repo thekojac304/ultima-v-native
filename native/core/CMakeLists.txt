@@ -1945,6 +1945,10 @@ if(BUILD_TESTING)
     endif()
   endfunction()
   # A: the credit block and the prompt, centred in IBM.CH under the title art.
+  openu5_a4_ui2_runtime(ui_polish_runtime)
+  add_test(NAME ui_polish_runtime COMMAND ui_polish_runtime
+    "${CMAKE_CURRENT_SOURCE_DIR}/../assets/openu5-alpha1-resources.bin"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../assets/openu5-assets.bin")
   openu5_a4_ui2_runtime(a4_ui2_title_runtime)
   add_test(NAME a4_ui2_title_runtime COMMAND a4_ui2_title_runtime
     "${CMAKE_CURRENT_SOURCE_DIR}/../assets/openu5-alpha1-resources.bin")

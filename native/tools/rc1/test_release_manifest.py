@@ -18,6 +18,14 @@ class WindowsIdentityTest(unittest.TestCase):
             with self.subTest(version=version), self.assertRaises(ValueError):
                 verify_windows_build_info(self.info(version), COMMIT)
 
+    def test_exact_rc2(self):
+        verify_windows_build_info(self.info("0.5.0-rc2"), COMMIT, "0.5.0-rc2")
+
+    def test_other_candidates_cannot_be_mislabeled_rc2(self):
+        for version in ["0.5.0-rc1", "0.5.0-rc20", "0.5.0-rc2-dev", "0.5.0", "0.5.0-rc2 extra"]:
+            with self.subTest(version=version), self.assertRaises(ValueError):
+                verify_windows_build_info(self.info(version), COMMIT, "0.5.0-rc2")
+
     def test_dirty_source_is_rejected(self):
         with self.assertRaises(ValueError):
             verify_windows_build_info(self.info(source=COMMIT + ' (release/v0.5.0-rc1) + UNCOMMITTED CHANGES'), COMMIT)

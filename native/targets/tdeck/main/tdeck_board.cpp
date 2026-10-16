@@ -1358,8 +1358,18 @@ esp_err_t Board::show_frontend(const openu5::FrontendView&in,const uint16_t*prev
     const auto menu_metrics=ui_text_metrics(ui_size);
     auto draw_generic_body=[&]()->esp_err_t{
         int y=title_art?116:24;
+        // Separate the original six choices from the two Native utilities.
+        auto settings_line=[&](const char*source,char*aligned,size_t capacity)->const char*{
+            if(v.kind!=openu5::FrontendViewKind::Settings)return source;
+            const char*colon=std::strchr(source,':');
+            if(!colon||colon-source>=20)return source;
+            const char*value=colon+1;while(*value==' ')++value;
+            std::snprintf(aligned,capacity,"%-20.*s%s",int(colon-source+1),source,value);
+            return aligned;
+        };
         for(size_t i=0;i<v.line_count&&y<218;++i){
-            const char*source=v.lines[i]?v.lines[i]:"";const bool selected=selected_row(int(i));size_t at=0;
+            if(title_art&&v.state==openu5::FrontendState::MainMenu&&i==6)y+=5;
+            char aligned[64]{};const char*source=settings_line(v.lines[i]?v.lines[i]:"",aligned,sizeof(aligned));const bool selected=selected_row(int(i));size_t at=0;
             do{
                 char line[51]{};size_t n=std::min<size_t>(selected&&at==0?48:50,std::strlen(source+at));
                 if(source[at+n]&&n==(selected&&at==0?48U:50U)){size_t cut=n;while(cut>20&&source[at+cut]!=' ')--cut;if(cut>20)n=cut;}
@@ -1387,7 +1397,7 @@ esp_err_t Board::show_frontend(const openu5::FrontendView&in,const uint16_t*prev
             ESP_RETURN_ON_ERROR(fill_rect(6,200,308,2,kCyan),kTag,"attract frame bottom");account(308*2);
             ESP_RETURN_ON_ERROR(fill_rect(6,136,2,64,kCyan),kTag,"attract frame left");account(2*64);
             ESP_RETURN_ON_ERROR(fill_rect(312,136,2,64,kCyan),kTag,"attract frame right");account(2*64);
-            ESP_RETURN_ON_ERROR(draw_text_box(8,207,304,9,"Original FONT.OVL View script",kGreen),kTag,"attract status");account(304*9);
+            ESP_RETURN_ON_ERROR(draw_text_box(8,207,304,9,"Original Introduction",kGreen),kTag,"attract status");account(304*9);
         }
         else if(std::strcmp(frontend_cache_.subtitle,v.subtitle?v.subtitle:"")!=0){ESP_RETURN_ON_ERROR(draw_text_box(8,116,304,14,v.subtitle?v.subtitle:"The View",kCyan,2,2),kTag,"update attract scene title");account(304*14);}
         if(preview){ESP_RETURN_ON_ERROR(draw_rgb565(8,136,304,64,preview),kTag,"draw scripted attract band");account(304*64);}
@@ -1420,8 +1430,12 @@ esp_err_t Board::show_frontend(const openu5::FrontendView&in,const uint16_t*prev
             const char*cached=i<frontend_cache_.line_count?frontend_cache_.lines[i]:"";
             const int was=frontend_cache_.selected_line;const bool was_selected=was>=0&&int(i)>=was&&int(i)<was+frontend_cache_.selected_span;
             if(std::strcmp(current,cached)==0&&!selected_row(int(i))&&!was_selected)continue;
-            char line[64]{};if(i<v.line_count)std::snprintf(line,sizeof(line),"  %.48s",current);
-            ESP_RETURN_ON_ERROR(draw_text_box_metrics(8,row_y+int(i)*row_step-1,304,row_height+2,line,row_color(int(i)),menu_metrics,
+            char line[64]{};if(i<v.line_count){
+                const char*colon=v.kind==openu5::FrontendViewKind::Settings?std::strchr(current,':'):nullptr;
+                if(colon&&colon-current<20){const char*value=colon+1;while(*value==' ')++value;std::snprintf(line,sizeof(line),"  %-20.*s%s",int(colon-current+1),current,value);}
+                else std::snprintf(line,sizeof(line),"  %.48s",current);
+            }
+            ESP_RETURN_ON_ERROR(draw_text_box_metrics(8,row_y+int(i)*row_step+(title_art&&v.state==openu5::FrontendState::MainMenu&&i>=6?5:0)-1,304,row_height+2,line,row_color(int(i)),menu_metrics,
                                 i<v.line_count&&selected_row(int(i)),1),kTag,"update retained frontend row");account(304*(row_height+2));
         }
     }else if(!layout_changed&&v.kind==openu5::FrontendViewKind::CharacterName){

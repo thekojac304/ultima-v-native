@@ -111,11 +111,13 @@ the one you last chose there or with Ctrl+= / Ctrl+-.
 The title sequence plays; press a key for the menu:
   Journey Onward          continue the journey you saved last
   Create New Character    a new journey (the original's character creation)
-  Transfer from Ultima IV, Ultima V Introduction, Acknowledgements
-  Return to the View      back to the title sequence
+  Transfer from Ultima IV  not yet available
+  Ultima V Introduction   the Summoning story (Enter advances; Esc returns)
+  Acknowledgements        the original credits
+  Return to the View      automatic original four-scene introduction
   Settings                sound, music, text size, interface, display
                           (there is no Brightness: use your monitor's)
-  PC Save Transfer        import / export saves of the original DOS game
+  DOS Save Transfer       import / export saves of the original DOS game
 
 
 4. ORIGINAL AND ENHANCED MODES
@@ -168,8 +170,8 @@ interface mode: switching to Original never rewrites them.
   slot saved last; System Menu -> Load Game picks a slot.
   Closing the window does NOT save: save first.
 
-PC/DOS saves: put the original game's SAVED.GAM and SAVED.OOL in
-%APPDATA%\Ultima V Native\ultima5\import, then Title -> PC Save Transfer ->
+DOS saves: put the original game's SAVED.GAM and SAVED.OOL in
+%APPDATA%\Ultima V Native\ultima5\import, then Title -> DOS Save Transfer ->
 Import. Export writes ultima5\export\slotN\SAVED.GAM / SAVED.OOL (and
 EXPORT.TXT) in the data folder, which the original DOS game can load. Your
 own files are only read.
@@ -199,7 +201,7 @@ The data folder is  %APPDATA%\Ultima V Native  (Ctrl+O in the game opens it):
                               mode (delete it to return to the defaults);
                               "originalScreen": "Handheld" gives Original
                               the T-Deck's 320x240 screen instead of DOS's
-      import\  export\        PC/DOS save transfer
+      import\  export\        DOS save transfer
       logs\windows.log        the log -- attach it to bug reports
   screenshots\                F12 pictures (the game's own picture: 320x200
                               in Original play, 320x240 otherwise)

@@ -98,6 +98,9 @@ struct PlatformProfile {
     const char *about = nullptr;
 };
 
+/** The selected Settings row's category, shared by title and in-game pages. */
+const char *settings_category(SettingsRowId row);
+
 const PlatformProfile &platform_profile();
 /** Install a profile (start-up only; the strings must outlive every view). */
 void set_platform_profile(const PlatformProfile &profile);

@@ -5,6 +5,9 @@
 #include <cstddef>
 #include <cstdint>
 namespace a4_ui1_goldens {
+// v0.5.0 RC2: only Settings (both sizes) and the main menu were re-recorded.
+// Category/aligned-value and DOS utility-row regions are proven in golden-region-proof.json;
+// all five other complete-screen goldens remain unchanged, including all gameplay screens.
 constexpr size_t kCount = 8;
 constexpr const char *kName[8] = {"gameplay", "move-lord-british", "move-blackthorn", "dungeon-bands", "settings", "settings-large", "system-menu", "main-menu"};
 constexpr uint64_t kScreen[8] = {
@@ -24,8 +27,8 @@ constexpr uint64_t kScreen[8] = {
     // only pixels that changed (a4-enh1-p3-golden-proof.log).
     // Alpha 4 A4-POLISH3 (section 13): again for the appended "Keyboard Backlight: Off" row, the
     // only pixels that changed (a4-polish3-golden-proof.log).
-    0x914e832c2718da41ull, // settings
-    0x2e0ea57d2967bfd7ull, // settings-large
+    0xa736ee8e92b4f329ull, // settings
+    0xa4e14e66b071f1d1ull, // settings-large
     // Alpha 4 UI Batch 2 (ALPHA4_UI.md section 2.3): re-recorded from the A4-UI2 Board for the new
     // System Menu labels ("Save Game", "Load Game"); the other seven states are unchanged.
     // Alpha 4 A4-ENH1 (section 10): re-recorded for the root's new "Cheats" row (Return to Title
@@ -36,6 +39,6 @@ constexpr uint64_t kScreen[8] = {
     // (the eighth row of a non-developer menu); the other seven states are unchanged.
     // Alpha 4 A4-UI4 (ALPHA4_UI.md section 8): re-recorded for the footer that names every hotkey
     // ("Select: arrows / Enter / J C T U A R S P"); the other seven states are unchanged.
-    0xe9df6a7eb8cbc53bull, // main-menu
+    0x38d32a3196a9da7dull, // main-menu
 };
 } // namespace a4_ui1_goldens

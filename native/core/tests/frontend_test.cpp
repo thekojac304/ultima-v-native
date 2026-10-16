@@ -39,9 +39,9 @@ int main(int argc,char**argv){
     for(int i=0;i<20;++i)CHECK(f.handle(confirm(),230002+unsigned(i)));
     CHECK(f.state()==FrontendState::MainMenu);
     CHECK(f.handle(character('u'),230100)&&f.state()==FrontendState::IntroAnimation);CHECK(f.handle(action(UiActionKind::Back),230101)&&f.state()==FrontendState::MainMenu);
-    // Alpha 4 A4-SAVE3 added PC Save Transfer before Developer. A4-ENH1 removed the
+    // Alpha 4 A4-SAVE3 added DOS Save Transfer before Developer. A4-ENH1 removed the
     // Developer row even with developer_tools_visible set in a developer build: Up
-    // from the top wraps to row 7 (PC Save Transfer), the last of eight; no 'D'.
+    // from the top wraps to row 7 (DOS Save Transfer), the last of eight; no 'D'.
     CHECK(f.view().line_count==8);for(size_t i=0;i<f.view().line_count;++i)CHECK(std::strstr(f.view().lines[i],"Developer")==nullptr);
     CHECK(std::strstr(f.view().footer," D")==nullptr);
     CHECK(f.handle(character('3'),230102));CHECK(f.view().selected_line==7);CHECK(f.handle(character('2'),230103));CHECK(f.view().selected_line==0);
@@ -49,7 +49,7 @@ int main(int argc,char**argv){
     // Alt+D's route: the same intent the row used to raise, from the main menu.
     CHECK(f.request_developer_tools()&&f.take_intent().kind==FrontendIntentKind::OpenDeveloperTools&&f.state()==FrontendState::MainMenu);
     CHECK(f.handle(character(' '),230104)&&f.state()==FrontendState::Continue);CHECK(f.handle(confirm(),230105));auto intent=f.take_intent();CHECK(intent.kind==FrontendIntentKind::ContinueLatest);f.complete_intent(false,"No active game. Please create a character or transfer one from Ultima IV.");CHECK(f.state()==FrontendState::Error);f.handle(confirm(),230106);
-    CHECK(f.handle(character('t'),230106)&&f.state()==FrontendState::MainMenu);CHECK(std::strstr(f.view().footer,"deferred")!=nullptr);CHECK(f.take_intent().kind==FrontendIntentKind::None);
+    CHECK(f.handle(character('t'),230106)&&f.state()==FrontendState::MainMenu);CHECK(std::strstr(f.view().footer,"not yet available")!=nullptr);CHECK(f.take_intent().kind==FrontendIntentKind::None);
     CHECK(f.handle(character('a'),230107)&&f.state()==FrontendState::Credits);CHECK(std::strstr(f.view().lines[0],"Lord British")!=nullptr);CHECK(f.handle(confirm(),230108)&&f.state()==FrontendState::MainMenu);
     CHECK(f.handle(character('r'),230109)&&f.state()==FrontendState::AttractDemo);f.handle(confirm(),230110);
 
@@ -107,10 +107,15 @@ int main(int argc,char**argv){
      for(int i=0;i<7;++i)CHECK(nj.handle(character((i&1)?'B':'A'),13+unsigned(i)));
      const auto created=nj.take_intent();CHECK(created.kind==FrontendIntentKind::CreateInitialSave&&created.slot==0);}
 
+    // A long imported identity must fit the subtitle's 50 compact-font cells.
+    {FrontendSession status;status.start(0,false,{});status.handle(confirm(),1);status.handle(character('p'),2);
+     PcImportStatus ready{};ready.state=PcImportState::Ready;ready.imported_slot=2;
+     std::strcpy(ready.text,"ABCDEFGH, Lord British's Castle");status.set_pc_import_status(ready);
+     const auto v=status.view();CHECK(std::strlen(v.subtitle)<=50&&std::strstr(v.subtitle,"(Slot 3)")!=nullptr);}
     FrontendSession settings_flow;settings_flow.start(0,false,{});settings_flow.handle(confirm(),1);CHECK(settings_flow.handle(character('s'),2)&&settings_flow.state()==FrontendState::Settings);
     const auto settings_before=settings_flow.view();
     // A4-ENH1: the trackball row is a speed level (default 5 of 10), not a percentage.
-    CHECK(std::strstr(settings_before.lines[2],"Trackball speed: 5/10")!=nullptr);
+    CHECK(std::strstr(settings_before.lines[2],"Trackball Speed: 5/10")!=nullptr);
     std::array<std::string,12> settings_lines{};
     for(size_t i=0;i<settings_before.line_count;++i)settings_lines[i]=settings_before.lines[i];
     UiAction settings_east{};settings_east.kind=UiActionKind::Direction;settings_east.direction=Direction::East;

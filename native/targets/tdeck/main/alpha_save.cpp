@@ -405,7 +405,7 @@ void AlphaSaveService::inspect_catalog(openu5::FrontendSaveCatalog&out){
              source[0],source[1],source[2],staged,bytes,(long long)commit_us,(long long)verify_us,(long long)(esp_timer_get_time()-start));
 }
 
-// Alpha 4 A4-SAVE3 (ALPHA4_UI.md section 5): original PC/DOS saves.
+// Alpha 4 A4-SAVE3 (ALPHA4_UI.md section 5): original DOS saves.
 namespace {
 bool make_directory(const char*p){errno=0;if(mkdir(p,0777)==0)return true;if(errno!=EEXIST)return false;struct stat st{};return stat(p,&st)==0&&S_ISDIR(st.st_mode);}
 // -1: no such file; else its size.
@@ -482,10 +482,10 @@ AlphaSaveService::PcExport AlphaSaveService::export_pc_save(int slot,PcExportRes
     // What the export carries and what it leaves out (section 5.8), for the player.
     const auto&r=out.report;std::string manifest;char line[160];
     auto add=[&](const char*text){manifest+=text;manifest+="\r\n";};
-    add("Ultima V Native - PC save export");
+    add("Ultima V Native - DOS save export");
     std::snprintf(line,sizeof(line),"Slot %d, save %llu. Copy SAVED.GAM and SAVED.OOL into the Ultima V directory, then Journey Onward.",slot+1,(unsigned long long)out.sequence);add(line);
     std::snprintf(line,sizeof(line),"Vehicles written: %u frigate(s), %u horse(s), %u skiff(s).",unsigned(r.frigates),unsigned(r.horses),unsigned(r.skiffs));add(line);
-    add("Not carried to the PC:");
+    add("Not carried to DOS:");
     if(r.town_npcs_left_out)add("- the people and chests of the current town: they return when the party leaves and re-enters it");
     if(r.unplaced){std::snprintf(line,sizeof(line),"- %u vehicle(s): no free object slot",unsigned(r.unplaced));add(line);}
     if(r.carpets){std::snprintf(line,sizeof(line),"- %u magic carpet(s) left standing on the map",unsigned(r.carpets));add(line);}

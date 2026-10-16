@@ -17,7 +17,7 @@ constexpr const char *kMenu[]={
     "Ultima V Introduction", "Acknowledgements", "Return to the View",
     // Alpha 4 A4-ENH1: no "Developer" row any more -- Alt+D on the title
     // opens the developer tools (request_developer_tools()).
-    "Settings", "PC Save Transfer"
+    "Settings", "DOS Save Transfer"
 };
 bool is_up(const UiAction&a){return a.kind==UiActionKind::Previous||(a.kind==UiActionKind::Direction&&a.direction==Direction::North);}
 bool is_down(const UiAction&a){return a.kind==UiActionKind::Next||(a.kind==UiActionKind::Direction&&a.direction==Direction::South);}
@@ -165,7 +165,7 @@ void FrontendSession::activate_menu(uint32_t now){
         if(new_journey_slot_>=0){enter(FrontendState::NewJourney,now);begin_creation(now);}
         else{enter(FrontendState::NewJourneySlot,now);slot_confirm_=false;const int c=continue_slot(catalog_);cursor_=uint8_t(c>=0?c:0);}
         break;
-    case 2: std::snprintf(notice_,sizeof(notice_),"Ultima IV transfer is deferred");entered_ms_=now;break;
+    case 2: std::snprintf(notice_,sizeof(notice_),"Ultima IV transfer is not yet available");entered_ms_=now;break;
     case 3: intro_page_=1;enter(FrontendState::IntroAnimation,now);break;
     case 4: enter(FrontendState::Credits,now);break;
     case 5: enter(FrontendState::AttractDemo,now);break;
@@ -230,7 +230,7 @@ bool FrontendSession::handle(const UiAction&a,uint32_t now){
         else return false;
         return true;
     }
-    // Alpha 4 A4-SAVE3 (ALPHA4_UI.md section 5): PC Save Transfer. Nothing is
+    // Alpha 4 A4-SAVE3 (ALPHA4_UI.md section 5): DOS Save Transfer. Nothing is
     // written until an intent is taken; the runtime does the work.
     if(state_==FrontendState::PcTransfer){
         if(is_up(a)||is_down(a)){cursor_^=1;notice_[0]=0;}
@@ -297,7 +297,7 @@ bool FrontendSession::handle(const UiAction&a,uint32_t now){
 FrontendIntent FrontendSession::take_intent(){auto out=pending_;pending_={};return out;}
 void FrontendSession::complete_intent(bool ok,const char*message){
     if(ok&&(state_==FrontendState::Continue||state_==FrontendState::Load||state_==FrontendState::NewJourney)){state_=FrontendState::EnterGame;return;}
-    // Alpha 4 A4-SAVE3: back on the PC Save Transfer page, saying what happened.
+    // Alpha 4 A4-SAVE3: back on the DOS Save Transfer page, saying what happened.
     const bool pc=state_==FrontendState::PcImportSlot||state_==FrontendState::PcExportSlot;
     if(ok&&pc){cursor_=state_==FrontendState::PcExportSlot?1:0;state_=FrontendState::PcTransfer;std::snprintf(notice_,sizeof(notice_),"%.63s",message?message:"Done");return;}
     if(!ok){pc_error_=pc;state_=FrontendState::Error;std::snprintf(notice_,sizeof(notice_),"%.63s",message?message:"Unable to complete request");}
@@ -309,7 +309,8 @@ FrontendView FrontendSession::view()const{
     if(state_==FrontendState::MainMenu){v.kind=FrontendViewKind::Menu;v.title="ULTIMA V";v.subtitle="WARRIORS OF DESTINY";for(size_t i=0;i<menu_count();++i)v.lines[v.line_count++]=kMenu[i];v.selected_line=cursor_;v.footer=notice_[0]?notice_:"Select: arrows / Enter / J C T U A R S P";
         // Alpha 4 A4-SAVE2: where Create New Character will save.
         if(!notice_[0]&&cursor_==1){const int e=first_empty_slot(catalog_);if(e>=0)std::snprintf(dynamic[0],96,"New journey: saved in empty Slot %d",e+1);else std::snprintf(dynamic[0],96,"%s","Slots full: you choose one to replace");v.footer=dynamic[0];}
-        if(!notice_[0]&&cursor_==7)v.footer="Import or export original PC/DOS saves";
+        if(!notice_[0]&&cursor_==6){platform_format(dynamic[0],96,"{menu}: System Menu; Enter: Settings");v.footer=dynamic[0];}
+        if(!notice_[0]&&cursor_==7)v.footer="Import or export original DOS saves";
         return v;}
     if(state_==FrontendState::Credits){v.kind=FrontendViewKind::Credits;v.title="Acknowledgements";v.lines[v.line_count++]="Produced and Designed by Lord British";v.footer="Press a key";return v;}
     if(state_==FrontendState::Continue){v.kind=FrontendViewKind::Menu;v.title="Journey Onward";const int c=continue_slot(catalog_);
@@ -332,29 +333,29 @@ FrontendView FrontendSession::view()const{
         format_slot_identity(dynamic[7],96,catalog_,new_journey_slot_);v.subtitle=dynamic[7];
         v.lines[v.line_count++]="No, keep it";v.lines[v.line_count++]="Yes, start a new journey here";v.selected_line=cursor_;
         v.footer=cursor_==0?"Keeps the saved journey":"The saved journey in this slot is replaced";return v;}
-    if(state_==FrontendState::PcTransfer){v.kind=FrontendViewKind::Menu;v.title="PC Save Transfer";
+    if(state_==FrontendState::PcTransfer){v.kind=FrontendViewKind::Menu;v.title="DOS Save Transfer";
         if(pc_status_.state==PcImportState::Unknown){platform_format(dynamic[1],96,"Looking in {import} ...");v.subtitle=dynamic[1];}
-        else if(pc_status_.state==PcImportState::Ready){if(pc_status_.imported_slot>=0)std::snprintf(dynamic[0],96,"PC save: %s (in Slot %d)",pc_status_.text,pc_status_.imported_slot+1);else std::snprintf(dynamic[0],96,"PC save: %s",pc_status_.text);v.subtitle=dynamic[0];}
+        else if(pc_status_.state==PcImportState::Ready){if(pc_status_.imported_slot>=0)std::snprintf(dynamic[0],96,"%s (Slot %d)",pc_status_.text,pc_status_.imported_slot+1);else std::snprintf(dynamic[0],96,"DOS save: %s",pc_status_.text);v.subtitle=dynamic[0];}
         else v.subtitle=pc_status_.text;
-        v.lines[v.line_count++]="Import the PC save into a slot";v.lines[v.line_count++]="Export a slot as a PC save";v.selected_line=cursor_;
+        v.lines[v.line_count++]="Import DOS Save";v.lines[v.line_count++]="Export DOS Save";v.selected_line=cursor_;
         platform_format(dynamic[11],96,cursor_==0?"Put SAVED.GAM + SAVED.OOL in {import}":"Writes {export}/slotN");v.footer=notice_[0]?notice_:dynamic[11];return v;}
     if(state_==FrontendState::PcImportSlot){v.kind=FrontendViewKind::Menu;
-        if(!pc_confirm_){v.title="Import PC Save";v.subtitle="Choose the slot it goes into";
+        if(!pc_confirm_){v.title="Import DOS Save";v.subtitle="Choose the slot it goes into";
             list_slots(v,dynamic,catalog_,cursor_,continue_slot(catalog_),kLatestSlotTag);
             format_slot_detail(dynamic[6],96,catalog_,cursor_,true);v.footer=notice_[0]?notice_:dynamic[6];return v;}
         const bool occupied=catalog_.slots[pc_slot_].status!=SaveSlotStatus::Empty;
         if(occupied)std::snprintf(dynamic[8],96,"Replace Slot %d?",pc_slot_+1);else std::snprintf(dynamic[8],96,"%s","Import it again?");v.title=dynamic[8];
-        if(pc_status_.imported_slot>=0)std::snprintf(dynamic[7],96,"These PC files went into Slot %d before",pc_status_.imported_slot+1);else format_slot_identity(dynamic[7],96,catalog_,pc_slot_);v.subtitle=dynamic[7];
+        if(pc_status_.imported_slot>=0)std::snprintf(dynamic[7],96,"These DOS files went into Slot %d before",pc_status_.imported_slot+1);else format_slot_identity(dynamic[7],96,catalog_,pc_slot_);v.subtitle=dynamic[7];
         v.lines[v.line_count++]="No, keep it";v.lines[v.line_count++]="Yes, import here";v.selected_line=cursor_;
-        v.footer=cursor_==0?"Nothing is written":occupied?"The journey in this slot is replaced":"A second copy of the PC journey";return v;}
-    if(state_==FrontendState::PcExportSlot){v.kind=FrontendViewKind::Menu;v.title="Export to PC";v.subtitle="Choose the slot to export";
+        v.footer=cursor_==0?"Nothing is written":occupied?"The journey in this slot is replaced":"A second copy of the DOS journey";return v;}
+    if(state_==FrontendState::PcExportSlot){v.kind=FrontendViewKind::Menu;v.title="Export DOS Save";v.subtitle="Choose the slot to export";
         list_slots(v,dynamic,catalog_,cursor_,continue_slot(catalog_),kLatestSlotTag);const auto st=catalog_.slots[cursor_].status;
         if(st==SaveSlotStatus::Saved){char text[96];std::snprintf(text,sizeof(text),"Enter writes {export}/slot%d",cursor_+1);platform_format(dynamic[6],96,text);}
         else std::snprintf(dynamic[6],96,"%s",st==SaveSlotStatus::Empty?"Empty slot":st==SaveSlotStatus::Damaged?"Damaged: nothing to export":"Last save damaged; exports the one before");
         v.footer=notice_[0]?notice_:dynamic[6];return v;}
-    if(state_==FrontendState::Settings){v.kind=FrontendViewKind::Settings;v.title="Settings";static const char*ui_sizes[]={"Small","Medium","Large"};std::snprintf(dynamic[0],96,"Brightness: %u%%",settings_.brightness);std::snprintf(dynamic[1],96,"Movement default: %s",settings_.movement_mode?"On":"Off");std::snprintf(dynamic[2],96,"Trackball speed: %u/10",unsigned(settings_.trackball_speed));std::snprintf(dynamic[3],96,"Text / UI: %s",ui_sizes[std::min<unsigned>(settings_.ui_size,2)]);format_sfx_volume_row(dynamic[4],96,settings_.sound_volume,sfx_muted_);format_music_volume_row(dynamic[5],96,settings_.music_volume,music_availability_,music_muted_);std::snprintf(dynamic[6],96,"Keyboard Backlight: %s",keyboard_backlight_name(settings_.keyboard_backlight));SettingsRowId rows[kMaxSettingsRows];const size_t count=platform_settings_rows(rows,kMaxSettingsRows);const char*platform_footer=nullptr;size_t platform_line=7;for(size_t i=0;i<count;++i){const auto id=rows[i];if(id>=SettingsRowId::Platform0&&platform_line<11){const auto&r=platform_profile().platform_rows[size_t(id)-size_t(SettingsRowId::Platform0)];dynamic[platform_line][0]=0;const char*f=r.label?r.label(r.context,dynamic[platform_line],96):nullptr;if(i==settings_cursor_)platform_footer=f;v.lines[v.line_count++]=dynamic[platform_line++];}else if(id<SettingsRowId::Platform0)v.lines[v.line_count++]=dynamic[size_t(id)];}v.selected_line=settings_cursor_;const int sel=settings_cursor_<count?int(rows[settings_cursor_]):-1;const char*why=sel==5?music_unavailable_reason(music_availability_):sel==6?(keyboard_light_available_?kKeyboardBacklightFooter:kKeyboardBacklightMissingFooter):platform_footer;platform_format(dynamic[11],96,"Left/right changes; {back} saves");v.footer=why?why:sel==2?kTrackballSpeedFooter:dynamic[11];return v;}
+    if(state_==FrontendState::Settings){v.kind=FrontendViewKind::Settings;v.title="Settings";static const char*ui_sizes[]={"Small","Medium","Large"};std::snprintf(dynamic[0],96,"Brightness: %u%%",settings_.brightness);std::snprintf(dynamic[1],96,"Movement Default: %s",settings_.movement_mode?"On":"Off");std::snprintf(dynamic[2],96,"Trackball Speed: %u/10",unsigned(settings_.trackball_speed));std::snprintf(dynamic[3],96,"Text / UI: %s",ui_sizes[std::min<unsigned>(settings_.ui_size,2)]);format_sfx_volume_row(dynamic[4],96,settings_.sound_volume,sfx_muted_);format_music_volume_row(dynamic[5],96,settings_.music_volume,music_availability_,music_muted_);std::snprintf(dynamic[6],96,"Keyboard Backlight: %s",keyboard_backlight_name(settings_.keyboard_backlight));SettingsRowId rows[kMaxSettingsRows];const size_t count=platform_settings_rows(rows,kMaxSettingsRows);const char*platform_footer=nullptr;size_t platform_line=7;for(size_t i=0;i<count;++i){const auto id=rows[i];if(id>=SettingsRowId::Platform0&&platform_line<11){const auto&r=platform_profile().platform_rows[size_t(id)-size_t(SettingsRowId::Platform0)];dynamic[platform_line][0]=0;const char*f=r.label?r.label(r.context,dynamic[platform_line],96):nullptr;if(i==settings_cursor_)platform_footer=f;v.lines[v.line_count++]=dynamic[platform_line++];}else if(id<SettingsRowId::Platform0)v.lines[v.line_count++]=dynamic[size_t(id)];}v.selected_line=settings_cursor_;const int sel=settings_cursor_<count?int(rows[settings_cursor_]):-1;const char*why=sel==5?music_unavailable_reason(music_availability_):sel==6?(keyboard_light_available_?kKeyboardBacklightFooter:kKeyboardBacklightMissingFooter):platform_footer;platform_format(dynamic[11],96,"Left/right changes; {back} saves");v.footer=why?why:sel==2?kTrackballSpeedFooter:dynamic[11];std::snprintf(dynamic[10],96,"%s | %s: System Menu",settings_category(SettingsRowId(sel)),platform_profile().menu_key);v.subtitle=dynamic[10];return v;}
     if(state_==FrontendState::CharacterCreation){v.title="The Summoning";if(creation_==FrontendCreationPhase::Name){v.kind=FrontendViewKind::CharacterName;v.lines[v.line_count++]="By what name shalt thou be known?";std::snprintf(dynamic[0],96,": %s_",name_);v.lines[v.line_count++]=dynamic[0];platform_format(dynamic[11],96,"Enter accepts; {back} returns");v.footer=dynamic[11];}else if(creation_==FrontendCreationPhase::Sex){v.kind=FrontendViewKind::CharacterGender;v.lines[v.line_count++]="Art thou Male or Female?";v.lines[v.line_count++]="(M)ale     (F)emale";platform_format(dynamic[11],96,"Choose M or F; {back} returns");v.footer=dynamic[11];}else{v.kind=FrontendViewKind::CharacterQuiz;std::snprintf(dynamic[0],96,"Question %u of 7",unsigned(tournament_.answered()+1));v.lines[v.line_count++]=dynamic[0];const auto qi=tournament_.question_index();if(questions_&&qi<question_count_)v.lines[v.line_count++]=questions_[qi];else{std::snprintf(dynamic[1],96,"A) %s",virtue_name(tournament_.virtue_a()));std::snprintf(dynamic[2],96,"B) %s",virtue_name(tournament_.virtue_b()));v.lines[v.line_count++]=dynamic[1];v.lines[v.line_count++]=dynamic[2];}platform_format(dynamic[11],96,"Choose A or B; {back} returns");v.footer=dynamic[11];}return v;}
-    if(state_==FrontendState::Error){v.title=pc_error_?"PC Save Transfer":"Journey interrupted";v.lines[v.line_count++]=notice_;v.footer="Press a key to return";return v;}
+    if(state_==FrontendState::Error){v.title=pc_error_?"DOS Save Transfer":"Journey interrupted";v.lines[v.line_count++]=notice_;v.footer="Press a key to return";return v;}
     v.title="Preparing Britannia";v.footer="Please wait";return v;
 }
 void apply_new_journey_identity(GameState&g,const NewJourneyIdentity&i){

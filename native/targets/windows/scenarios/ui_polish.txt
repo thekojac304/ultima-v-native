@@ -1,0 +1,81 @@
+# UI polish, through the real executable's SDL input path (both interface modes).
+frames 5
+key Return
+frames 3
+expect menu_line Return to the View
+expect menu_line DOS Save Transfer
+key Up
+key Up
+frames 2
+expect footer F10: System Menu
+key Return
+frames 3
+expect footer Display | F10: System Menu
+key Escape
+frames 2
+text R
+frames 3
+expect frontend_state 2
+wait 1200
+expect frontend_state 2
+key Escape
+frames 3
+expect frontend_state 3
+text U
+frames 3
+expect frontend_state 1
+wait 6000
+expect frontend_state 1
+key Return
+frames 2
+key Escape
+frames 2
+text P
+wait 600
+expect menu_line Import DOS Save
+expect menu_line Export DOS Save
+key Return
+frames 2
+key Return
+wait 1500
+key Escape
+frames 3
+text J
+frames 2
+key Return
+wait 2000
+expect frontend 0
+expect remember_turns 1
+key F1
+frames 2
+expect system_menu 0
+expect turns_advanced 0
+key F10
+frames 3
+expect system_menu 1
+key Down
+key Down
+key Down
+key Return
+frames 3
+expect footer Display | F10: System Menu
+key Escape
+frames 2
+key F10
+frames 2
+expect system_menu 0
+expect turns_advanced 0
+text L
+frames 2
+expect mode 13
+key F10
+frames 2
+expect system_menu 1
+key F10
+frames 2
+expect system_menu 0
+expect mode 13
+expect turns_advanced 0
+key Right
+frames 2
+quit

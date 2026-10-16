@@ -1,7 +1,7 @@
 // Alpha 4 A4-UI3 (targets/tdeck/ALPHA4_UI.md section 6) -- the save/load UX in
 // the core: the shared slot rows, the CURRENT / LATEST / RECOVERED tags, the
 // Save, Load and Overwrite flows of the System Menu, the title's Journey
-// Onward / Load Game pages and the PC Save Transfer slot pickers. Pure
+// Onward / Load Game pages and the DOS Save Transfer slot pickers. Pure
 // sessions over hand-built catalogs; the device half (two rows a slot on the
 // panel, the real card, the transcript) is a4_ui3_save_ux_runtime.
 #include "openu5/frontend.h"
@@ -262,7 +262,7 @@ void test_title() {
 }
 
 void test_pc() {
-    std::printf("\n[P] PC Save Transfer\n");
+    std::printf("\n[P] DOS Save Transfer\n");
     FrontendSaveCatalog c = three();
     c.slots[0] = FrontendSaveCatalog::Entry{};
     FrontendSession f;
@@ -279,7 +279,7 @@ void test_pc() {
     auto v = f.view();
     check(reached && f.state() == FrontendState::PcImportSlot && v.selected_line == 0 &&
               page(v) == "Slot 1  EMPTY| ; Slot 2  Avery     LATEST|        Britannia ; Slot 3  Iolo|        Iolo's Hut",
-          "P1", "P reaches PC Save Transfer; Import lists the slots as the other pages do, on the first empty: " + page(v));
+          "P1", "P reaches DOS Save Transfer; Import lists the slots as the other pages do, on the first empty: " + page(v));
     f.handle(kDown, 4);
     f.handle(kEnter, 5);
     v = f.view();
@@ -294,8 +294,8 @@ void test_pc() {
     f.handle(kUp, 7);
     f.handle(kEnter, 8);
     v = f.view();
-    check(str(v.title) == "Import it again?" && str(v.subtitle) == "These PC files went into Slot 3 before" && v.selected_line == 0,
-          "P4", "re-importing the same PC files asks first, No selected");
+    check(str(v.title) == "Import it again?" && str(v.subtitle) == "These DOS files went into Slot 3 before" && v.selected_line == 0,
+          "P4", "re-importing the same DOS files asks first, No selected");
     f.handle(kBack, 9);
     f.handle(kBack, 9);
     f.handle(kDown, 10);

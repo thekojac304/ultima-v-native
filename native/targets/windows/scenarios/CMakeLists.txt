@@ -112,6 +112,8 @@ else()
   message(STATUS "Scenarios dungeon_walk, surface_combat, typed_cast_combat, town_talk skipped: UV_ENABLE_DEVELOPER_TOOLS is OFF")
 endif()
 if(EXISTS "${UV_SCENARIO_PC_SAVES}/SAVED.GAM" AND EXISTS "${UV_SCENARIO_PC_SAVES}/SAVED.OOL")
+  uv_scenario(ui_polish_original MODE original SCRIPT ui_polish IMPORT "${UV_SCENARIO_PC_SAVES}")
+  uv_scenario(ui_polish_enhanced MODE enhanced SCRIPT ui_polish IMPORT "${UV_SCENARIO_PC_SAVES}")
   uv_scenario(pc_import_export MODE original IMPORT "${UV_SCENARIO_PC_SAVES}"
     EXPECT_FILES "ultima5/export/slot1/SAVED.GAM;ultima5/export/slot1/SAVED.OOL;ultima5/export/slot1/EXPORT.TXT;ultima5/pc-import.txt"
     EXPECT_SIZES "ultima5/export/slot1/SAVED.GAM=4192;ultima5/export/slot1/SAVED.OOL=512")

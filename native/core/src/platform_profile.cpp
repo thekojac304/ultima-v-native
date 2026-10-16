@@ -10,6 +10,17 @@ constexpr SettingsRowId kTdeckRows[] = {SettingsRowId::Brightness, SettingsRowId
                                         SettingsRowId::KeyboardLight};
 } // namespace
 
+const char *settings_category(SettingsRowId row) {
+    switch (row) {
+    case SettingsRowId::Movement:
+    case SettingsRowId::Trackball:
+    case SettingsRowId::KeyboardLight: return "Controls";
+    case SettingsRowId::SfxVolume:
+    case SettingsRowId::MusicVolume: return "Audio";
+    default: return "Display";
+    }
+}
+
 const PlatformProfile &platform_profile() { return g_profile; }
 
 void set_platform_profile(const PlatformProfile &profile) { g_profile = profile; }

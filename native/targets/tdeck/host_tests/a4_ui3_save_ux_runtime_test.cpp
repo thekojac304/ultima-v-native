@@ -17,7 +17,7 @@
 //   C  the title: Journey Onward names Continue's slot and journey, its Load
 //      Game marks it LATEST; Continue is still one key; New Journey's slot
 //      becomes CURRENT
-//   X  PC Save Transfer: reachable from the title, its pickers use the slot
+//   X  DOS Save Transfer: reachable from the title, its pickers use the slot
 //      rows, the occupied-slot question starts on No and the Mic cancels it
 //   W  warm opens read only the commit records (no new storage work)
 //
@@ -466,9 +466,9 @@ void test_title(Run &h, Play &p) {
     p.close();
 }
 
-// ---- X: PC Save Transfer --------------------------------------------------------
+// ---- X: DOS Save Transfer --------------------------------------------------------
 void test_pc(Run &h, Play &p, const char *original) {
-    std::printf("\nX  PC Save Transfer\n");
+    std::printf("\nX  DOS Save Transfer\n");
     std::string gam, ool;
     auto slurp = [](const fs::path &f, std::string &out) {
         std::ifstream in(f, std::ios::binary);
@@ -487,8 +487,8 @@ void test_pc(Run &h, Play &p, const char *original) {
     h.key('p');
     auto v = p.front();
     dump("ui3-pc-transfer");
-    check(h.rt->frontend_state() == FrontendState::PcTransfer && page(v) == "Import the PC save into a slot ; Export a slot as a PC save",
-          "X1 P reaches PC Save Transfer from the title (Import / Export): " + q(str(v.subtitle)));
+    check(h.rt->frontend_state() == FrontendState::PcTransfer && page(v) == "Import DOS Save ; Export DOS Save",
+          "X1 P reaches DOS Save Transfer from the title (Import / Export): " + q(str(v.subtitle)));
     if (have) {
         h.key('\r');
         v = p.front();

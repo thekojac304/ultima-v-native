@@ -4099,7 +4099,7 @@ void AlphaRuntime::service_frontend_intent(){
         ESP_LOGI(kTag,"DEVELOPER_ENTRY storage_touched=0 new_journey_touched=0 ok=%d stack_margin=%u",ok,unsigned(uxTaskGetStackHighWaterMark(nullptr)*sizeof(StackType_t)));
         dirty_=true;dirty_reason_="developer-entry";return;
     }
-    // Alpha 4 A4-SAVE3: PC Save Transfer. Every outcome returns to that page,
+    // Alpha 4 A4-SAVE3: DOS Save Transfer. Every outcome returns to that page,
     // with the slot list and the import folder as they now are.
     if(intent.kind==openu5::FrontendIntentKind::InspectPcSaves){
         // The page lists the slots too: as the card is now (a warm list is the commit reads alone).
@@ -4141,16 +4141,16 @@ void AlphaRuntime::service_frontend_intent(){
 }
 
 // Alpha 4 A4-SAVE3 (ALPHA4_UI.md section 5). What the import folder holds, for
-// the PC Save Transfer page: read and checked, never written.
+// the DOS Save Transfer page: read and checked, never written.
 openu5::PcImportStatus AlphaRuntime::inspect_pc_import(){
     openu5::PcImportStatus st{};
     auto say=[&](openu5::PcImportState state,const char*text){st.state=state;std::snprintf(st.text,sizeof(st.text),"%s",text);return st;};
     AlphaSaveService::PcSource src;
     switch(save_.read_pc_import(src)){
-    case AlphaSaveService::PcRead::NoFiles:{char text[64];openu5::platform_format(text,sizeof(text),"No PC save in {import}");return say(openu5::PcImportState::Missing,text);}
-    case AlphaSaveService::PcRead::NoGam:return say(openu5::PcImportState::Problem,"PC save incomplete: SAVED.GAM is missing");
-    case AlphaSaveService::PcRead::NoOol:return say(openu5::PcImportState::Problem,"PC save incomplete: SAVED.OOL is missing");
-    case AlphaSaveService::PcRead::ReadFailed:{char text[64];openu5::platform_format(text,sizeof(text),"The PC save could not be read from {storage}");return say(openu5::PcImportState::Problem,text);}
+    case AlphaSaveService::PcRead::NoFiles:{char text[64];openu5::platform_format(text,sizeof(text),"No DOS save in {import}");return say(openu5::PcImportState::Missing,text);}
+    case AlphaSaveService::PcRead::NoGam:return say(openu5::PcImportState::Problem,"DOS save incomplete: SAVED.GAM is missing");
+    case AlphaSaveService::PcRead::NoOol:return say(openu5::PcImportState::Problem,"DOS save incomplete: SAVED.OOL is missing");
+    case AlphaSaveService::PcRead::ReadFailed:{char text[64];openu5::platform_format(text,sizeof(text),"The DOS save could not be read from {storage}");return say(openu5::PcImportState::Problem,text);}
     case AlphaSaveService::PcRead::Ok:break;
     }
     const auto check=openu5::save::pc::check_original(src.gam.data(),src.gam_size,src.ool.data(),src.ool_size);
@@ -4161,7 +4161,7 @@ openu5::PcImportStatus AlphaRuntime::inspect_pc_import(){
     return st;
 }
 
-// Import: the PC files become an ordinary slot generation, written by save()
+// Import: the DOS files become an ordinary slot generation, written by save()
 // -- the A4-SAVE1 transaction, its post-write gate, the card-wide sequence --
 // so the slot is indistinguishable from one a Native game saved. The title
 // owns no live game, so, as a New Journey does with INIT.GAM, the files are
@@ -4172,10 +4172,10 @@ bool AlphaRuntime::import_pc_save(int slot,char(&message)[64]){
     if(slot<0||slot>=AlphaSaveService::kSlots)return say("No such save slot");
     AlphaSaveService::PcSource src;
     switch(save_.read_pc_import(src)){
-    case AlphaSaveService::PcRead::NoFiles:{char text[64];openu5::platform_format(text,sizeof(text),"No PC save in {import}");return say(text);}
-    case AlphaSaveService::PcRead::NoGam:return say("PC save incomplete: SAVED.GAM is missing");
-    case AlphaSaveService::PcRead::NoOol:return say("PC save incomplete: SAVED.OOL is missing");
-    case AlphaSaveService::PcRead::ReadFailed:{char text[64];openu5::platform_format(text,sizeof(text),"The PC save could not be read from {storage}");return say(text);}
+    case AlphaSaveService::PcRead::NoFiles:{char text[64];openu5::platform_format(text,sizeof(text),"No DOS save in {import}");return say(text);}
+    case AlphaSaveService::PcRead::NoGam:return say("DOS save incomplete: SAVED.GAM is missing");
+    case AlphaSaveService::PcRead::NoOol:return say("DOS save incomplete: SAVED.OOL is missing");
+    case AlphaSaveService::PcRead::ReadFailed:{char text[64];openu5::platform_format(text,sizeof(text),"The DOS save could not be read from {storage}");return say(text);}
     case AlphaSaveService::PcRead::Ok:break;
     }
     const auto check=openu5::save::pc::check_original(src.gam.data(),src.gam_size,src.ool.data(),src.ool_size);
@@ -4190,7 +4190,7 @@ bool AlphaRuntime::import_pc_save(int slot,char(&message)[64]){
     objects_.clear();actors_={};dungeon_={};combat_.initialized=false;actor_animation_.reset();
     // Then what a load restores before synchronize_loaded_world() (the gate's
     // restore_gameplay / restore_terrain, stage_generation): unlike INIT.GAM a
-    // PC save outdoors has monsters, and the bridge's dropped horses and skiffs
+    // DOS save outdoors has monsters, and the bridge's dropped horses and skiffs
     // are terrain cells.
     if(openu5::save::restore_gameplay(retained_,commands_,outdoor_)!=openu5::save::Error::None||
        openu5::save::restore_terrain(retained_,terrain_)!=openu5::save::Error::None)
@@ -4217,7 +4217,7 @@ bool AlphaRuntime::import_pc_save(int slot,char(&message)[64]){
     if(!save_.record_pc_import(src.gam_crc,src.ool_crc,slot))ESP_LOGW(kTag,"PC_IMPORT marker not written");
     ESP_LOGI(kTag,"PC_IMPORT slot=%d location=%u frigates=%u horses=%u skiffs=%u search=%u ms=%lu",slot,unsigned(loc),
              unsigned(report.frigates),unsigned(report.horses),unsigned(report.skiffs),unsigned(report.search_found),(unsigned long)ms);
-    std::snprintf(message,sizeof(message),"Imported into Slot %d. The PC files are kept",slot+1);
+    std::snprintf(message,sizeof(message),"Imported into Slot %d. The DOS files are kept",slot+1);
     return true;
 }
 

@@ -229,8 +229,8 @@ const char *music_unavailable_reason(MusicAvailability a) {
     case MusicAvailability::StockNoMusic: return "Stock DOS game files have no music";
     case MusicAvailability::IncompletePatch: return "Music patch files are incomplete";
     case MusicAvailability::UnknownVariant: return "Unsupported music patch variant";
-    case MusicAvailability::NoAudioPack: return "No audio pack: npm run pack:audio";
-    case MusicAvailability::AudioPackInvalid: return "Audio pack stale or corrupt: rebuild";
+    case MusicAvailability::NoAudioPack: return "Audio pack not found; music unavailable";
+    case MusicAvailability::AudioPackInvalid: return "Audio pack is incompatible or damaged";
     }
     return "Music unavailable";
 }

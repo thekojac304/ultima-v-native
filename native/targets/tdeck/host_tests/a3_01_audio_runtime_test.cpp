@@ -477,7 +477,7 @@ int main(int argc, char **argv) {
         d.open_settings();
         for (int i = 0; i < 5; ++i) d.down();
         check(std::strcmp(d.menu_line(5), "Music Volume: Unavailable") == 0 &&
-                  d.menu_footer() == "No audio pack: npm run pack:audio",
+                  d.menu_footer() == "Audio pack not found; music unavailable",
               "S7 audio pack removed: gracefully unavailable again, with the reason");
     }
     {

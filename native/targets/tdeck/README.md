@@ -188,3 +188,11 @@ Install the Milestone 5 Launcher image, attach a 115200-baud monitor, and verify
 Trackball movement, blocking, centering and redraw behavior have passed physical
 testing. The final trackball-only package still requires a stability capture to
 confirm asset/render startup and the retained stack high-water margin.
+
+## v0.5.0 RC2 menu polish candidate
+
+The current candidate retains the handheld gameplay layout and all hardware mappings. **Alt+M** opens/closes the System Menu during a journey; **Mic** backs out. Settings show the shortcut and the selected row's Display, Controls, or Audio category; values align at every text size.
+
+The title's **DOS Save Transfer** imports `SAVED.GAM` and `SAVED.OOL` from `/ultima5/import` and exports to `/ultima5/export/slotN`. Existing folders, save formats, and settings remain compatible. **Return to the View** automatically plays the original four-scene script; any key returns to the menu. **Ultima V Introduction** advances the Summoning narrative with input.
+
+This candidate still requires physical acceptance. See [the UI polish record](../../../docs/V050_FINAL_UI_POLISH.md) for build/test evidence and the manual checklist. Earlier hardware results remain historical.

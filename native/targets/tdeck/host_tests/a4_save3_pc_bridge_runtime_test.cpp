@@ -1,4 +1,4 @@
-// Alpha 4 A4-SAVE3 -- original PC/DOS save import and export
+// Alpha 4 A4-SAVE3 -- original DOS save import and export
 // (targets/tdeck/ALPHA4_UI.md section 5).
 //
 // The REAL alpha_save.cpp over the fake SD card (host_tests/sd_shims, as
@@ -301,11 +301,11 @@ struct Harness {
             else key('\b');   // Back, outside name entry (ui_input_adapter.cpp)
         }
     }
-    // Main menu -> PC Save Transfer (the runtime reads the import folder).
+    // Main menu -> DOS Save Transfer (the runtime reads the import folder).
     void pc_page() { main_menu(); key('p'); }
-    // PC Save Transfer -> Import -> slot `slot` -> Enter.
+    // DOS Save Transfer -> Import -> slot `slot` -> Enter.
     void import_enter(int slot) { pc_page(); select(0); key('\r'); select(slot); key('\r'); }
-    // PC Save Transfer -> Export -> slot `slot` -> Enter.
+    // DOS Save Transfer -> Export -> slot `slot` -> Enter.
     void export_enter(int slot) { pc_page(); select(1); key('\r'); select(slot); key('\r'); }
     bool alt_save() { set_mark(); raw_key('s', true); return saw("Save complete"); }
 };
@@ -665,18 +665,18 @@ std::string import_dir_state() {
     return names(c) + "|" + (c.count("SAVED.GAM") ? c.at("SAVED.GAM") : "") + "|" + (c.count("SAVED.OOL") ? c.at("SAVED.OOL") : "");
 }
 void test_import(Harness &h) {
-    std::printf("\n[J] import through the title's PC Save Transfer page\n");
+    std::printf("\n[J] import through the title's DOS Save Transfer page\n");
     blank_card();
     put_import(nullptr, nullptr);
     host_sd::reset_counters();
     h.pc_page();
-    const bool page = h.state() == FrontendState::PcTransfer && h.title() == "PC Save Transfer";
+    const bool page = h.state() == FrontendState::PcTransfer && h.title() == "DOS Save Transfer";
     const auto missing = h.subtitle();
     h.select(0);
     h.key('\r');
     const auto io = host_sd::counters();
-    expect(page && missing == "No PC save in /ultima5/import" && h.state() == FrontendState::PcTransfer &&
-               h.footer() == "No PC save in /ultima5/import" && no_writes(io) && take_card().empty(),
+    expect(page && missing == "No DOS save in /ultima5/import" && h.state() == FrontendState::PcTransfer &&
+               h.footer() == "No DOS save in /ultima5/import" && no_writes(io) && take_card().empty(),
            "J1", "no import files: the page says so, Import only repeats it, nothing is written (subtitle \"" + missing + "\")");
 
     put_import(&g_gam, nullptr);
@@ -687,7 +687,7 @@ void test_import(Harness &h) {
     h.key('\r');
     tdeck::AlphaSaveService::PcSource src;
     const auto read = tdeck::AlphaSaveService().read_pc_import(src);
-    expect(incomplete == "PC save incomplete: SAVED.OOL is missing" && h.state() == FrontendState::PcTransfer &&
+    expect(incomplete == "DOS save incomplete: SAVED.OOL is missing" && h.state() == FrontendState::PcTransfer &&
                read == tdeck::AlphaSaveService::PcRead::NoOol && no_writes(host_sd::counters()) && take_card().empty(),
            "J2", "an incomplete set (SAVED.GAM alone) is refused before any slot is offered; no card writes");
 
@@ -721,14 +721,14 @@ void test_import(Harness &h) {
     const auto ready = h.subtitle();
     h.select(0);
     h.key('\r');
-    const bool list = h.state() == FrontendState::PcImportSlot && h.view().selected_line == 0 && h.title() == "Import PC Save";
+    const bool list = h.state() == FrontendState::PcImportSlot && h.view().selected_line == 0 && h.title() == "Import DOS Save";
     h.key('\r');
     const Card card = take_card();
     const auto notice = h.footer();
-    expect(ready == "PC save: Kojac, Lord British's Castle" && list && h.state() == FrontendState::PcTransfer &&
-               notice == "Imported into Slot 1. The PC files are kept" && names(card) == "alpha1-g1.commit alpha1-g1.gam alpha1-g1.json alpha1-g1.ool",
+    expect(ready == "DOS save: Kojac, Lord British's Castle" && list && h.state() == FrontendState::PcTransfer &&
+               notice == "Imported into Slot 1. The DOS files are kept" && names(card) == "alpha1-g1.commit alpha1-g1.gam alpha1-g1.json alpha1-g1.ool",
            "J5", "the genuine DOS save: listed by name and place, Import -> Slot 1 (empty) -> one ordinary generation, alpha1-g1.* (\"" + notice + "\")");
-    expect(import_dir_state() == source && g_import_writes == 0, "J6", "the PC files are untouched: same names, same bytes, no write to the import folder");
+    expect(import_dir_state() == source && g_import_writes == 0, "J6", "the DOS files are untouched: same names, same bytes, no write to the import folder");
 
     // The sidecar it wrote.
     const auto j = slot_json(0);
@@ -783,7 +783,7 @@ void test_import(Harness &h) {
     h.import_enter(1);
     const Card after = take_card();
     const auto j10 = h.footer();
-    expect(j10 == "Imported into Slot 2. The PC files are kept" && slot_of(after, 0) == slot_of(before, 0) &&
+    expect(j10 == "Imported into Slot 2. The DOS files are kept" && slot_of(after, 0) == slot_of(before, 0) &&
                slot_of(after, 2) == slot_of(before, 2) && !slot_of(after, 1).empty() && boot_slot_is(0, kA) && boot_slot_is(2, kC),
            "J10", "import into Slot 2: Slots 1 and 3 byte for byte, and each still loads its own journey (\"" + j10 + "\", state " +
                std::to_string(int(h.state())) + ", before: " + names(before) + ", after: " + names(after) + ")");
@@ -831,13 +831,13 @@ void test_import(Harness &h) {
     const auto repeat = h.title(), why = h.subtitle();
     h.key('\r');   // No
     const bool untouched = take_card() == take_card() && slot_of(take_card(), 2).empty() && no_writes(host_sd::counters());
-    expect(again == "PC save: Kojac, Lord British's Castle (in Slot 2)" && repeat == "Import it again?" &&
-               why == "These PC files went into Slot 2 before" && untouched,
-           "J14", "the same PC files, presented again: the page names the slot they went to, and even an empty slot asks \"Import it again?\" (No writes nothing)");
+    expect(again == "Kojac, Lord British's Castle (Slot 2)" && repeat == "Import it again?" &&
+               why == "These DOS files went into Slot 2 before" && untouched,
+           "J14", "the same DOS files, presented again: the page names the slot they went to, and even an empty slot asks \"Import it again?\" (No writes nothing)");
     h.key('\r');
     h.down();
     h.key('\r');   // Yes, deliberately
-    expect(h.footer() == "Imported into Slot 3. The PC files are kept" && !slot_of(take_card(), 2).empty(), "J15",
+    expect(h.footer() == "Imported into Slot 3. The DOS files are kept" && !slot_of(take_card(), 2).empty(), "J15",
            "a deliberate second import (Yes) is allowed and goes where the player chose");
     // Still on the page, straight away: Import again must know what just happened.
     const Card now = take_card();
@@ -848,10 +848,10 @@ void test_import(Harness &h) {
     h.key('\r');
     const auto at_once = h.title(), since = h.subtitle();
     h.key('\r');   // No
-    expect(at_once == "Import it again?" && since == "These PC files went into Slot 3 before" && no_writes(host_sd::counters()) &&
+    expect(at_once == "Import it again?" && since == "These DOS files went into Slot 3 before" && no_writes(host_sd::counters()) &&
                take_card() == now,
            "J17", "without leaving the page, Import at once asks \"Import it again?\" (the page was told where the files went); No writes nothing");
-    expect(import_dir_state() == source && g_import_writes == 0, "J16", "after five imports and refusals the PC files are still byte for byte what was copied in");
+    expect(import_dir_state() == source && g_import_writes == 0, "J16", "after five imports and refusals the DOS files are still byte for byte what was copied in");
 }
 
 // ======================================================================= F
@@ -873,10 +873,10 @@ void test_failures(Harness &h) {
     h.key('\r');
     host_sd::faults() = host_sd::Faults{};
     const auto err = h.view().lines[0] ? std::string(h.view().lines[0]) : "";
-    const bool error_page = h.state() == FrontendState::Error && h.title() == "PC Save Transfer";
+    const bool error_page = h.state() == FrontendState::Error && h.title() == "DOS Save Transfer";
     h.key(' ');
-    expect(error_page && err == "The PC save could not be read from SD" && h.state() == FrontendState::PcTransfer && take_card() == before,
-           "F1", "an SD read failure: the error page (\"" + err + "\"), then back to PC Save Transfer; the card unchanged");
+    expect(error_page && err == "The DOS save could not be read from SD" && h.state() == FrontendState::PcTransfer && take_card() == before,
+           "F1", "an SD read failure: the error page (\"" + err + "\"), then back to DOS Save Transfer; the card unchanged");
 
     // A write failure inside the slot transaction, at every stage.
     struct Stage { const char *name; bool rename; const char *path; };
@@ -1172,7 +1172,7 @@ void test_round_trip(Harness &h) {
                                             (cell.map.floor == 0 && cell.x == 0x52 && cell.y == 0x61 && cell.tile == 0x128) ||
                                             (cell.map.floor == 255 && cell.x == 14 && cell.y == 242 && cell.tile == 0x129));
     const bool monster = live.outdoor->enemies.size() == 1 && live.outdoor->enemies[0].definition == 1 && live.outdoor->enemies[0].x == 0x48;
-    expect(imported == "Imported into Slot 1. The PC files are kept" && !h.rt->frontend_open() && live.game.position.map.location == 0 &&
+    expect(imported == "Imported into Slot 1. The DOS files are kept" && !h.rt->frontend_open() && live.game.position.map.location == 0 &&
                pool_frigates == 2 && cells == 3 && monster,
            "T5", "outdoors through the runtime: both frigates in the pool, the horse, the skiff and the new-game underworld skiff as terrain cells, the monster on the map (" +
                std::to_string(pool_frigates) + " frigates, " + std::to_string(cells) + " cells, " + std::to_string(live.outdoor->enemies.size()) + " monsters)");
@@ -1244,7 +1244,7 @@ void test_heap_io(Harness &h) {
     h.key('\r');   // the import, then the page re-reads the folder
     const auto io = host_sd::counters();
     expect(g_import_reads > 0 && io.max_open_handles <= 2, "H1",
-           "an import reads the PC files through the fake card (" + std::to_string(g_import_reads) + " reads) and never holds more than 2 files open (" +
+           "an import reads the DOS files through the fake card (" + std::to_string(g_import_reads) + " reads) and never holds more than 2 files open (" +
                std::to_string(io.max_open_handles) + ")");
     // Export's small-heap peak stays within a load's (one staged document at a time).
     tdeck::AlphaSaveService svc;

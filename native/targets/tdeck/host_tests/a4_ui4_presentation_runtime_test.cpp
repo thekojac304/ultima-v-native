@@ -235,7 +235,7 @@ void test_frontend() {
         h.key('p');
         h.run(200);
         check(settings && h.rt->frontend_state() == FrontendState::PcTransfer,
-              "F1b S opens Settings and P opens PC Save Transfer: both letters the footer now names work");
+              "F1b S opens Settings and P opens DOS Save Transfer: both letters the footer now names work");
         // F4: the System Menu's Settings page from a game.
         Run g({{"Kojac", 'G', 120}});
         g.key('m', true);

@@ -78,3 +78,9 @@ A full key-by-key audit of the port against the Player Reference Card lives in
 the repository history; the summary is: all 24 command letters, movement,
 aiming, list navigation and active-player keys are implemented; zero gameplay
 gaps.
+
+## Native Windows and T-Deck menus
+
+Windows: **F10** opens/closes the System Menu during a journey; **Alt+M** also works. F1 is unmapped and Ctrl+M toggles music. Both Settings pages show the F10 reminder. Original retains its DOS keyboard prompts; Enhanced retains its selection menus. See `native/targets/windows/packaging/CONTROLS.txt` for the desktop controls.
+
+T-Deck: **Alt+M** opens/closes the System Menu; **Mic** backs out. Existing keyboard and trackball mappings are unchanged. The title and Settings show the menu reminder. **DOS Save Transfer** on the title imports/exports SAVED.GAM and SAVED.OOL using the existing import/export folders.

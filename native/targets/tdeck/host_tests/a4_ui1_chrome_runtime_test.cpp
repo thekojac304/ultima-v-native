@@ -544,10 +544,10 @@ void test_frontend() {
         h.board.show_frontend(v, nullptr, nullptr, nullptr, nullptr, size);
         const auto moved = bus::stats();
         const uint64_t windows = moved.windows - before.windows, pixels = (moved.pixel_bytes - before.pixel_bytes) / 2;
-        check(plain(23, box) && inverted(23 + step, box) && plain(23 + 2 * step, box) && windows == 2 &&
-                  pixels == uint64_t(2 * 304 * box),
+        check(plain(23, box) && inverted(23 + step, box) && plain(23 + 2 * step, box) && windows == 3 && std::string(v.subtitle) == "Controls | Alt+M: System Menu" &&
+                  pixels == uint64_t(2 * 304 * box + 304 * 8),
               "F" + std::string(size == 1 ? "2" : "5") + " moving the selection moves the reverse video" + tag +
-                  " (row 0 plain, row 1 inverted) and redraws exactly those two rows: " + n(windows) + " windows, " +
+                  " (row 0 plain, row 1 inverted) and redraws exactly those two rows plus the category strip: " + n(windows) + " windows, " +
                   n(pixels) + " px (Alpha 3: 2 x 304 x " + n(m.line_height) + " = " + n(2 * 304 * m.line_height) + ")");
         UiAction east{};
         east.kind = UiActionKind::Direction;

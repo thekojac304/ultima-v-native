@@ -57,7 +57,7 @@ Not every presentation change can be switched off: the device front end, save ma
 - Native T-Deck gameplay from character creation to the ending, including the original's full ending sequence
 - A new front end in the original's EGA colours and font: centred title with credits, console, reverse-video lists, moongate transit
 - Three manual save slots, each with a backup generation; save recovery; Continue loads the slot you saved last
-- PC save import / export for the original `SAVED.GAM` + `SAVED.OOL`
+- DOS save import / export for the original `SAVED.GAM` + `SAVED.OOL`
 - Trackball redesign: click-to-toggle WASD mode and ten speed levels
 - Difficulty presets, Custom difficulty and cheats
 - Keyboard backlight setting
@@ -135,11 +135,11 @@ The original game's data, maps and assets are not distributed by this project, a
 
 The stock DOS Ultima V has **no music**, and this project does not synthesize music that was not in the original. Sound effects are produced on the device. Users with community music-patched Ultima V files (the Exodus *Ultima V Upgrade* patch) can generate an optional audio pack and get music. Music controls are capability-aware: with no music assets present the game stays faithful to stock DOS, and Settings explains why. No music assets are distributed here.
 
-## Saves and PC compatibility
+## Saves and DOS compatibility
 
-v0.4.0 has multiple native save slots, Continue, save recovery and PC save import / export.
+v0.4.0 has multiple native save slots, Continue, save recovery and DOS save import / export.
 
-PC save import/export is supported, with a few documented edge cases around transient town state, dungeon saves, and certain world objects:
+DOS save import/export is supported, with a few documented edge cases around transient town state, dungeon saves, and certain world objects:
 
 - Town NPC, chest and other transient state may reset or be re-seeded across a DOS / native round trip.
 - Dungeon saves are intentionally refused for transfer; leave the dungeon first.
@@ -178,7 +178,7 @@ No dates are promised. Broader portability to other platforms is a possible long
 - Some documented, non-blocking parity differences remain.
 - Some rare edge cases have no physical-hardware coverage, and real heap figures for v0.4.0 were not captured (no memory problem was observed).
 - You must supply your own game files.
-- PC save transfer has the edge cases listed above.
+- DOS save transfer has the edge cases listed above.
 - Music depends on supplied assets.
 
 Exhaustive detail: [`RELEASE_NOTES_v0.4.0.md`](RELEASE_NOTES_v0.4.0.md) (Known limitations) and [`ALPHA4.md`](docs/history/alpha/ALPHA4.md).
@@ -234,3 +234,7 @@ Some internal identifiers and asset filenames still use the historical `openu5` 
 Ultima V is copyrighted by its respective rights holders. Ultima is a registered trademark of Electronic Arts; this project is not affiliated with or endorsed by EA. The repository contains **no game data, art, music, text or maps** from Ultima V. You must provide your own legally obtained copy, and local fixtures and resource packs derived from it are generated on your machine and never committed. If you are a rights holder with concerns, please open an issue.
 
 Code is licensed under GPL-3.0; see [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).
+
+### v0.5.0 RC2 UI polish candidate
+
+An unpublished cross-platform candidate adds clearer DOS Save Transfer wording, aligned Settings values and category captions, and in-app System Menu reminders (Windows F10; T-Deck Alt+M). The original View and Summoning sequences and historical menu choices remain. Hardware acceptance is pending; see [the polish record](docs/V050_FINAL_UI_POLISH.md) for evidence and remaining tests.

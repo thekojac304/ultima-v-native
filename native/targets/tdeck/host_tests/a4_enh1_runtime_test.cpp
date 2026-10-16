@@ -296,8 +296,8 @@ void test_speed() {
         openu5_host_virtual_clock_us() += 100000;
         h.raw(mic);
         const std::string saved = tdeck::a3_host_settings_text();
-        check(row10 == "Trackball speed: 10/10" && row6 == "Trackball speed: 6/10" && row6_still == row6 &&
-                  row5 == "Trackball speed: 5/10" &&
+        check(row10 == "Trackball Speed: 10/10" && row6 == "Trackball Speed: 6/10" && row6_still == row6 &&
+                  row5 == "Trackball Speed: 5/10" &&
                   footer.find("1 slow - 10 fast") != std::string::npos && h.rt->device_settings().trackball_speed == 5 &&
                   saved.find("\"trackballSpeed\":5") != std::string::npos &&
                   saved.find("\"trackballResponsiveness\":100") != std::string::npos,
